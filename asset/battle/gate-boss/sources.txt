@@ -1,0 +1,6 @@
+Dedicated elemental-gate boss sprites. These do not belong to the Poring Tower pool.
+Original character sprite source selected earlier by the user: https://vivaldi6352.github.io/
+fire.gif: https://vivaldi6352.github.io/assets/rarity5/fire_dragon/walk_front.gif
+water.gif: https://vivaldi6352.github.io/assets/rarity5/waterdragon_kunfu/walk_front.gif
+wind.gif: https://vivaldi6352.github.io/assets/rarity5/wind_dragon/walk_front.gif
+thunder.gif: https://vivaldi6352.github.io/assets/rarity4/thunder_dragon/walk_front.gif

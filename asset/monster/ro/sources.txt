@@ -1,0 +1,11 @@
+RO monster artwork downloaded from the user-selected Ragnarok database.
+Source: https://rd.fharr.com/
+Format: transparent animated PNG (APNG), preserved without image edits.
+
+poring.png: 波利 https://rd.fharr.com/images/sprite/idle/id/1002/
+poporing.png: 波波利 https://rd.fharr.com/images/sprite/idle/id/1031/
+drops.png: 土波利 https://rd.fharr.com/images/sprite/idle/id/1113/
+marin.png: 冰波利 https://rd.fharr.com/images/sprite/idle/id/1242/
+angeling.png: 天使波利 https://rd.fharr.com/images/sprite/idle/id/1096/
+ghostring.png: 幽靈波利 https://rd.fharr.com/images/sprite/idle/id/1120/
+deviling.png: 惡魔波利 https://rd.fharr.com/images/sprite/idle/id/1582/
