@@ -1647,7 +1647,7 @@ const SKILL_HIT_CHARGE = 2.4;    // 撞到敵人一次 +2.4%
 const SKILL_CAST_GAP_MS = 400;
 const SKILL_CINEMATIC = { active: false, until: 0, canvas: null, ctx: null, artCanvas: null, artCtx: null, artImage: null, caster: null, target: null, particles: [], raf: 0, shaken: false };
 SKILL_CINEMATIC.artImage = new Image();
-SKILL_CINEMATIC.artImage.src = "asset/fx/vfx/yokai_exterminator_skill_ready.gif";
+SKILL_CINEMATIC.artImage.src = "asset/fx/vfx/yokai_exterminator_effect_strip.png";
 
 // ==========================================================
 // 職業定位（技能演出由 SKILL_CAST 負責，這裡只放顯示用的名稱）
@@ -3875,14 +3875,9 @@ function startSkillCinematic(m) {
                 if (c.artImage && c.artImage.complete && c.artImage.naturalWidth) {
                     const art = c.artCtx, image = c.artImage;
                     art.imageSmoothingEnabled = false; art.clearRect(0, 0, 176, 152);
-                    art.globalCompositeOperation = "source-over"; art.drawImage(image, 0, 0, 176, 152);
-                    // 角色在 GIF 中大致落在中央，逐幀遮掉角色與腳下陰影，留下外圈斬擊軌跡。
-                    art.globalCompositeOperation = "destination-out"; art.fillStyle = "#000";
-                    art.beginPath();
-                    art.moveTo(84, 78); art.lineTo(91, 78); art.lineTo(99, 84); art.lineTo(102, 94);
-                    art.lineTo(100, 103); art.lineTo(103, 111); art.lineTo(100, 119); art.lineTo(92, 122);
-                    art.lineTo(82, 119); art.lineTo(77, 113); art.lineTo(79, 104); art.lineTo(75, 97);
-                    art.lineTo(78, 87); art.closePath(); art.fill(); art.globalCompositeOperation = "source-over";
+                    // GIF 前後多數影格只有角色；只循環已逐格去角的四張完整斬擊影格。
+                    const fxFrame = Math.floor(Math.max(0, t - 360) / 70) % 4;
+                    art.drawImage(image, 0, fxFrame * 152, 176, 152, 0, 0, 176, 152);
                     const reveal = Math.min(1, Math.max(0, (t - 470) / 130));
                     const fade = Math.min(1, Math.max(0, (c.until - now) / 180));
                     const scale = (.72 + .28 * reveal) * 1.8;
