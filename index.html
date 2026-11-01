@@ -1645,7 +1645,7 @@ const SKILL_CD = { knight: 15, fighter: 12, ranger: 12, supporter: 18, special: 
 const SKILL_CHARGE_TIME = 2.5;   // 純靠時間要基礎冷卻 ×2.5 才滿（撞擊會大幅加速）
 const SKILL_HIT_CHARGE = 2.4;    // 撞到敵人一次 +2.4%
 const SKILL_CAST_GAP_MS = 400;
-const SKILL_CINEMATIC = { active: false, until: 0, canvas: null, ctx: null, caster: null, particles: [], raf: 0, shaken: false };
+const SKILL_CINEMATIC = { active: false, until: 0, canvas: null, ctx: null, caster: null, target: null, particles: [], raf: 0, shaken: false };
 
 // ==========================================================
 // 職業定位（技能演出由 SKILL_CAST 負責，這裡只放顯示用的名稱）
@@ -3820,7 +3820,7 @@ function showCut(m) {
 function startSkillCinematic(m) {
     const c = SKILL_CINEMATIC;
     if (c.raf) cancelAnimationFrame(c.raf);
-    c.active = true; c.caster = m; c.until = performance.now() + 1120; c.shaken = false;
+    c.active = true; c.caster = m; c.target = PF.foe; c.until = performance.now() + 1120; c.shaken = false;
     c.particles = Array.from({ length: 56 }, (_, i) => {
         const a = i * 2.399963, speed = 100 + (i % 7) * 34;
         return { x: 0, y: 0, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
@@ -3835,7 +3835,7 @@ function startSkillCinematic(m) {
     const start = performance.now();
     const draw = now => {
         if (!c.active || !c.ctx) return;
-        const t = now - start, p = Math.min(1, t / 1120), b = m.body;
+        const t = now - start, b = m.body, target = c.target || b;
         ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, W, H);
         if (t < 360) {
             ctx.fillStyle = "rgba(0,0,0,.85)"; ctx.fillRect(0, 0, W, H);
@@ -3852,8 +3852,8 @@ function startSkillCinematic(m) {
         } else {
             const flash = Math.floor((t - 360) / 90);
             if (t < 540 && flash % 2 === 0) { ctx.fillStyle = "rgba(210,232,255,.3)"; ctx.fillRect(0, 0, W, H); }
-            if (b) {
-                const x = b.x, y = b.y;
+            if (target) {
+                const x = target.x, y = target.y;
                 const reveal = Math.min(1, Math.max(0, (t - 500) / 95));
                 if (t >= 500 && !c.shaken) { c.shaken = true; FX.shake(); }
                 // 鋸齒星爆先向外砸開，給斬擊一個明確的爆點與衝擊輪廓。
