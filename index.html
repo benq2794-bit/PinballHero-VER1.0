@@ -151,6 +151,7 @@
         }
 
         .pf-vfx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 8; }
+        .skill-cine { position:absolute; inset:0; width:100%; height:100%; z-index:20; pointer-events:none; image-rendering:pixelated; }
         /* 打擊特效：32×32 像素動畫表，靠 background-position 逐格推進 */
         .impact-vfx { position: absolute; width: 32px; height: 32px; background-repeat: no-repeat;
             transform: translate(-50%, -50%) rotate(var(--r, 0rad)) scale(var(--k, 2)); image-rendering: pixelated; pointer-events: none; }
@@ -1644,6 +1645,7 @@ const SKILL_CD = { knight: 15, fighter: 12, ranger: 12, supporter: 18, special: 
 const SKILL_CHARGE_TIME = 2.5;   // 純靠時間要基礎冷卻 ×2.5 才滿（撞擊會大幅加速）
 const SKILL_HIT_CHARGE = 2.4;    // 撞到敵人一次 +2.4%
 const SKILL_CAST_GAP_MS = 400;
+const SKILL_CINEMATIC = { active: false, until: 0, canvas: null, ctx: null, caster: null, particles: [], raf: 0 };
 
 // ==========================================================
 // 職業定位（技能演出由 SKILL_CAST 負責，這裡只放顯示用的名稱）
@@ -3814,6 +3816,66 @@ function showCut(m) {
     else run();
 }
 
+// 四星技能共用的像素賽璐璐時停演出；文字沿用各角色目前的技能名稱。
+function startSkillCinematic(m) {
+    const c = SKILL_CINEMATIC;
+    if (c.raf) cancelAnimationFrame(c.raf);
+    c.active = true; c.caster = m; c.until = performance.now() + 1120;
+    c.particles = Array.from({ length: 56 }, (_, i) => {
+        const a = i * 2.399963, speed = 45 + (i % 7) * 19;
+        return { x: 0, y: 0, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
+            size: 3 + (i % 4), color: i % 2 ? "#b8ff3d" : "#d56bff" };
+    });
+    if (!c.canvas) {
+        c.canvas = document.createElement("canvas"); c.canvas.className = "skill-cine";
+        c.canvas.width = W; c.canvas.height = H; PF.vfx.appendChild(c.canvas); c.ctx = c.canvas.getContext("2d");
+    }
+    c.canvas.width = W; c.canvas.height = H;
+    const ctx = c.ctx; ctx.imageSmoothingEnabled = false;
+    const start = performance.now();
+    const draw = now => {
+        if (!c.active || !c.ctx) return;
+        const t = now - start, p = Math.min(1, t / 1120), b = m.body;
+        ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, W, H);
+        if (t < 360) {
+            ctx.fillStyle = "rgba(0,0,0,.85)"; ctx.fillRect(0, 0, W, H);
+            ctx.save(); ctx.translate(W / 2, H * .46); ctx.rotate(-.12);
+            ctx.fillStyle = "#187bea"; ctx.fillRect(-W, -32, W * 2, 70);
+            ctx.fillStyle = "#fff"; ctx.fillRect(-W, -34, W * 2, 2); ctx.fillRect(-W, 38, W * 2, 2);
+            const scale = t < 240 ? 1.8 - .8 * (t / 240) : 1;
+            ctx.scale(scale, scale); ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.font = "900 23px monospace"; ctx.lineJoin = "miter"; ctx.lineWidth = 6;
+            ctx.strokeStyle = "#10131b"; ctx.strokeText(SKILLS[m.ch.id].name, 0, 2);
+            ctx.fillStyle = "#fff"; ctx.fillText(SKILLS[m.ch.id].name, 0, 2); ctx.restore();
+        } else {
+            const flash = Math.floor((t - 360) / 42);
+            if (t < 528 && flash % 2 === 0) { ctx.fillStyle = "rgba(255,255,255,.9)"; ctx.fillRect(0, 0, W, H); }
+            if (b) {
+                const x = b.x, y = b.y;
+                ctx.save(); ctx.translate(x, y); ctx.lineCap = "square"; ctx.lineWidth = 9;
+                ctx.strokeStyle = "#b8ff3d"; ctx.beginPath(); ctx.moveTo(-58, -48); ctx.lineTo(58, 48); ctx.stroke();
+                ctx.strokeStyle = "#d56bff"; ctx.beginPath(); ctx.moveTo(58, -48); ctx.lineTo(-58, 48); ctx.stroke();
+                ctx.lineWidth = 3; ctx.strokeStyle = "#151323"; ctx.beginPath();
+                ctx.moveTo(-58, -48); ctx.lineTo(58, 48); ctx.moveTo(58, -48); ctx.lineTo(-58, 48); ctx.stroke(); ctx.restore();
+                const age = Math.max(0, (t - 500) / 1000);
+                for (const q of c.particles) {
+                    const px = x + q.vx * age, py = y + q.vy * age + 90 * age * age;
+                    ctx.fillStyle = q.color; ctx.fillRect(px, py, q.size, q.size);
+                    ctx.strokeStyle = "#151323"; ctx.lineWidth = 2; ctx.strokeRect(px, py, q.size, q.size);
+                }
+            }
+        }
+        if (now >= c.until) {
+            c.active = false; c.canvas.remove(); c.canvas = null; c.ctx = null; c.raf = 0;
+            const body = m.body;
+            if (body && !m.down) { body.vx += (body.x < W / 2 ? 180 : -180); body.vy = Math.min(body.vy, -980); }
+            return;
+        }
+        c.raf = requestAnimationFrame(draw);
+    };
+    c.raf = requestAnimationFrame(draw);
+}
+
 // 由施放佇列呼叫，輪到角色時才消耗能量。
 function castSkill(m) {
     if (bossEntranceFreezesBattle()) return false;
@@ -3823,6 +3885,7 @@ function castSkill(m) {
     const d = CHAR_TABLE[m.ch.id], sk = SKILLS[m.ch.id];
     const col = ELEMENTS[d.element].color;
     showCut(m);
+    startSkillCinematic(m);
     playFighter(m.fighter, "skill");
     SFX.voice(m.ch.id, "skill");
     SFX.skill(d.element);
@@ -4109,16 +4172,18 @@ function pfLoop(ts) {
     animTick(ts);            // 圖框型 BOSS 的逐格撥放搭這一次 rAF，不必另開計時器
     if (PF.running && PF.ready) {
         PF.rays.style.opacity = 0;
-        tickCd(dt * 1000);                       // 技能蓄能：時間保底，撞擊另外加
-        feverUpdate(dt * 1000);                  // FEVER 只在這一段倒數，時停／暫停都會自然凍住
-        tickSkillQueue(dt * 1000);
-        updatePowerFlip(dt * 1000);
-        updateCollisionTrial(dt * 1000);
-        // FEVER：物理子步加倍（每段仍是 dt/2），整場球速等於 ×2；段數不變短才不會穿模
-        const subs = FEVER.active ? 4 : 2;
-        for (let i = 0; i < subs; i++) step(dt / 2, ts);
-        FX.updatePops(dt);                       // 傷害數字的拋物線／淡出
-        if (ts - comboAt > COMBO_HOLD && combo) { combo = 0; PF.comboSurge = false; }   // 連擊狂熱斷鏈，加成歸零
+        if (!SKILL_CINEMATIC.active) {
+            tickCd(dt * 1000);                   // 技能蓄能：時間保底，撞擊另外加
+            feverUpdate(dt * 1000);
+            tickSkillQueue(dt * 1000);
+            updatePowerFlip(dt * 1000);
+            updateCollisionTrial(dt * 1000);
+            // FEVER：物理子步加倍（每段仍是 dt/2），整場球速等於 ×2；段數不變短才不會穿模
+            const subs = FEVER.active ? 4 : 2;
+            for (let i = 0; i < subs; i++) step(dt / 2, ts);
+            FX.updatePops(dt);
+            if (ts - comboAt > COMBO_HOLD && combo) { combo = 0; PF.comboSurge = false; }
+        }
         render();
     }
 }
@@ -4504,6 +4569,7 @@ function nextEnemy() {
 
 // ===== 200ms 規則迴圈 =====
 function battleTick() {
+    if (SKILL_CINEMATIC.active) return; // 時停演出期間凍結敵方行動與戰鬥計時
     if (bossEntranceFreezesBattle()) return;
     if (PF.paused) return;
     tickCounter++;
