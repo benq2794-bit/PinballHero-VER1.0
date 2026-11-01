@@ -51,7 +51,8 @@ function syncPartyFormation(reset = false) {
         const p = partyTrailPoint(++index * 42, head);
         b.x = Math.max(b.r + 13, Math.min(W - b.r - 13, p.x));
         b.y = p.y;
-        enforceBattleCeiling(b);
+        b.introDrop = !!(head.introDrop && b.y < BATTLE_BOUNDS.top + b.r);
+        enforceHeroBattleCeiling(b);
         b.vx = head.vx; b.vy = head.vy; b.spin = head.spin;
         b.dashActiveMs = head.dashActiveMs || 0;
         // Only the physical pilot owns a charged Power Flip.

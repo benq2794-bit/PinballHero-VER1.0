@@ -6,7 +6,7 @@ function refreshBattleBounds() {
     if (!field.width || !PF.el.offsetWidth) return;
     const scale = field.width / PF.el.offsetWidth;
     let bottom = 176;
-    for (const node of [PF.el.querySelector('.pf-hud'), $('pf-combo-chip')]) {
+    for (const node of [PF.el.querySelector('.pf-hud')]) {
         if (!node) continue;
         const box = node.getBoundingClientRect();
         if (box.height) bottom = Math.max(bottom, (box.bottom - field.top) / scale + 8);
@@ -31,4 +31,11 @@ function enforceBattleCeiling(b) {
     b.y = ceiling;
     if (b.vy < 0) b.vy = -b.vy * PHYS.wallRest;
     if (b.ky < 0) b.ky = 0;
+}
+function enforceHeroBattleCeiling(b) {
+    if (b && b.introDrop) {
+        if (b.y < BATTLE_BOUNDS.top + b.r) return;
+        b.introDrop = false;
+    }
+    enforceBattleCeiling(b);
 }

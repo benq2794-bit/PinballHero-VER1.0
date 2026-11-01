@@ -1,4 +1,4 @@
-// BOSS 登場三幕：預兆（法陣、粒子、震場）→ 本體砸地（煙塵、霸體光）→ 血條充能＋稱號橫幅
+// BOSS 登場：預兆 → 名稱砸入 → 血條充能 → 解鎖戰鬥
 const BOSS_ENTRANCE = { seq: -1, pending: false, elapsed: 0, duration: 2000, data: null };
 
 // 稱號按屬性給：BOSS 名字本身已經帶「・」副名，橫幅再補一層身分
@@ -15,7 +15,7 @@ function bossAppearanceName() {
 
 // 異界迴廊的王比較大尾，節奏再放慢一格
 function bossEntranceTiming(gate) {
-    return gate ? { omen: 820, reveal: 980, engage: 1040 } : { omen: 700, reveal: 880, engage: 960 };
+    return { name: 500, intro: Math.round(110 * 1000 / 60), charge: Math.round(35 * 1000 / 60) };
 }
 
 // 充能期間 HUD 顯示的值：入場流程自己灌，其餘時間回傳 null（照真實血量）
@@ -33,7 +33,20 @@ function bossEntranceHpRatio() {
 }
 
 function bossEntranceFreezesBattle() {
-    return !!(BOSS_ENTRANCE.data && BOSS_ENTRANCE.seq === PF.foeSeq && enemy.boss && enemy.hp > 0);
+    const data = BOSS_ENTRANCE.data;
+    return !!(data && data.state !== 'PLAY' && BOSS_ENTRANCE.seq === PF.foeSeq && enemy.boss && enemy.hp > 0);
+}
+
+function shiftBossEntranceClocks(data) {
+    if (!data || data.freezeAt === null || BOSS_ENTRANCE.seq !== PF.foeSeq) return;
+    const stopped = Math.max(0, performance.now() - data.freezeAt);
+    for (const key of ['nextCastAt', 'stunUntil', 'slowUntil', 'paralyzeReady', 'gustReady']) if (PF[key]) PF[key] += stopped;
+    if (PF.lastContact) PF.lastContact += stopped;
+    if (PF.buff && PF.buff.until) PF.buff.until += stopped;
+    (PF.members || []).forEach(m => { if (m.respawnAt) m.respawnAt += stopped; });
+    (PF.burns || []).forEach(b => { b.at += stopped; });
+    if (GATE.id) GATE.t0 += stopped;
+    data.freezeAt = null;
 }
 
 function paintBossEntranceHp(data) {
@@ -42,20 +55,18 @@ function paintBossEntranceHp(data) {
     if (txt) txt.textContent = `${data.hpShown}/${data.maxHp}`;
 }
 
+// 名稱提示貼著王本體下方定位，跟隨王的位置，避免遮住王或畫面中央戰鬥區。
+function positionBossEntrance() {
+    const panel = $('boss-entrance'), boss = PF.foe;
+    if (!panel || !boss) return;
+    const half = Math.min(190, W / 2 - 12);
+    panel.style.left = `${Math.max(half, Math.min(W - half, boss.x))}px`;
+    panel.style.top = `${Math.min(H - 105, boss.y + boss.r + 24)}px`;
+}
+
 function hideBossEntrance() {
     const data = BOSS_ENTRANCE.data;
-    if (data && data.freezeAt !== null && BOSS_ENTRANCE.seq === PF.foeSeq) {
-        const stopped = Math.max(0, performance.now() - data.freezeAt);
-        // Absolute clocks must also resume from where the entrance stopped them.
-        for (const key of ['nextCastAt', 'stunUntil', 'slowUntil', 'paralyzeReady', 'gustReady']) {
-            if (PF[key]) PF[key] += stopped;
-        }
-        if (PF.lastContact) PF.lastContact += stopped;
-        if (PF.buff && PF.buff.until) PF.buff.until += stopped;
-        (PF.members || []).forEach(m => { if (m.respawnAt) m.respawnAt += stopped; });
-        (PF.burns || []).forEach(b => { b.at += stopped; });
-        if (GATE.id) GATE.t0 += stopped;
-    }
+    shiftBossEntranceClocks(data);
     BOSS_ENTRANCE.pending = false; BOSS_ENTRANCE.data = null;
     if (PF.el) {
         PF.el.classList.remove('boss-entry-stop', 'boss-entry-omen', 'boss-entry-reveal', 'boss-entry-engage', 'boss-hp-charge', 'boss-quake');
@@ -68,7 +79,11 @@ function hideBossEntrance() {
         PF.foe.ball.classList.remove('boss-drop', 'boss-superarmor');
     }
     const panel = $('boss-entrance');
-    if (panel) { panel.classList.remove('on', 'leaving', 'gate-enter'); panel.setAttribute('aria-hidden', 'true'); }
+    if (panel) {
+        panel.classList.remove('on', 'leaving', 'gate-enter', 'slam');
+        panel.removeAttribute('style');
+        panel.setAttribute('aria-hidden', 'true');
+    }
     paintBossEntranceHp({ hpShown: Math.max(0, enemy.hp), maxHp: Math.max(1, enemy.maxHp) });
 }
 
@@ -81,12 +96,12 @@ function queueBossEntrance() {
     BOSS_ENTRANCE.seq = PF.foeSeq;
     BOSS_ENTRANCE.pending = true;
     BOSS_ENTRANCE.elapsed = 0;
-    BOSS_ENTRANCE.duration = timing.omen + timing.reveal + timing.engage;
+    BOSS_ENTRANCE.duration = timing.intro + timing.charge;
     BOSS_ENTRANCE.data = {
         name: bossAppearanceName(), title: BOSS_TITLES[enemy.element] || '未知之影',
         image: enemy.battleSkinUrl, alpha: !!enemy.battleSkinAlpha, gate, element: enemy.element, color: element.color,
         floor: gate ? gateOf().gate : `無限波利塔 · 第 ${stage} 層`,
-        timing, phase: 0, hpShown: 0, hpMarks: 0, maxHp: Math.max(1, enemy.maxHp),
+        timing, phase: 0, state: 'INTRO', hpShown: 0, hpMarks: 0, maxHp: Math.max(1, enemy.maxHp),
         freezeAt: performance.now()
     };
     if (PF.el) {
@@ -119,17 +134,6 @@ function openBossEntrance(data) {
     // 跟技能插播同一種排版：上面一行小字是事件＋稱號，下面才是王名
     $('boss-entrance-title').textContent = '⚠ BOSS 登場　' + data.title;
     $('boss-entrance-name').textContent = data.name;
-    const element = ELEMENTS[data.element] || ELEMENTS.fire;
-    const badge = $('boss-entrance-element');
-    badge.textContent = element.label;
-    badge.style.background = element.color;
-    badge.style.boxShadow = `0 0 12px ${element.color}`;
-    const image = $('boss-entrance-image');
-    image.hidden = !data.image; image.alt = data.name;
-    // 細筆畫大圖不要用像素放大（test 用的假 DOM 沒有 toggle，這裡用 add/remove）
-    if (data.alpha) image.classList.add('alpha-art'); else image.classList.remove('alpha-art');
-    image.onerror = () => { image.hidden = true; };
-    if (data.image) image.src = data.image;
     panel.classList.toggle('gate-enter', data.gate);
     panel.classList.remove('on', 'leaving');
     panel.setAttribute('aria-hidden', 'true');
@@ -159,10 +163,34 @@ function beginBossReveal(data) {
         FX.smoke('ring', b.x, b.y + b.r * .4, data.element, 200);
         FX.sparks(b.x, b.y + b.r * .5, data.color, 18);
     }
-    FX.flash(data.color);
+    const panel = $('boss-entrance');
+    if (panel) {
+        positionBossEntrance();
+        panel.classList.remove('leaving');
+        panel.classList.add('on', 'slam');
+        panel.setAttribute('aria-hidden', 'false');
+    }
     SFX.tone(70, 30, .5, 'sine', .3, 0, .002);
     SFX.tone(150, 52, .3, 'square', .12, 0, .002);
     SFX.noise(.4, .12, 2200, 260, 0, { mode: 'band' });
+}
+
+function beginBossCharge(data) {
+    data.state = 'CHARGE';
+    data.chargeStartedAt = performance.now();
+}
+
+function finishBossEntrance(data) {
+    if (PF.el) PF.el.classList.remove('boss-entry-stop');
+    data.state = 'PLAY';
+    shiftBossEntranceClocks(data);
+    const pilot = partyPilot();
+    if (pilot && pilot.body) {
+        const b = pilot.body;
+        b.x = W / 2; b.y = -50; b.vx = 0; b.vy = 0; b.introDrop = true;
+        syncPartyFormation(true);
+        for (const m of aliveMembers()) if (m.body) m.body.node.style.transform = `translate(${m.body.x}px, ${m.body.y}px)`;
+    }
 }
 
 function beginBossEngage(data) {
@@ -172,9 +200,10 @@ function beginBossEngage(data) {
     }
     const panel = $('boss-entrance');
     if (panel) {
+        positionBossEntrance();
         panel.classList.remove('leaving');
-        void panel.offsetWidth;
         panel.classList.add('on');
+        panel.classList.remove('slam');
         panel.setAttribute('aria-hidden', 'false');
     }
     data.hpShown = 0; data.hpMarks = 0;
@@ -197,12 +226,17 @@ function updateBossEntrance(dtMs) {
         openBossEntrance(data);
     }
 
+    if (data.phase >= 1 && data.phase <= 2) positionBossEntrance();
+
     BOSS_ENTRANCE.elapsed += dtMs;
     const t = BOSS_ENTRANCE.elapsed, tm = data.timing;
-    if (data.phase === 0 && t >= tm.omen) { data.phase = 1; beginBossReveal(data); }
-    if (data.phase === 1 && t >= tm.omen + tm.reveal) { data.phase = 2; beginBossEngage(data); }
+    if (data.phase === 0 && t >= tm.name) { data.phase = 1; beginBossReveal(data); }
+    if (data.phase === 1 && t >= tm.intro) {
+        data.phase = 2; beginBossCharge(data); beginBossEngage(data);
+    }
     if (data.phase === 2) {
-        const k = Math.max(0, Math.min(1, (t - tm.omen - tm.reveal) / tm.engage));
+        const chargeElapsed = t - tm.intro;
+        const k = Math.max(0, Math.min(1, chargeElapsed / tm.charge));
         const eased = 1 - Math.pow(1 - k, 3);
         data.hpShown = Math.round(data.maxHp * eased);
         paintBossEntranceHp(data);
@@ -212,7 +246,9 @@ function updateBossEntrance(dtMs) {
             data.hpMarks++;
             SFX.tone(520 + data.hpMarks * 150, 700 + data.hpMarks * 160, .09, 'square', .07, 0, .002);
         }
-        if (k > .78) {
+        if (k >= 1) {
+            data.phase = 3;
+            finishBossEntrance(data);
             const panel = $('boss-entrance');
             if (panel) panel.classList.add('leaving');
         }

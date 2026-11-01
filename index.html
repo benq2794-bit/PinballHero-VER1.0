@@ -152,6 +152,8 @@
 
         .pf-vfx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 8; }
         .skill-cine { position:absolute; inset:0; width:100%; height:100%; z-index:20; pointer-events:none; image-rendering:pixelated; }
+        .skill-special { position:absolute; z-index:19; transform:translate(-50%,-50%); object-fit:contain;
+            image-rendering:pixelated; pointer-events:none; }
         /* 打擊特效：32×32 像素動畫表，靠 background-position 逐格推進 */
         .impact-vfx { position: absolute; width: 32px; height: 32px; background-repeat: no-repeat;
             transform: translate(-50%, -50%) rotate(var(--r, 0rad)) scale(var(--k, 2)); image-rendering: pixelated; pointer-events: none; }
@@ -211,6 +213,12 @@
             border: 2px solid rgba(255,74,38,.55); box-shadow: 0 0 26px rgba(255,74,38,.6), inset 0 0 22px rgba(255,74,38,.35);
             animation: bossRing 1.6s ease-in-out infinite alternate; }
         @keyframes bossRing { from { opacity: .45; transform: scale(.96); } to { opacity: 1; transform: scale(1.04); } }
+        .ball.foe.boss.boss-hit { animation: bossHitNudge .06s steps(2,end) 3; }
+        .ball.foe.boss.boss-hit .face img { animation: bossHitFlash .1s steps(1,end) 3; }
+        @keyframes bossHitFlash { 50% { filter: brightness(3.2) grayscale(1); } }
+        @keyframes bossHitNudge { 25% { translate:-4px 0; } 75% { translate:4px 0; } }
+        .boss-entrance.slam .boss-entrance-name { animation:bossNameSlam .28s steps(4,end) both; transform-origin:left center; }
+        @keyframes bossNameSlam { from { transform:scale(1.65) translateY(-9px); filter:brightness(1.8); } 65% { transform:scale(.94) translateY(2px); } to { transform:scale(1) translateY(0); filter:none; } }
         /* 圖框型 BOSS（ANIM_BOSS 那幾隻）的 PNG 本身就帶 alpha，那圈放射遮罩只會把石魔的手腳淡掉。
            相簿那批是黑底 GIF，仍然需要遮罩，所以這條只掛在 .frames 上，不要誤傷全場。
            .face 往外的 18% 是給圖框四周那圈透明留白用的：碰撞圓照舊是 88px，但石魔本體要填滿它，
@@ -291,13 +299,21 @@
         }
         /* 敵方條：名稱與狀態可被壓縮，血條吸收剩餘寬度，才不會溢出 */
         .foe-bar .gauge-bar { flex: 1 1 60px; min-width: 0; margin: 0; height: 7px; }
-        .foe-bar > b { flex: 0 1 auto; min-width: 34px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .foe-bar > b, .foe-ident > b { flex: 0 1 auto; min-width: 34px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .foe-bar #enemy-hp-txt { color: #ff9aa5; font-size: 9px; white-space: nowrap; flex: none; }
+        /* 擊殺總數屬於戰績，收起來避免和即時戰鬥資訊搶空間。 */
+        .foe-bar .foe-k { display: none; }
         .foe-bar .st-chip { font-size: 8px; color: #c3a5ff; background: rgba(124,77,255,.18);
             border: 1px solid rgba(124,77,255,.5); border-radius: 4px; padding: 0 4px; white-space: nowrap;
             flex: 0 1 auto; min-width: 0; max-width: 170px; overflow: hidden; text-overflow: ellipsis; }
         .foe-bar .st-chip.burn { color: #ffb37a; background: rgba(255,122,60,.16); border-color: rgba(255,122,60,.5); }
         .foe-bar .st-chip.chill { color: #8fd8ff; background: rgba(90,180,255,.16); border-color: rgba(110,200,255,.5); }
+        .foe-ident { display: contents; }
+        #enemy-hp-buffer { display:none; }
+        .boss-down-gauge { display:none; height:6px; margin:2px 7px 0; overflow:hidden; border:1px solid #111116;
+            background:#66636f; box-shadow:inset 0 1px 0 rgba(255,255,255,.25); }
+        .boss-down-gauge.on { display:none; }
+        .boss-down-gauge i { display:block; width:0; height:100%; background:#9b64e8; }
         .hud-buff { margin-top: 4px; font-size: 9px; color: #2ed573; text-shadow: 0 1px 2px #000; }
         /* ---- FEVER 金色戰場：背景變暗轉金、金色光罩＋旋轉光束、場框轉金 ---- */
         .fev-veil { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .45s ease;
@@ -316,13 +332,13 @@
 
         /* 中央 FEVER 字：常駐貼在能量條上方當標籤，Fever 期間才全亮脈動；字身用傷害點陣字 */
         .pf-center .fever { position: absolute; left: 0; right: 0; top: 168px; font-size: 20px; font-weight: 900;
-            letter-spacing: 5px; color: #ffd93d; opacity: .55; transform: scale(.94); transition: opacity .2s, transform .2s;
+            letter-spacing: 5px; color: #ffd93d; opacity: 0; visibility: hidden; transform: scale(.94); transition: opacity .2s, transform .2s, visibility .2s;
             text-shadow: 0 0 16px #ffb036, 0 0 34px rgba(255,140,20,.9); }
         .pf-center .fever.px-num { display: flex; justify-content: center; align-items: center; font-size: 0; line-height: 0;
             letter-spacing: 0; text-shadow: none;
             filter: drop-shadow(0 0 14px rgba(255,180,50,.9)) drop-shadow(0 3px 2px rgba(0,0,0,.6)); }
         .pf-center .fever.px-num i { display: block; flex: none; background-repeat: no-repeat; image-rendering: pixelated; }
-        .pf-center .fever.on { opacity: 1; animation: feverPulse .5s ease-in-out infinite alternate; }
+        .pf-center .fever.on { opacity: 1; visibility: visible; animation: feverPulse .5s ease-in-out infinite alternate; }
         @keyframes feverPulse {
             from { transform: scale(1); filter: brightness(1) drop-shadow(0 0 14px rgba(255,180,50,.9)); }
             to { transform: scale(1.09); filter: brightness(1.25) drop-shadow(0 0 22px rgba(255,200,70,1)); }
@@ -341,37 +357,15 @@
 
 
         .pf-center { position: absolute; left: 0; right: 0; top: 50%; text-align: center; z-index: 9; pointer-events: none; }
-        /* 連擊徽章固定在 FEVER 條旁，避免大字長時間擋在戰場正中央。 */
-        .combo-chip { position: absolute; right: 14px; top: 128px; z-index: 9; width: 112px; box-sizing: border-box;
-            padding: 4px 6px 5px; color: #f2f6ff; text-align: left; pointer-events: none;
-            background: linear-gradient(180deg, rgba(13,28,45,.94), rgba(5,12,24,.91));
-            border: 1px solid rgba(105,184,230,.7); border-left: 3px solid #ffd45a;
-            box-shadow: 2px 3px 0 rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.13);
-            opacity: 0; transform: translateY(0) translateX(8px) scale(.94);
-            transition: opacity .18s ease, transform .18s ease, border-color .18s, box-shadow .18s; }
-        .combo-chip.on { opacity: 1; transform: translateY(0) translateX(0) scale(1); }
-        .combo-chip.surge { border-color: #ffe16b; border-left-color: #fff2a6;
-            box-shadow: 0 0 10px rgba(255,194,55,.35), 2px 3px 0 rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.17); }
-        .combo-chip.bump { animation: comboBump .2s cubic-bezier(.2,.85,.3,1); }
-        @keyframes comboBump { 0% { transform: scale(.86); } 58% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        .combo-chip-head { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; white-space: nowrap; }
-        .combo-chip-label { color: #8edaff; font-size: 9px; line-height: 1; font-weight: 900; }
-        .combo-chip-count { color: #fff0a6; font: 900 20px/1 Impact, "Arial Black", sans-serif;
-            text-shadow: 1px 2px 0 #111; font-variant-numeric: tabular-nums; }
-        .combo-chip-mult { margin-left: auto; color: #ffd45a; font-size: 9px; line-height: 1; font-weight: 900;
-            white-space: nowrap; text-shadow: 1px 1px 0 #10131b; }
-        .combo-life { height: 2px; margin-top: 3px; overflow: hidden; background: rgba(0,0,0,.62); }
-        .combo-life-fill { display: block; width: 100%; height: 100%; transform: scaleX(1); transform-origin: left center;
-            background: linear-gradient(90deg, #35d6ef, #ffe16b); transition: transform .2s linear; }
 
         /* 技能角色登場：柔邊動作立繪搭配元素光環與斜向閃光，不使用方形插播卡。 */
-        .pf-cut { position: absolute; left: 8px; top: 50%; z-index: 10; pointer-events: none; transform: translateY(-50%); }
+        .pf-cut { position: absolute; left: 8px; bottom: 138px; z-index: 10; pointer-events: none; }
         .cut { position: relative; display: flex; align-items: center; gap: 8px; max-width: min(300px, calc(100vw - 28px));
             padding: 0; transform-origin: 0 50%; animation: cutIn .32s cubic-bezier(.16,.8,.25,1) both;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,.72)); }
         .cut::before { display: none; }
         .cut.out { animation: cutOut .28s ease-in forwards; }
-        .cut-art { position: relative; flex: none; width: 94px; height: 146px; overflow: visible; isolation: isolate; }
+        .cut-art { position: relative; flex: none; width: 68px; height: 104px; overflow: visible; isolation: isolate; }
         .cut-art::before { content: ""; position: absolute; z-index: -2; inset: -18px -12px;
             background: repeating-conic-gradient(from 0deg at 52% 52%, transparent 0deg 8deg,
                 color-mix(in srgb, var(--cut) 44%, transparent) 9deg 11deg, transparent 12deg 22deg);
@@ -383,7 +377,7 @@
             filter: blur(11px); animation: cutAura .7s ease-out both; }
         .cut-img { position: absolute; inset: 0; z-index: 1; display: flex; align-items: center; justify-content: center;
             font-size: 25px; font-weight: bold; color: var(--cut); text-shadow: 0 0 8px var(--cut); }
-        .cut-img img { width: 94px; height: 146px; object-fit: contain; display: block;
+        .cut-img img { width: 68px; height: 104px; object-fit: contain; display: block;
             image-rendering: pixelated; image-rendering: crisp-edges;
             -webkit-mask-image: radial-gradient(ellipse at 50% 49%, #000 53%, rgba(0,0,0,.96) 68%, rgba(0,0,0,.64) 82%, transparent 100%);
             mask-image: radial-gradient(ellipse at 50% 49%, #000 53%, rgba(0,0,0,.96) 68%, rgba(0,0,0,.64) 82%, transparent 100%);
@@ -426,6 +420,8 @@
                          .26em .3em 0 rgba(0,0,0,.6);
             filter: drop-shadow(0 0 8px rgba(255,196,64,.9));
             transform-origin: 50% 50%; will-change: transform, opacity; }
+        /* 技能插播時清空並隱藏傷害飄字，避免蓋住角色特效。 */
+        #pf.skill-cinematic-active .dmg-pop { display: none !important; }
         .dmg-pop.weak { font-size: 24px; color: #ffef6b; filter: drop-shadow(0 0 12px rgba(255,232,96,.95)); }
         /* 漸層字不能用 text-shadow 描邊：陰影會蓋在 background-clip 的填色上，字會變成一團黑。
            改用較粗的 text-stroke ＋ filter 投影做外框。 */
@@ -667,6 +663,68 @@
         .pg-head .tm-go:hover { background: #ffe875; }
         #team .pg-body > .panel + .panel { margin-top: 10px; }
         #team .pg-body > .panel { padding: 12px; }
+        /* 編成頁：先看出戰名單，再看角色數值與隊長效果。 */
+        #team .fm-panel { padding:10px; border-color:#284968; background:linear-gradient(180deg,rgba(15,33,52,.98),rgba(7,17,30,.98)); }
+        #team .fm { display:flex; flex-direction:column; gap:6px; }
+        #team .fm-head { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:1px 1px 5px; border-bottom:1px solid rgba(111,166,206,.25); }
+        #team .fm-head small { display:block; color:#9ab5cb; font-size:9px; }
+        #team .fm-head b { display:block; margin-top:1px; color:#f4f8ff; font-size:13px; letter-spacing:.4px; }
+        #team .fm-count { padding:3px 7px; color:#ffe27c; font-size:11px; font-weight:900; background:#172a3e; border:1px solid #52728c; border-bottom:2px solid #253d53; border-radius:4px; }
+        #team .fm-lineup { display:flex; flex-direction:column; gap:5px; }
+        #team .fm-unit { position:relative; display:grid; grid-template-columns:50px minmax(0,1fr); gap:2px 7px; padding:6px; color:#e7effa;
+            background:linear-gradient(145deg,rgba(27,48,69,.98),rgba(11,23,38,.98)); border:1px solid #42617a; border-left:4px solid #5684a4; border-radius:6px;
+            box-shadow:inset 0 2px 0 rgba(255,255,255,.08),0 3px 0 rgba(2,9,17,.65); }
+        #team .fm-unit.lead { border-color:#d6ad57; border-left:4px solid #ffe077; background:linear-gradient(145deg,rgba(75,56,31,.98),rgba(22,28,38,.98)); }
+        #team .fm-unit.empty { min-height:64px; grid-template-columns:42px minmax(0,1fr); align-items:center; border-style:dashed; border-color:#456078; background:rgba(7,17,30,.55); box-shadow:none; }
+        #team .fm-unit.empty .fm-portrait { width:38px; height:42px; }
+        #team .fm-position { grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; color:#c7d9e9; font-size:9px; font-weight:900; letter-spacing:.4px; }
+        #team .fm-unit.lead .fm-position { color:#ffe27c; }
+        #team .fm-portrait { position:relative; grid-column:1; grid-row:2; width:46px; height:54px; display:flex; align-items:center; justify-content:center; overflow:hidden;
+            background:radial-gradient(ellipse at 50% 36%,rgba(126,177,218,.22),rgba(4,12,22,.84) 75%); border:1px solid var(--el,#57718a); border-radius:4px; }
+        #team .fm-unit.lead .fm-portrait { box-shadow:inset 0 0 0 1px rgba(255,224,119,.25); }
+        #team .fm-art { width:100%; height:100%; }
+        #team .fm-art img { object-fit:contain; image-rendering:pixelated; }
+        #team .fm-empty-ic { color:#83a3bd; font-size:20px; font-weight:700; }
+        #team .fm-el { position:absolute; left:2px; top:2px; padding:0 3px; color:#fff; font-size:8px; font-weight:900; background:rgba(5,12,20,.8); border:1px solid var(--el,#57718a); border-radius:3px; }
+        #team .fm-content { min-width:0; grid-column:2; grid-row:2; align-self:start; display:flex; flex-direction:column; gap:2px; }
+        #team .fm-main { display:flex; align-items:baseline; justify-content:space-between; gap:5px; min-width:0; }
+        #team .fm-name { overflow:hidden; color:#fff; font-size:12px; font-weight:900; white-space:nowrap; text-overflow:ellipsis; }
+        #team .fm-lv { flex:none; color:#ffe27c; font-size:9px; font-weight:800; }
+        #team .fm-type { overflow:hidden; color:#9bb8d1; font-size:9px; white-space:nowrap; text-overflow:ellipsis; }
+        #team .fm-resource { display:grid; grid-template-columns:25px minmax(0,1fr) 37px; align-items:center; gap:4px; color:#9bb1c7; font-size:8px; }
+        #team .fm-resource b { color:#eff6ff; font-size:9px; text-align:right; font-variant-numeric:tabular-nums; }
+        #team .fm-bar { height:5px; overflow:hidden; background:#08111b; border:1px solid #334b60; border-radius:2px; }
+        #team .fm-bar i { display:block; width:0; height:100%; transition:width .15s linear; }
+        #team .fm-bar.hp i { background:linear-gradient(90deg,#d94c4c,#ffad64); }
+        #team .fm-bar.en i { background:linear-gradient(90deg,#2ebdd3,#ffe276); }
+        #team .fm-meta { display:flex; flex-wrap:wrap; gap:3px; margin-top:0; }
+        #team .fm-meta span { padding:1px 4px; color:#bfd0df; font-size:8px; background:rgba(4,12,21,.55); border:1px solid rgba(117,154,184,.25); border-radius:3px; }
+        #team .fm-skill { display:none; }
+        #team .fm-sub { display:flex; align-items:center; gap:4px; color:#a9c5dc; font-size:8px; }
+        #team .fm-sub.none { display:none; color:#72879a; }
+        #team .fm-sub-art { display:none; }
+        #team .fm-actions { grid-column:1/-1; display:flex; justify-content:flex-end; gap:5px; margin-top:0; }
+        #team .fm-leader-tag, #team .fm-cap-btn, #team .fm-out { padding:3px 6px; color:#ffe27c; font-family:inherit; font-size:9px; font-weight:800; background:linear-gradient(180deg,#394e60,#1b2e40); border:1px solid #65829a; border-bottom:2px solid #243d53; border-radius:3px; }
+        #team .fm-leader-tag { margin-right:auto; color:#ffe27c; background:rgba(120,83,28,.25); border-color:rgba(255,219,112,.45); }
+        #team .fm-cap-btn, #team .fm-out { cursor:pointer; }
+        #team .fm-cap-btn:active, #team .fm-out:active { transform:translateY(2px); border-bottom-width:1px; }
+        #team .fm-out { color:#ffc0bd; border-color:#805050; border-bottom-color:#512e32; }
+        #team .fm-powerrow { display:flex; justify-content:flex-end; }
+        #team .fm-power { display:flex; align-items:baseline; gap:5px; padding:2px 6px; color:#9fb5c9; font-size:9px; background:#101e2c; border:1px solid #263e53; border-radius:4px; }
+        #team .fm-power strong { color:#ffe27c; font-size:11px; }
+        #team .fm-lead { padding:6px 7px; color:#cad9e8; background:linear-gradient(90deg,rgba(80,59,25,.42),rgba(16,27,39,.72)); border:1px solid rgba(227,185,86,.42); border-left:3px solid #e6bd61; border-radius:4px; }
+        #team .fm-lead > span { color:#ffe27c; font-size:9px; font-weight:900; }
+        #team .fm-lead p { margin:3px 0 0; color:#d9e4ef; font-size:9px; line-height:1.4; }
+        #team .fm-lead p span { color:#9cb8d0; }
+        #team .roster-grid { grid-template-columns:1fr 1fr; }
+        #team .rcard { min-height:50px; padding:5px; gap:5px; background:linear-gradient(145deg,#172a3e,#0c1725); border-color:#324e68; border-radius:5px; }
+        #team .rcard.onfield { border-color:#69d7bb; background:linear-gradient(145deg,#174138,#10262c); box-shadow:inset 0 0 0 1px rgba(105,215,187,.18); }
+        #team .rcard .sp { width:28px; height:28px; border-radius:4px; border-color:#6687a0; background:#08111c; }
+        #team .rcard .nm { color:#f1f6fb; font-size:11px; }
+        #team .rcard .sub { margin-top:3px; color:#a8bed1; }
+        #team .rcard.onfield .sub:first-of-type { color:#79e7c9; font-weight:800; }
+        #team .fm-panel + .panel h2 { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px; }
+        #team .fm-panel + .panel h2 .hint { color:#9ab5cb; font-size:9px; font-weight:400; }
         .foe-bar .foe-k { color: #b9c4dd; font-size: 9px; white-space: nowrap; }
         .foe-bar .foe-k b { color: #fff; font-size: 10px; }
 
@@ -835,7 +893,7 @@
         .dex-bar .clr { border: 1px solid #2c3448; background: #1a2130; color: #cfe0f5; font-size: 11px; padding: 4px 9px;
             border-radius: 8px; cursor: pointer; font-family: inherit; }
         .dex-cnt { font-size: 10px; color: #8fa0c0; margin: 0 2px 6px; }
-        .dex-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .dex-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%; }
         .dex-cell { position: relative; background: #05070d; border: 1px solid #223049; border-radius: 10px; padding: 4px 4px 5px;
             box-shadow: 0 2px 8px rgba(10,20,40,.35); }
         .dex-cell.mon { border-color: #3d6b4a; }
@@ -1053,6 +1111,22 @@
         .pf-hud .foe-bar { border: 2px solid #ff836f; border-radius: 4px; font-size: 10px; font-weight: 800;
             background: linear-gradient(180deg, rgba(91,34,39,.97), rgba(35,17,31,.97));
             box-shadow: inset 0 2px 0 rgba(255,255,255,.13), 2px 3px 0 rgba(3,8,16,.8); }
+        .pf-hud .foe-bar.boss-hp-ui { display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"ident clock" "meter percent";
+            width:min(360px, calc(100% - 14px)); box-sizing:border-box; margin-left:auto; margin-right:auto;
+            align-items:center; column-gap:8px; row-gap:4px; padding:5px 8px; border:3px solid #111116; border-radius:3px; }
+        .pf-hud .boss-hp-ui .foe-ident { grid-area:ident; display:flex; align-items:center; gap:6px; min-width:0; }
+        .pf-hud .boss-hp-ui .foe-ident > b { flex:0 1 auto; min-width:0; }
+        .pf-hud .boss-hp-ui .st-chip { max-width:115px; }
+        .pf-hud .boss-hp-ui .gauge-bar { grid-area:meter; position:relative; flex:none; width:100%; height:16px; box-sizing:border-box;
+            overflow:hidden; border:3px solid #111116; border-radius:0; background:#494852; box-shadow:none; image-rendering:pixelated; }
+        .pf-hud .boss-hp-ui #enemy-hp-buffer { display:block; position:absolute; inset:0 auto 0 0; z-index:0; width:100%; background:#f3f0e8; transition:width .06s linear; }
+        .pf-hud .boss-hp-ui #enemy-hp-buffer::before, .pf-hud .boss-hp-ui #enemy-hp-bar::before { content:""; position:absolute; top:0; left:0; right:0; height:2px; background:#fff; }
+        .pf-hud .boss-hp-ui #enemy-hp-bar { position:absolute; inset:0 auto 0 0; z-index:1; width:100%; height:100%;
+            background:#ed543f; transition:width .06s linear; box-shadow:none; }
+        .pf-hud .boss-hp-ui #enemy-hp-txt { grid-area:percent; min-width:45px; text-align:right; color:#fff; font-size:11px; font-weight:900;
+            font-variant-numeric:tabular-nums; text-shadow:1px 1px 0 #111116, -1px -1px 0 #111116, 1px -1px 0 #111116, -1px 1px 0 #111116; }
+        .pf-hud .boss-hp-ui .deep-clock { grid-area:clock; }
+        .pf-hud .boss-down-gauge { width:min(360px, calc(100% - 14px)); box-sizing:border-box; height:6px; margin:2px auto 0; border-width:1px; }
         .pf-hud .foe-bar > b { color: #fff1d2; font-size: 10px; font-weight: 900; text-shadow: 1px 1px 0 #712e32, 0 1px 2px #000; }
         .pf-hud .foe-bar #enemy-hp-txt { color: #fff; font-size: 10px; font-weight: 900; text-shadow: 1px 1px 0 #4d171e; }
         .pf-hud .weak-bar { border: 2px solid #ffcf62; border-radius: 4px;
@@ -1176,17 +1250,18 @@
         #pf.boss-hp-charge .foe-bar { border-color:rgba(255,214,138,.85);
             animation:bossHpGlow .5s ease-in-out infinite alternate; }
         #pf.boss-hp-charge #enemy-hp-bar { background:linear-gradient(90deg,#ffb03a,#ffe98a); }
+        #pf.boss-hp-charge .boss-hp-ui #enemy-hp-bar { background:#ed543f; }
         @keyframes bossHpGlow { from { box-shadow:0 0 0 rgba(255,196,90,0); } to { box-shadow:0 0 16px rgba(255,196,90,.6); } }
         /* BOSS 登場：跟技能插播同一套「立繪在左、名稱在右」的斜切演出，
            不再蓋一張方形橫幅卡；光環、放射線、掃光與屬性印記都沿用 cut 系列。 */
-        .boss-entrance { position:absolute; left:10px; top:46%; z-index:11; display:flex; align-items:center; gap:10px;
-            max-width:min(340px, calc(100% - 20px)); pointer-events:none; opacity:0; visibility:hidden;
-            transform:translate(-20px,-50%) scale(.78); filter:drop-shadow(0 4px 8px rgba(0,0,0,.72)); }
+        .boss-entrance { position:absolute; left:50%; top:50%; z-index:11; display:flex; align-items:center; justify-content:center;
+            width:max-content; max-width:calc(100% - 24px); pointer-events:none; opacity:0; visibility:hidden;
+            transform:translate(-50%,0) scale(.78); filter:drop-shadow(0 4px 8px rgba(0,0,0,.72)); }
         .boss-entrance.on { opacity:1; visibility:visible; animation:bossCutIn .36s cubic-bezier(.16,.8,.25,1) both; }
         .boss-entrance.leaving { opacity:1; visibility:visible; animation:bossCutOut .3s ease-in forwards; }
-        @keyframes bossCutIn { from { opacity:0; transform:translate(-20px,-50%) scale(.78); } 72% { opacity:1; transform:translate(4px,-50%) scale(1.04); } to { opacity:1; transform:translate(0,-50%) scale(1); } }
-        @keyframes bossCutOut { from { opacity:1; transform:translate(0,-50%) scale(1); } to { opacity:0; transform:translate(-12px,-50%) scale(.94); } }
-        .boss-entrance-art { position:relative; flex:none; width:104px; height:158px; isolation:isolate; }
+        @keyframes bossCutIn { from { opacity:0; transform:translate(-50%,8px) scale(.78); } 72% { opacity:1; transform:translate(-50%,-2px) scale(1.04); } to { opacity:1; transform:translate(-50%,0) scale(1); } }
+        @keyframes bossCutOut { from { opacity:1; transform:translate(-50%,0) scale(1); } to { opacity:0; transform:translate(-50%,8px) scale(.94); } }
+        .boss-entrance-art { display:none; }
         .boss-entrance-art::before { content:""; position:absolute; z-index:-2; inset:-18px -14px;
             background:repeating-conic-gradient(from 0deg at 52% 52%, transparent 0deg 8deg,
                 color-mix(in srgb, var(--bc,#ffcf7a) 44%, transparent) 9deg 11deg, transparent 12deg 22deg);
@@ -1208,12 +1283,15 @@
         .boss-entrance-element { position:absolute; top:5px; right:0; z-index:3; width:19px; height:19px; border-radius:50%;
             display:grid; place-items:center; font-size:10px; font-weight:bold; color:#10131a;
             background:var(--bc,#ffcf7a); box-shadow:0 0 12px var(--bc,#ffcf7a); }
-        .boss-entrance-copy { position:relative; z-index:1; min-width:0; margin-top:26px;
+        .boss-entrance-copy { position:relative; z-index:1; min-width:0; text-align:center;
+            padding:8px 14px; border-top:1px solid color-mix(in srgb, var(--bc,#ffcf7a) 78%, #fff);
+            border-bottom:1px solid color-mix(in srgb, var(--bc,#ffcf7a) 58%, transparent);
+            background:linear-gradient(90deg,transparent,rgba(8,12,19,.76) 14%,rgba(8,12,19,.88) 50%,rgba(8,12,19,.76) 86%,transparent);
             text-shadow:0 2px 4px #000,0 0 9px rgba(0,0,0,.9); }
         .boss-entrance-title { color:#ffe1a1; font-size:10px; line-height:1; letter-spacing:2px; font-weight:900; white-space:nowrap; }
         .boss-entrance-name { margin-top:3px; color:#fff; font-size:21px; line-height:1.18; font-weight:900; letter-spacing:.4px;
             -webkit-text-stroke:.35px rgba(0,0,0,.5); }
-        .boss-entrance-floor { margin-top:2px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+        .boss-entrance-floor { margin-top:2px; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
             color:#f0f3ff; font-size:10px; line-height:1.4; letter-spacing:.2px; }
         .boss-entrance-floor em { font-style:normal; color:var(--bc,#ffcf7a); font-weight:bold; }
         .boss-entrance-hint { margin-top:1px; color:#c9d6ea; font-size:10px; line-height:1.35; }
@@ -1221,7 +1299,7 @@
             .boss-omen-ring, .boss-omen-core, .boss-px, .ball.foe.boss.boss-drop, #pf.boss-quake,
             .ball.foe.boss.boss-superarmor::before, .boss-entrance-shine::after, #pf.boss-hp-charge .foe-bar { animation:none !important; }
             .boss-entrance, .boss-entrance.on, .boss-entrance.leaving { transition:opacity .2s ease; animation:none !important; }
-            .boss-entrance.on { transform:translate(0,-50%) scale(1); }
+            .boss-entrance.on { transform:translate(-50%,0) scale(1); }
             .boss-entrance.leaving { opacity:0; }
             /* 關掉動畫後不能什麼都不剩：法陣與粒子改用定格姿態，畫面照樣有「異變」 */
             .boss-entry-omen .boss-omen-ring { opacity:1; transform:translate(-50%,-50%) scale(1); }
@@ -1233,6 +1311,7 @@
 <link rel="stylesheet" href="asset/tower-talents.css">
 <link rel="stylesheet" href="asset/team-formation.css">
 <link rel="stylesheet" href="asset/pixel-buttons.css">
+<link rel="stylesheet" href="asset/pixel-rpg-ui.css">
 </head>
 <body>
 
@@ -1243,23 +1322,19 @@
         <!-- ===== 主頁：仿彈射世界首頁 ===== -->
         <div id="home" class="hm">
             <div class="hm-top">
-                <div class="hm-rank"><div class="lb">RANK</div><div class="vv" id="hm-rank">1</div></div>
-                <div class="hm-status-card">
-                    <div class="hm-status-head"><b id="hm-name">見習勇者</b><span id="hm-stage-tag">距離王關 9 層</span></div>
-                    <div class="hm-progress" title="距離下一個 BOSS 層"><i id="hm-progress"></i></div>
-                    <div class="hm-status-foot">
-                        <span class="hm-wave" id="hm-wave">第 1/3 波</span>
-                    <div class="hm-chips">
-                        <div class="hm-chip"><span class="dot orb"></span><span class="label">結晶</span><b id="hm-shard">0</b></div>
-                        <div class="hm-chip"><span class="dot gem"></span><span class="label">擊殺</span><b id="hm-kill">0</b></div>
-                    </div>
+                <div class="hm-profile-card" id="hm-energy-card" title="RANK 目前經驗">
+                    <div class="hm-avatar" id="hm-avatar" aria-label="隊長頭像"></div>
+                    <div class="hm-profile-info">
+                        <div class="hm-profile-title"><b id="hm-name">見習勇者</b><span class="hm-rank-badge">RANK <i id="hm-rank">1</i></span></div>
+                        <div class="hm-exp-label"><span>經驗</span><b id="hm-energy-pct">0%</b></div>
+                        <div class="hm-energy-track"><i id="hm-energy-bar"></i></div>
+                        <div class="hm-stage-row"><span class="hm-wave" id="hm-wave">第 1/3 波</span><span id="hm-stage-tag">距離王關 9 層</span></div>
+                        <div class="hm-floor-progress" title="距離下一個 BOSS 層"><i id="hm-progress"></i></div>
                     </div>
                 </div>
-                <div class="hm-energy-card" id="hm-energy-card" title="RANK 目前經驗">
-                    <span class="energy-label">RANK EXP</span>
-                    <b id="hm-energy-pct">0%</b>
-                    <div class="hm-energy-track"><i id="hm-energy-bar"></i></div>
-                    <small>當前經驗</small>
+                <div class="hm-resources">
+                    <div class="hm-chip"><span class="dot orb"></span><span class="label">結晶</span><b id="hm-shard">0</b></div>
+                    <div class="hm-chip"><span class="dot gem"></span><span class="label">擊殺</span><b id="hm-kill">0</b></div>
                 </div>
             </div>
 
@@ -1270,9 +1345,9 @@
             </div>
 
             <div class="hm-nav">
-                <button class="wing l" onclick="hmToast('活動頁面即將開放')"><span class="w1">🎪</span><span class="w2">活動</span></button>
-                <button class="hm-go" onclick="enterBattle()"><span class="g1">▼</span><span class="g2">無限波利塔</span></button>
-                <button class="wing r" onclick="pickHomeTab('boss')"><span class="w1">⚔</span><span class="w2">BOSS戰</span></button>
+                <button class="wing l" onclick="pickHomeTab('boss')"><span class="w1">⚔</span><span class="w2">BOSS 戰</span></button>
+                <button class="hm-go" onclick="enterBattle()"><span class="g1">⚔</span><span class="g2">出發冒險</span><small>無限波利塔</small></button>
+                <button class="wing r" onclick="hmToast('活動頁面即將開放')"><span class="w1">🎪</span><span class="w2">活動</span></button>
             </div>
 
             <div class="hm-tabs" id="hm-tabs"></div>
@@ -1310,27 +1385,24 @@
                     <div class="hud-pill zone"><span id="zone-name">波利塔</span><b id="stage-num">第 1 層</b></div>
                     <div class="hud-team" id="hud-team"></div>
                 </div>
-                <div class="foe-bar">
-                    <b id="enemy-name">赤色噗露</b>
-                    <span id="enemy-element" class="element-badge el-fire">火</span>
-                    <span class="st-chip" id="foe-status"></span>
-                    <div class="gauge-bar"><div id="enemy-hp-bar" class="gauge-fill hp-fill" style="width:100%"></div></div>
+                <div class="foe-bar" id="foe-bar">
+                    <div class="foe-ident">
+                        <b id="enemy-name">赤色噗露</b>
+                        <span id="enemy-element" class="element-badge el-fire">火</span>
+                        <span class="st-chip" id="foe-status"></span>
+                    </div>
+                    <div class="gauge-bar" id="enemy-hp-gauge"><div id="enemy-hp-buffer"></div><div id="enemy-hp-bar" class="gauge-fill hp-fill" style="width:100%"></div></div>
                     <span id="enemy-hp-txt">40/40</span>
                     <span class="deep-clock" id="deep-clock">60s</span>
                     <span class="foe-k" title="本層擊殺">💀<b id="kill-count">0</b></span>
                 </div>
+                <div class="boss-down-gauge" id="boss-down-gauge" aria-label="BOSS 蓄力／崩潰槽預留"><i></i></div>
                 <div class="weak-bar" id="weak-bar">
                     <span id="weak-label">⚠ 弱點 0/0</span>
                     <div class="gauge-bar"><div id="weak-fill" class="gauge-fill weak-fill" style="width:100%"></div></div>
                     <span id="weak-time">9.0s</span>
                 </div>
                 <div class="hud-buff"><span id="pf-buff-txt"></span></div>
-            </div>
-
-            <div class="combo-chip" id="pf-combo-chip" aria-label="連擊狀態">
-                <div class="combo-chip-head"><span class="combo-chip-label">連擊</span><b class="combo-chip-count" id="pf-combo">0</b>
-                    <span class="combo-chip-mult" id="pf-combo-mult">傷害 +0%</span></div>
-                <div class="combo-life"><i class="combo-life-fill" id="pf-combo-life"></i></div>
             </div>
 
             <div class="pf-field" id="pf-field"></div>
@@ -1349,11 +1421,6 @@
                 <div id="boss-omen-px"></div>
             </div>
             <div class="boss-entrance" id="boss-entrance" role="status" aria-live="polite" aria-hidden="true">
-                <div class="boss-entrance-art">
-                    <img class="boss-entrance-image" id="boss-entrance-image" alt="" hidden>
-                    <span class="boss-entrance-shine"></span>
-                    <span class="boss-entrance-element" id="boss-entrance-element"></span>
-                </div>
                 <div class="boss-entrance-copy">
                     <div class="boss-entrance-title" id="boss-entrance-title"></div>
                     <div class="boss-entrance-name" id="boss-entrance-name"></div>
@@ -1571,10 +1638,10 @@ const UNIT_STATE_FILE = { idle: "walk_front", up: "walk_back", down: "walk_front
 const UNIT_STATE_FALLBACK = "neutral";
 const BALL_ACTION_FILE = { idle: "collision", up: "walk_back", down: "walk_front", attack: "launch", hurt: "collision", skill: "cast", victory: "focus", enter: "launch" };
 
-// ===== 角色池：4★ 角色（DEX＝圖鑑同一份資料，技能演出使用對應的 skill_ready 動作） =====
+// ===== 角色池：四屬 5★ 角色（DEX＝圖鑑同一份資料） =====
 const DEX = [["fire_dragon",5,"fire","瓦格納","煉獄龍王","Bow",1,1],["pirates_girl",5,"fire","瑪麗娜","跨星海海賊船長","Sword",1,1],["clarisse",5,"fire","克拉莉絲","未完成鍊金術師","Special",1,1],["battle_maid_xm19",5,"fire","瑪麗安","華麗女僕","Bow",1,1],["heavenly_one",5,"fire","諾埃妮(新年)","鼠王國的偶像","Support",1,1],["compliment_oiran",5,"fire","菊乃","流浪花魁","Fist",1,1],["black_wolf_knight",5,"fire","羅爾夫","黑狼騎士","Sword",1,1],["tiger_treasure_hunter_smr20",5,"fire","咪亞(夏日)","夏日熱血尋寶虎女","Fist",1,1],["kunoichi_1anv",5,"fire","花火(一周年)","星空煙火忍者","Fist",1,1],["lady_summoner_xm20",5,"fire","碧安卡(耶誕)","魅惑聖誕老人","Support",1,1],["halberd_princess",5,"fire","托莉亞","怪力公主","Sword",1,1],["doctor_pirate",5,"fire","燎","獸耳船醫","Bow",1,1],["onmyoji_boy_wt21",5,"fire","水前(白色情人節)","滿懷思念陰陽師","Support",1,1],["magical_bayonetter",5,"fire","夸磊","微笑隱士","Sword",1,1],["zeta",5,"fire","瑟塔","緋紅貫光","Sword",1,0],["tsundere_bountyhunter",5,"fire","蕾蒂希雅","費德爾家之彈","Bow",1,0],["bodysuit_trooper_smr21",5,"fire","艾可莉兒","熾熱白金","Sword",1,0],["suzumiya_haruhi",5,"fire","涼宮春日","傲慢英雄","Sword",1,0],["shadow_redhood",5,"fire","琉儂","魔槍復仇者","Bow",1,0],["pirates_girl_2anv",5,"fire","瑪麗娜(2周年)","星辰船長","Sword",1,0],["misogi",5,"fire","褉","惡作劇專家","Special",1,0],["tsundere_bountyhunter_vt22",5,"fire","蕾蒂希雅","情人節之彈","Bow",1,0],["anger_investigator",5,"fire","韋夫","血染之狼","Bow",1,0],["brown_fighter",5,"water","索妮雅","水舞艷華","Sword",1,1],["onmyoji_boy",5,"water","水前","無雙陰陽師","Support",1,1],["lightbullet_wiz_ny20",5,"water","艾黎雅(新年)","豐水羽子板少女","Bow",1,1],["ice_witch",5,"water","瑟琺","冰雪魔女","Bow",1,1],["commander",5,"water","希麗奴","鐵之狼","Bow",1,1],["lakeside_guardian",5,"water","利姆尼斯","護龍者","Sword",1,1],["drawing_witch",5,"water","菈琪夏","邊境嚮導","Support",1,1],["prince_zero_smr20",5,"water","拉傑爾特(夏日)","乘浪王子","Sword",1,1],["minamoto_sakura",5,"water","源櫻","殭屍一號","Fist",1,1],["freeze_eye",5,"water","磊拉斯","冰結之瞳","Sword",1,0],["emilia",5,"water","愛蜜莉雅","溫柔半精靈","Bow",1,0],["rem",5,"water","雷姆","全能女僕妹妹","Fist",1,0],["waterdragon_kunfu",5,"water","雪蓉","怪物武術天才","Fist",1,0],["desert_commander",5,"water","哈里達爾","王國大將軍","Sword",1,0],["mermaid_1halfanv",5,"water","亞美莉亞(1.5周年)","迷人魚海賊","Bow",1,0],["holy_mother",5,"water","瑪姆納莉雅","慈母救世主","Support",1,0],["nagato_yuki",5,"water","長門有希","沉默外星人","Special",1,0],["waterdragon_kunfu_proud",5,"water","雪蓉(獸國)","兇獸武者","Fist",1,0],["psychic_yuki",5,"water","見嶋勇希","境界靈能者","Special",1,0],["navy_officer",5,"water","芙拉克希絲","不屈戰艦","Bow",1,0],["ice_witch_2anv",5,"water","瑟琺","冰霜大魔女","Support",1,0],["freeze_eye_xm21",5,"water","磊拉斯","雪之聖者","Sword",1,0],["heavenly_three",5,"water","翠緹","CIPO調查員","Special",1,0],["kyouka",5,"water","鏡華","精靈優等生","Bow",1,0],["ice_dragon",5,"water","安瓦哈","自由霜牙龍歌姬","Special",1,0],["justice_lady",5,"water","潔絲媞","願望執行者","Sword",1,0],["fox_oracle",5,"thunder","稻穗","九尾繼承人","Special",1,1],["cagliostro",5,"thunder","卡利歐斯托羅","奠基鍊金術師","Support",1,1],["samurai_xm19",5,"thunder","宗士郎(耶誕)","聖夜武士","Sword",1,1],["thunder_archer",5,"thunder","梅緹斯","狂歡雷弓手","Bow",1,1],["mighty_striker",5,"thunder","巴拉克","霹靂拳王","Fist",1,1],["machine_police_girl",5,"thunder","賽拉","忠誠鐵拳","Bow",1,1],["big_gunner",5,"thunder","牡丹","高效煙火師","Bow",1,1],["illusionist_smr20",5,"thunder","伊路米(夏日)","仲夏魔法師","Special",1,1],["dimension_witch_smr20",5,"thunder","貝爾賽蒂亞(夏日)","深淵女主人","Bow",1,1],["rec_android_1anv",5,"thunder","雷吉斯(一周年)","白花機甲","Bow",1,1],["heavenly_two",5,"thunder","彪西(新年)","牛王國的偶像","Support",1,0],["girl_and_mecha",5,"thunder","蘿黛","怪物與少女","Fist",1,0],["general_toyakiren",5,"thunder","茨茵庫","扶搖直上經理","Sword",1,0],["samurai_robot",5,"thunder","斬鐵","忍者武士參上","Sword",1,0],["elder_guild_fighter",5,"thunder","瑪奇斯","刺激愛好者","Sword",1,0],["machine_police_girl_smr21",5,"thunder","瑟拉(夏日)","夏日救援者","Bow",1,0],["horn_leader",5,"thunder","梅姆拉姆","共感角之王","Sword",1,0],["cyber_battergirl",5,"thunder","斯特萊娜","毀滅強打手","Bow",1,0],["dog_slasher_proud",5,"thunder","黑爾加(獸國)","白色守護者","Fist",1,0],["psychic_tohru",5,"thunder","千岳十織","霹靂靈能者","Fist",1,0],["white_tiger_2anv",5,"thunder","希洛","覺醒之牙","Fist",0,0],["super_robot",5,"thunder","泰克特","停滯兵器","Bow",0,0],["wind_spgirl",5,"wind","希露媞","可愛劍魔","Sword",1,1],["wind_oracle",5,"wind","菲莉亞","宿命戰巫女","Support",1,1],["katana_ghost",5,"wind","叢雲","靈刀宿靈","Sword",1,1],["mercenary",5,"wind","列恩","亂世倖存者","Sword",1,1],["bigwing_shaman",5,"wind","希薇","廣翼靈使","Support",1,1],["gentle_barten",5,"wind","米格爾","翱翔大使","Special",1,1],["kokkoro",5,"wind","可可蘿","小小嚮導","Support",1,1],["wind_dragon",5,"wind","休爾特","毀滅漩渦龍","Fist",1,1],["nikaido_saki",5,"wind","二階堂咲","殭屍二號","Fist",1,1],["elf_princess",5,"wind","艾斯忒利耶爾","希望之子","Special",1,1],["wind_spgirl_1anv",5,"wind","希露提(一周年)","星辰少女騎士","Sword",1,0],["timid_kunoichi_ny21",5,"wind","涼風(新年)","新年盛裝女忍者","Sword",1,0],["combat_animal",5,"wind","芙拉菲","沉默討伐者","Fist",1,0],["brown_fighter_dst21",5,"wind","索妮雅(沙漠)","晴空風舞艷華","Sword",1,0],["beast_shaman",5,"wind","涅薇婭","時間先知","Support",1,0],["elf_princess_1halfanv",5,"wind","艾斯忒利耶爾(1.5周年)","永恆毀滅者","Support",1,0],["bigwing_shaman_smr21",5,"wind","希薇(夏日)","戀愛精靈巫女","Special",1,0],["tengu_master",5,"wind","豪嵐","暴風邪天狗","Fist",1,0],["mercenary_smr21",5,"wind","列恩(浴衣)","夏夜納涼冒險者","Sword",1,0],["combat_animal_xm21",5,"wind","芙拉菲","平安夜討伐者","Fist",0,0],["mimi",5,"wind","咪咪","善良兔少女","Sword",0,0],["marching_conductor",5,"wind","瑪奇亞","行進之星","Special",0,0],["wind_dragon_wt22",5,"wind","舒爾特","護衛之龍","Special",0,0],["ruin_girl",5,"light","奈芙提姆","甦醒遠古兵器","Special",1,1],["prince_zero",5,"light","拉傑爾特","流浪王子","Sword",1,1],["bodysuit_trooper",5,"light","艾可莉兒","七彩斬劍者","Sword",1,1],["fox_oracle_xm19",5,"light","稻穗(耶誕)","可愛九尾","Special",1,1],["starbreak_hunter",5,"light","塔傑斯","神速射手","Sword",1,1],["combat_soldier",5,"light","巴蕾塔","自由子彈","Bow",1,1],["blade_dancer",5,"light","利普拉姆","傲慢談判者","Sword",1,1],["ruin_girl_halfanv",5,"light","尼芙緹姆(半周年)","盛典靚麗古武姬","Special",1,1],["pecorine",5,"light","貪吃佩可","雲遊饕劍士","Sword",1,1],["neoviolin_musician",5,"light","莉拉","新派提琴手","Special",1,1],["high_priestess",5,"light","奧薇兒","法拓瑪聖女","Bow",1,1],["lamp_guide",5,"light","菲拉梅莉亞","光之引路者","Support",1,1],["hoshikawa_ririi",5,"light","星川莉莉","殭屍六號","Special",1,1],["wind_oracle_1anv",5,"light","菲莉亞(一周年)","希望之光繼承者","Support",1,0],["lightbullet_wiz_vt21",5,"light","艾黎雅(情人節)","戀愛笨拙女","Bow",1,0],["crystal_swordman",5,"light","賽利歐爾","水晶流浪劍士","Sword",1,0],["yokai_exterminator",5,"light","蓮華","退魔獵人","Sword",1,0],["resistance_princess_smr21",5,"light","莉莉絲(夏日)","赤裸公主","Sword",1,0],["fox_oracle_smr21",5,"light","稻穗(夏日)","夏裝絨毛九尾","Bow",1,0],["asahina_mikuru",5,"light","朝比奈實玖留","團內吉祥物","Support",1,0],["ruin_girl_smr21",5,"light","尼芙緹姆(浴衣)","夏日靚麗武姬","Support",1,0],["guildknight_leader",5,"light","澤黑爾","綠蔭騎士","Sword",1,0],["neoviolin_musician_hw21",5,"light","莉菈(萬聖)","愛樂魔女","Bow",1,0],["high_priestess_ny22",5,"light","奧爾薇爾","新年慶典聖女","Bow",0,0],["hero_girl_vt22",5,"light","奈特","迷途之心","Fist",0,0],["still_obstinator",5,"light","絲蒂涅爾","偽裝邪惡暴君","Special",0,0],["dimension_witch",5,"dark","貝爾賽蒂亞","次元魔女","Bow",1,1],["veteran_hunter",5,"dark","威隆","老練獵人","Sword",1,1],["blade_witch",5,"dark","莫爾米雅","流浪魔劍士","Sword",1,1],["cursed_girl",5,"dark","凱菈","蛇影嫣然少女","Fist",1,1],["olivia",5,"dark","奧莉薇","墮落天使","Sword",1,1],["kyaru",5,"dark","凱留","貓耳魔女","Special",1,1],["alice_smr20",5,"dark","愛麗絲(夏日)","海洋夢魘","Fist",1,1],["konno_junko",5,"dark","紺野純子","殭屍四號","Special",1,1],["sing_android_hw20",5,"dark","蒂亞(萬聖)","鋼鐵小惡魔歌后","Support",1,1],["dark_psygirl",5,"dark","蒂涅","闇黑少女","Sword",1,1],["devil_leader",5,"dark","埃德修斯","長夜希望","Sword",1,1],["silent_ninja",5,"dark","八雲","斬蛇忍者","Sword",1,0],["devil_princess_xm20",5,"dark","阿露姆(耶誕)","小惡魔聖誕","Fist",1,0],["summoner_little",5,"dark","庫艾特","開門者","Special",1,0],["noble_sorceress",5,"dark","梅維奧拉","深海夫人","Support",1,0],["dark_psygirl_dst21",5,"dark","蒂涅(沙漠)","闇黑少女零","Sword",1,0],["beatrix",5,"dark","貝雅特麗絲","不朽群青","Sword",1,0],["blindness_gunner_1halfanv",5,"dark","賽吉爾(1.5周年)","鬆襟槍手","Bow",1,0],["blackflower_wiz",5,"dark","莉姆普菈","巧克力百合魔女","Bow",1,0],["touyakiren_ceo_hw21",5,"dark","拉芙(萬聖)","萬聖夜之女","Sword",1,0],["psychic_shouta",5,"dark","伊野里翔太","重力超能者","Special",1,0],["summoner_little_2anv",5,"dark","庫艾特(2周年)","陰陽道見習","Special",1,0],["dimension_witch_ny22",5,"dark","貝爾賽蒂亞","新年黃昏魔女","Bow",0,0],["katana_ghost_wt22",5,"dark","叢雲","僕人與王子","Sword",0,0],["estateguild_leader",5,"dark","希爾德加德","領地事務公會會長","Special",0,0],["alk",4,"fire","埃爾克","巡星少年","Sword",1,1],["dragon_slayer",4,"fire","阿傑爾","獵龍者","Sword",1,1],["lady_summoner",4,"fire","碧安卡","魅惑召喚師","Support",1,1],["kunoichi",4,"fire","花火","隱匿忍者","Fist",1,1],["half_oni_boy",4,"fire","明日切丸","凶神血脈","Fist",1,1],["master_knight",4,"fire","格萊德","堅盾劍士","Sword",1,1],["red_gunner",4,"fire","卡農","赤髮雙槍手","Bow",1,1],["reporter_ny20",4,"fire","瑠瑠卡(新年)","初次傳教記者","Sword",1,1],["shapely_soldier",4,"fire","萊薇","過分豔麗冒險者","Sword",1,1],["crybaby_shooter",4,"fire","琪莉","愛哭槍擊少女","Bow",1,1],["pirates_gunner",4,"fire","海茲","魯莽子彈","Bow",1,1],["sanctuary_guard",4,"fire","米露米娜","害羞武術宗師","Sword",1,1],["magic_sword_girl",4,"fire","納席兒","魔劍魅惑少女","Sword",1,1],["vigilante_boy",4,"fire","藏丸","正義之火","Sword",1,1],["yugiri",4,"fire","夕霧","殭屍五號","Fist",1,1],["sorceress_teacher",4,"fire","妮可拉","傳聞完美教師","Special",1,1],["alk_1anv",4,"fire","埃爾克(周年)","善良引路人","Support",1,0],["cool_woman_soldier_xm20",4,"fire","特蕾涅","聖夜紅衣劍士","Sword",1,0],["naginata_girl",4,"fire","舞姬","古流巫女","Sword",1,0],["dragon_slayer_smr21",4,"fire","阿傑爾(夏日)","龍之摯友","Sword",1,0],["kyon",4,"fire","阿虛","平凡人代表","Sword",1,0],["psychic_tomboygirl",4,"fire","緋河琳奈","詛咒超能者","Special",0,0],["psychic_nao",4,"fire","凪原奈緒","星海超能者","Support",0,0],["nurse_pirate",4,"fire","琵希卡","獸耳護理師","Bow",0,0],["shapely_soldier_ny22",4,"fire","蕾薇","和服絕豔劍士","Sword",0,0],["swallow_knight",4,"water","尤維爾","飛燕自由騎士","Sword",1,1],["bishop_girl",4,"water","莉潔兒","迷宮天使","Support",1,1],["mermaid",4,"water","艾梅麗雅","深海人魚","Bow",1,1],["alice",4,"water","愛麗絲","漂流魔法少女","Fist",1,1],["battle_guild_staff",4,"water","莎隆","戰鬥公會成員","Fist",1,1],["spry_sailor",4,"water","拉納","揚帆軍官","Sword",1,1],["deepsea_mage",4,"water","薩爾","深海人形生物","Special",1,1],["desert_wizard",4,"water","莫爾迪亞嘉","沙暴魔導具使","Fist",1,1],["onmyo_attendant",4,"water","蛟蛇","白蛇陰陽師","Special",1,1],["psycho_reaper",4,"water","索薇","碎靈醫師","Sword",1,1],["unicorn_lancer_smr20",4,"water","傑拉爾(夏日)","海濱蒙面騎士","Sword",1,1],["pirates_girl_smr20",4,"water","瑪麗娜(夏日)","永夏女海賊","Sword",1,1],["shy_assassin",4,"water","薇薇","迷戀後背的冒險者","Sword",1,1],["urban_soldier_ny21",4,"water","翠絲塔(新年)","和服少女劍士","Sword",1,0],["ruin_lady",4,"water","索提艾絲","黎明古武","Bow",1,0],["hero_girl",4,"water","涅特","閃電藍","Sword",1,0],["stylish_witch",4,"water","琺松","新進魔術師","Special",1,0],["dress_gunner",4,"water","伊芙琳","官方認證狙擊手","Bow",1,0],["fox_companion_smr21",4,"water","白野(夏日)","妖豔助手","Special",1,0],["spry_sailor_hw21",4,"water","拉納(萬聖)","魅惑反串女僕","Sword",1,0],["psychic_seiji",4,"water","鷹森誠司","治癒靈能士","Support",1,0],["thunder_dragon",4,"thunder","拉姆斯","玄雷神龍","Special",1,1],["fox_scientist",4,"thunder","露娜露","微笑科學家","Special",1,1],["rec_android",4,"thunder","雷吉斯","仿生紳士","Bow",1,1],["elf_soldier",4,"thunder","艾蓮諾爾","星辰之焰","Sword",1,1],["cat_shaman",4,"thunder","傑伊","慧眼老貓","Support",1,1],["minotaur_girl",4,"thunder","米諾","超群女鬥牛士","Fist",1,1],["docking_beast_xm19",4,"thunder","奧利歐(耶誕)","聖夜快遞員","Fist",1,1],["black_hair_swordman",4,"thunder","亞德尼","秘劍軍師","Sword",1,1],["lady_android",4,"thunder","露蒂","沉睡仿生淑女","Special",1,1],["fake_princess",4,"thunder","普莉卡","人造人偶公主","Fist",1,1],["casino_dealer_smr20",4,"thunder","奈絲卡(夏日)","烈日賭徒","Sword",1,1],["hidden_blader",4,"thunder","羅賽莉亞","剎那舞娘","Sword",1,1],["mizuno_ai",4,"thunder","水野愛","殭屍三號","Fist",1,1],["fox_scientist_hw20",4,"thunder","露娜露(萬聖)","黃昏微笑科學家","Bow",1,1],["black_hair_swordman_xm20",4,"thunder","亞德尼","彌撒軍師","Sword",1,1],["little_wizard",4,"thunder","托・蕾蕾妮","迷你魔導教師","Support",0,0],["punk_warrior",4,"thunder","愛蒂塔","大膽人氣冒險者","Sword",1,0],["electro_girl",4,"thunder","特娜","無瑕電擊少女","Special",1,0],["secret_observer",4,"thunder","吉賽兒","天真魔具收藏家","Sword",1,0],["warashi",4,"thunder","福","招福少女","Special",1,0],["lion_boy",4,"thunder","堤奧","獅子後裔","Fist",1,0],["outlaw_panther_ny22",4,"thunder","庫洛","賀年黑豹","Fist",0,0],["spanner_girl",4,"thunder","艾蕾吉亞","機械維修師","Special",0,0],["scissor_ratgirl",4,"thunder","琳卡莉娜","未熟振翅娘","Sword",0,0],["white_tiger",4,"wind","白","白虎獸人","Fist",1,1],["tiger_treasure_hunter",4,"wind","咪亞","努力虎娘","Fist",1,1],["birdman",4,"wind","奧羅爾","碧空獵人","Sword",1,1],["samurai",4,"wind","宗士郎","破雲武士","Sword",1,1],["elf_archer",4,"wind","梅莉蘇爾","與風為伴少女","Bow",1,1],["dog_slasher",4,"wind","黑爾加","白狼杖術大師","Fist",1,1],["arisa",4,"wind","亞里莎","森林守護者","Bow",1,1],["bearish_darkwitch_ny20",4,"wind","蕾貝卡(新年)","慌張占卜巫女","Support",1,1],["beast_adventurer",4,"wind","盧","熱血冒險少年","Sword",1,1],["timid_kunoichi",4,"wind","鈴香","不情願女忍","Sword",1,1],["tengu_girl",4,"wind","小羽","天狗愛徒","Bow",1,1],["ekaki_onmyoji",4,"wind","鵠","陰陽畫師","Support",1,1],["wild_boy",4,"wind","豪","乘風少年","Fist",1,1],["white_tiger_xm20",4,"wind","白(聖誕節)","聖誕馴鹿白虎","Fist",1,0],["ram",4,"wind","拉姆","毒舌女僕姐姐","Bow",1,0],["wind_striker",4,"wind","里卡德","武道純血","Fist",1,0],["steel_lacrosse",4,"wind","米蒂","鋼鐵旋風選手","Bow",1,0],["cool_witch_girl",4,"wind","皮亞莫","認命小魔女","Special",1,0],["bird_master",4,"wind","路馬爾克","周遊馴鷹人","Sword",1,0],["pilgrim_monk",4,"wind","瑪卡妮","熱衷修行武僧","Sword",1,0],["sanctuary_guard_hw21",4,"wind","米露米娜(萬聖)","惡作劇武術家","Sword",1,0],["sheep_girl",4,"wind","梅莉艾娜","戀愛羊女","Support",0,0],["sing_android",4,"light","蒂亞","仿生歌姬","Support",1,1],["unicorn_lancer",4,"light","傑拉爾","白面騎士","Sword",1,1],["lightbullet_wiz",4,"light","艾黎雅","光彈魔術師","Bow",1,1],["palpebra_knight",4,"light","芬恩","秩序守護者","Sword",1,1],["palpebra_knight_lady",4,"light","綺拉","笑容守護者","Sword",1,1],["monster_cook",4,"light","帕爾菲","魔物廚師","Sword",1,1],["illusionist",4,"light","伊兒彌","夢幻光魔術師","Special",1,1],["unleash_hunter",4,"light","霍普洛","花式射手","Bow",1,1],["unyielding_adventurer",4,"light","芮兒","生態調查獵人","Fist",1,1],["whitedog_beast",4,"light","芙蘿蕾塔","魯莽傭兵劍士","Sword",1,1],["bishop_girl_smr20",4,"light","莉潔兒(夏日)","仲夏救世主","Support",1,1],["keylock_girl",4,"light","琪亞娜","萬能解鎖少女","Special",1,1],["resistance_princess",4,"light","莉莉絲","光之繼承者","Sword",1,1],["doctor_machine",4,"light","梅克","無差別治癒者","Support",1,1],["woman_knight_1anv",4,"light","賽希莉亞(周年)","守護希望騎士","Sword",1,0],["sea_violent",4,"light","狄蕾特","漁家女鬥士","Fist",1,0],["whitedog_beast_vt21",4,"light","芙洛麗塔","融雪羞澀少女","Sword",1,0],["sleep_puppy",4,"light","菲妮","使人入眠少女","Support",1,0],["desert_priest",4,"light","薩莉哈","沙漠之光","Support",1,0],["psycho_reaper_smr21",4,"light","索薇","夏日靈魂鍊金醫","Sword",1,0],["stella_2anv",4,"light","史黛拉","破碎女神","Support",1,0],["devil_clown_xm21",4,"light","佛爾斯","午夜聖誕老人","Special",0,0],["advanced_soldier",4,"light","卡拉比納","治安指揮官","Bow",0,0],["pbc_operator",4,"light","克拉爾特","光耀青藍","Support",0,0],["devil_princess",4,"dark","阿露姆","純真邪影","Fist",1,1],["battle_maid",4,"dark","瑪莉安妮","戰鬥女僕","Bow",1,1],["undead_boy",4,"dark","安狄","棺材喚靈師","Special",1,1],["warlock",4,"dark","里昂","深淵探求者","Bow",1,1],["swallow_knight_ny20",4,"dark","尤維爾(新年)","祭典餐飲統籌","Sword",1,1],["sword_beauty",4,"dark","葵澤","黑髮佳人","Sword",1,1],["touyakiren_ceo",4,"dark","拉芙","永夜之母","Special",1,1],["blindness_gunner",4,"dark","塞爾吉魯","眼罩槍手","Bow",1,1],["luna",4,"dark","露娜","年幼死靈術師","Special",1,1],["lady_gunner_smr20",4,"dark","瑪格麗特","黃昏玫瑰","Bow",1,1],["dinosaur_hunter",4,"dark","古里格","志在世界第一","Sword",1,1],["crazy_doctor",4,"dark","布萊茲","無賴鍊金術師","Special",1,1],["yamada_tae",4,"dark","山田妙","殭屍零號","Fist",1,1],["reaper_girl_hw20",4,"dark","伐露切(萬聖)","貓耳貓尾看守","Sword",1,1],["illegal_herbalist",4,"dark","澤爾瑪","紫煙叛徒","Support",1,1],["devil_woman_soldier_1anv",4,"dark","艾禮(周年)","白色魔族戰士","Fist",1,0],["subaru",4,"dark","菜月昴","對抗命運少年","Special",1,0],["mystery_agent",4,"dark","愛德華","揭破闇影者","Special",1,0],["walking_armor",4,"dark","隆達爾","哲學鎧甲","Sword",1,0],["desert_caravans",4,"dark","特威爾","商隊年輕首領","Fist",1,0],["koizumi_ituki",4,"dark","古泉一樹","微笑吟遊詩人","Support",1,0],["formercorrupt_detective",4,"dark","薇爾吉雅","詭譎女偵探","Bow",1,0],["psychic_projection",4,"dark","影丘龍一","操影異能者","Special",1,0],["informant_2anv",4,"dark","錫安(2周年)","詛咒密探","Sword",1,0],["alchemist",3,"fire","莉莉露","爆破煉金術師","Special",1,1],["pretty_witch",3,"fire","莓咪","見習女巫","Support",1,1],["gunslinger",3,"fire","伊利絲","沙漠槍手","Bow",1,1],["monster_hunter",3,"fire","哈修","邊境獵人","Bow",1,1],["black_doctor",3,"fire","吉恩","博愛亡命徒","Support",1,1],["cool_woman_soldier",3,"fire","朵列涅","赤咒女劍士","Sword",1,1],["berserker",3,"fire","吉爾斯拉得","狂戰士","Sword",1,1],["fire_shaman",3,"fire","焰妮","火焰巫女","Special",1,1],["disciplined_swordman",3,"fire","傑克","嚴明監察官","Sword",1,1],["birdwoman",3,"fire","庫蘭","鳥族女戰士","Bow",1,1],["tradition_healer",3,"fire","哈莉夏","調和治療師","Support",1,1],["brave_mouse",3,"fire","斯文","追虎小鼠","Sword",1,1],["sewing_girl",3,"fire","莉莉安","幸福裁縫師","Support",1,1],["wolf_assassin_wt21",3,"fire","克勞斯(白色情人節)","甜蜜刺客","Fist",1,0],["sniper",3,"water","凱羅斯","森林獵人","Bow",1,1],["urban_soldier",3,"water","翠絲塔","藍衣少女劍士","Sword",1,1],["hard_face_soldier",3,"water","瓦魯達","膽小重戰士","Fist",1,1],["nurse",3,"water","艾爾莎","白袍亡命徒","Support",1,1],["wolf_assassin",3,"water","克勞斯","獠牙刺客","Fist",1,1],["fox_companion",3,"water","白野","九尾助手","Support",1,1],["depraved_monk",3,"water","快癒","幻酒大師","Support",1,1],["sailor_girl",3,"water","拉緹","尋真水手少女","Bow",1,1],["cute_fafnir",3,"water","華浮","傻氣幼龍","Support",1,1],["mens_attire_girl",3,"water","莉可","靈泉優雅助理","Sword",1,1],["dryad_xm19",3,"water","卓雅","神聖樹靈","Support",1,1],["junior_yearngirl",3,"water","克拉拉","憧憬女傭兵","Sword",1,1],["little_shaman",3,"water","薩瑪莎","狂熱薩滿","Support",1,1],["scout_girl",3,"water","麗塔","淘氣偵察少女","Bow",1,1],["twin_blader",3,"thunder","尤娜","夢想雙劍士","Sword",1,1],["bee_girl",3,"thunder","赫妮","麻痺蜂娘","Bow",1,1],["lightning_fighter",3,"thunder","泰格","迅雷拳手","Fist",1,1],["outlaw_panther",3,"thunder","黑","博學黑豹","Fist",1,1],["wolf_swordsman",3,"thunder","艾爾貝魯托","獠牙小爵爺","Sword",1,1],["oni_girl",3,"thunder","御雷","風雷舞娘","Fist",1,1],["sociable_mestizo",3,"thunder","塔季亞娜","以酒壯膽冒險者","Sword",1,1],["magic_boy",3,"thunder","柯爾特","沒落雷術師","Support",1,1],["student_gunsmith",3,"thunder","夏・蘇蘇","愛槍學生技師","Support",0,1],["fortuneteller",3,"thunder","芙拉","遠見占卜師","Support",1,1],["cat_fighter_ny20",3,"thunder","喵嗚","新年盛裝貓娘","Fist",1,1],["old_mercenary",3,"thunder","巴爾根","孤高鐵人","Sword",1,1],["floating_girl",3,"thunder","弗拉娜","低重力少女","Support",1,1],["conjurer_girl",3,"thunder","フィ・ノノア","雨日偷閒","Special",0,0],["highlander",3,"wind","艾凡","轟鳴冒險者","Sword",1,1],["dryad",3,"wind","卓雅","森之寵女","Support",1,1],["lich",3,"wind","雷希塔洛","溫厚亡靈王","Support",1,1],["casino_dealer",3,"wind","芮絲卡","靈魂賭徒","Sword",1,1],["cat_fighter",3,"wind","咪烏","貓耳鬥士","Fist",1,1],["devil_clown",3,"wind","佛露絲","歡笑小丑","Bow",1,1],["herbalist",3,"wind","花托莉芙","春風草藥師","Support",1,1],["spearman",3,"wind","柯納","巧技槍手","Sword",1,1],["trap_errand",3,"wind","賈斯塔","陷阱牧場主","Fist",1,1],["gang_girl",3,"wind","凱特","銜牙義賊","Sword",1,1],["lazy_genious",3,"wind","涅緹","魔法理論追尋者","Support",1,1],["rookie_adventurer",3,"wind","ミレット","新手冒險者","Sword",0,0],["priest",3,"light","柯莉娜","愛之祭司","Support",1,1],["lady_gunner",3,"light","瑪爾格莉特","靚麗槍手","Bow",1,1],["woman_knight",3,"light","瑟希利亞","守護女騎士","Sword",1,1],["docking_beast",3,"light","奧利歐","騎獸送貨人","Fist",1,1],["exorcist_oldman",3,"light","勞爾","無人島酒莊主","Sword",1,1],["half_knight",3,"light","米雷斯","青澀小騎士","Sword",1,1],["reporter",3,"light","瑠瑠卡","菜鳥女記者","Sword",1,1],["wild_wolfgirl",3,"light","加蘿","迷途狼女","Fist",1,1],["moth_girl",3,"light","茉拉","純真蛾娘","Support",1,1],["priest_hw20",3,"light","可莉娜(萬聖)","淘氣徒弟","Support",1,1],["junior_soldier",3,"light","克蘇哈","見習衛兵","Bow",1,0],["skateboard_boy",3,"light","阿克謝姆","飛板新手","Fist",1,0],["kids_gunner",3,"light","魯・路特","幻想後宮生活","Bow",0,0],["reaper_girl",3,"dark","法露琪","亡者守護者","Sword",1,1],["chakram_shooter",3,"dark","夏里爾","沉默求職者","Bow",1,1],["devil_woman_soldier",3,"dark","艾禮","魔族叛徒","Fist",1,1],["informant",3,"dark","錫安","厚望情報販","Sword",1,1],["arabic_swordman",3,"dark","阿迪爾","倖存鬥士","Sword",1,1],["dark_nursemaid",3,"dark","桃樂西亞","壞脾氣女僕","Support",1,1],["bearish_darkwitch",3,"dark","蕾貝卡","夢幻魔術師","Support",1,1],["monster_attract",3,"dark","諾塞爾","魔物鍾愛者","Sword",1,1],["delusion_girl",3,"dark","梅莉露","妄想冒險家","Support",1,1],["delusion_girl_xm20",3,"dark","梅利露(聖誕)","困惑妄想聖誕老人","Support",1,0],["mummy_boy",3,"dark","塔爾哈","古怪木乃伊少年","Special",1,0],["revenge_rabbit",3,"dark","柯蒂","兔族小戰士","Fist",1,0],["assistant_boy",3,"dark","魯希爾","見習小偵探","Bow",0,0],["guardian_golem",2,"fire","魔像","風塵守護者","Fist",1,1],["owl",2,"wind","波吉特","森林智者","Support",1,1],["fox",2,"wind","鎌鼬","風刃之靈","Bow",1,1],["towa_namakubi",2,"wind","Ｃ・Ｆ・奇蹟","魯莽應援之禮","Bow",0,1],["towa_vtuber",2,"wind","斗和奇蹟","超時空奇異歌姬","Fist",1,0],["kinoko",1,"fire","奇諾","孢子之靈","Fist",1,1],["slango_red",1,"fire","赤色噗露","火之彈彈","Fist",1,1],["spirit_fire",1,"fire","炎靈","火焰之靈","Support",1,1],["slango_blue",1,"water","青色噗露","水之彈彈","Fist",1,1],["slango_yellow",1,"thunder","黃色噗露","雷之彈彈","Fist",1,1],["paralysis_hedgehog",1,"thunder","帕拉鼠","雷針小鼠","Bow",1,1],["slango_green",1,"wind","綠色噗露","風之彈彈","Fist",1,1]];
 
-// 名冊直接由圖鑑同一份 DEX 生成：四星角色
+// 名冊直接由圖鑑同一份 DEX 生成：只收四屬五星角色
 //   只讀取火、水、雷、風四屬性；光、闇僅在使用者特別要求時才加入
 const OPEN_EL = ["fire", "water", "thunder", "wind"];
 const OPEN_ELEMENTS = new Set(OPEN_EL);
@@ -1607,7 +1674,7 @@ function leadText(el, type) {
     return s;
 }
 const CHAR_TABLE = {};
-DEX.filter(c => c[1] === 4).forEach(c => {
+DEX.filter(c => c[1] === 5 && OPEN_ELEMENTS.has(c[2])).forEach(c => {
     const unit = c[0], el = c[2], name = c[3], title = c[4];
     const type = WEAPON_TYPE[c[5]] || "knight";
     const st = TYPE_STAT[type];
@@ -1645,9 +1712,7 @@ const SKILL_CD = { knight: 15, fighter: 12, ranger: 12, supporter: 18, special: 
 const SKILL_CHARGE_TIME = 2.5;   // 純靠時間要基礎冷卻 ×2.5 才滿（撞擊會大幅加速）
 const SKILL_HIT_CHARGE = 2.4;    // 撞到敵人一次 +2.4%
 const SKILL_CAST_GAP_MS = 400;
-const SKILL_CINEMATIC = { active: false, until: 0, canvas: null, ctx: null, artCanvas: null, artCtx: null, artImage: null, caster: null, target: null, particles: [], raf: 0, shaken: false };
-SKILL_CINEMATIC.artImage = new Image();
-SKILL_CINEMATIC.artImage.src = "asset/fx/vfx/yokai_exterminator_effect_strip.png";
+const SKILL_CINEMATIC = { active: false, startedAt: 0, until: 0, canvas: null, ctx: null, specialImage: null, hiddenFace: null, faceVisibility: "", caster: null, target: null, particles: [], raf: 0, shaken: false };
 
 // ==========================================================
 // 職業定位（技能演出由 SKILL_CAST 負責，這裡只放顯示用的名稱）
@@ -1663,10 +1728,10 @@ const TYPE_INFO = {
 const FLIP_AT = [9, 15, 39];
 // 場上三位分别屬於劍士／射擊／格鬥，另外兩種形態先保留給之後的隊長
 const BOSS_TABLE = [
-    { id: "colossus_fire",    name: "煉獄龍王・瓦格納", element: "fire",    icon: "🌋" },
-    { id: "colossus_water",   name: "雪蓉", element: "water",   icon: "💧" },
-    { id: "colossus_wind",    name: "毀滅漩渦龍・休爾特", element: "wind",    icon: "🌪️" },
-    { id: "colossus_thunder", name: "玄雷神龍・拉姆斯", element: "thunder", icon: "🌩️" },
+    { id: "colossus_fire",    name: "熾焰龍王・焚天", element: "fire",    icon: "🌋" },
+    { id: "colossus_water",   name: "冰淵龍姬・霜華", element: "water",   icon: "💧" },
+    { id: "colossus_wind",    name: "翠嵐龍王・裂空", element: "wind",    icon: "🌪️" },
+    { id: "colossus_thunder", name: "玄雷龍皇・震霄", element: "thunder", icon: "🌩️" },
     // 自製 BOSS：圖框在 asset/battle/boss/ancient_golem/frames/，由 JS 逐格撥（見 ANIM_BOSS）
     { id: "ancient_golem",    name: "遠古石魔",       element: "fire",    icon: "🗿" }
 ];
@@ -1731,16 +1796,16 @@ const PARALYZE_GAP = 3000; // 麻痺最短間隔，避免多段技無限鎖王
 const BOSS_STAGES = [
     { id: "thunder", el: "thunder", boss: "colossus_thunder", gate: "雷鳴禁域", zone: "ruin",
       mult: 9,  amult: 1.2, shards: 90,  replay: 18,
-      hint: "玄雷神龍・拉姆斯蹲在銳牙的戰場。風克雷——希薇在場上，撞擊和克制一起吃到。" },
+      hint: "玄雷龍皇・震霄盤踞在銳牙的戰場。風克雷——希薇在場上，撞擊和克制一起吃到。" },
     { id: "wind",    el: "wind",    boss: "colossus_wind",    gate: "翠風裂谷", zone: "gale",
       mult: 12, amult: 1.3, shards: 130, replay: 26,
-      hint: "毀滅漩渦龍・休爾特的風壓很硬。火克風——羅爾夫是這道門的正解。" },
+      hint: "翠嵐龍王・裂空的風壓很硬。火克風——羅爾夫是這道門的正解。" },
     { id: "water",   el: "water",   boss: "colossus_water",   gate: "蒼瀧深域", zone: "frost",
       mult: 16, amult: 1.5, shards: 190, replay: 38,
-      hint: "雪蓉鎮守機人的行星，是四道門裡最厚的一層。雷克水——讓斬鐵打頭陣。" },
+      hint: "冰淵龍姬・霜華鎮守蒼瀧深域，是四道門裡最厚的一層。雷克水——讓斬鐵打頭陣。" },
     { id: "fire",    el: "fire",    boss: "colossus_fire",    gate: "紅蓮熔境", zone: "lava",
       mult: 6,  amult: 1.1, shards: 60,  replay: 12,
-      hint: "煉獄龍王・瓦格納是門口的新手王。水克火——莉潔兒或尤維爾上場，別用火對噴。" }
+      hint: "熾焰龍王・焚天是門口的新手王。水克火——莉潔兒或尤維爾上場，別用火對噴。" }
 ];
 
 // ==========================================================
@@ -1795,7 +1860,7 @@ const TITLE_TABLE = [
     { id: "slayer",    n: "彈射狩獵者", d: "累計擊殺 50 隻",        ok: () => kills >= 50 },
     { id: "team",      n: "三人小隊",   d: "解鎖滿三位角色",        ok: () => CHAR_IDS.filter(i => roster[i].unlocked).length >= 3 },
     { id: "collector", n: "武具收藏家", d: "持有五把以上武器",    ok: () => Object.keys(shieldBag).length >= 5 },
-    { id: "hexa",      n: "六屬共鳴",   d: "名冊湊齊六種屬性",      ok: () => new Set(CHAR_IDS.filter(i => roster[i].unlocked).map(i => CHAR_TABLE[i].element)).size >= 6 },
+    { id: "hexa",      n: "四屬共鳴",   d: "名冊湊齊火、水、雷、風四種屬性", ok: () => new Set(CHAR_IDS.filter(i => roster[i].unlocked).map(i => CHAR_TABLE[i].element)).size >= 4 },
     { id: "penta",     n: "五職俱全",   d: "名冊湊齊五種職業",      ok: () => new Set(CHAR_IDS.filter(i => roster[i].unlocked).map(i => CHAR_TABLE[i].type)).size >= 5 },
     { id: "master",    n: "深層主宰",   d: "抵達無限波利塔 30",     ok: () => stage >= 30 }
 ];
@@ -1807,7 +1872,7 @@ let equipMap = {};
 let titleOn = "novice";
 function shieldOf(charId) { const s = equipMap[charId]; return s && SHIELD_TABLE[s] ? SHIELD_TABLE[s] : null; }
 
-// ===== 技能：可遊玩四星角色共用五套職業機制，名稱由屬性＋職業組出來 =====
+// ===== 技能：可遊玩五星角色共用五套職業機制，名稱由屬性＋職業組出來 =====
 //   劍士＝突進重斬、格鬥＝連打、射擊＝光束多段、輔助＝回復與全隊攻UP、特殊＝範圍爆裂
 const SKILL_WORD = { fire: "烈焰", water: "蒼流", thunder: "迅雷", wind: "疾風", light: "聖光", dark: "闇影" };
 const SKILL_MOVE = { knight: "斬", fighter: "拳", ranger: "弓", supporter: "祈", special: "爆" };
@@ -1927,10 +1992,10 @@ const ENEMY_UNIT = {
     slime_yellow:{ unit: "slango_yellow",     rarity: 1 },   // 雷之彈彈／黃色噗露
     slime_green: { unit: "slango_green",      rarity: 1 },   // 風之彈彈／綠色噗露
     // 王關改用圖庫的四隻屬性龍王，比魔物大隻得多；星級就是 CDN 路徑，全部核過 kachidoki／neutral／skill_ready／walk_back／walk_front 都在
-    colossus_fire:    { unit: "fire_dragon",        rarity: 5 },   // 煉獄龍王・瓦格納
-    colossus_water:   { unit: "waterdragon_kunfu",  rarity: 5 },   // 雪蓉（源頭未上台服，圖鑑不會有這張卡）
-    colossus_wind:    { unit: "wind_dragon",        rarity: 5 },   // 毀滅漩渦龍・休爾特
-    colossus_thunder: { unit: "thunder_dragon",     rarity: 4 },   // 玄雷神龍・拉姆斯
+    colossus_fire:    { unit: "fire_dragon",        rarity: 5 },   // 熾焰龍王・焚天
+    colossus_water:   { unit: "waterdragon_kunfu",  rarity: 5 },   // 冰淵龍姬・霜華
+    colossus_wind:    { unit: "wind_dragon",        rarity: 5 },   // 翠嵐龍王・裂空
+    colossus_thunder: { unit: "thunder_dragon",     rarity: 4 },   // 玄雷龍皇・震霄
     // 自製 BOSS 沒有圖站對應，走下面 ANIM_BOSS 那條圖框路
     ancient_golem:    { unit: "ancient_golem",      rarity: 1 },
     // ↓ 真實解包素材敵人：special.gif 是像素精靈動畫，直接用解包路徑載入
@@ -1976,10 +2041,11 @@ function spriteCandidates(kind, id, state) {
         // 球體用解包的動作檔名；cut＝技能插播，要的是相簿那張大圖
         const local = kind === "cut" ? cdn : (BALL_ACTION_FILE[state] || "collision");
         const dir = CDN_BASE + "rarity" + ref.rarity + "/" + ref.unit;
-        // 施放技能時優先取 World Flipper Unit Album 的 skill_ready 動作圖，作為角色 Cut-in。
+        // 技能卡依指定狀態載入圖站動作；左側指定 kachidoki，技能演出本體另播 special GIF。
         if (kind === "cut" && !ref.exOnly) {
-            out.push(dir + "/skill_ready.gif");
-            out.push(dir + "/skill_ready.png");
+            const cutState = state === "skill" ? "skill_ready" : (UNIT_STATE_FILE[state] || UNIT_STATE_FALLBACK);
+            out.push(dir + "/" + cutState + ".gif");
+            out.push(dir + "/" + cutState + ".png");
         }
         // 解包目錄用 devId，圖站目錄用描述名，兩個都列出來試
         const roots = [...new Set([ref.unit, id])].filter(Boolean);
@@ -2393,6 +2459,23 @@ const SFX = {
             this.tone(1320, 1320, 0.10, "square", 0.07, 0.11);
         }
     },
+    // 五星技能演出起手：短促蓄力上揚，接低頻斬擊與清亮尾音。
+    // 只在 castSkill 入口呼叫一次，不會跟著 GIF 每幀重播。
+    skillCinematic(element) {
+        if (!this.ctx || !this.enabled) return;
+        const palette = {
+            fire: { start: 330, end: 880, hit: 110 },
+            water: { start: 440, end: 1046, hit: 150 },
+            thunder: { start: 520, end: 1320, hit: 125 },
+            wind: { start: 660, end: 1174, hit: 180 }
+        };
+        const p = palette[element] || palette.water;
+        this.tone(p.start, p.end, 0.24, "triangle", 0.12, 0, 0.008);
+        this.noise(0.50, 0.10, 900, 4700, 0.14, { mode: "band", q: 0.8, attack: 0.012 });
+        this.noise(0.024, 0.22, this.hz(3200, 0.12), 0, 0.84, { mode: "hp", attack: 0.0007 });
+        this.tone(p.hit, 38, 0.34, "sine", 0.28, 0.84, 0.001);
+        this.tone(p.end * 1.5, p.end * 1.08, 0.22, "sine", 0.11, 0.86, 0.002);
+    },
     // 4) 擊殺：先一記實體「咚」，再接經典上行琶音
     kill() {
         this.noise(0.018, 0.17, this.hz(3000, 0.15), 0, 0, { mode: "hp", attack: 0.0007 });
@@ -2480,7 +2563,7 @@ let unisonMap = {};
 function unisonOf(mainId) { return unisonMap[mainId] || null; }
 function initRoster() {
     roster = {};
-    // 四星角色先鎖住，碎片在戰場上打；只有開場選的那一位直接給
+    // 五星角色先鎖住，碎片在戰場上打；只有開場選的那一位直接給
     CHAR_IDS.forEach(id => { roster[id] = newChar(id, false); });
     teamIds = [];
     unisonMap = {};
@@ -2587,14 +2670,15 @@ const TOWER_BOSS_TABLE = [
 // face／lift 是「臉框外擴 %」與「血條離球頂 px」：四張 RO 圖幅不同，靠這兩格把本體都放到 200px 級。
 // zoom 是 BOSS 頁圓框頭像與上下關卡小圖的縮放：圖檔四周留白多的（獅鷲）要放大，方形的水王保持原樣才不會被圓框切掉。
 const GATE_ENEMY_APPEARANCES = {
-    fire: { name: '煉獄龍王・瓦格納', skin: 'asset/battle/gate-boss/nidhogg.webp', alpha: true, face: -100, lift: 88, zoom: 1.18 },
-    water: { name: '雪蓉', skin: 'asset/battle/gate-boss/water.webp', alpha: true, face: -70, lift: 64, zoom: 1 },
-    wind: { name: '毀滅漩渦龍・休爾特', skin: 'asset/battle/gate-boss/wind.webp', alpha: true, face: -129, lift: 91, zoom: 1.42 },
-    thunder: { name: '玄雷神龍・拉姆斯', skin: 'asset/battle/gate-boss/thunder.webp', alpha: true, face: -83, lift: 77, zoom: 1 }
+    fire: { name: '熾焰龍王・焚天', skin: 'asset/battle/gate-boss/nidhogg.webp', alpha: true, face: -100, lift: 88, zoom: 1.18 },
+    water: { name: '冰淵龍姬・霜華', skin: 'asset/battle/gate-boss/water.webp', alpha: true, face: -70, lift: 64, zoom: 1 },
+    wind: { name: '翠嵐龍王・裂空', skin: 'asset/battle/gate-boss/wind.webp', alpha: true, face: -129, lift: 91, zoom: 1.42 },
+    thunder: { name: '玄雷龍皇・震霄', skin: 'asset/battle/gate-boss/thunder.webp', alpha: true, face: -83, lift: 77, zoom: 1 }
 };
 let towerBossCursor = 0;
 let enemy = { id: "", name: "", icon: "👹", hp: 40, maxHp: 40, atk: 4, element: "fire", expReward: 30, boss: false,
     groupSize: 1, battleSkinUrl: "", battleSkinFailed: false, battleSkinAlpha: false, battleSkinFace: -100, battleSkinLift: 88 };
+const bossHpBufferState = { seq: -1, ratio: 1, lastRatio: 1, delayUntil: 0, lastAt: 0 };
 
 // 名字用台服正式譯名；id 是內部鍵（存檔與 ENEMY_UNIT 都用它），不動
 const ENEMY_TABLE = [
@@ -2782,6 +2866,43 @@ function circleCollide(a, o, rest) {
         if (!o.fixed) { o.vx -= j * dx * 0.5; o.vy -= j * dy * 0.5; }
     }
     return { nx: dx, ny: dy };
+}
+
+// Boss 用矩形受擊框，角色球仍以圓形參與碰撞；回傳方向沿用「球指向 Boss」的慣例。
+function circleAabbCollide(ball, box, width = 140, height = 90, rest = 0.72) {
+    const left = box.x - width / 2, right = box.x + width / 2;
+    const top = box.y - height / 2, bottom = box.y + height / 2;
+    const qx = Math.max(left, Math.min(right, ball.x));
+    const qy = Math.max(top, Math.min(bottom, ball.y));
+    let nx = ball.x - qx, ny = ball.y - qy;
+    let dist = Math.hypot(nx, ny);
+    if (dist >= ball.r) return null;
+    if (dist < 0.0001) {
+        const edges = [
+            { d: Math.abs(ball.x - left), x: -1, y: 0 }, { d: Math.abs(right - ball.x), x: 1, y: 0 },
+            { d: Math.abs(ball.y - top), x: 0, y: -1 }, { d: Math.abs(bottom - ball.y), x: 0, y: 1 }
+        ].sort((a, b) => a.d - b.d);
+        nx = edges[0].x; ny = edges[0].y; dist = -edges[0].d;
+    } else { nx /= dist; ny /= dist; }
+    const overlap = ball.r - dist;
+    ball.x += nx * overlap; ball.y += ny * overlap;
+    const towardBoxX = -nx, towardBoxY = -ny;
+    const vn = ball.vx * nx + ball.vy * ny;
+    if (vn < 0) { ball.vx -= (1 + rest) * vn * nx; ball.vy -= (1 + rest) * vn * ny; }
+    return { nx: towardBoxX, ny: towardBoxY };
+}
+
+function bossHitImpact(target) {
+    if (!enemy.boss || target !== PF.foe || !target.ball) return;
+    const now = performance.now();
+    if (now - (target.lastBossVfxAt || 0) < 120) return;
+    target.lastBossVfxAt = now;
+    target.ball.classList.remove('boss-hit');
+    void target.ball.offsetWidth;
+    target.ball.classList.add('boss-hit');
+    clearTimeout(target.hitFlashTimer);
+    target.hitFlashTimer = setTimeout(() => target.ball && target.ball.classList.remove('boss-hit'), 320);
+    FX.shake();
 }
 
 function makeBall(cls, r, kind, id, fallback) {
@@ -3019,6 +3140,7 @@ function attachBall(m) {
     b.y = H - 150 - Math.random() * 70;
     b.vx = Math.random() * 260 - 130;
     b.vy = -1000 - Math.random() * 120;
+    b.introDrop = false;
     m.body = b;
     m.fighter = mk.fighter;
     m.down = false;
@@ -3039,6 +3161,7 @@ function syncTeamField() {
         return true;
     });
     teamIds.forEach((id, i) => {
+        warmSkillSpecial(id);
         let m = PF.members.find(x => x.ch.id === id);
         if (!m) { m = { ch: roster[id], idx: i, body: null, fighter: null, down: false, respawnAt: 0, lastDmg: 0 }; PF.members.push(m); }
         m.idx = i;
@@ -3047,6 +3170,16 @@ function syncTeamField() {
     // 槽位／HUD 小卡都以 teamIds 順序渲染，這裡保持一致
     PF.members.sort((a, b) => a.idx - b.idx);
     syncPartyFormation(true);
+}
+
+const SKILL_SPECIAL_WARMED = new Set();
+function warmSkillSpecial(id) {
+    if (SKILL_SPECIAL_WARMED.has(id)) return;
+    const ref = artRef("hero", id);
+    if (!ref) return;
+    const img = new Image();
+    img.src = `${CDN_BASE}rarity${ref.rarity}/${ref.unit}/special.gif`;
+    SKILL_SPECIAL_WARMED.add(id);
 }
 
 function aliveMembers() { return PF.members.filter(m => !m.down && m.body); }
@@ -3163,6 +3296,7 @@ const FX = {
         this.sprites.push(n);
     },
     pop(x, y, text, cls, scale) {
+        if (SKILL_CINEMATIC.active) return;
         const n = el("div", "dmg-pop " + (cls || ""));
         n.textContent = text;
         n.style.left = x + "px";
@@ -3360,8 +3494,6 @@ function bumpCombo(n) {
         const lead = PF.members.find(m => m.body);
         if (lead) FX.pop(lead.body.x, lead.body.y - 40, "星脈蓄勢", "energy");
     }
-    const chip = $("pf-combo-chip");
-    if (chip) { chip.classList.remove("bump"); void chip.offsetWidth; chip.classList.add("bump"); }
     if (FEVER.active) {
         feverCombo += n;
         const fc = $("pf-fever-combo");
@@ -3814,7 +3946,8 @@ function showCut(m) {
         txt.innerHTML = `<b>${sk.name}</b><i></i><span><em>${d.name}</em>｜${sk.tag}</span>`;
         n.append(art, txt);
         PF.cut.appendChild(n);
-        paintSprite(inner, "cut", m.ch.id, "skill", d.name.slice(0, 1));
+        // 左側技能卡固定用勝利姿勢，場上的 special GIF 保留技能動作，避免兩邊同步重複。
+        paintSprite(inner, "cut", m.ch.id, "kachidoki", d.name.slice(0, 1));
         // 符文烙在彈板軸心，像機械關節上的屬性印記
         PF.flippers.forEach(f => {
             const r = el("div", "flip-rune");
@@ -3826,27 +3959,42 @@ function showCut(m) {
             setTimeout(() => r.remove(), 1200);
         });
         PF.lastCut = performance.now();
-        setTimeout(() => { n.classList.add("out"); setTimeout(() => n.remove(), 300); }, 1000);
+        setTimeout(() => { n.classList.add("out"); setTimeout(() => n.remove(), 300); }, 1450);
     };
     const wait = SKILL_CAST_GAP_MS - (performance.now() - PF.lastCut);
     if (wait > 0) { clearTimeout(PF.cutTimer); PF.cutTimer = setTimeout(run, wait); }
     else run();
 }
 
-// 四星技能共用的像素賽璐璐時停演出；文字沿用各角色目前的技能名稱。
+// 五星技能共用像素賽璐璐時停演出；攻擊動畫播放角色自己的 special GIF。
 function startSkillCinematic(m) {
     const c = SKILL_CINEMATIC;
     if (c.raf) cancelAnimationFrame(c.raf);
-    c.active = true; c.caster = m; c.target = PF.foe; c.until = performance.now() + 1500; c.shaken = false;
+    if (c.specialImage) c.specialImage.remove();
+    if (c.hiddenFace) { c.hiddenFace.style.visibility = c.faceVisibility; c.hiddenFace = null; }
+    c.active = true; c.startedAt = performance.now(); c.caster = m; c.target = PF.foe; c.until = c.startedAt + 1500; c.shaken = false; c.hitBurst = false; c.particles = [];
+    if (PF.el) PF.el.classList.add("skill-cinematic-active");
+    for (const pop of FX.pops) pop.node.remove();
+    FX.pops.length = 0;
     if (!c.canvas) {
         c.canvas = document.createElement("canvas"); c.canvas.className = "skill-cine";
         c.canvas.width = W; c.canvas.height = H; PF.vfx.appendChild(c.canvas); c.ctx = c.canvas.getContext("2d");
     }
-    if (!c.artCanvas) {
-        c.artCanvas = document.createElement("canvas"); c.artCanvas.width = 176; c.artCanvas.height = 152;
-        c.artCtx = c.artCanvas.getContext("2d");
-    }
-    // 使用頁面載入時預載的 GIF，避免首次施放還在等素材下載。
+    const ref = artRef("hero", m.ch.id);
+    const dir = ref ? `${CDN_BASE}rarity${ref.rarity}/${ref.unit}` : "";
+    const specialImage = document.createElement("img");
+    specialImage.className = "skill-special";
+    specialImage.alt = "";
+    specialImage.style.opacity = "0";
+    specialImage.onerror = () => {
+        if (!specialImage.dataset.fallback && dir) {
+            specialImage.dataset.fallback = "1";
+            specialImage.src = `${dir}/skill_ready.gif`;
+        } else specialImage.hidden = true;
+    };
+    specialImage.dataset.specialUrl = `${dir}/special.gif`;
+    PF.vfx.appendChild(specialImage);
+    c.specialImage = specialImage;
     c.canvas.width = W; c.canvas.height = H;
     const ctx = c.ctx; ctx.imageSmoothingEnabled = false;
     const start = performance.now();
@@ -3855,41 +4003,106 @@ function startSkillCinematic(m) {
         const t = now - start, b = m.body, target = c.target || b;
         ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, W, H);
         if (t < 360) {
-            ctx.fillStyle = "rgba(0,0,0,.85)"; ctx.fillRect(0, 0, W, H);
-            ctx.save(); ctx.translate(W / 2, H * .46); ctx.rotate(-.12);
-            const bandByElement = { fire: "#71333a", water: "#264d72", thunder: "#66521c", wind: "#28553e" };
-            ctx.fillStyle = bandByElement[CHAR_TABLE[m.ch.id].element] || "#30385a";
-            ctx.fillRect(-W, -32, W * 2, 70);
-            ctx.fillStyle = "#fff"; ctx.fillRect(-W, -33, W * 2, 1); ctx.fillRect(-W, 38, W * 2, 1);
-            const scale = t < 240 ? 1.8 - .8 * (t / 240) : 1;
-            ctx.scale(scale, scale); ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.font = "900 23px monospace"; ctx.lineJoin = "miter"; ctx.lineWidth = 6;
-            ctx.strokeStyle = "#10131b"; ctx.strokeText(SKILLS[m.ch.id].name, 0, 2);
-            ctx.fillStyle = "#fff"; ctx.fillText(SKILLS[m.ch.id].name, 0, 2); ctx.restore();
+            // 中央斜帶由左下角技能角色卡取代；留白讓戰場保持可見，等待角色 GIF 起播。
         } else {
+            if (c.specialImage && !c.specialImage.dataset.started) {
+                c.specialImage.dataset.started = "1";
+                c.specialImage.src = c.specialImage.dataset.specialUrl;
+            }
             const flash = Math.floor((t - 360) / 90);
             if (t < 540 && flash % 2 === 0) { ctx.fillStyle = "rgba(210,232,255,.3)"; ctx.fillRect(0, 0, W, H); }
             if (target) {
-                const x = target.x, y = target.y;
-                if (t >= 500 && !c.shaken) { c.shaken = true; FX.shake(); }
-                if (c.artImage && c.artImage.complete && c.artImage.naturalWidth) {
-                    const art = c.artCtx, image = c.artImage;
-                    art.imageSmoothingEnabled = false; art.clearRect(0, 0, 176, 152);
-                    // GIF 前後多數影格只有角色；只循環已逐格去角的四張完整斬擊影格。
-                    const fxFrame = Math.floor(Math.max(0, t - 360) / 70) % 4;
-                    art.drawImage(image, 0, fxFrame * 152, 176, 152, 0, 0, 176, 152);
-                    const reveal = Math.min(1, Math.max(0, (t - 470) / 130));
-                    const fade = Math.min(1, Math.max(0, (c.until - now) / 180));
-                    const scale = (.72 + .28 * reveal) * 1.8;
-                    ctx.save(); ctx.globalAlpha = fade;
-                    ctx.drawImage(c.artCanvas, Math.round(x - 88 * scale), Math.round(y - 76 * scale),
-                        Math.round(176 * scale), Math.round(152 * scale));
+                const casterFace = m.fighter && m.fighter.node;
+                if (casterFace && !c.hiddenFace) {
+                    c.hiddenFace = casterFace;
+                    c.faceVisibility = casterFace.style.visibility;
+                    casterFace.style.visibility = "hidden";
+                }
+                // 特效從施放者所在位置衝向目標；隱藏原球上的立繪，避免看起來像多出一個分身。
+                const launch = m.body || target;
+                const travel = Math.min(1, Math.max(0, (t - 390) / 520));
+                const eased = 1 - Math.pow(1 - travel, 2.4);
+                const x = launch.x + (target.x - launch.x) * eased;
+                const y = launch.y + (target.y - launch.y) * eased;
+                const element = CHAR_TABLE[m.ch.id].element;
+                const colors = {
+                    fire: ["#ffb04f", "#fff0bd", "#a92b31"],
+                    water: ["#76d8ff", "#e7f6ff", "#2463a2"],
+                    thunder: ["#ffe16b", "#fff9d7", "#bd5d20"],
+                    wind: ["#91f5b0", "#e8fff0", "#2a925c"]
+                }[element] || ["#8edbff", "#fff", "#344b78"];
+                // 行進中的速度切線，讓技能看起來是由施放者打到敵人，而不是跳到敵人身上。
+                if (travel > 0 && travel < 1) {
+                    const tail = Math.max(0, 1 - travel) * 34;
+                    ctx.save(); ctx.globalAlpha = .65 * (1 - travel * .45); ctx.lineWidth = 2; ctx.strokeStyle = colors[1];
+                    for (let i = 0; i < 5; i++) {
+                        const off = (i - 2) * 7;
+                        ctx.beginPath(); ctx.moveTo(x - (x - launch.x) * .12 + off, y - (y - launch.y) * .12);
+                        ctx.lineTo(x - (x - launch.x) * .12 - (x - launch.x) * .1 + off - tail, y - (y - launch.y) * .12 - (y - launch.y) * .1);
+                        ctx.stroke();
+                    }
                     ctx.restore();
+                }
+                // 抵達敵人時只觸發一次：像素星爆＋十字斬線＋描邊方塊粒子。
+                if (t >= 900 && !c.hitBurst) {
+                    c.hitBurst = true; c.burstAt = 900; c.burstX = target.x; c.burstY = target.y;
+                    c.particles = Array.from({ length: 28 }, () => {
+                        const a = Math.random() * Math.PI * 2, speed = 70 + Math.random() * 260;
+                        return { x: target.x, y: target.y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed - 45,
+                            size: 3 + Math.random() * 5, life: .38 + Math.random() * .35, color: colors[(Math.random() * colors.length) | 0] };
+                    });
+                }
+                const burstT = t - (c.burstAt || 900);
+                if (c.hitBurst && burstT >= 0 && burstT < 430) {
+                    const p = burstT / 430, radius = 19 + p * 68, alpha = 1 - p;
+                    const bx = c.burstX, by = c.burstY;
+                    ctx.save(); ctx.translate(bx, by); ctx.globalAlpha = alpha;
+                    ctx.strokeStyle = colors[2]; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(-radius * 1.65, 0); ctx.lineTo(radius * 1.65, 0); ctx.moveTo(0, -radius * 1.35); ctx.lineTo(0, radius * 1.35); ctx.stroke();
+                    ctx.strokeStyle = colors[1]; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-radius * 1.45, -radius * .42); ctx.lineTo(radius * 1.45, radius * .42); ctx.moveTo(-radius * .7, radius * 1.15); ctx.lineTo(radius * .7, -radius * 1.15); ctx.stroke();
+                    ctx.rotate(.12);
+                    ctx.beginPath();
+                    for (let i = 0; i < 16; i++) {
+                        const a = i * Math.PI / 8, r = i % 2 ? radius * .62 : radius;
+                        const px = Math.cos(a) * r, py = Math.sin(a) * r;
+                        if (!i) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                    }
+                    ctx.closePath(); ctx.fillStyle = colors[0]; ctx.strokeStyle = "#18151b"; ctx.lineWidth = 4; ctx.fill(); ctx.stroke();
+                    ctx.fillStyle = colors[1]; ctx.fillRect(-5, -5, 10, 10); ctx.restore();
+                }
+                if (c.hitBurst) {
+                    const sec = Math.max(0, burstT) / 1000;
+                    for (const q of c.particles) {
+                        if (sec > q.life) continue;
+                        const px = q.x + q.vx * sec, py = q.y + q.vy * sec + 390 * sec * sec;
+                        const size = Math.max(2, q.size * (1 - sec / q.life));
+                        ctx.fillStyle = "#17141b"; ctx.fillRect(Math.round(px - 1), Math.round(py - 1), Math.ceil(size + 2), Math.ceil(size + 2));
+                        ctx.fillStyle = q.color; ctx.fillRect(Math.round(px), Math.round(py), Math.ceil(size), Math.ceil(size));
+                    }
+                }
+                if (t >= 900 && !c.shaken) { c.shaken = true; FX.shake(); }
+                if (c.specialImage && !c.specialImage.hidden) {
+                    const image = c.specialImage;
+                    const reveal = Math.min(1, Math.max(0, (t - 390) / 140));
+                    const fade = Math.min(1, Math.max(0, (c.until - now) / 180));
+                    const iw = image.naturalWidth || 154, ih = image.naturalHeight || 174;
+                    // GIF 四周有透明留白；倍率要放大整張畫布，才能讓其中的人物本體接近場上角色尺寸。
+                    const actorDiameter = (m.body && m.body.r ? m.body.r : 21) * 2;
+                    const frameSize = actorDiameter * 7.0;
+                    const scale = (frameSize / Math.max(iw, ih)) * (.96 + .04 * reveal);
+                    image.style.left = `${Math.round(x)}px`;
+                    image.style.top = `${Math.round(y)}px`;
+                    image.style.width = `${Math.round(iw * scale)}px`;
+                    image.style.height = `${Math.round(ih * scale)}px`;
+                    image.style.opacity = String(fade * reveal);
                 }
             }
         }
         if (now >= c.until) {
+            if (c.specialImage) c.specialImage.remove();
+            c.specialImage = null;
+            if (c.hiddenFace) { c.hiddenFace.style.visibility = c.faceVisibility; c.hiddenFace = null; }
             c.active = false; c.canvas.remove(); c.canvas = null; c.ctx = null; c.raf = 0;
+            if (PF.el) PF.el.classList.remove("skill-cinematic-active");
             const body = m.body;
             if (body && !m.down) { body.vx += (body.x < W / 2 ? 180 : -180); body.vy = Math.min(body.vy, -980); }
             return;
@@ -3911,7 +4124,7 @@ function castSkill(m) {
     startSkillCinematic(m);
     playFighter(m.fighter, "skill");
     SFX.voice(m.ch.id, "skill");
-    SFX.skill(d.element);
+    SFX.skillCinematic(d.element);
     log(`⚡ <b style='color:${col}'>${d.name}·【${sk.name}】</b>${sk.tag} 技能施放！`);
     sk.cast(m, PF.foeSeq);
     chantStarHeal(m);
@@ -3990,7 +4203,7 @@ function step(dt, now) {
 
         if (b.x < b.r + 12) { b.x = b.r + 12; b.vx = -b.vx * PHYS.wallRest; }
         if (b.x > W - b.r - 12) { b.x = W - b.r - 12; b.vx = -b.vx * PHYS.wallRest; }
-        enforceBattleCeiling(b);
+        enforceHeroBattleCeiling(b);
         if (feverBounce(b)) PF.lastContact = now;
 
         for (const s of PF.segs) if (segCollide(b, s)) PF.lastContact = now;
@@ -4091,12 +4304,16 @@ function step(dt, now) {
         if (PF.foe !== e) break;              // 這一撞剛好擊殺，別再打已經換掉的敵人
         if (!m.body) continue;
         const sp = Math.hypot(m.body.vx, m.body.vy);
-        const n = COLLISION_TRIAL.enabled ? collideEnemyTrial(m, e, enemy.boss, now) : circleCollide(m.body, e, 0.72);
+        const n = COLLISION_TRIAL.enabled ? collideEnemyTrial(m, e, enemy.boss, now)
+            : enemy.boss ? circleAabbCollide(m.body, e, 140, 90, 0.72) : circleCollide(m.body, e, 0.72);
         if (!n) continue;
         // 法向量是「球 → 敵人」，沿它推＝往撞擊的反方向彈開；突入中只推六成，免得整段衝鋒被一撞吹走
         const push = Math.min(240, 80 + sp * 0.22) * (e.diving ? 0.6 : 1) * (COLLISION_TRIAL.enabled && enemy.boss ? .25 : 1);
         if (!m.body.partyFollower) { e.kx = n.nx * push; e.ky = n.ny * push; }
-        if (!COLLISION_TRIAL.enabled || n.canDamage) hitFoe(m, sp);
+        if (!COLLISION_TRIAL.enabled || n.canDamage) {
+            hitFoe(m, sp);
+            if (enemy.boss) bossHitImpact(e);
+        }
     }
 
     // 每隻普通怪獨立碰撞與受傷；已死亡的單位不再參與。
@@ -4161,7 +4378,7 @@ function render() {
     for (const m of PF.members) {
         if (m.down || !m.body) continue;
         const b = m.body;
-        enforceBattleCeiling(b);
+        enforceHeroBattleCeiling(b);
         b.node.style.transform = `translate(${b.x}px, ${b.y}px)`;
         setHpBar(b, m.ch.hp / hpMax(m.ch));
         const sp = Math.hypot(b.vx, b.vy);
@@ -4237,12 +4454,16 @@ function applyStageBg(zoneId, bgKey) {
     const key = (bgKey || zone.id) + (bgKey ? "|" + zone.id : "");
     if (PF.bgEl.dataset.bg !== key) {
         PF.bgEl.dataset.bg = key;
-        const names = bgKey ? [bgKey, zone.id] : ["deep", "arena", "翡翠浮島遺跡競技場", zone.id];
+        // Boss 關卡只在實際戰場優先用波利塔像素風版本；選關卡片仍使用原本 gate_*.webp 預覽圖。
+        const names = bgKey
+            ? (bgKey.startsWith("gate_") ? [`${bgKey}_polita`, bgKey, zone.id] : [bgKey, zone.id])
+            : ["deep", "arena", "翡翠浮島遺跡競技場", zone.id];
         // art＝該檔名算不算「專屬場地原圖」；zone.id 只是通用底，不能關掉色相偏移
         const list = [];
         names.forEach((n, ni) => {
             const art = bgKey ? ni === 0 : ni < 3;
-            ART_EXT.forEach(e => {
+            const exts = n.endsWith("_polita") ? ["png"] : ART_EXT;
+            exts.forEach(e => {
                 list.push({ url: `asset/battle/bg/${n}.${e}`, art }, { url: `assets/bg/${n}.${e}`, art });
             });
         });
@@ -4720,7 +4941,7 @@ function exchangeChar(id) {
 }
 
 // ===== 開場選角：提供四屬性與四種職業各一位的代表角色 =====
-const STARTER_IDS = ["alk", "bishop_girl", "minotaur_girl", "elf_archer"];
+const STARTER_IDS = ["doctor_pirate", "holy_mother", "mighty_striker", "wind_spgirl"];
 function openStarterPicker() {
     const box = $("starter");
     if (!box) return;
@@ -4735,8 +4956,8 @@ function openStarterPicker() {
             <div class="sk">${d.lead}</div>
         </div>`;
     }).join("");
-    box.innerHTML = `<div class="s-hd"><div class="t">選擇你的第一位四星勇者</div>
-        <div class="d">四屬性各一位，點下去就是隊伍隊長。<br>其他四星角色在戰場打怪掉碎片，湊滿 10 片再兌換。</div></div>
+    box.innerHTML = `<div class="s-hd"><div class="t">選擇你的第一位五星勇者</div>
+        <div class="d">四屬性各一位，點下去就是隊伍隊長。<br>其他五星角色在戰場打怪掉碎片，湊滿 10 片再兌換。</div></div>
         <div class="s-grid">${cards}</div>`;
     STARTER_IDS.forEach(id => paintSprite($("st-sp-" + id), "hero", id, "idle", CHAR_TABLE[id].name.slice(0, 1)));
     box.classList.add("on");
@@ -4814,17 +5035,15 @@ function teamPower() {
 
 function buildSlots() {
     const box = $("team-slots");
-    let lineup = "", stage = "", stats = "";
+    let lineup = "";
     for (let i = 0; i < TEAM_MAX; i++) {
         const id = teamIds[i];
         if (!id) {
             lineup += `<div class="fm-unit empty">
+                <div class="fm-position"><span>隊員 ${i + 1}</span><span>尚未編入</span></div>
                 <div class="fm-portrait"><div class="fm-empty-ic">＋</div></div>
-                <div class="fm-weapon empty">—</div>
-                <div class="fm-sub none"><span>空位 ${i + 1}</span></div>
+                <div class="fm-content"><div class="fm-name">空位</div><div class="fm-type">從下方角色名冊選一位加入隊伍</div></div>
             </div>`;
-            stage += `<div class="fm-ped empty"><div class="fm-ped-top"></div></div>`;
-            stats += `<div class="fm-stat empty"><div class="fm-empty">空位 ${i + 1}<br>從下方名冊點選上場</div></div>`;
             continue;
         }
         const d = CHAR_TABLE[id], un = unisonOf(id), ti = TYPE_INFO[d.type] || TYPE_INFO.knight;
@@ -4832,29 +5051,25 @@ function buildSlots() {
         const el = EL_COLOR[d.element] || "#8fa0c0";
         const cd = Math.round((SKILL_CD[d.type] || 15) * SKILL_CHARGE_TIME);
         const head = i === 0;
-        lineup += `<div class="fm-unit${head ? " lead" : " setcap"}"${head ? "" : ` onclick="setCaptain('${id}')" title="點一下設為隊長，全隊改吃他的隊長特性"`}>
-            <div class="fm-portrait" style="--el:${el}">
+        lineup += `<article class="fm-unit${head ? " lead" : ""}">
+            <div class="fm-position"><span>${head ? "隊長・隊長特性生效" : `隊員 ${i + 1}`}</span><span>${ELEMENTS[d.element].label}屬性</span></div>
+            <div class="fm-portrait" style="--el:${el}" title="${d.name}｜${ti.n}">
                 <div class="fm-art" id="slot-sp-${i}"></div>
                 <div class="fm-el">${ELEMENTS[d.element].label}</div>
-                ${head ? `<div class="fm-leader">隊長</div>` : `<div class="fm-cap-hint">設為隊長</div>`}
-                <div class="fm-lv"><span>Lv.<b id="slot-lv-${i}">1</b></span><span class="fm-type">${ti.n}</span></div>
             </div>
-            <div class="fm-weapon${shield ? "" : " empty"}" title="${shield ? shield.n : "尚未裝備武器"}">${shield ? `<img src="${WF_EQUIP}${sid}.png" alt="${shield.n}" onerror="this.parentNode.textContent='🛡'">` : "🛡"}</div>
-            <div class="fm-sub${un ? "" : " none"}"><div class="fm-sub-art" id="slot-uni-sp-${i}">${un ? "" : "＋"}</div><span>${un ? CHAR_TABLE[un].name : "合擊空位"}</span></div>
-        </div>`;
-        stage += `<div class="fm-ped${head ? " lead" : ""}"><div class="fm-ball" style="--el:${el}"><img src="${WF_ICON}sprites/elements/${EL_ICON_FILE[d.element] || "element_white"}.png" alt="" onerror="this.style.visibility='hidden'"></div><div class="fm-ped-top" style="--el:${el}"></div></div>`;
-        stats += `<div class="fm-stat" style="--el:${el}" title="${d.name}｜${SKILLS[id].name}">
-            <div class="fm-sname">${d.name}</div>
-            <div class="fm-row"><span>HP</span><b id="slot-hpnum-${i}">0</b></div>
-            <div class="fm-bar hp"><i id="slot-hp-${i}"></i></div>
-            <div class="fm-row"><span>攻擊</span><b id="slot-atk-${i}">0</b></div>
-            <div class="fm-row"><span>冷卻</span><b>${cd}s</b></div>
-            <div class="fm-bar cd"><i style="width:100%"></i></div>
-            <div class="fm-row"><span>能量</span><b id="slot-en-${i}">0%</b></div>
-            <div class="fm-bar en"><i id="slot-gauge-${i}"></i></div>
-            <div class="fm-skill">${SKILLS[id].name}</div>
-            <button class="fm-out" onclick="toggleTeam('${id}')">✕ 下場</button>
-        </div>`;
+            <div class="fm-content" style="--el:${el}" title="${d.name}｜${SKILLS[id].name}">
+                <div class="fm-main"><div class="fm-name">${d.name}</div><div class="fm-lv">Lv.<b id="slot-lv-${i}">1</b></div></div>
+                <div class="fm-type">${ti.n}｜${SKILLS[id].name}</div>
+                <div class="fm-resource"><span>生命</span><div class="fm-bar hp"><i id="slot-hp-${i}"></i></div><b id="slot-hpnum-${i}">0</b></div>
+                <div class="fm-resource"><span>技能</span><div class="fm-bar en"><i id="slot-gauge-${i}"></i></div><b id="slot-en-${i}">0%</b></div>
+                <div class="fm-meta"><span>攻擊 <b id="slot-atk-${i}">0</b></span><span>冷卻 ${cd}s</span>
+                    <span title="${shield ? shield.n : "尚未裝備武器"}">🛡 ${shield ? shield.n : "未裝備"}</span></div>
+                <div class="fm-skill">技能：${SKILLS[id].name}</div>
+                <div class="fm-sub${un ? "" : " none"}"><div class="fm-sub-art" id="slot-uni-sp-${i}"></div><span>${un ? `合擊副手：${CHAR_TABLE[un].name}` : "合擊副手未配置"}</span></div>
+            </div>
+            <div class="fm-actions">${head ? `<span class="fm-leader-tag">目前隊長</span>` : `<button class="fm-cap-btn" onclick="setCaptain('${id}')">設為隊長</button>`}
+                <button class="fm-out" onclick="toggleTeam('${id}')">下場</button></div>
+        </article>`;
     }
     const cap = teamIds[0] ? CHAR_TABLE[teamIds[0]] : null;
     const mates = teamIds.slice(1)
@@ -4867,9 +5082,7 @@ function buildSlots() {
             <div><small>最多 ${TEAM_MAX} 人同時上場</small><b>出戰隊伍</b></div>            <div class="fm-count">${teamIds.length} / ${TEAM_MAX}</div>
         </div>
         <div class="fm-lineup">${lineup}</div>
-        <div class="fm-stage">${stage}</div>
         <div class="fm-powerrow"><div class="fm-power"><span>戰力</span><strong>${teamPower().toLocaleString()}</strong></div></div>
-        <div class="fm-stats">${stats}</div>
         <div class="fm-lead"><span>隊長特性</span><p>${leadNote}</p></div>
     </div>`;
     for (let i = 0; i < TEAM_MAX; i++) {
@@ -4903,10 +5116,11 @@ function buildRoster() {
 
 function rosterCard(id) {
     const ch = roster[id], d = CHAR_TABLE[id], on = teamIds.indexOf(id) >= 0;
+    const joinHint = on ? "已編入・點擊下場" : teamIds.length >= TEAM_MAX ? "隊伍已滿" : "點擊加入隊伍";
     return `<div class="rcard ${on ? "onfield" : ""}" onclick="toggleTeam('${id}')">
         <div class="sprite-placeholder sp" id="rc-sp-${id}"></div>
         <div class="b"><div class="nm">${d.name}<span class="element-badge ${ELEMENTS[d.element].cls}" style="float:right">${ELEMENTS[d.element].label}</span></div>
-            <div class="sub">${on ? "✅ 場上" : "點擊上場"}｜Lv.${ch.lvl}</div>
+            <div class="sub">${joinHint}｜Lv.${ch.lvl}</div>
             <div class="sub" style="color:#7c4dff">${SKILLS[id].name}｜${d.title}</div>
         </div></div>`;
 }
@@ -4945,7 +5159,8 @@ function updateUI() {
     syncGrowthView();
     syncTowerTalentView();
     const uSig = teamIds.map(id => unisonOf(id) || "-").join(",");
-    const sSig = teamIds.join(",") + "#" + uSig + "#" + teamIds.map(id => equipMap[id] || "-").join(",") + "#" + Math.min(20, kills);
+    const sSig = teamIds.join(",") + "#" + uSig + "#" + teamIds.map(id => equipMap[id] || "-").join(",") + "#" +
+        teamIds.map(id => `${roster[id].lvl}:${roster[id].baseAtk}:${roster[id].maxHp}`).join(",") + "#" + Math.min(20, kills);
     if (slotsSig !== sSig) { slotsSig = sSig; buildSlots(); }
     const rSig = CHAR_IDS.map(id => roster[id].unlocked ? "1" : "0").join("") + "|" + sSig + "|" + CHAR_IDS.map(id => roster[id].lvl + ":" + roster[id].shards).join(",");
     if (rosterSig !== rSig) { rosterSig = rSig; buildRoster(); }
@@ -4979,16 +5194,6 @@ function updateUI() {
     });
 
     $("kill-count").textContent = kills;
-    const c = $("pf-combo");
-    c.textContent = combo;
-    const chip = $("pf-combo-chip");
-    chip.classList.toggle("on", combo > 1);
-    chip.classList.toggle("surge", combo >= 30);
-    const cm = $("pf-combo-mult");
-    cm.textContent = POWER_FLIP.enabled ? (flipLevel() ? `PF Lv${flipLevel()}` : `${FLIP_AT[0] - combo}擊蓄勢`) : `傷害 +${Math.round(combo * COMBO_RUSH * 100)}%`;
-    const comboLeft = comboAt ? clamp(1 - (performance.now() - comboAt) / COMBO_HOLD, 0, 1) : 0;
-    $("pf-combo-life").style.transform = `scaleX(${comboLeft.toFixed(3)})`;
-
     // 中央：FEVER 字下面只算 Fever 期間的連擊
     const fc = $("pf-fever-combo");
     if (fc) {
@@ -5012,9 +5217,16 @@ function updateUI() {
     const clock = $("deep-clock");
     clock.style.display = gateOn() ? "none" : "";
     clock.textContent = `⏱${Math.max(0, deepTimeLeft)}s`;
+    clock.title = `本層剩餘時間 ${Math.max(0, deepTimeLeft)} 秒｜累計擊殺 ${kills}`;
     clock.classList.toggle("warn", deepTimeLeft <= 10);
+    $("foe-bar").classList.toggle("boss-hp-ui", !!enemy.boss);
+    $("boss-down-gauge").classList.toggle("on", !!enemy.boss);
     syncFighter(enemyF, enemy.id, enemy.icon);
-    $("enemy-name").textContent = enemy.boss ? "👑 " + bossAppearanceName() : `波利群 ${liveEnemies().length}/${enemy.groupSize}（${floorWins + 1}/${NORMAL_FLOOR_WAVES}波）`;
+    const enemyLabel = enemy.boss ? `Lv.${stage} ${bossAppearanceName()}` : `波利群 ${liveEnemies().length}/${enemy.groupSize}`;
+    $("enemy-name").textContent = enemyLabel;
+    $("enemy-name").title = enemy.boss
+        ? `${bossAppearanceName()}｜BOSS 等級 ${stage}`
+        : `本波剩餘敵人 ${liveEnemies().length}/${enemy.groupSize}｜第 ${floorWins + 1}/${NORMAL_FLOOR_WAVES} 波｜累計擊殺 ${kills}`;
     $("enemy-hp-txt").title = enemy.boss ? 'BOSS 剩餘血量' : '本波所有怪物剩餘血量合計；每隻怪物獨立扣血';
     setBadge($("enemy-element"), enemy.element);
     const tNow = performance.now();
@@ -5043,8 +5255,39 @@ function updateUI() {
     // 登場期間血條由入場流程灌值（從 0 充到滿），其他時候照真實血量
     const entranceHp = bossEntranceHp();
     const hpView = entranceHp === null ? enemy.hp : entranceHp;
-    $("enemy-hp-txt").textContent = `${Math.max(0, hpView)}/${enemy.maxHp}`;
-    $("enemy-hp-bar").style.width = clampPct(hpView / enemy.maxHp);
+    const hpRatio = Math.max(0, Math.min(1, hpView / Math.max(1, enemy.maxHp)));
+    const hpNow = performance.now();
+    const bufferState = bossHpBufferState;
+    if (enemy.boss) {
+        if (bufferState.seq !== PF.foeSeq) {
+            bufferState.seq = PF.foeSeq;
+            bufferState.ratio = hpRatio;
+            bufferState.lastRatio = hpRatio;
+            bufferState.delayUntil = 0;
+            bufferState.lastAt = hpNow;
+        } else {
+            const frameDelta = Math.max(0, Math.min(15, (hpNow - bufferState.lastAt) / (1000 / 60)));
+            if (hpRatio < bufferState.lastRatio - 0.0001) bufferState.delayUntil = hpNow + 25 * (1000 / 60);
+            else if (hpRatio > bufferState.lastRatio + 0.0001) {
+                // 入場充血或回血時同步緩衝條，不留下錯誤的白色尾巴。
+                bufferState.ratio = hpRatio;
+                bufferState.delayUntil = 0;
+            }
+            if (hpNow >= bufferState.delayUntil && bufferState.ratio > hpRatio)
+                bufferState.ratio = Math.max(hpRatio, bufferState.ratio - 0.015 * frameDelta);
+            bufferState.lastRatio = hpRatio;
+            bufferState.lastAt = hpNow;
+        }
+        $("enemy-hp-buffer").style.width = clampPct(bufferState.ratio);
+        $("enemy-hp-txt").textContent = `${(hpRatio * 100).toFixed(1)}%`;
+        $("enemy-hp-txt").title = `BOSS 血量 ${Math.max(0, hpView)}/${enemy.maxHp}`;
+    } else {
+        bufferState.seq = -1;
+        $("enemy-hp-buffer").style.width = "100%";
+        $("enemy-hp-txt").textContent = `${Math.max(0, hpView)}/${enemy.maxHp}`;
+        $("enemy-hp-txt").title = '本波所有怪物剩餘血量合計；每隻怪物獨立扣血';
+    }
+    $("enemy-hp-bar").style.width = clampPct(hpRatio);
 
     paintFeverFlippers();
 
@@ -5112,7 +5355,7 @@ function loadGame() {
             const first = CHAR_IDS.find(id => roster[id].unlocked);
             if (first) teamIds = [first];
         }
-        // 角色池改版後舊存檔可能只解鎖了三星；保留樓層等進度，但重新讓玩家選四星隊長。
+        // 星級名冊改版後舊角色 ID 已移除；保留樓層與資源，重新選五星隊長。
         if (!teamIds.length) starterPicked = false;
         // 副手只留「雙方都解鎖、且正主還在場上」的配對
         unisonMap = {};
@@ -5156,7 +5399,7 @@ const HOME_TABS = [
     { k: "talents", ic: "✧", t: "天賦" }, { k: "home", ic: "🏠", t: "主頁" },
     { k: "chars", ic: "👤", t: "角色" }, { k: "shop", ic: "🛒", t: "商店" },
     { k: "team",  ic: "⚔️", t: "編成" }, { k: "book", ic: "📖", t: "圖鑑" },
-    { k: "menu",  ic: "☰",  t: "選單" }
+    { k: "menu",  ic: "☰", t: "選單" }
 ];
 let homeTabOn = "home", homeSig = "", toastTimer = 0;
 
@@ -5267,9 +5510,11 @@ function paintHome() {
     const progress = stage % BOSS_EVERY === 0
         ? 95
         : Math.min(90, (((stage - 1) % BOSS_EVERY) + floorWins / NORMAL_FLOOR_WAVES) / BOSS_EVERY * 100);
-    const sig = [stage, floorWins, deepTimeLeft, shardTotal, kills, titleOn, rankLv, Math.floor(rankExp), need].join("|");
+    const leadId = teamIds[0] || STARTER_IDS[0];
+    const sig = [stage, floorWins, deepTimeLeft, shardTotal, kills, titleOn, rankLv, Math.floor(rankExp), need, leadId].join("|");
     if (sig === homeSig) return;
     homeSig = sig;
+    paintSprite($("hm-avatar"), "hero", leadId, "idle", charName(leadId).slice(0, 1));
     $("hm-rank").textContent = rankLv;
     $("hm-name").textContent = titleName();
     $("hm-stage-tag").textContent = stage % BOSS_EVERY === 0 ? "BOSS 層" : `距離王關 ${BOSS_EVERY - (stage % BOSS_EVERY)} 層`;
@@ -5311,12 +5556,12 @@ function renderPage() {
     body.innerHTML = fn();
 }
 
-// ---- 角色：4★ 名冊＋武器裝備 ----
+// ---- 角色：5★ 名冊＋武器裝備 ----
 function pageChars() {
     if (pickerFor) return pagePicker(pickerFor);
     if (growthFor) return renderGrowthPage();
     let h = `<div class="pg-sec">角色</div>
-        <div class="pg-empty" style="padding:0 2px 10px;text-align:left">四星角色 ${OPEN_CHAR_IDS.length} 隻。10 片解鎖角色；解鎖後仍會掉碎片，可用於上限解放。按「培養」查看升級、上限解放與天賦。</div>`;
+        <div class="pg-empty" style="padding:0 2px 10px;text-align:left">五星角色 ${OPEN_CHAR_IDS.length} 隻。10 片解鎖角色；解鎖後仍會掉碎片，可用於上限解放。按「培養」查看升級、上限解放與天賦。</div>`;
     OPEN_EL.forEach(elKey => {
         const ids = CHAR_IDS.filter(id => CHAR_TABLE[id].element === elKey);
         const got = ids.filter(id => roster[id].unlocked).length;
@@ -5415,24 +5660,8 @@ function unequipShield(cid) {
 
 // ---- 商店：結晶換盾 ----
 function pageShop() {
-    const ids = Object.keys(SHIELD_TABLE).sort((a, b) =>
-        SHIELD_TABLE[b].r - SHIELD_TABLE[a].r || (SHIELD_TABLE[b].atk || 0) - (SHIELD_TABLE[a].atk || 0) || (SHIELD_TABLE[b].dmg || 0) - (SHIELD_TABLE[a].dmg || 0));
-    let h = `<div class="pg-sec">武器專賣店</div>
-        <div class="pgc" style="display:flex;align-items:center;gap:8px">
-            <div style="flex:1"><div class="nm">持有結晶 💎 ${shardTotal}</div>
-            <div class="sub">買盾會扣結晶；角色碎片是各自算的，不會被扣到</div></div>
-        </div>`;
-    ids.forEach(sid => {
-        const s = SHIELD_TABLE[sid], price = SHIELD_PRICE[s.r], own = shieldBag[sid] || 0, can = shardTotal >= price;
-        h += `<div class="sh-row">
-            <div class="sh"><img src="${WF_EQUIP}${sid}.png" onerror="this.style.display='none'"></div>
-            <div class="b"><div class="n">${s.n}${shieldTag(sid)}</div>
-                <div class="d">${shieldDesc(s)}</div>
-                <div class="own">${own ? `持有 ×${own}` : "&nbsp;"}</div></div>
-            <button class="mini-btn${can ? " gold" : " gray"}" ${can ? "" : "disabled"} onclick="buyShield('${sid}')">💎 ${price}</button>
-        </div>`;
-    });
-    return h;
+    return `<div class="pg-sec">商店</div>
+        <div class="pg-empty">商品暫時下架，之後再開放。</div>`;
 }
 
 function buyShield(sid) {
@@ -5451,7 +5680,7 @@ function buyShield(sid) {
 
 const DEX_ROLE = { Sword: "劍士", Fist: "格鬥", Bow: "射擊", Support: "輔助", Special: "特殊" };
 const DEX_ROLES = Object.keys(DEX_ROLE);
-const EL_KEYS = ["fire", "water", "thunder", "wind", "light", "dark"];
+const EL_KEYS = OPEN_EL;
 const RAR_COLOR = { 1: "#93a2ae", 2: "#6fb878", 3: "#4a95dd", 4: "#9a63cf", 5: "#dd9a2a" };
 const DEX_HERO = {}; CHAR_IDS.forEach(id => { DEX_HERO[CHAR_TABLE[id].unit] = id; });
 const DEX_FOE = {}; ENEMY_TABLE.forEach(e => { const u = ENEMY_UNIT[e.id]; if (u) DEX_FOE[u.unit] = e.name; });
@@ -5459,8 +5688,8 @@ const DEX_FOE = {}; ENEMY_TABLE.forEach(e => { const u = ENEMY_UNIT[e.id]; if (u
 const isDexMon = c => c[1] <= 2;
 let dexF = { r: "", a: "", t: "", k: "", q: "" };
 let dexTab = "char";
-// 圖鑑只收台服已上架的列；例外是遊戲自己會用到的角色（斬鐵還沒上台服，但金框不能不見）
-const DEX_ON = DEX.filter(c => c[1] !== 3 && (c[7] || DEX_HERO[c[0]] || DEX_FOE[c[0]]));
+// 圖鑑只展示火、水、雷、風的五星角色；低星魔物與戰場敵人不列入角色圖鑑。
+const DEX_ON = DEX.filter(c => c[1] === 5 && OPEN_ELEMENTS.has(c[2]) && (c[7] || DEX_HERO[c[0]]));
 
 // ---- 裝備（武器）圖鑑：源頭 424 把，只收台服已上架的 ----
 //   一列＝[檔名, 星級, 屬性鍵, 種類鍵, 繁中名, HP, ATK, 在台服?, 中文武器技能]
@@ -5472,7 +5701,7 @@ const EQUIP_KIND = { sword: "劍", shield: "盾", fist: "格鬥", bow: "弓", sp
 const EQ_KINDS = Object.keys(EQUIP_KIND);
 let eqF = { r: "", a: "", k: "", q: "" };
 // 同樣只收台服已上架的；但商店有賣的 20 把要留著，否則買了卻在圖鑑查無此武器
-const EQUIP_ON = EQUIP.filter(c => c[7] || SHIELD_TABLE[c[0]]);
+const EQUIP_ON = EQUIP.filter(c => c[1] >= 4 && (c[7] || SHIELD_TABLE[c[0]]));
 
 const esc = s => String(s).replace(/"/g, "&quot;");
 const dexFace = (dev, r, txt) =>
@@ -5736,7 +5965,7 @@ if (GATE_MODE) {
     spawnMotes();
     showScreen("home");
     if (saveNote) log(`⚠️ ${saveNote}`);       // 存檔壞掉／版本不合時，告訴玩家為什麼重來
-    if (!starterPicked) openStarterPicker();   // 第一次進來先選一位四星開局
+    if (!starterPicked) openStarterPicker();   // 第一次進來先選一位五星開局
 }
 
 // 整組只有一個 430×760 的框，寬或高哪邊先裝不下就照哪邊縮；大螢幕一路放大到 2.2 倍。
