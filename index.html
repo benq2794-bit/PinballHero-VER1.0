@@ -3848,8 +3848,8 @@ function startSkillCinematic(m) {
             ctx.strokeStyle = "#10131b"; ctx.strokeText(SKILLS[m.ch.id].name, 0, 2);
             ctx.fillStyle = "#fff"; ctx.fillText(SKILLS[m.ch.id].name, 0, 2); ctx.restore();
         } else {
-            const flash = Math.floor((t - 360) / 42);
-            if (t < 528 && flash % 2 === 0) { ctx.fillStyle = "rgba(255,255,255,.9)"; ctx.fillRect(0, 0, W, H); }
+            const flash = Math.floor((t - 360) / 90);
+            if (t < 540 && flash % 2 === 0) { ctx.fillStyle = "rgba(210,232,255,.3)"; ctx.fillRect(0, 0, W, H); }
             if (b) {
                 const x = b.x, y = b.y;
                 ctx.save(); ctx.translate(x, y); ctx.lineCap = "square"; ctx.lineWidth = 9;
