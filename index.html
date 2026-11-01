@@ -1646,6 +1646,8 @@ const SKILL_CHARGE_TIME = 2.5;   // 純靠時間要基礎冷卻 ×2.5 才滿（�
 const SKILL_HIT_CHARGE = 2.4;    // 撞到敵人一次 +2.4%
 const SKILL_CAST_GAP_MS = 400;
 const SKILL_CINEMATIC = { active: false, until: 0, canvas: null, ctx: null, artCanvas: null, artCtx: null, artImage: null, caster: null, target: null, particles: [], raf: 0, shaken: false };
+SKILL_CINEMATIC.artImage = new Image();
+SKILL_CINEMATIC.artImage.src = "asset/fx/vfx/yokai_exterminator_skill_ready.gif";
 
 // ==========================================================
 // 職業定位（技能演出由 SKILL_CAST 負責，這裡只放顯示用的名稱）
@@ -3832,7 +3834,7 @@ function showCut(m) {
 function startSkillCinematic(m) {
     const c = SKILL_CINEMATIC;
     if (c.raf) cancelAnimationFrame(c.raf);
-    c.active = true; c.caster = m; c.target = PF.foe; c.until = performance.now() + 1120; c.shaken = false;
+    c.active = true; c.caster = m; c.target = PF.foe; c.until = performance.now() + 1500; c.shaken = false;
     if (!c.canvas) {
         c.canvas = document.createElement("canvas"); c.canvas.className = "skill-cine";
         c.canvas.width = W; c.canvas.height = H; PF.vfx.appendChild(c.canvas); c.ctx = c.canvas.getContext("2d");
@@ -3841,9 +3843,7 @@ function startSkillCinematic(m) {
         c.artCanvas = document.createElement("canvas"); c.artCanvas.width = 176; c.artCanvas.height = 152;
         c.artCtx = c.artCanvas.getContext("2d");
     }
-    // 每次施放建立新的 GIF Image，讓動畫從第一幀開始；素材只保留外圍特效。
-    c.artImage = new Image();
-    c.artImage.src = "asset/fx/vfx/yokai_exterminator_skill_ready.gif";
+    // 使用頁面載入時預載的 GIF，避免首次施放還在等素材下載。
     c.canvas.width = W; c.canvas.height = H;
     const ctx = c.ctx; ctx.imageSmoothingEnabled = false;
     const start = performance.now();
@@ -3882,7 +3882,7 @@ function startSkillCinematic(m) {
                     art.lineTo(78, 87); art.closePath(); art.fill(); art.globalCompositeOperation = "source-over";
                     const reveal = Math.min(1, Math.max(0, (t - 470) / 130));
                     const fade = Math.min(1, Math.max(0, (c.until - now) / 180));
-                    const scale = (.72 + .28 * reveal) * 1.5;
+                    const scale = (.72 + .28 * reveal) * 1.8;
                     ctx.save(); ctx.globalAlpha = fade;
                     ctx.drawImage(c.artCanvas, Math.round(x - 88 * scale), Math.round(y - 76 * scale),
                         Math.round(176 * scale), Math.round(152 * scale));
