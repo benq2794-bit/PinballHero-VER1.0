@@ -3511,7 +3511,19 @@ function applyDamage(srcCh, dmg, opt) {
     if (e) {
         const popClass = [opt.cls || (now < PF.breakUntil ? "brk" : ""), opt.critical ? "critical" : ""].filter(Boolean).join(" ");
         FX.pop(e.x, e.y - e.r, fmt(dmg), popClass, opt.popScale);
-        if (!opt.dot) FX.sprite(e.x, e.y, e.defeated ? "kill" : (opt.critical ? "crit" : "hit"));
+        if (!opt.dot) {
+            FX.sprite(e.x, e.y, e.defeated ? "kill" : (opt.critical ? "crit" : "hit"));
+            // 職業攻擊各用純特效遮罩素材，依角色屬性上色；不重複播放角色立繪。
+            const type = srcCh && CHAR_TABLE[srcCh.id] ? CHAR_TABLE[srcCh.id].type : null;
+            const art = SKILL_ART[type];
+            if (art && now - (srcCh._professionFxAt || 0) > 260) {
+                srcCh._professionFxAt = now;
+                const member = PF.members.find(m => m.ch === srcCh && m.body);
+                const rot = member ? Math.atan2(e.y - member.body.y, e.x - member.body.x) * 180 / Math.PI : 0;
+                FX.art(art, e.x, e.y, CHAR_TABLE[srcCh.id].element, art === "beam" ? 104 : 86,
+                    { rot: art === "slash" || art === "beam" ? rot : 0, ms: art === "heal" ? 430 : 360 });
+            }
+        }
         if (ef && !e.defeated) playFighter(ef, "hurt");
     }
     if (opt.combo) bumpCombo(opt.combo);
