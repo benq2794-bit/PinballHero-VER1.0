@@ -3843,8 +3843,10 @@ function startSkillCinematic(m) {
         if (t < 360) {
             ctx.fillStyle = "rgba(0,0,0,.85)"; ctx.fillRect(0, 0, W, H);
             ctx.save(); ctx.translate(W / 2, H * .46); ctx.rotate(-.12);
-            ctx.fillStyle = "#187bea"; ctx.fillRect(-W, -32, W * 2, 70);
-            ctx.fillStyle = "#fff"; ctx.fillRect(-W, -34, W * 2, 2); ctx.fillRect(-W, 38, W * 2, 2);
+            const bandByElement = { fire: "#593447", water: "#263b60", thunder: "#3c345f", wind: "#2b484e" };
+            ctx.fillStyle = bandByElement[CHAR_TABLE[m.ch.id].element] || "#30385a";
+            ctx.fillRect(-W, -32, W * 2, 70);
+            ctx.fillStyle = "#fff"; ctx.fillRect(-W, -33, W * 2, 1); ctx.fillRect(-W, 38, W * 2, 1);
             const scale = t < 240 ? 1.8 - .8 * (t / 240) : 1;
             ctx.scale(scale, scale); ctx.textAlign = "center"; ctx.textBaseline = "middle";
             ctx.font = "900 23px monospace"; ctx.lineJoin = "miter"; ctx.lineWidth = 6;
