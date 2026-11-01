@@ -1645,7 +1645,7 @@ const SKILL_CD = { knight: 15, fighter: 12, ranger: 12, supporter: 18, special: 
 const SKILL_CHARGE_TIME = 2.5;   // 純靠時間要基礎冷卻 ×2.5 才滿（撞擊會大幅加速）
 const SKILL_HIT_CHARGE = 2.4;    // 撞到敵人一次 +2.4%
 const SKILL_CAST_GAP_MS = 400;
-const SKILL_CINEMATIC = { active: false, until: 0, canvas: null, ctx: null, caster: null, particles: [], raf: 0 };
+const SKILL_CINEMATIC = { active: false, until: 0, canvas: null, ctx: null, caster: null, particles: [], raf: 0, shaken: false };
 
 // ==========================================================
 // 職業定位（技能演出由 SKILL_CAST 負責，這裡只放顯示用的名稱）
@@ -3820,11 +3820,11 @@ function showCut(m) {
 function startSkillCinematic(m) {
     const c = SKILL_CINEMATIC;
     if (c.raf) cancelAnimationFrame(c.raf);
-    c.active = true; c.caster = m; c.until = performance.now() + 1120;
+    c.active = true; c.caster = m; c.until = performance.now() + 1120; c.shaken = false;
     c.particles = Array.from({ length: 56 }, (_, i) => {
-        const a = i * 2.399963, speed = 45 + (i % 7) * 19;
+        const a = i * 2.399963, speed = 100 + (i % 7) * 34;
         return { x: 0, y: 0, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
-            size: 3 + (i % 4), color: i % 2 ? "#b8ff3d" : "#d56bff" };
+            size: 4 + (i % 5), color: i % 2 ? "#b8ff3d" : "#d56bff" };
     });
     if (!c.canvas) {
         c.canvas = document.createElement("canvas"); c.canvas.className = "skill-cine";
@@ -3855,6 +3855,27 @@ function startSkillCinematic(m) {
             if (b) {
                 const x = b.x, y = b.y;
                 const reveal = Math.min(1, Math.max(0, (t - 500) / 95));
+                if (t >= 500 && !c.shaken) { c.shaken = true; FX.shake(); }
+                // 鋸齒星爆先向外砸開，給斬擊一個明確的爆點與衝擊輪廓。
+                const blastIn = Math.min(1, Math.max(0, (t - 500) / 110));
+                const blastOut = Math.max(0, 1 - Math.max(0, t - 580) / 240);
+                if (blastOut > 0) {
+                    ctx.save(); ctx.translate(Math.round(x), Math.round(y));
+                    ctx.scale(.35 + blastIn * .9, .35 + blastIn * .9); ctx.globalAlpha = blastOut;
+                    for (const burst of [{ outer: 72, inner: 31, fill: "#38234f", edge: "#b8ff3d" },
+                        { outer: 48, inner: 21, fill: "#6a347e", edge: "#d56bff" }]) {
+                        ctx.beginPath();
+                        for (let i = 0; i < 20; i++) {
+                            const a = i * Math.PI / 10 - Math.PI / 2, r = i % 2 ? burst.inner : burst.outer;
+                            const px = Math.round(Math.cos(a) * r), py = Math.round(Math.sin(a) * r);
+                            if (!i) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                        }
+                        ctx.closePath(); ctx.fillStyle = burst.fill; ctx.fill();
+                        ctx.lineJoin = "miter"; ctx.lineWidth = 5; ctx.strokeStyle = "#151323"; ctx.stroke();
+                        ctx.lineWidth = 2; ctx.strokeStyle = burst.edge; ctx.stroke();
+                    }
+                    ctx.restore();
+                }
                 ctx.save(); ctx.translate(Math.round(x), Math.round(y)); ctx.scale(reveal, reveal); ctx.lineCap = "square";
                 // 層次式硬邊斬擊：深色外框、飽和色刃、短白色刃光，仍保留綠紫交叉構圖。
                 for (const slash of [
