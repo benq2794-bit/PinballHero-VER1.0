@@ -3137,7 +3137,7 @@ const FX = {
     sprites: [],
     lastSpriteAt: {},
     // 衝刺：Wind Lines 的白色速度線，轉成球的行進方向，看起來像被甩出去
-    sprite(x, y, kind, rot) {
+    sprite(x, y, kind, rot, followBody = null) {
         const s = this.IMPACT[kind];
         if (!s) return;
         const now = performance.now();
@@ -3145,6 +3145,8 @@ const FX = {
         this.lastSpriteAt[kind] = now;
         const n = el("div", "impact-vfx");
         n.style.cssText = `left:${x}px;top:${y}px;background-image:url(${s.src});--k:${s.scale};--r:${rot || 0}rad`;
+        // 衝刺動畫附著在角色身上，讓特效沿著球體的即時位置移動。
+        if (kind === "dash" && followBody) n._followBody = followBody;
         PF.vfx.appendChild(n);
         n.animate(
             [{ backgroundPositionX: "0px" }, { backgroundPositionX: (-32 * s.frames) + "px" }],
@@ -3575,7 +3577,7 @@ function dashTo(m) {
     const a = Math.atan2(e.y - b.y, e.x - b.x);
     b.vx = Math.cos(a) * 980;
     b.vy = Math.sin(a) * 980;
-    FX.sprite(b.x, b.y, "dash", a);
+    FX.sprite(b.x, b.y, "dash", a, b);
 }
 
 function launchBall(m) {
@@ -3910,7 +3912,7 @@ function step(dt, now) {
         for (const f of PF.flippers) if (resolveFlipperCollision(b, f)) {
             PF.lastContact = now; f.flashAt = now; SFX.flipperHit(); FX.sprite(b.x, b.y, "flip");
             // 用力打出去那一下才拖速度線，輕碰不會
-            if (b.vy < -600) FX.sprite(b.x, b.y, "dash", Math.atan2(b.vy, b.vx));
+            if (b.vy < -600) FX.sprite(b.x, b.y, "dash", Math.atan2(b.vy, b.vx), b);
         }
 
         // 連續多個物理子步仍碰著彈板，視為被卡住；直接向上並朝場中央強制脫離。
@@ -4090,6 +4092,11 @@ function render() {
         setHpBar(PF.foe, enterHp === null ? PF.foe.hp / PF.foe.maxHp : enterHp);
     }
     for (const g of PF.extraFoes) { if (!enemyUnitAlive(g)) continue; enforceBattleCeiling(g); g.node.style.transform = `translate(${g.x}px, ${g.y}px)`; setHpBar(g, g.hp / g.maxHp); }
+    // 衝刺特效每幀跟著角色球心更新，不再留在起跑位置。
+    for (const fx of FX.sprites) if (fx._followBody?.node?.isConnected) {
+        fx.style.left = fx._followBody.x + "px";
+        fx.style.top = fx._followBody.y + "px";
+    }
 }
 
 function pfLoop(ts) {
