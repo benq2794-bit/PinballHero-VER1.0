@@ -17,8 +17,11 @@ function battleUnitTop(b) {
     const classes = b.ball && b.ball.classList;
     const frames = classes && classes.contains('frames');
     const boss = classes && classes.contains('boss');
+    const alpha = classes && classes.contains('alpha-art');
     // Include the small health bar and any oversized boss artwork/outline.
-    const extent = Math.max(b.r + 12, frames ? b.r * 1.36 + 4 : 0, boss ? b.r + 16 : 0, frames ? b.r + 26 : 0);
+    // alpha-art 的本體長到中心上方約 115～130px，血條再抬 64～91px，這截要一併留給它。
+    const extent = Math.max(b.r + 12, frames ? b.r * 1.36 + 4 : 0, boss ? b.r + 16 : 0,
+        frames ? b.r + 26 : 0, alpha ? b.r * 3.2 : 0);
     return BATTLE_BOUNDS.top + extent;
 }
 function enforceBattleCeiling(b) {

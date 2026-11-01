@@ -23,7 +23,7 @@ const functions = html.slice(html.indexOf('function paintFeverGauge()'), html.in
                 remove() { this.isConnected = false; } }) } };
         vm.createContext(ctx); vm.runInContext(functions, ctx);
         assert.equal(ctx.feverAdd(18, { x: 100, y: 300 }), 18);
-        assert.equal(ctx.FEVER.value, 18); assert.equal(fill.style.height, '1.8%');
+        assert.equal(ctx.FEVER.value, 18); assert.equal(fill.style.width, '1.8%');
         assert.equal(nodes[0].style.left, '100px', 'origin is actual hit, not main foe');
         const end = animations[0][1].transform.match(/translate\(([^p]+)px,([^p]+)px\)/);
         assert.ok(Math.abs(Number(end[1]) - 300) < .001 && Math.abs(Number(end[2]) - 150) < .001, 'flight endpoint respects zoom and border');

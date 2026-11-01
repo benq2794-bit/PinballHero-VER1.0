@@ -1,0 +1,134 @@
+/* 編成頁：參考世界彈珠編成畫面，三直欄角色卡 → 彈珠台底座 → 戰力 → 數值欄 → 隊長特性 */
+#team .pg-body > .fm-panel { padding: 8px 8px 12px; }
+
+.fm { position: relative; }
+
+.fm-head { display: flex; align-items: flex-end; justify-content: space-between; padding: 2px 4px 7px; }
+.fm-head small { display: block; font-size: 8px; letter-spacing: 2px; color: #93a9c4; line-height: 1.3; }
+.fm-head b { display: block; font-size: 15px; letter-spacing: 3px; color: #ffe1a1; text-shadow: 2px 2px 0 #050a13; }
+.fm-count { font: 800 10px/1 ui-monospace, Consolas, monospace; color: #1a1205; background: #ffd77a;
+    border: 2px solid #050a13; padding: 3px 7px; box-shadow: 2px 2px 0 #04070d; }
+
+/* ---- 三欄角色卡 ---- */
+.fm-lineup { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding-bottom: 30px; }
+.fm-unit { position: relative; min-width: 0; }
+.fm-unit.setcap { cursor: pointer; }
+.fm-unit.setcap:hover .fm-portrait { filter: brightness(1.1); }
+
+.fm-portrait { position: relative; aspect-ratio: 5 / 6; overflow: hidden;
+    border: 2px solid #050a13; border-radius: 3px;
+    background: linear-gradient(160deg, var(--el) -20%, #1a2c45 46%, #0a1424 100%);
+    box-shadow: inset 2px 2px 0 rgba(255,255,255,.16), inset -2px -2px 0 rgba(0,0,0,.5), 3px 3px 0 #04070d; }
+.fm-portrait::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgba(6,12,22,0) 44%, rgba(6,12,22,.7) 82%, rgba(6,12,22,.92)); }
+
+.fm-art { position: absolute; inset: 4px 4px 20px; z-index: 1; display: grid; place-items: center; }
+.fm-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom;
+    image-rendering: pixelated; }
+.fm-art:not(:has(img)) { font: 900 18px/1 'Microsoft JhengHei', sans-serif; color: #cfe4ff; }
+
+.fm-el { position: absolute; z-index: 3; top: 3px; right: 3px; padding: 1px 4px; font-size: 8px; font-weight: 900; line-height: 1.3;
+    color: #fff; background: var(--el); border: 1px solid #050a13; box-shadow: 1px 1px 0 #04070d;
+    text-shadow: 1px 1px 0 rgba(0,0,0,.45); }
+.fm-leader { position: absolute; z-index: 3; top: 4px; left: -2px; padding: 2px 7px 2px 5px;
+    font: 900 8px/1 'Microsoft JhengHei', sans-serif; letter-spacing: 1px; color: #fff4e2;
+    background: linear-gradient(180deg, #f0575a, #b2202f); border: 1px solid #050a13; border-left: 0;
+    box-shadow: 2px 2px 0 #04070d; }
+.fm-cap-hint { position: absolute; z-index: 3; top: 4px; left: -2px; padding: 2px 5px; font-size: 7px; letter-spacing: 1px;
+    color: #ffd77a; background: rgba(8,16,28,.82); border: 1px solid #050a13; opacity: .8; transition: opacity .12s; }
+.fm-unit.setcap:hover .fm-cap-hint { opacity: 1; color: #fff3c4; }
+
+.fm-lv { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between;
+    gap: 4px; padding: 2px 5px; font-size: 8px; color: #dbe8f8;
+    background: linear-gradient(180deg, rgba(8,16,28,0), rgba(8,16,28,.92)); }
+.fm-lv b { font: 900 10px ui-monospace, Consolas, monospace; color: #fff3c4; }
+.fm-type { font-size: 7px; color: #9db0c9; letter-spacing: .5px; }
+
+.fm-weapon { position: absolute; z-index: 4; right: -4px; bottom: 22px; width: 40px; height: 40px;
+    display: grid; place-items: center; overflow: hidden;
+    background: linear-gradient(160deg, #3d5c86, #16263d); border: 2px solid #050a13; border-radius: 4px;
+    box-shadow: inset 2px 2px 0 rgba(255,255,255,.3), inset -2px -2px 0 rgba(0,0,0,.35), 2px 3px 0 #04070d; }
+.fm-weapon img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.fm-weapon.empty { color: #7f8ea6; font-size: 9px; background: #16202f; }
+
+.fm-sub { position: absolute; z-index: 5; left: 50%; bottom: -25px; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 4px; padding: 2px 6px 2px 2px; white-space: nowrap;
+    background: #101d31; border: 2px solid #050a13; border-radius: 12px;
+    box-shadow: inset 2px 2px 0 #22334e, 2px 3px 0 #04070d; }
+.fm-sub::before { content: ""; position: absolute; top: -6px; left: 50%; margin-left: -4px; width: 8px; height: 8px;
+    background: #101d31; border-left: 2px solid #050a13; border-top: 2px solid #050a13; transform: rotate(45deg); }
+.fm-sub-art { display: grid; place-items: center; width: 22px; height: 22px; overflow: hidden; border-radius: 50%;
+    border: 2px solid #050a13; flex: none; background: #0a1424; font-size: 9px; color: #8fa0c0; }
+.fm-sub-art img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.fm-sub span { font-size: 8px; color: #dbe8f8; max-width: 64px; overflow: hidden; text-overflow: ellipsis; }
+.fm-sub.none { color: #6d7c93; font-size: 8px; border-style: dashed; }
+.fm-sub.none::before { display: none; }
+
+.fm-unit.empty .fm-portrait { display: grid; place-items: center; background: #0d1828; border-style: dashed; box-shadow: none; }
+.fm-empty-ic { font-size: 22px; color: #3d5573; }
+
+/* ---- 彈珠台底座 ---- */
+.fm-stage { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+    margin: 2px 0 4px; padding: 16px 8px 12px;
+    border: 2px solid #050a13;
+    background:
+        radial-gradient(ellipse at 50% 118%, rgba(52,96,140,.38), rgba(10,20,34,0) 70%),
+        repeating-linear-gradient(90deg, rgba(110,150,200,.06) 0 1px, transparent 1px 9px),
+        #0b1829;
+    box-shadow: inset 2px 2px 0 #16273d, inset -2px -2px 0 #060c17, 3px 3px 0 #04070d; }
+.fm-stage::before { content: ""; position: absolute; inset: 5px 12px; border: 1px dashed rgba(120,170,220,.22);
+    border-radius: 50%; pointer-events: none; }
+.fm-ped { position: relative; padding-top: 14px; }
+.fm-ped-top { height: 26px; border-radius: 50%; border: 2px solid #050a13;
+    background: linear-gradient(180deg, var(--el), #101a2a 135%);
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.35), inset 0 -4px 0 rgba(0,0,0,.35), 0 4px 0 #04070d; }
+.fm-ped.empty .fm-ped-top { background: #16233a; box-shadow: inset 0 3px 0 rgba(255,255,255,.08), 0 3px 0 #04070d; border-style: dashed; }
+.fm-ped.lead .fm-ped-top { box-shadow: inset 0 3px 0 rgba(255,255,255,.5), inset 0 -4px 0 rgba(0,0,0,.35), 0 4px 0 #04070d, 0 0 12px var(--el); }
+.fm-ball { position: absolute; z-index: 2; left: 50%; top: 0; transform: translateX(-50%);
+    display: grid; place-items: center; overflow: hidden;
+    width: 36px; height: 36px; border-radius: 50%; border: 2px solid #050a13;
+    background: radial-gradient(circle at 38% 30%, #ffffff, var(--el, #5ea8df) 46%, #0d2340 118%);
+    box-shadow: inset 2px 2px 0 rgba(255,255,255,.55), 2px 3px 0 #04070d; }
+.fm-ball img { width: 70%; height: 70%; object-fit: contain; image-rendering: pixelated; }
+
+/* ---- 戰力牌 ---- */
+.fm-powerrow { display: flex; justify-content: center; margin: 7px 0 8px; }
+.fm-power { position: relative; display: inline-flex; align-items: baseline; gap: 7px; padding: 4px 26px;
+    clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 9px 100%, 0 50%);
+    background: linear-gradient(180deg, #2fd3c9, #148b98 62%, #0b6372);
+    box-shadow: inset 0 0 0 2px rgba(180,255,246,.55), inset 0 -4px 0 rgba(0,0,0,.3); }
+.fm-power span { font-size: 9px; letter-spacing: 2px; color: #d7fffa; }
+.fm-power strong { font: 900 17px ui-monospace, Consolas, monospace; color: #fff; text-shadow: 1px 2px 0 #0a4d58; }
+
+/* ---- 三欄數值 ---- */
+.fm-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.fm-stat { position: relative; padding: 6px 6px 6px; overflow: hidden;
+    border: 2px solid #050a13; background: #101d31;
+    box-shadow: inset 2px 2px 0 #22334e, inset -2px -2px 0 #0a1220, 3px 3px 0 #04070d; }
+.fm-stat::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--el); }
+.fm-sname { padding-top: 3px; font-size: 10px; font-weight: 900; color: #ffe9bd;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fm-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-top: 4px;
+    font-size: 8px; color: #93a9c4; }
+.fm-row span { padding: 1px 4px; background: #1a2a40; border: 1px solid #050a13; color: #c3d3e6; letter-spacing: 1px; }
+.fm-row b { font: 900 10px ui-monospace, Consolas, monospace; color: #fff1cc; }
+.fm-bar { height: 5px; margin-top: 2px; background: #0a1524; border: 1px solid #050a13; overflow: hidden; }
+.fm-bar i { display: block; height: 100%; width: 0; transition: width .12s linear; }
+.fm-bar.hp i { background: linear-gradient(90deg, #ff5a63, #ff9a58); }
+.fm-bar.cd i { background: repeating-linear-gradient(90deg, #38d9e6 0 6px, #1b8fa8 6px 9px); }
+.fm-bar.en i { background: linear-gradient(90deg, #7c4dff, #35e0ff); }
+.fm-skill { margin-top: 5px; padding-top: 4px; border-top: 1px dashed #2b3d55; font-size: 8px; color: #c8a8ff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fm-out { display: block; width: 100%; margin-top: 6px; padding: 3px 0; cursor: pointer; font: 700 8px/1.4 'Microsoft JhengHei', sans-serif;
+    letter-spacing: 1px; color: #93a9c4; background: #16243a; border: 2px solid #050a13; box-shadow: inset 1px 1px 0 #24374f, 2px 2px 0 #04070d; }
+.fm-out:hover { color: #ffc0c0; background: #2a1c26; }
+.fm-stat.empty { display: grid; place-items: center; min-height: 96px; }
+.fm-empty { font-size: 9px; color: #5d708c; }
+
+/* ---- 隊長特性 ---- */
+.fm-lead { display: flex; align-items: center; gap: 7px; margin-top: 8px; padding: 5px 7px;
+    border: 2px solid #050a13; background: #101d31;
+    box-shadow: inset 2px 2px 0 #22334e, 3px 3px 0 #04070d; }
+.fm-lead > span { flex: none; padding: 2px 6px; font-size: 8px; letter-spacing: 1px; color: #241503;
+    background: linear-gradient(180deg, #ffd15c, #e79a2b); border: 1px solid #050a13; box-shadow: 1px 1px 0 #04070d; }
+.fm-lead p { margin: 0; font-size: 9px; line-height: 1.45; color: #a9c0d8; }

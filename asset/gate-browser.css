@@ -6,6 +6,7 @@
 .pg .gate-preview { display:flex; align-items:center; gap:12px; width:100%; min-height:69px; margin:0; padding:5px 12px; border:1px solid #66819a66; border-left:3px solid var(--gate); border-radius:5px; background-position:center 40%; background-size:cover; text-align:left; color:#ddeafa; font-family:inherit; box-shadow:0 2px 0 #030916; }
 .pg .gate-preview:hover { filter:brightness(1.12); }
 .gate-preview img { width:52px; height:52px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 3px 2px #0008); }
+.gate-preview img.alpha-art { image-rendering:auto; transform:scale(var(--art-zoom, 1.35)); filter:brightness(1.15) contrast(1.1) saturate(1.3) drop-shadow(0 2px 2px #000a); }
 .gate-preview span { flex:1; }
 .gate-preview small { display:block; color:#a4bdd4; font-size:10px; }
 .gate-preview b { display:block; margin-top:3px; color:#edf6ff; font-size:13px; }
@@ -15,8 +16,12 @@
 .gate-scene { position:relative; height:174px; background-position:center 42%; background-size:cover; clip-path:polygon(0 0,100% 0,100% 87%,0 100%); }
 .gate-scene-shade { position:absolute; inset:0; background:linear-gradient(115deg,#06142433,#06142400 55%,#06142455),linear-gradient(0deg,#05101d99,transparent 60%); }
 .gate-world-number { position:absolute; top:5px; right:16px; font:900 64px/1 Impact,'Arial Black',sans-serif; color:#ffffffd9; -webkit-text-stroke:1px #12263855; text-shadow:2px 3px #09182a88; }
-.gate-boss-portrait { position:absolute; width:110px; height:110px; left:22px; bottom:19px; border:3px solid var(--gate); border-bottom-width:5px; border-radius:50%; background:radial-gradient(circle,#293f58dd,#071424ee); box-shadow:inset 0 2px #ffffff55,0 4px 0 #08132388,0 0 20px #c6ebff33; }
+.gate-boss-portrait { position:absolute; width:110px; height:110px; left:22px; bottom:19px; overflow:hidden; border:3px solid var(--gate); border-bottom-width:5px; border-radius:50%; background:radial-gradient(circle,#293f58dd,#071424ee); box-shadow:inset 0 2px #ffffff55,0 4px 0 #08132388,0 0 20px #c6ebff33; }
 .gate-boss-portrait img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; padding:6px; filter:drop-shadow(0 3px 1px #0008); }
+/* 四隻王的圖幅差很多：方形的水王放大 1.45 倍會被圓框切到只剩觸手，
+   獅鷲的圖檔四周又留了一大圈空白；縮放值改由 GATE_ENEMY_APPEARANCES 的 zoom 帶入，
+   四隻在圓框裡的本體高度才會一致 */
+.gate-boss-portrait img.alpha-art { image-rendering:auto; padding:0; transform:scale(var(--art-zoom, 1.45)); filter:brightness(1.12) contrast(1.12) saturate(1.3) drop-shadow(0 2px 3px #000a); }
 .gate-completion { position:absolute; bottom:37px; left:148px; color:#eef5ff; font-size:12px; font-weight:900; text-shadow:0 2px #061526; }
 .gate-completion.cleared { color:#ffdc73; }
 .gate-feature-details { position:relative; padding:2px 14px 13px; }

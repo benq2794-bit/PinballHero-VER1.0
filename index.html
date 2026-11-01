@@ -151,23 +151,19 @@
         }
 
         .pf-vfx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 8; }
-
-        /* FEVER 黃金防線：80% 高度的一條光帶，期間下落的球會自動被彈回 */
-        .pf-fever-line { position: absolute; left: 0; right: 0; top: 80%; height: 3px; z-index: 6; pointer-events: none;
-            opacity: 0; transition: opacity .2s linear;
-            background: linear-gradient(90deg, rgba(255,207,90,0), #ffd34a 18%, #fff6c0 50%, #ffd34a 82%, rgba(255,207,90,0));
-            box-shadow: 0 0 14px rgba(255,200,70,.9), 0 0 34px rgba(255,170,30,.55); }
-        .pf-fever-line, .pf-fever-line.on { display: none; }
-        @keyframes feverLine { from { filter: brightness(.85); } to { filter: brightness(1.55); } }
+        /* 打擊特效：32×32 像素動畫表，靠 background-position 逐格推進 */
+        .impact-vfx { position: absolute; width: 32px; height: 32px; background-repeat: no-repeat;
+            transform: translate(-50%, -50%) rotate(var(--r, 0rad)) scale(var(--k, 2)); image-rendering: pixelated; pointer-events: none; }
 
 
         .seg { position: absolute; transform-origin: 0 50%; border-radius: 99px; }
-        /* 機械彈板：底座與板身是兩張圖，底座不動、板身以軸心旋轉，
-           揮板時馬達座才不會跟著翻。連擊換色靠色相／飽和／亮度濾鏡，不換圖、不加外圍噴焰或光暈。 */
+        /* 紅色像素擋板：整支繞板頭圓環旋轉，點陣圖放大時保持銳利 */
         .seg.flipper { border-radius: 0; transform-origin: 0 0; pointer-events: none; z-index: 6;
-            filter: none; }
-        .flip-base, .flip-blade { position: absolute; inset: 0; background-repeat: no-repeat; background-size: 100% 100%;
-            filter: hue-rotate(var(--fl-h, 0deg)) saturate(var(--fl-s, 1)) brightness(var(--fl-b, 1)); }
+            background-repeat: no-repeat; background-size: 100% 100%; image-rendering: pixelated; }
+        /* 金色板身疊在紅板正上方：蓄能時逐漸變金，FEVER 消耗時逐漸退回紅色 */
+        .seg.flipper .flip-gold { position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+            background-repeat: no-repeat; background-size: 100% 100%; image-rendering: pixelated;
+            opacity: 0; transition: opacity .22s linear; pointer-events: none; }
 
         /* 球體角色：貼圖直接浮在場上，不套圓形遮罩、不畫圓盤底色。勿用 mix-blend-mode: screen —— 會連角色自身的深色像素一起挖穿。 */
         .ent { position: absolute; left: 0; top: 0; z-index: 5; }
@@ -222,6 +218,24 @@
         .ball.foe.frames .face img { -webkit-mask-image: none; mask-image: none;
             filter: brightness(1.06) saturate(1.02) drop-shadow(0 3px 5px rgba(0,0,0,.55)); }
         .ball.foe.frames::after { inset: -26px; }
+        /* RO 王這類「整張帶 alpha 的大圖」：翅膀與尾巴會超出碰撞圓，遮罩一罩就斷掉；
+           也不該套 pixelated，細筆畫被硬切會碎成鋸齒。
+           四隻王的圖幅差很多（火龍 172×292、水獸 172×165、獅鷲 104×154、機兵 175×203），
+           同一組內縮數字會讓獅鷲變成一小條、水獸撐爆半個場地，
+           所以臉框與血條高度改由 GATE_ENEMY_APPEARANCES 的 face／lift 帶入；
+           四道門的本體都落在 200px 級，碰撞圓仍是 88px。 */
+        .ball.foe.alpha-art .face { inset: var(--art-face, -100%); }
+        .ball.foe.alpha-art .face img { -webkit-mask-image: none; mask-image: none; image-rendering: auto;
+            filter: brightness(1.02) contrast(1.22) saturate(1.5)
+                    drop-shadow(0 0 2px rgba(0,0,0,.85)) drop-shadow(0 5px 8px rgba(0,0,0,.55)); }
+        /* 紅圈改成貼地光暈：兩百多像素的龍身上套一個圓環只會像泡泡，貼著腳下才像壓場 */
+        .ball.foe.alpha-art::after { inset: auto -64px -62px; height: 46px; border: 0; border-radius: 50%;
+            background: radial-gradient(ellipse at 50% 50%, rgba(255,74,38,.55), rgba(255,74,38,0) 72%);
+            box-shadow: none; }
+        /* 小王血條抬到身體上方，寬度跟著放大（.hb 寬度是 inline，只能用縮放） */
+        .ball.alpha-art + .hb { bottom: calc(100% + var(--art-lift, 88px)); transform: translateX(-50%) scaleX(2.2); }
+        /* 登場霸體的護光圈也照龍身拉成橢圓，不要卡在龍肚子中間（要比 .ball.foe.boss.boss-superarmor 多一階） */
+        .ball.foe.boss.alpha-art.boss-superarmor::before { inset: -95px -62px; }
 
         .pf-hud { position: absolute; left: 7px; right: 7px; top: 7px; z-index: 9; pointer-events: none; }
 
@@ -284,31 +298,6 @@
         .foe-bar .st-chip.burn { color: #ffb37a; background: rgba(255,122,60,.16); border-color: rgba(255,122,60,.5); }
         .foe-bar .st-chip.chill { color: #8fd8ff; background: rgba(90,180,255,.16); border-color: rgba(110,200,255,.5); }
         .hud-buff { margin-top: 4px; font-size: 9px; color: #2ed573; text-shadow: 0 1px 2px #000; }
-        /* ---- 右側全隊 FEVER 條：由下而上充電，滿格＝10 秒黃金防線 ---- */
-        .fev-bar { position: absolute; right: 16px; bottom: 200px; width: 22px; z-index: 9; pointer-events: none; }
-        /* 文字照舊版 Canvas 邏輯：Impact 粗體、白色字、深咖啡黑外描邊＋陰影 */
-        .fev-cap { margin: 0 auto 10px; display: flex; flex-direction: column; align-items: center;
-            font-family: Impact, "Arial Black", "Microsoft JhengHei", sans-serif; font-weight: 900;
-            font-size: 18px; line-height: 21px; color: #fff; paint-order: stroke fill;
-            -webkit-text-stroke: 2px #0a0702; text-shadow: 0 2px 4px rgba(0,0,0,.85); }
-        .fev-cap span { display: block; }
-        .fev-track { position: relative; width: 22px; height: 260px; border-radius: 11px; overflow: hidden;
-            background: rgba(6,8,16,.8); border: 1px solid rgba(255,255,255,.22);
-            box-shadow: inset 0 0 10px rgba(0,0,0,.85), 0 0 10px rgba(0,0,0,.6); }
-        .fev-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0%;
-            background: linear-gradient(180deg, #fff6bd, #ffd93d 42%, #ff9f1c); transition: height .16s linear; }
-        .fev-track::after { content: ""; position: absolute; inset: 0; pointer-events: none;
-            background: repeating-linear-gradient(180deg, rgba(0,0,0,.32) 0 1px, transparent 1px 25px); }
-        .fev-n { margin-top: 6px; text-align: center; font-family: Impact, "Arial Black", "Microsoft JhengHei", sans-serif;
-            font-weight: 900; font-size: 18px; line-height: 1; color: #fff; paint-order: stroke fill;
-            -webkit-text-stroke: 2px #0a0702; text-shadow: 0 2px 4px rgba(0,0,0,.85); }
-        .fev-bar.full .fev-cap { filter: drop-shadow(0 0 8px rgba(255,200,60,.95)); }
-        .fev-bar.full .fev-track { border-color: #ffd93d;
-            box-shadow: 0 0 18px rgba(255,200,60,.85), inset 0 0 10px rgba(0,0,0,.7); }
-        .fev-bar.full .fev-fill { animation: fevCharge .34s infinite alternate; }
-        .fev-bar.full .fev-n { filter: drop-shadow(0 0 6px rgba(255,200,60,.9)); }
-        @keyframes fevCharge { from { filter: brightness(1); } to { filter: brightness(1.55); } }
-
         /* ---- FEVER 金色戰場：背景變暗轉金、金色光罩＋旋轉光束、場框轉金 ---- */
         .fev-veil { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .45s ease;
             background: radial-gradient(ellipse at 50% 60%, rgba(255,222,120,.24) 0%, rgba(255,170,40,.11) 46%, rgba(255,120,0,.04) 74%, transparent 90%); }
@@ -324,23 +313,33 @@
             0 0 16px rgba(255,200,60,.55), inset 0 0 70px rgba(255,150,20,.28); }
         #pf.fever-on .pf-turf { filter: hue-rotate(calc(var(--turf-hue, 0deg) - 24deg)) saturate(1.35) brightness(calc(var(--turf-lum, 1) * 1.45)); }
 
-        /* 中央 FEVER 字：只在 Fever 期間亮起，帶金色脈動 */
-        .pf-center .fever { position: absolute; left: 0; right: 0; top: -44px; font-size: 20px; font-weight: 900;
-            letter-spacing: 5px; color: #ffd93d; opacity: 0; transform: scale(.9); transition: opacity .2s, transform .2s;
+        /* 中央 FEVER 字：常駐貼在能量條上方當標籤，Fever 期間才全亮脈動；字身用傷害點陣字 */
+        .pf-center .fever { position: absolute; left: 0; right: 0; top: 168px; font-size: 20px; font-weight: 900;
+            letter-spacing: 5px; color: #ffd93d; opacity: .55; transform: scale(.94); transition: opacity .2s, transform .2s;
             text-shadow: 0 0 16px #ffb036, 0 0 34px rgba(255,140,20,.9); }
+        .pf-center .fever.px-num { display: flex; justify-content: center; align-items: center; font-size: 0; line-height: 0;
+            letter-spacing: 0; text-shadow: none;
+            filter: drop-shadow(0 0 14px rgba(255,180,50,.9)) drop-shadow(0 3px 2px rgba(0,0,0,.6)); }
+        .pf-center .fever.px-num i { display: block; flex: none; background-repeat: no-repeat; image-rendering: pixelated; }
         .pf-center .fever.on { opacity: 1; animation: feverPulse .5s ease-in-out infinite alternate; }
-        @keyframes feverPulse { from { transform: scale(1); filter: brightness(1); } to { transform: scale(1.09); filter: brightness(1.3); } }
+        @keyframes feverPulse {
+            from { transform: scale(1); filter: brightness(1) drop-shadow(0 0 14px rgba(255,180,50,.9)); }
+            to { transform: scale(1.09); filter: brightness(1.25) drop-shadow(0 0 22px rgba(255,200,70,1)); }
+        }
+        /* FEVER 字下面接一起算的連擊：只有 Fever 期間才有這個數字 */
+        .pf-center .fever-combo { position: absolute; left: 0; right: 0; top: 10px;
+            opacity: 0; transform: scale(.86); transform-origin: 50% 0;
+            transition: opacity .16s ease, transform .18s cubic-bezier(.2,.9,.3,1);
+            filter: drop-shadow(0 2px 0 rgba(0,0,0,.5)) drop-shadow(0 1px 4px rgba(0,0,0,.6)); }
+        .pf-center .fever-combo.px-num { display: flex; justify-content: center; align-items: center;
+            font-size: 0; line-height: 0; }
+        .pf-center .fever-combo.px-num i { display: block; flex: none; background-repeat: no-repeat; image-rendering: pixelated; }
+        .pf-center .fever-combo.on { opacity: 1; transform: none; }
+        .pf-center .fever-combo.bump { animation: feverComboBump .22s cubic-bezier(.2,.85,.3,1); }
+        @keyframes feverComboBump { 0% { transform: scale(.86); } 45% { transform: scale(1.12); } 100% { transform: scale(1); } }
 
-        /* 小型綠色蓄能光點，飛向與它同色的 FEVER 槽。 */
-        .fev-orb { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; z-index: 9;
-            pointer-events: none; background: #c9ffad; box-shadow: 0 0 5px #2fcf6a; }
-        .fev-orb::before { content: ""; position: absolute; width: 18px; height: 2px; right: 50%; top: 2.5px;
-            background: linear-gradient(90deg, transparent, #a9f56f); transform-origin: right center;
-            transform: rotate(var(--flight-angle)); }
-        .fev-track.receiving { animation: feverReceive .26s ease-out; }
-        @keyframes feverReceive { from { filter: brightness(1.7); } to { filter: brightness(1); } }
 
-        .pf-center { position: absolute; left: 0; right: 0; top: 46%; text-align: center; z-index: 9; pointer-events: none; }
+        .pf-center { position: absolute; left: 0; right: 0; top: 50%; text-align: center; z-index: 9; pointer-events: none; }
         /* 連擊徽章固定在 FEVER 條旁，避免大字長時間擋在戰場正中央。 */
         .combo-chip { position: absolute; right: 14px; top: 128px; z-index: 9; width: 112px; box-sizing: border-box;
             padding: 4px 6px 5px; color: #f2f6ff; text-align: left; pointer-events: none;
@@ -474,6 +473,10 @@
                          0 2px 2px rgba(0,0,0,.9);
             filter: drop-shadow(0 0 9px rgba(136,120,255,.9)); }
         .dmg-pop.brk { color: #fff0b8; font-size: 22px; filter: drop-shadow(0 0 12px rgba(255,176,54,.95)); }
+        /* 點陣數字（Riclmbr，CC0）：字表自帶描邊與漸層，所以關掉文字描邊，只留一層落影 */
+        .dmg-pop.px-num { color: transparent; -webkit-text-fill-color: transparent; -webkit-text-stroke: 0; text-shadow: none;
+            background: none; letter-spacing: 0; filter: drop-shadow(0 2px 3px rgba(0,0,0,.72)); }
+        .dmg-pop.px-num i { display: block; flex: none; background-repeat: no-repeat; image-rendering: pixelated; }
         .bloom { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(1px); animation: bloomAnim .55s ease-out forwards; }
         @keyframes bloomAnim { from { opacity: .95; transform: translate(-50%,-50%) scale(.2); } to { opacity: 0; transform: translate(-50%,-50%) scale(2.1); } }
         .spark { position: absolute; width: 5px; height: 5px; border-radius: 50%; pointer-events: none; animation: sparkAnim .45s ease-out forwards; }
@@ -532,6 +535,28 @@
             100% { opacity: 0; transform: translate(-50%,-50%) rotate(var(--rot,0deg)) scaleX(1.12) scaleY(.62); }
         }
         .fx-art.fx-heal { animation-duration: .8s; }
+        /* 技能煙霧格：BDragon1727「Free Smoke Fx Pixel 2」的像素煙當遮罩，
+           一樣用白核→屬性色漸層上色，整條煙格用 steps() 逐格推進 */
+        .pf-smoke { position: absolute; z-index: 6; pointer-events: none; opacity: 0;
+            width: var(--smw); height: var(--smh);
+            /* 煙要看得出體積：中心只稍微提亮，中段維持屬性色，外緣壓暗，避免變成白色空洞 */
+            background: radial-gradient(circle at 50% 50%, var(--c) 0 40%, var(--c) 100%);
+            background: radial-gradient(circle at 50% 50%,
+                color-mix(in srgb, var(--c) 55%, #fff) 0 16%,
+                var(--c) 46%,
+                color-mix(in srgb, var(--c) 76%, #000) 100%);
+            -webkit-mask-image: var(--smsrc); mask-image: var(--smsrc);
+            -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+            -webkit-mask-size: var(--smmw) var(--smmh); mask-size: var(--smmw) var(--smmh);
+            will-change: transform, opacity; }
+        @keyframes pfSmokeStep {
+            from { -webkit-mask-position: 0 0; mask-position: 0 0; }
+            to { -webkit-mask-position: var(--smx) 0; mask-position: var(--smx) 0; } }
+        @keyframes pfSmokePop {
+            0% { opacity: 0; transform: translate(-50%,-50%) rotate(var(--rot,0deg)) scale(.72); }
+            10% { opacity: .95; }
+            52% { opacity: .9; transform: translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1); }
+            100% { opacity: 0; transform: translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1.16); } }
         .type-chip { display: inline-flex; align-items: center; gap: 2px; font-size: 9px; color: #ffd88a; vertical-align: middle;
             background: rgba(255,176,54,.12); border: 1px solid rgba(255,206,90,.42); border-radius: 4px; padding: 0 4px 0 2px; }
         .type-chip img { width: 13px; height: 13px; display: block; image-rendering: pixelated; }
@@ -694,10 +719,6 @@
         .hm-energy-track { width:80%; height:4px; overflow:hidden; background:#062219; border:1px solid #8bf7b3; border-radius:3px; }
         .hm-energy-track i { display:block; height:100%; width:100%; background:#43ed8d; transition:width .2s; }
         .hm-energy-card small { font-size:6px; line-height:1; color:#baf8d1; }
-        .hm-energy-card.low { border-color:#ff7c82; background:linear-gradient(180deg,rgba(73,28,40,.98),rgba(33,13,22,.98)); box-shadow:0 0 0 2px rgba(255,128,138,.3),0 2px 9px rgba(255,60,90,.26); }
-        .hm-energy-card.low .energy-label,.hm-energy-card.low small { color:#ffc2c5; }
-        .hm-energy-card.low .hm-energy-track { border-color:#ff8d95; }
-        .hm-energy-card.low .hm-energy-track i { background:#ff6674; }
 
         /* 右側膠囊 */
         .hm-side { position: absolute; right: 0; top: 386px; z-index: 6; display: flex; flex-direction: column; gap: 7px; }
@@ -766,6 +787,9 @@
         .pg-sec { font-size: 12px; font-weight: 800; color: #8fc2e8; letter-spacing: 1px; margin: 13px 2px 7px; padding-left: 8px;
             border-left: 4px solid #2b8ad0; }
         .pg-empty { text-align: center; color: #8fa6b4; font-size: 12px; padding: 26px 10px; line-height: 1.9; }
+        .pg-credit { margin: 4px 2px 10px; padding: 10px 11px; text-align: center; color: #7e91ab; font-size: 10px; line-height: 1.85;
+            background: rgba(9,18,32,.55); border: 1px solid rgba(66,104,148,.35); border-radius: 5px; letter-spacing: .2px; }
+        .pg-credit b { color: #a8bcd6; font-weight: 800; }
 
         .pgc { background: #14141b; border: 1px solid #26263a; border-radius: 12px; padding: 9px 10px; margin-bottom: 9px;
             box-shadow: 0 2px 8px rgba(0,0,0,.4); }
@@ -894,9 +918,9 @@
         body.gate-mode { overflow: hidden; }
         body.gate-mode .app > :not(#pf-frame) { display: none !important; }
         body.gate-mode #pf-frame { display: block !important; }
-        body.gate-mode #pp-home { display: none; }   /* 門戰的返回由門的頂列負責 */
-        body.gate-mode #pp-reset { display: none; }  /* 重置只能從母頁做 */
-        body.gate-mode .pf-hud .hud-exit { display: flex; }
+        body.gate-mode #pp-home { display: none; }   /* 門戰改由暫停選單的「離開異界迴廊」返回 */
+        #pp-gate-exit { display: none; }
+        body.gate-mode #pp-gate-exit { display: block; }
 
         /* ===== 開場選角：四屬性各一位 ===== */
         .starter { position: absolute; inset: 0; z-index: 90; display: none; flex-direction: column; justify-content: center;
@@ -1008,10 +1032,6 @@
             color: #243c55; background: linear-gradient(180deg, #ffffff, #dcecff);
             box-shadow: inset 0 2px 0 rgba(255,255,255,.9), 0 4px 0 rgba(20,8,18,.8); }
         .pf-hud .hud-sq:active { transform: translateY(3px); border-bottom-width: 2px; box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 0 rgba(20,8,18,.8); }
-        .pf-hud .hud-exit { display: none; width: auto; min-width: 48px; padding: 0 6px; gap: 3px;
-            font-size: 9px; color: #fff9e8; border-color: #fff0b2; border-bottom-color: #8e4b2d;
-            background: linear-gradient(180deg, #ffb85a, #e66a3d); text-shadow: 1px 1px 0 #823b2b; }
-        .pf-hud .hud-exit:active { border-bottom-color: #8e4b2d; }
         .pf-hud .hud-pill { border: 2px solid #6ea9d7; border-radius: 4px; color: #c8eaff;
             background: linear-gradient(180deg, rgba(23,52,81,.97), rgba(8,24,43,.97));
             font-size: 9px; font-weight: 800; box-shadow: inset 0 2px 0 rgba(255,255,255,.16), 2px 3px 0 rgba(3,9,18,.8); }
@@ -1038,29 +1058,6 @@
             background: linear-gradient(180deg, rgba(92,57,22,.97), rgba(40,27,22,.97));
             box-shadow: inset 0 2px 0 rgba(255,255,255,.15), 2px 3px 0 rgba(3,8,16,.8); }
         .pf-hud .hud-buff { color: #a8ff9e; text-shadow: 1px 1px 0 #102819; }
-        .fev-track { border: 3px solid #fff0a0; border-radius: 4px;
-            box-shadow: inset 0 3px 0 rgba(0,0,0,.55), 3px 4px 0 rgba(3,8,16,.8); }
-        .fev-bar.full .fev-track { border-color: #fff4b5; box-shadow: 0 0 0 2px #a95828, 3px 4px 0 rgba(3,8,16,.8); }
-        /* FEVER：立體像素能量槽 */
-        .fev-bar { right: 12px; bottom: 210px; width: 46px; padding: 7px 5px 6px;
-            background: linear-gradient(90deg,#15253b55,#223b5466 48%,#12213544); border: 2px solid #7892aa44;
-            border-radius: 5px; box-shadow: inset 0 2px #7293aa44, inset 0 -3px #0b172944, 2px 3px 0 #050a1433; }
-        .fev-cap { margin: 0 0 7px; flex-direction: row; justify-content: center; gap: 0;
-            font-size: 11px; line-height: 14px; letter-spacing: .3px; color: #f9dc83;
-            -webkit-text-stroke: 0; text-shadow: 0 2px #060c17; filter: none; }
-        .fev-track { width: 22px; height: 208px; margin: auto; border: 2px solid #8095a577;
-            border-radius: 2px; background: #07121f66; box-shadow: inset 2px 0 #02070f55, 1px 2px #050b1444; }
-        .fev-fill { left: 2px; right: 2px; background: linear-gradient(90deg,#239b50,#2fcf6a 38%,#a9f56f 60%,#43bc64);
-            box-shadow: inset 0 2px #d5ffc1; }
-        .fev-track::after { background: repeating-linear-gradient(to top,transparent 0 18px,#091320b3 18px 20px); }
-        .fev-n { margin-top: 7px; font-size: 12px; line-height: 16px; color: #fff1b9;
-            -webkit-text-stroke: 0; text-shadow: 0 1px #000; white-space: nowrap; }
-        .fev-bar.full { border-color: #63cb8288; background: linear-gradient(90deg,#163c2866,#285a3a77,#142e2055); }
-        .fev-bar.full .fev-cap { color: #d5ffc1; filter: none; }
-        .fev-bar.full .fev-track { border-color: #a9f56f; box-shadow: 0 0 10px #2fcf6a55, inset 2px 0 #143d25; }
-        .fev-bar.full .fev-fill { animation: fevCharge 1s ease-in-out infinite alternate; }
-        .fev-bar.full .fev-n { color: #d5ffc1; filter: none; }
-        @media (prefers-reduced-motion: reduce) { .fev-bar.full .fev-fill { animation: none; } }
         .skill-signature { position: absolute; width: 340px; height: 340px; margin: -170px;
             pointer-events: none; z-index: 7; color: var(--sig-color); }
         .skill-signature svg { width: 100%; height: 100%; overflow: visible;
@@ -1091,37 +1088,150 @@
         .pgc .mini-btn:disabled { opacity: .4; cursor: default; filter: grayscale(.5); }
         .ball.hero.party-follower { opacity: .92; }
         .ball.hero.party-pilot { border-color: #ffe9a6; }
-        .boss-entrance { position:absolute; left:16px; right:16px; top:25%; z-index:11;
-            padding:11px 14px 13px; border:2px solid #ffd18a; border-bottom:5px solid #9d5829; border-radius:7px;
-            background:linear-gradient(115deg,#48271af5,#18263cf5 58%,#102035f5); box-shadow:inset 0 1px #fff1ce66,0 5px 0 #080e1a99,0 12px 30px #0007;
-            pointer-events:none; opacity:0; visibility:hidden; transform:translateY(-12px) scale(.98);
-            transition:opacity .24s ease,transform .24s ease,visibility .24s; }
-        .boss-entrance.on { opacity:1; visibility:visible; transform:translateY(0) scale(1); }
-        .boss-entrance.leaving { opacity:0; transform:translateY(-8px); }
-        .boss-entrance-top { display:flex; align-items:center; justify-content:space-between; gap:8px;
-            padding-bottom:7px; border-bottom:1px solid #f4c07433; color:#e9b16c; font-size:10px; }
-        .boss-entrance-top b { color:#ffe6b0; font-size:12px; letter-spacing:2px; white-space:nowrap; }
-        .boss-entrance-content { display:flex; align-items:center; gap:14px; padding-top:8px; }
-        .boss-entrance-image { width:76px; height:76px; flex:none; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 3px 2px #0008); }
-        .boss-entrance-copy { flex:1; min-width:0; }
-        .boss-entrance-name { color:#fff0d4; font-size:23px; line-height:1.3; font-weight:900; text-shadow:0 2px #3c1d15; }
-        .boss-entrance-element { display:inline-block; margin-top:4px; padding:2px 7px; border:1px solid #ffffff33; border-radius:3px; background:#09142099; font-size:11px; }
-        .boss-entrance-hint { margin-top:7px; color:#b7c8dc; font-size:11px; }
-        .boss-entry-veil { position:absolute; inset:0; z-index:10; pointer-events:none; opacity:0;
-            background:radial-gradient(ellipse at 50% 40%,#13243c22,#030914a8); transition:opacity .2s; }
-        .boss-entry-stop .boss-entry-veil { opacity:1; }
-        .boss-entry-stop .pf-field { filter:saturate(.25) brightness(.7); }
-        .boss-entry-stop .pf-field *,.boss-entry-stop .pf-vfx * { animation-play-state:paused !important; }
-        .boss-entrance.gate-enter { top:32%; left:13px; right:13px; padding:15px 17px; border-radius:4px;
-            transform:translateX(calc(-100% - 36px)); transition:transform .38s cubic-bezier(.2,.75,.25,1),opacity .22s,visibility .22s; }
-        .boss-entrance.gate-enter.on { transform:translateX(0); }
-        .boss-entrance.gate-enter.on.leaving { transform:translateX(calc(100% + 36px)); opacity:0; transition-duration:.42s; }
-        .boss-entrance.gate-enter .boss-entrance-image { width:106px; height:106px; }
-        .boss-entrance.gate-enter .boss-entrance-name { font-size:22px; }
-        @media (prefers-reduced-motion:reduce) { .boss-entrance,.boss-entrance.gate-enter,.boss-entrance.gate-enter.on,.boss-entrance.gate-enter.on.leaving { transition:none; transform:none; } }
+        /* ===== BOSS 登場三幕：預兆法陣 → 砸地亮相 → 血條充能＋稱號橫幅 ===== */
+        .pf-field { transition:filter .32s ease; }
+        .boss-entry-veil { position:absolute; inset:0; z-index:6; pointer-events:none; opacity:0;
+            background:
+                radial-gradient(ellipse at 50% 44%, transparent 6%, #030914cc 72%),
+                radial-gradient(circle at 50% 46%, color-mix(in srgb, var(--bc,#3ea0ff) 30%, transparent), transparent 58%);
+            transition:opacity .28s ease; }
+        .boss-entry-omen .boss-entry-veil { opacity:1; }
+        .boss-entry-reveal .boss-entry-veil { opacity:.78; }
+        .boss-entry-engage .boss-entry-veil { opacity:.4; }
+        .boss-entry-omen .pf-field { filter:saturate(.2) brightness(.55); }
+        .boss-entry-reveal .pf-field { filter:saturate(.9) brightness(.92); }
+        .boss-entry-stop .pf-field * { animation-play-state:paused !important; }
+        /* BOSS 自己要有動作：落地動畫與待機不能被時停那條規則一起按掉 */
+        .boss-entry-stop .pf-field .ball.boss,
+        .boss-entry-stop .pf-field .ball.boss * { animation-play-state:running !important; }
+
+        /* 一、預兆：屬性魔法陣在中央展開，外圈反向旋轉，像素粒子往中心收束 */
+        .boss-omen { position:absolute; inset:0; z-index:7; pointer-events:none; opacity:0; transition:opacity .2s ease; }
+        .boss-entry-omen .boss-omen { opacity:1; }
+        .boss-omen-ring, .boss-omen-core { position:absolute; left:50%; top:46%; border-radius:50%; opacity:0;
+            transform:translate(-50%,-50%) scale(.2); }
+        .boss-omen-ring { width:268px; height:268px; border:2px solid color-mix(in srgb, var(--bc,#3ea0ff) 72%, #fff);
+            box-shadow:0 0 26px color-mix(in srgb, var(--bc,#3ea0ff) 65%, transparent),
+                       inset 0 0 30px color-mix(in srgb, var(--bc,#3ea0ff) 45%, transparent); }
+        .boss-omen-ring::before { content:""; position:absolute; inset:24px; border-radius:50%; opacity:.85;
+            border:2px dashed color-mix(in srgb, var(--bc,#3ea0ff) 85%, #fff); animation:bossOmenSpin 3.2s linear infinite; }
+        .boss-omen-ring::after { content:""; position:absolute; inset:-30px; border-radius:50%;
+            background:repeating-conic-gradient(from 0deg, transparent 0deg 7deg,
+                color-mix(in srgb, var(--bc,#3ea0ff) 46%, transparent) 7deg 8.5deg);
+            -webkit-mask-image:radial-gradient(circle, transparent 62%, #000 63% 80%, transparent 81%);
+            mask-image:radial-gradient(circle, transparent 62%, #000 63% 80%, transparent 81%);
+            animation:bossOmenSpinRev 5.4s linear infinite; }
+        .boss-omen-core { width:118px; height:118px;
+            background:radial-gradient(circle, #fff 0 7%, color-mix(in srgb, var(--bc,#3ea0ff) 82%, #fff) 26%, transparent 68%);
+            filter:blur(1px); }
+        .boss-entry-omen .boss-omen-ring { animation:bossOmenOpen .62s cubic-bezier(.18,.86,.24,1) both; }
+        .boss-entry-omen .boss-omen-core { animation:bossOmenCore .8s ease-out both; }
+        .boss-px { position:absolute; left:50%; top:46%; width:5px; height:5px; margin:-2.5px 0 0 -2.5px;
+            background:color-mix(in srgb, var(--bc,#3ea0ff) 60%, #fff); box-shadow:0 0 7px var(--bc,#3ea0ff);
+            animation:bossPxIn .66s cubic-bezier(.3,.7,.35,1) var(--dl,0s) both; }
+        @keyframes bossOmenOpen {
+            0% { opacity:0; transform:translate(-50%,-50%) scale(.18) rotate(-40deg); }
+            55% { opacity:1; }
+            100% { opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0deg); } }
+        @keyframes bossOmenCore {
+            0% { opacity:0; transform:translate(-50%,-50%) scale(.2); }
+            45% { opacity:.95; transform:translate(-50%,-50%) scale(1.3); }
+            100% { opacity:0; transform:translate(-50%,-50%) scale(.45); } }
+        @keyframes bossOmenSpin { to { transform:rotate(360deg); } }
+        @keyframes bossOmenSpinRev { to { transform:rotate(-360deg); } }
+        @keyframes bossPxIn {
+            0% { opacity:0; transform:rotate(var(--a)) translateX(var(--d)) scale(.4); }
+            18% { opacity:1; }
+            80% { opacity:1; }
+            100% { opacity:0; transform:rotate(var(--a)) translateX(0) scale(1.5); } }
+
+        /* 二、亮相：本體砸地、揚起屬性煙塵，全身掛霸體光；入場期間碰不到王 */
+        .ent.boss-gone { opacity:0; }
+        .ball.foe.boss.boss-drop { animation:bossSlam .82s cubic-bezier(.22,.9,.28,1) both; }
+        @keyframes bossSlam {
+            0% { opacity:0; transform:translateY(-300px) scale(.7); }
+            14% { opacity:1; }
+            58% { transform:translateY(0) scale(.88); }
+            70% { transform:translateY(-16px) scale(1.06); }
+            82% { transform:translateY(0) scale(.96); }
+            92% { transform:translateY(-5px) scale(1.02); }
+            100% { transform:translateY(0) scale(1); } }
+        .ball.foe.boss.boss-superarmor::before { content:""; position:absolute; inset:-16px; border-radius:50%; pointer-events:none;
+            border:2px solid rgba(255,240,196,.9);
+            box-shadow:0 0 22px rgba(255,226,152,.85), inset 0 0 26px rgba(255,232,170,.5);
+            animation:bossArmorPulse .9s ease-in-out infinite alternate; }
+        @keyframes bossArmorPulse { from { opacity:.5; transform:scale(.96); } to { opacity:1; transform:scale(1.06); } }
+        #pf.boss-quake { animation:bossQuake .5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes bossQuake {
+            0%,100% { transform:translate(0,0); }
+            12% { transform:translate(-7px,5px); }
+            26% { transform:translate(6px,-4px); }
+            42% { transform:translate(-5px,-6px); }
+            58% { transform:translate(5px,4px); }
+            74% { transform:translate(-3px,2px); }
+            88% { transform:translate(2px,-2px); } }
+
+        /* 三、交手：血條從零充能，稱號橫幅彈出後淡出 */
+        #pf.boss-hp-charge .foe-bar { border-color:rgba(255,214,138,.85);
+            animation:bossHpGlow .5s ease-in-out infinite alternate; }
+        #pf.boss-hp-charge #enemy-hp-bar { background:linear-gradient(90deg,#ffb03a,#ffe98a); }
+        @keyframes bossHpGlow { from { box-shadow:0 0 0 rgba(255,196,90,0); } to { box-shadow:0 0 16px rgba(255,196,90,.6); } }
+        /* BOSS 登場：跟技能插播同一套「立繪在左、名稱在右」的斜切演出，
+           不再蓋一張方形橫幅卡；光環、放射線、掃光與屬性印記都沿用 cut 系列。 */
+        .boss-entrance { position:absolute; left:10px; top:46%; z-index:11; display:flex; align-items:center; gap:10px;
+            max-width:min(340px, calc(100% - 20px)); pointer-events:none; opacity:0; visibility:hidden;
+            transform:translate(-20px,-50%) scale(.78); filter:drop-shadow(0 4px 8px rgba(0,0,0,.72)); }
+        .boss-entrance.on { opacity:1; visibility:visible; animation:bossCutIn .36s cubic-bezier(.16,.8,.25,1) both; }
+        .boss-entrance.leaving { opacity:1; visibility:visible; animation:bossCutOut .3s ease-in forwards; }
+        @keyframes bossCutIn { from { opacity:0; transform:translate(-20px,-50%) scale(.78); } 72% { opacity:1; transform:translate(4px,-50%) scale(1.04); } to { opacity:1; transform:translate(0,-50%) scale(1); } }
+        @keyframes bossCutOut { from { opacity:1; transform:translate(0,-50%) scale(1); } to { opacity:0; transform:translate(-12px,-50%) scale(.94); } }
+        .boss-entrance-art { position:relative; flex:none; width:104px; height:158px; isolation:isolate; }
+        .boss-entrance-art::before { content:""; position:absolute; z-index:-2; inset:-18px -14px;
+            background:repeating-conic-gradient(from 0deg at 52% 52%, transparent 0deg 8deg,
+                color-mix(in srgb, var(--bc,#ffcf7a) 44%, transparent) 9deg 11deg, transparent 12deg 22deg);
+            -webkit-mask-image:radial-gradient(ellipse,#000 15%,rgba(0,0,0,.72) 48%,transparent 74%);
+            mask-image:radial-gradient(ellipse,#000 15%,rgba(0,0,0,.72) 48%,transparent 74%);
+            animation:cutRays .9s ease-out both; }
+        .boss-entrance-art::after { content:""; position:absolute; z-index:-1; inset:12% -14% 2%; border-radius:50%;
+            background:radial-gradient(ellipse,color-mix(in srgb, var(--bc,#ffcf7a) 38%, transparent),transparent 70%);
+            filter:blur(11px); animation:cutAura .7s ease-out both; }
+        .boss-entrance-image { position:relative; z-index:1; width:100%; height:100%; object-fit:contain; image-rendering:pixelated;
+            filter:drop-shadow(0 2px 3px rgba(0,0,0,.9)) drop-shadow(0 0 8px color-mix(in srgb, var(--bc,#ffcf7a) 55%, transparent)); }
+        .boss-entrance-image.alpha-art { image-rendering:auto;
+            filter:brightness(1.06) contrast(1.15) saturate(1.35) drop-shadow(0 2px 3px rgba(0,0,0,.85))
+                   drop-shadow(0 0 10px color-mix(in srgb, var(--bc,#ffcf7a) 40%, transparent)); }
+        .boss-entrance-shine { position:absolute; z-index:2; inset:0; overflow:hidden; opacity:.65;
+            -webkit-mask-image:radial-gradient(ellipse,#000 45%,transparent 80%); mask-image:radial-gradient(ellipse,#000 45%,transparent 80%); }
+        .boss-entrance-shine::after { content:""; position:absolute; top:-20%; bottom:-20%; left:-55%; width:25%; transform:skewX(-24deg);
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent); animation:cutShine .38s .08s ease-out both; }
+        .boss-entrance-element { position:absolute; top:5px; right:0; z-index:3; width:19px; height:19px; border-radius:50%;
+            display:grid; place-items:center; font-size:10px; font-weight:bold; color:#10131a;
+            background:var(--bc,#ffcf7a); box-shadow:0 0 12px var(--bc,#ffcf7a); }
+        .boss-entrance-copy { position:relative; z-index:1; min-width:0; margin-top:26px;
+            text-shadow:0 2px 4px #000,0 0 9px rgba(0,0,0,.9); }
+        .boss-entrance-title { color:#ffe1a1; font-size:10px; line-height:1; letter-spacing:2px; font-weight:900; white-space:nowrap; }
+        .boss-entrance-name { margin-top:3px; color:#fff; font-size:21px; line-height:1.18; font-weight:900; letter-spacing:.4px;
+            -webkit-text-stroke:.35px rgba(0,0,0,.5); }
+        .boss-entrance-floor { margin-top:2px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+            color:#f0f3ff; font-size:10px; line-height:1.4; letter-spacing:.2px; }
+        .boss-entrance-floor em { font-style:normal; color:var(--bc,#ffcf7a); font-weight:bold; }
+        .boss-entrance-hint { margin-top:1px; color:#c9d6ea; font-size:10px; line-height:1.35; }
+        @media (prefers-reduced-motion:reduce) {
+            .boss-omen-ring, .boss-omen-core, .boss-px, .ball.foe.boss.boss-drop, #pf.boss-quake,
+            .ball.foe.boss.boss-superarmor::before, .boss-entrance-shine::after, #pf.boss-hp-charge .foe-bar { animation:none !important; }
+            .boss-entrance, .boss-entrance.on, .boss-entrance.leaving { transition:opacity .2s ease; animation:none !important; }
+            .boss-entrance.on { transform:translate(0,-50%) scale(1); }
+            .boss-entrance.leaving { opacity:0; }
+            /* 關掉動畫後不能什麼都不剩：法陣與粒子改用定格姿態，畫面照樣有「異變」 */
+            .boss-entry-omen .boss-omen-ring { opacity:1; transform:translate(-50%,-50%) scale(1); }
+            .boss-entry-omen .boss-omen-core { opacity:.75; transform:translate(-50%,-50%) scale(.9); }
+            .boss-entry-omen .boss-px { opacity:.85; transform:rotate(var(--a)) translateX(calc(var(--d) * .3)) scale(1); }
+        }
     </style>
 <link rel="stylesheet" href="asset/gate-browser.css">
 <link rel="stylesheet" href="asset/tower-talents.css">
+<link rel="stylesheet" href="asset/team-formation.css">
+<link rel="stylesheet" href="asset/pixel-buttons.css">
 </head>
 <body>
 
@@ -1144,11 +1254,11 @@
                     </div>
                     </div>
                 </div>
-                <div class="hm-energy-card" id="hm-energy-card" title="全隊目前生命">
-                    <span class="energy-label">TEAM HP</span>
-                    <b id="hm-energy-pct">100%</b>
+                <div class="hm-energy-card" id="hm-energy-card" title="RANK 目前經驗">
+                    <span class="energy-label">RANK EXP</span>
+                    <b id="hm-energy-pct">0%</b>
                     <div class="hm-energy-track"><i id="hm-energy-bar"></i></div>
-                    <small>隊伍生命</small>
+                    <small>當前經驗</small>
                 </div>
             </div>
 
@@ -1196,7 +1306,6 @@
             <div class="pf-hud">
                 <div class="hud-top">
                     <button class="hud-sq" id="btn-pause" onclick="togglePause()" title="暫停">❚❚</button>
-                    <button class="hud-sq hud-exit" id="btn-gate-exit" onclick="gateExit()" title="離開異界迴廊">↩ 離場</button>
                     <div class="hud-pill zone"><span id="zone-name">波利塔</span><b id="stage-num">第 1 層</b></div>
                     <div class="hud-team" id="hud-team"></div>
                 </div>
@@ -1217,12 +1326,6 @@
                 <div class="hud-buff"><span id="pf-buff-txt"></span></div>
             </div>
 
-            <!-- 全隊 FEVER 條：撞怪蓄能，滿格 10 秒黃金防線 -->
-            <div class="fev-bar" id="fev-bar" title="全隊 FEVER 能量">
-                <div class="fev-cap"><span>F</span><span>E</span><span>V</span><span>E</span><span>R</span></div>
-                <div class="fev-track"><div class="fev-fill" id="fev-fill"></div></div>
-                <div class="fev-n" id="fev-num">0%</div>
-            </div>
             <div class="combo-chip" id="pf-combo-chip" aria-label="連擊狀態">
                 <div class="combo-chip-head"><span class="combo-chip-label">連擊</span><b class="combo-chip-count" id="pf-combo">0</b>
                     <span class="combo-chip-mult" id="pf-combo-mult">傷害 +0%</span></div>
@@ -1230,23 +1333,31 @@
             </div>
 
             <div class="pf-field" id="pf-field"></div>
-            <div class="pf-fever-line" id="pf-fever-line"></div>
             <div class="pf-vfx" id="pf-vfx"></div>
 
             <div class="pf-center" id="pf-center">
                 <div class="fever" id="pf-fever">FEVER</div>
+                <div class="fever-combo" id="pf-fever-combo">COMBO x0</div>
             </div>
 
             <div class="pf-banner" id="pf-banner"></div>
             <div class="boss-entry-veil" aria-hidden="true"></div>
+            <div class="boss-omen" id="boss-omen" aria-hidden="true">
+                <div class="boss-omen-ring"></div>
+                <div class="boss-omen-core"></div>
+                <div id="boss-omen-px"></div>
+            </div>
             <div class="boss-entrance" id="boss-entrance" role="status" aria-live="polite" aria-hidden="true">
-                <div class="boss-entrance-top"><b>⚠ BOSS 登場</b><span id="boss-entrance-floor"></span></div>
-                <div class="boss-entrance-content">
+                <div class="boss-entrance-art">
                     <img class="boss-entrance-image" id="boss-entrance-image" alt="" hidden>
-                    <div class="boss-entrance-copy"><div class="boss-entrance-name" id="boss-entrance-name"></div>
-                        <span class="boss-entrance-element" id="boss-entrance-element"></span>
-                        <div class="boss-entrance-hint">擊破弱點，創造輸出機會</div>
-                    </div>
+                    <span class="boss-entrance-shine"></span>
+                    <span class="boss-entrance-element" id="boss-entrance-element"></span>
+                </div>
+                <div class="boss-entrance-copy">
+                    <div class="boss-entrance-title" id="boss-entrance-title"></div>
+                    <div class="boss-entrance-name" id="boss-entrance-name"></div>
+                    <div class="boss-entrance-floor" id="boss-entrance-floor"></div>
+                    <div class="boss-entrance-hint">擊破弱點，創造輸出機會</div>
                 </div>
             </div>
 
@@ -1289,11 +1400,11 @@
                     <div class="pp-t">已暫停</div>
                     <button class="pp-go" onclick="togglePause()">▶ 繼續戰鬥</button>
                     <button id="pp-home" onclick="backHome()">🏠 返回主頁</button>
+                    <button id="pp-gate-exit" onclick="gateExit()">↩ 離開異界迴廊</button>
                     <button id="pp-sfx" onclick="toggleSfx()">🔊 音效：開</button>
                     <button id="pp-shake" onclick="toggleShake()">📴 畫面晃動：開</button>
                     <button id="pp-tutorial-btn" onclick="replayBattleTutorial()">🧭 重看新手教學</button>
                     <button id="pp-help-btn" onclick="toggleHelp()">❔ 操作說明</button>
-                    <button id="pp-reset" onclick="resetSave()" style="margin-top:6px; border-color:#5a2c33; color:#ff8a95">🗑️ 重置存檔並重開</button>
                     <div class="pp-help" id="pp-help">
                         · 點左右半場／← →＝揮動<b>彈板</b><br>
                         · <b>隊長帶隊</b>：隊長在前、隊員沿路跟隨；一起彈射與衝刺，各自保留生命及技能。隊長倒下時由存活隊員暫時領隊<br>
@@ -1301,7 +1412,7 @@
                         · <b>強力彈射</b>：9／15／39 連擊後，彈板擊球時自動消耗連擊發動 Lv1／2／3；隊長職業決定效果<br>
                         · 劍士：近身旋斬；格鬥：命中連拳；射擊：沿球路光束；特殊：命中爆裂；輔助：全隊攻擊提升與補能<br>
                         · 撞怪會累積技能能量，滿了<b>自動施放</b><br>
-                        · 撞怪也累積右側 <b>FEVER</b> 條，滿了 10 秒<b>球速 ×2</b>＋黃金防線，掉球會自動彈回<br>
+                        · 撞怪也累積<b>FEVER 條</b>，滿了 10 秒<b>球速 ×2</b>＋掉球自動彈回<br>
                         · 王關讀條時撞掉所有<b>弱點</b>＝打出 BREAK<br>
                         · <b>P</b> 或 <b>❚❚</b>＝暫停
                     </div>
@@ -1341,8 +1452,7 @@
                 <button class="tm-go" onclick="enterBattle()">出發 ⚔</button>
             </div>
             <div class="pg-body">
-                <div class="panel">
-                    <h2>⚔️ 隊伍編成 <span class="hint">最多 3 人同時上場</span></h2>
+                <div class="panel fm-panel">
                     <div id="team-slots"></div>
                 </div>
 
@@ -1385,6 +1495,7 @@
 <script src="asset/tower-talents.js"></script>
 <script src="asset/enemy-wave.js"></script>
 <script src="asset/boss-entrance.js"></script>
+<script src="asset/fx/pixel-text.js"></script>
 <script src="asset/gate-browser.js"></script>
 <script>
 'use strict';
@@ -1559,14 +1670,39 @@ const BOSS_EVERY = 10;     // 每 10 層一個深層王關
 const NORMAL_FLOOR_WAVES = 3;
 const NORMAL_FLOOR_SECONDS = 60, BOSS_FLOOR_SECONDS = 90;
 const TOWER_TALENTS = [
-    { id:"damage", name:"勇者之力", desc:"每階全隊傷害 +12%（最多 36%）", max:3 },
-    { id:"crit", name:"精準校準", desc:"每階全隊暴擊率 +5%（最多 15%）", max:3 },
-    { id:"guard", name:"守護天賦", desc:"每階受到傷害 -10%（最多 -30%）", max:3 },
-    { id:"gauge", name:"共鳴加速", desc:"每階技能能量獲得 +20%（最多 60%）", max:3 },
-    { id:"heal", name:"生命泉源", desc:"每層通關額外回復 10% 生命（最多 30%）", max:3 },
-    { id:"element", name:"元素共鳴", desc:"每階克制傷害額外 +15%（最多 45%）", max:3 }
+    { id:"damage", name:"勇者之力", desc:"第 1 階全隊傷害 +15%；第 2 階起轉為星脈質變", max:3 },
+    { id:"crit", name:"精準校準", desc:"第 1 階全隊暴擊率 +10%；第 2 階起轉為星脈質變", max:3 },
+    { id:"guard", name:"守護天賦", desc:"第 1 階受到傷害 −12%；第 2 階起轉為星脈質變", max:3 },
+    { id:"element", name:"元素共鳴", desc:"第 1 階克制傷害 +18%；第 2 階起轉為星脈質變", max:3 },
+    { id:"gauge", name:"共鳴加速", desc:"第 1 階技能能量獲得 +22%；第 2 階起轉為星脈質變", max:3 },
+    { id:"heal", name:"生命泉源", desc:"第 1 階通關回復 +15%；第 2 階起轉為星脈質變", max:3 }
 ];
-let floorWins = 0, deepTimeLeft = NORMAL_FLOOR_SECONDS, deepPerks = {};
+// 星脈質變：第 2 階直接給機制被動，第 3 階是同一條機制的強化版
+const TOWER_MUT_RANK = 30;
+const TOWER_MUTATIONS = {
+    damage:  { name: "星脈・連擊爆發", desc: "連擊達 40 時，下一次技能傷害 +40%",
+               up: "連擊達 40 時，下一次技能傷害 +70%", power: .4, powerUp: .7 },
+    crit:    { name: "星脈・暴擊回流", desc: "暴擊時全隊技能能量 +4",
+               up: "暴擊時全隊技能能量 +7", power: 4, powerUp: 7 },
+    guard:   { name: "星脈・不屈星壁", desc: "每層首次致命傷害保留 1 HP",
+               up: "每層首次致命傷害保留 1 HP，並回復 20% 生命", power: 0, powerUp: .2 },
+    element: { name: "星脈・元素爆發", desc: "克制命中時 15% 機率造成 ×2 傷害",
+               up: "克制命中時 25% 機率造成 ×2 傷害", power: .15, powerUp: .25 },
+    gauge:   { name: "星脈・開場充能", desc: "進入新一層時全隊技能能量 +30%",
+               up: "進入新一層時全隊技能能量 +50%", power: 30, powerUp: 50 },
+    heal:    { name: "星脈・生命共振", desc: "回血時全隊攻擊 +10%，持續 5 秒",
+               up: "回血時全隊攻擊 +18%，持續 5 秒", power: .1, powerUp: .18 }
+};
+// 雙修節點：兩側分支都到第 2 階才會出現，1 點換複合效果
+const TOWER_CROSS = [
+    { id:"dm_crit",       a:"damage",  b:"crit",    name:"殺戮星脈", desc:"暴擊時自身攻擊 +5%，可疊 5 層（通關重置）", bonus:{} },
+    { id:"crit_guard",    a:"crit",    b:"guard",   name:"鐵壁判讀", desc:"暴擊率 +3%、受到傷害 −5%", bonus:{ crit:.03, guard:.05 } },
+    { id:"guard_element", a:"guard",   b:"element", name:"反擊星脈", desc:"受到克制屬性的攻擊時，反彈 100% 傷害", bonus:{} },
+    { id:"element_gauge", a:"element", b:"gauge",   name:"雷鳴共振", desc:"克制傷害 +8%、技能能量獲得 +10%", bonus:{ element:.08, gauge:.10 } },
+    { id:"gauge_heal",    a:"gauge",   b:"heal",    name:"詠唱星脈", desc:"施放技能時，全隊回復 3% 最大生命", bonus:{} },
+    { id:"heal_damage",   a:"heal",    b:"damage",  name:"生命洪流", desc:"通關回復 +5%、全隊傷害 +6%", bonus:{ heal:.05, damage:.06 } }
+];
+let floorWins = 0, deepTimeLeft = NORMAL_FLOOR_SECONDS, deepPerks = {}, deepCross = {};
 const WEAK_DUR = 9000;     // 弱點讀條秒數
 const BREAK_MS = 7000;     // BREAK 狀態持續
 const BREAK_TAKEN = 1.8;   // BREAK 期間受到傷害倍率
@@ -1687,45 +1823,30 @@ const SKILL_DESC = {
 function artSize(base) { return base; }
 const SKILL_CAST = {
     knight(m, seq) {
-        const e = PF.foe, el = CHAR_TABLE[m.ch.id].element;
-        if (e) {
-            FX.aura(e.x, e.y, 220);
-            FX.sparks(e.x, e.y, ELEMENTS[el].color, 14);
-        }
-        skillHit(m, 2.2, { cls: "crit", bloom: 190, sparks: 12, combo: 2 });
+        skillHit(m, 2.2, { cls: "crit", combo: 2 });
         if (enemy.hp > 0) {
             dashTo(m);
             // 突進後追加一次確定的範圍斬擊，不再依賴球體是否剛好撞中敵人。
             repeat(m, seq, 2, 180, () => {
                 const target = PF.foe;
                 if (!target) return;
-                FX.bloom(target.x, target.y, ELEMENTS[el].color, 150);
-                FX.sparks(target.x, target.y, ELEMENTS[el].color, 12);
-                skillHit(m, 1.0, { bloom: 120, sparks: 8, combo: 1, areaRadius: 110 });
+                skillHit(m, 1.0, { combo: 1, areaRadius: 110 });
             });
         }
     },
     fighter(m, seq) {
-        const el = CHAR_TABLE[m.ch.id].element;
-        if (m.body) FX.aura(m.body.x, m.body.y, 150);
-        skillHit(m, 0.8, { sparks: 6, bloom: 90, combo: 1 });
+        skillHit(m, 0.8, { combo: 1 });
         repeat(m, seq, 4, 100, () => {
-            skillHit(m, 0.8, { sparks: 6, bloom: 90, combo: 1 });
-            if (m.body) FX.aura(m.body.x, m.body.y, 110);
+            skillHit(m, 0.8, { combo: 1 });
         });
     },
     ranger(m, seq) {
-        const b = m.body, e = PF.foe, el = CHAR_TABLE[m.ch.id].element;
-        if (b && e) {
-            const ang = Math.atan2(e.y - b.y, e.x - b.x);
-            FX.laser(b.x, b.y, ang, 640);
-        }
+        const b = m.body, e = PF.foe;
         const beam = b && e ? { x: b.x, y: b.y, angle: Math.atan2(e.y - b.y, e.x - b.x), length: 640, width: 18 } : null;
-        skillHit(m, 1.9, { cls: "crit", bloom: 200, sparks: 14, flash: true, combo: 2, beam });
-        repeat(m, seq, 3, 90, () => skillHit(m, 0.75, { sparks: 6, bloom: 90, combo: 1 }));
+        skillHit(m, 1.9, { cls: "crit", combo: 2, beam });
+        repeat(m, seq, 3, 90, () => skillHit(m, 0.75, { combo: 1 }));
     },
     supporter(m) {
-        const el = CHAR_TABLE[m.ch.id].element;
         const healPct = .10 * (1 + .02 * talentRank(m.ch, 'skill'));
         PF.buff = { atk: Math.round(m.ch.baseAtk * 0.3), until: performance.now() + 6000 };
         for (const x of PF.members) {
@@ -1735,16 +1856,27 @@ const SKILL_CAST = {
         }
     },
     special(m) {
-        const e = PF.foe, el = CHAR_TABLE[m.ch.id].element;
-        skillHit(m, 2.8, { cls: "crit", bloom: 260, sparks: 18, flash: true, shake: true, combo: 3, areaRadius: 155 });
+        skillHit(m, 2.8, { cls: "crit", combo: 3, areaRadius: 155 });
         for (const x of aliveMembers()) if (x !== m) cutCd(x, 2);
     }
+};
+// ===== 角色專屬技能：形狀照原作，總倍率仍鎖在同職業預算內（特殊＝2.8）=====
+//   莉莉露：投出炸彈引爆，衝擊後再拖一次延遲爆炸；1.5 + 1.3 = 2.8
+const SKILL_CAST_UNIT = {
+    alchemist(m, seq) {
+        skillHit(m, 1.5, { cls: "crit", combo: 2, areaRadius: 155 });
+        repeat(m, seq, 2, 260, () => skillHit(m, 1.3, { combo: 1, areaRadius: 170, popScale: 1.4 }));
+        for (const x of aliveMembers()) if (x !== m) cutCd(x, 2);
+    }
+};
+const SKILL_DESC_UNIT = {
+    alchemist: "朝目標投出炸彈引爆，衝擊後再拖一次延遲爆炸；兩段都吃屬性克制，並替全隊補一小格技能能量。"
 };
 const SKILLS = {};
 Object.keys(CHAR_TABLE).forEach(id => {
     const d = CHAR_TABLE[id];
     SKILLS[id] = { name: SKILL_SIGNATURES[id]?.name || SKILL_WORD[d.element] + SKILL_MOVE[d.type], tag: SKILL_TAG[d.type],
-                   desc: SKILL_DESC[d.type], cast: SKILL_CAST[d.type], art: SKILL_ART[d.type] };
+                   desc: SKILL_DESC_UNIT[id] || SKILL_DESC[d.type], cast: SKILL_CAST_UNIT[id] || SKILL_CAST[d.type], art: SKILL_ART[d.type] };
 });
 
 // ===== 現場型技能：掛在施放者球體周圍，battleTick 每 200ms 問一次敵人有沒有靠近 =====
@@ -1771,8 +1903,7 @@ function tickField(now) {
     if (!e) return;
     if (Math.hypot(e.x - m.body.x, e.y - m.body.y) <= a.r + e.r && now >= a.at) {
         a.at = now + a.step;
-        skillHit(m, a.mult, { sparks: 4, bloom: 80, combo: 1, sparkColor: a.color });
-        FX.aura(e.x, e.y, a.r * 0.7);
+        skillHit(m, a.mult, { sparks: 4, combo: 1, sparkColor: a.color });
         checkKill();
     }
 }
@@ -1991,6 +2122,11 @@ function playFighter(f, state) {
 const SFX = {
     ctx: null, master: null, noiseBuf: null, enabled: true, lastHit: 0, lastFlipperHit: 0, lastCritical: 0, lastUi: -Infinity,
     voiceState: {}, voiceProbed: 0, voiceDead: false,   // 音檔路徑 → true 可播／false 缺檔；undefined＝還沒探過
+    // 取樣打擊（Sonniss GDC 2026 包）：載不到就整層跳過，退回原本的合成撞擊
+    sampleKeys: {
+        hit: ["asset/sfx/hit_punch_1.wav", "asset/sfx/hit_punch_2.wav"]
+    },
+    sampleBuf: {}, sampleState: {}, sampleLoaded: false,
 
     unlock() {
         if (this.ctx) { if (this.ctx.state === "suspended") this.ctx.resume(); return; }
@@ -2012,6 +2148,47 @@ const SFX = {
         const d = buf.getChannelData(0);
         for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
         this.noiseBuf = buf;
+        this.loadSamples();
+    },
+
+    // 小段 wav 走 XHR 解成 AudioBuffer；file:// 直開被擋就留在 -1，所有 play 都退回合成音
+    loadSamples() {
+        if (this.sampleLoaded || !this.ctx) return;
+        this.sampleLoaded = true;
+        const urls = [...new Set(Object.values(this.sampleKeys).flat())];
+        for (const url of urls) {
+            if (this.sampleState[url] !== undefined) continue;
+            this.sampleState[url] = 0;
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.responseType = "arraybuffer";
+            xhr.onload = () => {
+                if (xhr.status && xhr.status !== 200) { this.sampleState[url] = -1; return; }
+                this.ctx.decodeAudioData(xhr.response,
+                    b => { this.sampleBuf[url] = b; this.sampleState[url] = 1; },
+                    () => { this.sampleState[url] = -1; });
+            };
+            xhr.onerror = () => { this.sampleState[url] = -1; };
+            try { xhr.send(); } catch (e) { this.sampleState[url] = -1; }
+        }
+    },
+
+    // 每次換一顆同類音檔、再帶一點音高浮動，連擊時才不會像複製貼上
+    sample(key, vol, rate) {
+        if (!this.ctx || !this.enabled) return false;
+        const list = this.sampleKeys[key];
+        if (!list) return false;
+        const ready = list.filter(u => this.sampleBuf[u]);
+        if (!ready.length) return false;
+        const src = this.ctx.createBufferSource();
+        src.buffer = this.sampleBuf[ready[(Math.random() * ready.length) | 0]];
+        src.playbackRate.value = (rate || 1) * (0.96 + Math.random() * 0.08);
+        const g = this.ctx.createGain();
+        g.gain.value = vol === undefined ? 0.8 : vol;
+        src.connect(g); g.connect(this.master);
+        src.onended = () => { src.disconnect(); g.disconnect(); };
+        src.start(0);
+        return true;
     },
 
     // 每次都用一點不一樣的音高，聽起來才不會像機關槍
@@ -2151,8 +2328,9 @@ const SFX = {
         const now = performance.now();
         if (!this.ctx || !this.enabled || now - this.lastHit < 65 || now - this.lastCritical < 65) return;
         this.lastHit = now;
-        this.impact(Math.max(0.6, Math.min(1.9, kinetic || 1)),
-            { snap: 0.014, snapF: 2200, body: 260, ring: 0.045, vol: 0.78 });
+        const k = Math.max(0.6, Math.min(1.9, kinetic || 1));
+        if (this.sample("hit", 0.55 + 0.25 * (k - 0.6), 1)) return;
+        this.impact(k, { snap: 0.014, snapF: 2200, body: 260, ring: 0.045, vol: 0.78 });
     },
     // 2b) 暴擊：同一套骨架，更亮的瞬態、更沉的低頻、更長的振鈴
     crit() {
@@ -2287,7 +2465,7 @@ function newChar(id, unlocked) {
     const d = CHAR_TABLE[id];
     return { id, unlocked: !!unlocked, shards: 0, lvl: 1, exp: 0, nextExp: 100,
              baseAtk: d.atk, maxHp: d.hp, hp: d.hp, gauge: 0,
-             growthVersion: 1, legacyCap: 30, breakthrough: 0, talents: { skill: 0, pf: 0, survival: 0 } };
+             growthVersion: 2, legacyCap: 80, breakthrough: 0, talents: { skill: 0, pf: 0, survival: 0 } };
 }
 let roster = {};
 let teamIds = [];
@@ -2322,9 +2500,30 @@ function hpMax(ch) { return Math.round(ch.maxHp * (1 + leadVal(ch.id, "hp")) * (
 // 統一回血入口：莉潔兒的「所受回復量 +15%」在這裡生效
 function applyHeal(m, pct) {
     if (!m || m.down || !m.body || m.ch.hp <= 0) return 0;
-    const cap = hpMax(m.ch);
+    const cap = hpMax(m.ch), before = m.ch.hp;
     m.ch.hp = Math.min(cap, m.ch.hp + Math.round(cap * pct * (1 + leadVal(m.ch.id, "heal"))));
+    if (m.ch.hp > before) triggerHealSurge();
     return m.ch.hp;
+}
+// 星脈・生命共振：任何一次實際回血都拉高全隊攻擊五秒（重複觸發只延長）
+function triggerHealSurge() {
+    if (!towerMutation("heal")) return;
+    const now = performance.now(), was = now < PF.healSurgeUntil;
+    PF.healSurgeUntil = now + 5000;
+    if (!was) log(`✚ 星脈・生命共振：全隊攻擊 +${Math.round(mutPower("heal") * 100)}%（5 秒）。`);
+}
+// 星脈・開場充能：踏入新樓層時全隊技能能量 +30%
+function grantEntryCharge() {
+    if (!towerMutation("gauge")) return;
+    let any = false;
+    PF.members.forEach(m => {
+        if (m.down || !m.body || m.ch.hp <= 0 || m.ch.gauge >= 100) return;
+        m.ch.gauge = Math.min(100, m.ch.gauge + mutPower("gauge"));
+        any = true;
+        if (m.ch.gauge >= 100) queueReadySkill(m);
+        FX.pop(m.body.x, m.body.y - 34, `充能 +${mutPower("gauge")}%`, "energy");
+    });
+    if (any) log(`⚡ 星脈・開場充能：全隊技能能量 +${mutPower("gauge")}%。`);
 }
 function leadTagsFor(targetId) {
     const clauses = LEADERS[teamIds[0]], tgt = CHAR_TABLE[targetId];
@@ -2340,15 +2539,33 @@ function leadTagsFor(targetId) {
 }
 
 function atkOf(ch) {
-    const buff = PF.buff && performance.now() < PF.buff.until ? PF.buff.atk : 0;
+    const now = performance.now();
+    const buff = PF.buff && now < PF.buff.until ? PF.buff.atk : 0;
     const s = shieldOf(ch.id);
-    const base = Math.round((ch.baseAtk + (s && s.atk ? s.atk : 0)) * (1 + leadVal(ch.id, "atk"))) + buff;
+    let base = Math.round((ch.baseAtk + (s && s.atk ? s.atk : 0)) * (1 + leadVal(ch.id, "atk"))) + buff;
+    if (now < PF.healSurgeUntil) base = Math.round(base * (1 + mutPower("heal")));
+    const stacks = deepCrossOn("dm_crit") ? Math.min(5, PF.killStacks || 0) : 0;
+    if (stacks) base = Math.round(base * (1 + 0.05 * stacks));
     return Math.round(base * (1 + (POWER_FLIP.enabled ? POWER_FLIP.buffPct : 0)));
 }
 function deepPerk(id) { return gateOn() ? 0 : (deepPerks[id] || 0); }
+function deepCrossOn(id) { return gateOn() ? false : !!deepCross[id]; }
+// 第 1 階才是純數值，第 2、3 階都是機制，所以數值只算一次
+function statStep(id) { return deepPerk(id) >= 1 ? TOWER_TREE_STYLE[id].step / 100 : 0; }
+function crossBonus(key) {
+    let v = 0;
+    for (const c of TOWER_CROSS) if (deepCrossOn(c.id)) v += (c.bonus && c.bonus[key]) || 0;
+    return v;
+}
+function towerMutation(id) { return deepPerk(id) >= 2 ? TOWER_MUTATIONS[id] : null; }
+// 質變第 2 階給基本值，第 3 階換成強化值
+function mutPower(id) {
+    if (!towerMutation(id)) return 0;
+    return deepPerk(id) >= 3 ? TOWER_MUTATIONS[id].powerUp : TOWER_MUTATIONS[id].power;
+}
 function deepElementMultiplier(a, d) {
     const base = elementMultiplier(a, d);
-    return base > 1 ? base + 0.15 * deepPerk("element") : base;
+    return base > 1 ? base + statStep("element") + crossBonus("element") : base;
 }
 function charName(id) { return CHAR_TABLE[id] ? CHAR_TABLE[id].name : id; }
 
@@ -2363,15 +2580,17 @@ const TOWER_BOSS_TABLE = [
     { id: 'tower_ghostring', name: '幽靈波利', element: 'dark', icon: '👻', skin: 'asset/monster/ro/ghostring.png' },
     { id: 'tower_deviling', name: '惡魔波利', element: 'dark', icon: '😈', skin: 'asset/monster/ro/deviling.png' }
 ];
+// face／lift 是「臉框外擴 %」與「血條離球頂 px」：四張 RO 圖幅不同，靠這兩格把本體都放到 200px 級。
+// zoom 是 BOSS 頁圓框頭像與上下關卡小圖的縮放：圖檔四周留白多的（獅鷲）要放大，方形的水王保持原樣才不會被圓框切掉。
 const GATE_ENEMY_APPEARANCES = {
-    fire: { name: '煉獄龍王・瓦格納', skin: 'asset/battle/gate-boss/fire.gif' },
-    water: { name: '雪蓉', skin: 'asset/battle/gate-boss/water.gif' },
-    wind: { name: '毀滅漩渦龍・休爾特', skin: 'asset/battle/gate-boss/wind.gif' },
-    thunder: { name: '玄雷神龍・拉姆斯', skin: 'asset/battle/gate-boss/thunder.gif' }
+    fire: { name: '煉獄龍王・瓦格納', skin: 'asset/battle/gate-boss/nidhogg.webp', alpha: true, face: -100, lift: 88, zoom: 1.18 },
+    water: { name: '雪蓉', skin: 'asset/battle/gate-boss/water.webp', alpha: true, face: -70, lift: 64, zoom: 1 },
+    wind: { name: '毀滅漩渦龍・休爾特', skin: 'asset/battle/gate-boss/wind.webp', alpha: true, face: -129, lift: 91, zoom: 1.42 },
+    thunder: { name: '玄雷神龍・拉姆斯', skin: 'asset/battle/gate-boss/thunder.webp', alpha: true, face: -83, lift: 77, zoom: 1 }
 };
 let towerBossCursor = 0;
 let enemy = { id: "", name: "", icon: "👹", hp: 40, maxHp: 40, atk: 4, element: "fire", expReward: 30, boss: false,
-    groupSize: 1, battleSkinUrl: "", battleSkinFailed: false };
+    groupSize: 1, battleSkinUrl: "", battleSkinFailed: false, battleSkinAlpha: false, battleSkinFace: -100, battleSkinLift: 88 };
 
 // 名字用台服正式譯名；id 是內部鍵（存檔與 ENEMY_UNIT 都用它），不動
 const ENEMY_TABLE = [
@@ -2393,6 +2612,18 @@ const ENEMY_TABLE = [
 ];
 
 let stage = 1, kills = 0;
+// RANK：帳號等級，靠打怪經驗升級（與樓層無關，也不會倒退）；目前只做展示，天賦點先不發
+let rankLv = 1, rankExp = 0;
+function rankExpNeed(lv) { return 100 + 25 * Math.max(0, lv - 1); }
+function gainRankExp(amount) {
+    const add = Math.max(0, Math.floor(Number(amount) || 0));
+    if (!add) return 0;
+    rankExp += add;
+    let ups = 0;
+    while (rankExp >= rankExpNeed(rankLv)) { rankExp -= rankExpNeed(rankLv); rankLv++; ups++; }
+    if (ups) log(`🏅 <b>RANK UP！</b> 目前 RANK ${rankLv}`);
+    return ups;
+}
 // GATE：正在打的獨立關卡（異界迴廊）的 id。非 null 時場上只有那隻王，
 //   深層、kills、結算掉落全部暫停；打完走結算面板，不會自己接下一隻怪。
 // bossWin：各門擊破次數（進存檔，用來在關卡卡上蓋「已擊破」）
@@ -2401,6 +2632,8 @@ let bossWin = {};
 let shardTotal = 0;
 let tickCounter = 0, battleTimer = null;
 let dmgTotal = 0, combo = 0, comboAt = 0, battleSec = 0;
+// Fever 期間另外記一份連擊，中央的 FEVER 字下面就顯示這個數字
+let feverCombo = 0;
 let enemyF = null;
 
 // ==========================================================
@@ -2419,37 +2652,28 @@ const FEVER_ADD_FOE = 18;
 const FEVER_MS = 10000, FEVER_LINE_Y = H * 0.8, FEVER_UP = 1060;
 const FEVER = { value: 0, maxValue: FEVER_BASE, active: false, left: 0, times: 0 };
 
-function paintFeverGauge() {
+function paintFeverFlippers() {
     const pct = FEVER.active ? Math.max(0, Math.min(100, FEVER.left / FEVER_MS * 100)) : Math.min(100, FEVER.value / FEVER.maxValue * 100);
-    const fill = $('fev-fill'), num = $('fev-num');
-    if (fill) fill.style.height = pct.toFixed(1) + '%';
-    if (num) num.textContent = FEVER.active ? Math.ceil(FEVER.left / 1000) + 's' : Math.round(pct) + '%';
+    // 彈板顏色就是 FEVER 能量：蓄能逐漸轉金，啟動後隨倒數逐漸退回紅色。
+    setFlipperGold(pct / 100);
 }
-function feverReceivePulse() {
-    const fill = $('fev-fill'), track = fill && fill.parentElement;
-    if (!track) return;
-    track.classList.remove('receiving'); void track.offsetWidth; track.classList.add('receiving');
-}
-function feverAdd(n, point) {
+function feverAdd(n) {
     if (FEVER.active) return 0;
     const gained = Math.max(0, Math.min(n, FEVER.maxValue - FEVER.value));
     if (!gained) return 0;
     FEVER.value += gained;
     if (FEVER.value >= FEVER.maxValue) feverStart();
-    paintFeverGauge();
-    feverOrb(point || PF.foe);
+    paintFeverFlippers();
     return gained;
 }
 function feverStart() {
     FEVER.active = true;
     FEVER.left = FEVER_MS;
     FEVER.times++;
-    const line = $("pf-fever-line"); if (line) line.classList.add("on");
-    const bar = $("fev-bar"); if (bar) bar.classList.add("full");
     const pf = $("pf"); if (pf) pf.classList.add("fever-on");
     const badge = $("pf-fever"); if (badge) badge.classList.add("on");
-    pfBanner("F E V E R", "球速 ×2・黃金防線啟動");
-    FX.flash("#ffd34a"); FX.shake();
+    feverCombo = 0;
+    const fc = $("pf-fever-combo"); if (fc) fc.classList.remove("on", "bump");
     SFX.feverStart();
     log(`🔥 <b style='color:#ffd34a'>FEVER！</b>球速 ×2、黃金防線啟動，${FEVER_MS / 1000} 秒內掉球自動彈回。`);
 }
@@ -2458,41 +2682,19 @@ function feverEnd() {
     FEVER.left = 0;
     FEVER.value = 0;
     FEVER.maxValue = Math.min(FEVER_CAP, FEVER_BASE + FEVER.times * FEVER_STEP);
-    const line = $("pf-fever-line"); if (line) line.classList.remove("on");
-    const bar = $("fev-bar"); if (bar) bar.classList.remove("full");
+    setFlipperGold(0);
+    paintFeverFlippers();
     const pf = $("pf"); if (pf) pf.classList.remove("fever-on");
     const badge = $("pf-fever"); if (badge) badge.classList.remove("on");
+    feverCombo = 0;
+    const fc = $("pf-fever-combo"); if (fc) fc.classList.remove("on", "bump");
     log(`🌙 FEVER 結束，下次需要 <b>${FEVER.maxValue}</b> 點蓄能。`);
 }
 function feverUpdate(dtMs) {
     if (!FEVER.active) return;
     FEVER.left -= dtMs;
     if (FEVER.left <= 0) feverEnd();
-}
-// 蓄能已在命中當下入帳；動畫只連結實際撞擊位置與能量槽，不重複加值。
-function feverOrb(point) {
-    const fillNode = $('fev-fill');
-    if (!PF.el || !point || !fillNode) return;
-    const host = PF.el.getBoundingClientRect(), fill = fillNode.getBoundingClientRect();
-    if (!host.width || !PF.el.offsetWidth) return;
-    const scale = host.width / PF.el.offsetWidth;
-    const tx = (fill.left + fill.width / 2 - host.left) / scale - (PF.el.clientLeft || 0);
-    const ty = ((fill.height > 2 ? fill.top + 2 : fill.bottom - 4) - host.top) / scale - (PF.el.clientTop || 0);
-    const dx = tx - point.x, dy = ty - point.y;
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { feverReceivePulse(); return; }
-    const active = PF.el.querySelectorAll('.fev-orb');
-    if (active.length >= 8) active[0].remove();
-    const n = document.createElement("div");
-    n.className = "fev-orb";
-    n.style.left = point.x + "px";
-    n.style.top = point.y + "px";
-    n.style.setProperty('--flight-angle', Math.atan2(dy, dx) + 'rad');
-    PF.el.appendChild(n);
-    const flight = n.animate([
-        { transform: 'translate(0,0) scale(1)', opacity: .95 },
-        { transform: `translate(${dx}px,${dy}px) scale(.3)`, opacity: .4 }
-    ], { duration: 380, easing: 'cubic-bezier(.3,.05,.35,1)', fill: 'forwards' });
-    flight.finished.then(() => { if (n.isConnected) feverReceivePulse(); n.remove(); }, () => n.remove());
+    else paintFeverFlippers();
 }
 // 只攔正在下落的球；往上飛的不重複加速，才不會黏在線上抖
 function feverBounce(b) {
@@ -2521,6 +2723,8 @@ const PF = {
     skillQueue: [], skillCastWait: 0,
     // 弱點／BREAK
     weak: null, breakUntil: 0, nextCastAt: 0,
+    // 星脈質變：連擊蓄勢、不屈保命、回血攻擊加成；殺戮星脈疊層
+    comboSurge: false, guardSave: false, healSurgeUntil: 0, killStacks: 0,
 };
 
 function el(tag, cls) { const n = document.createElement(tag); n.className = cls; return n; }
@@ -2602,37 +2806,20 @@ function makeBall(cls, r, kind, id, fallback) {
 }
 
 // ==========================================================
-// 機械彈板：素材是使用者提供的彈板圖，離線去背並拆成「底座」＋「板身」兩層，
-// 底座固定、板身繞軸心旋轉，揮板時馬達座不會跟著翻。
-//   Lv0 科技藍原色 → Lv1 琥珀 → Lv2 翠綠 → Lv3 高飽和虹光（色相動畫）
-// 門檻只看連擊數（9 / 15 / 39），純粹是擊球手感的視覺回饋，不影響傷害。
-// 素材實測：樞軸在 (257,205)/(225,204)，板身含板頭尖共 240px，樞軸到尖 212px。
-// x0.475 之後整支板 114px，剛好等於碰撞端點（len 100 + 半徑 14），板尖不會超出命中框。
+// 紅色像素擋板：使用者提供的素材，去背後左右拆成兩張，樞軸就是板頭那個圓環中心。
+// 整支板繞樞軸轉：靜止 21°（板尖朝場中央下垂）→ 揮到頂 -45°，跟彈射世界一樣的上揮行程。
+// FEVER 蓄能會把板身慢慢鍍成金色；啟動後隨倒數逐漸退回紅色。
+//   樞軸在素材 (94,86)／鏡像 (759,86)，樞軸到板尖 815px，縮成 1/7 後板長 116、板厚約 21
 // ==========================================================
 const FLIP_ART = {
-    l: { w: 484, h: 399, hx: 257, hy: 205 },
-    r: { w: 484, h: 395, hx: 225, hy: 204 }
+    l: { src: "asset/battle/flip-red-l.png", gold: "asset/battle/flip-gold-l.png", w: 123, h: 58, hx: 13.4, hy: 12.3, rest: 0.370 },
+    r: { src: "asset/battle/flip-red-r.png", gold: "asset/battle/flip-gold-r.png", w: 122, h: 58, hx: 108.4, hy: 12.3, rest: Math.PI - 0.370 }
 };
-const FLIP_SCALE = 0.475;
-// 板身截面偏軸心下方，碰撞線要往板面上緣偏 12px（素材座標）才會貼著畫出來的板面
-const FLIP_OFF = -12;
-
-// 五幀：靜止 → 起揮 → 揮到頂 → 擊球閃光 → 回彈。速度感靠沿板身微伸長＋提亮。
-const FLIP_FRAMES = [
-    { sx: 1.000, b: 1.00 },
-    { sx: 1.012, b: 1.12 },
-    { sx: 1.028, b: 1.22 },
-    { sx: 1.034, b: 1.75 },
-    { sx: 1.008, b: 1.05 }
-];
-// h＝色相旋轉、s＝飽和、b＝亮度；連擊只改彈板配色，不疊加外圍光效
-const FLIP_PAL = [
-    { h: 0,   s: 1.00, b: 1.00, b1: 7,  g1: "rgba(88,198,255,.62)",  b2: 0,  g2: "transparent" },
-    { h: 168, s: 1.05, b: 1.02, b1: 9,  g1: "rgba(255,202,64,.85)",  b2: 16, g2: "rgba(255,74,40,.5)" },
-    { h: 300, s: 1.05, b: 1.00, b1: 11, g1: "rgba(46,255,178,.85)",  b2: 18, g2: "rgba(24,214,255,.5)" },
-    // Lv3 的色相交給 .lv3 的動畫轉，圖層這邊只拉高飽和＋提亮，避免把彩虹糊回一片白
-    { h: 0,   s: 1.35, b: 1.15, b1: 8,  g1: "rgba(255,255,255,.85)", b2: 22, g2: "rgba(190,150,255,.55)" }
-];
+const FLIP_UP = -0.785;
+// 碰撞線貼在樞軸中線上；半徑 9 大約是板面厚度的一半，球會停在畫出來的板面上
+const FLIP_OFF = -2;
+const FLIP_RAD = 9;
+const FLIP_GLOW = ["", [6, .45], [9, .6], [13, .8]];
 
 // 彈板等級：跨過幾層門檻就是 Lv 幾（0～3）
 function flipLevel() {
@@ -2641,15 +2828,25 @@ function flipLevel() {
     return lv;
 }
 
-function paintFlipper(f, lv, fr) {
-    const P = FLIP_PAL[lv], F = FLIP_FRAMES[fr], s = f.node.style;
-    f.lv = lv; f.frame = fr;
-    f.sx = F.sx;
-    s.setProperty("--fl-h", P.h + "deg");
-    s.setProperty("--fl-s", P.s);
-    s.setProperty("--fl-b", (P.b * F.b).toFixed(3));
+// 揮板瞬間提亮、連擊等級加光暈；光暈顏色跟著金化程度從橘紅走到金
+function flipperFilter(lv, hot, g) {
+    const gg = Math.round(120 + 92 * g), bb = Math.round(80 + 14 * g);
+    if (hot) return `brightness(1.38) drop-shadow(0 0 10px rgba(255,${gg},${bb},.95))`;
+    if (!lv) return "none";
+    const [rad, a] = FLIP_GLOW[lv];
+    return `drop-shadow(0 0 ${rad}px rgba(255,${gg},${bb},${a}))`;
 }
 
+// 金色層透明度 = FEVER 蓄能進度；只在差距明顯時動 DOM
+function setFlipperGold(g) {
+    if (PF.goldT === g) return;
+    PF.goldT = g;
+    for (const f of PF.flippers) {
+        if (!f.gold || Math.abs(f.gv - g) < 0.015) continue;
+        f.gv = g;
+        f.gold.style.opacity = g.toFixed(3);
+    }
+}
 // 使用者提供的 Flipper 物理核心：點到線段最近點 → 法線反射 → 揮板時灌注切線線速度。
 // 差異只在這裡保留彈板厚度（b.r + f.rad）以及碰撞線的板面偏移。
 function resolveFlipperCollision(b, f) {
@@ -2780,24 +2977,25 @@ function buildField() {
     addSeg(12, 552, 74, 646, 6, "rail", 0.6);
     addSeg(W - 12, 552, W - 74, 646, 6, "rail", 0.6);
 
-    // 靜止下垂 26°、揮到頂 45°（0.785 rad）：這 71° 的跨度決定了線速度，改角度等於改手感
-    [["l", 74, 668, 0.46, -0.785], ["r", W - 74, 668, Math.PI - 0.46, Math.PI + 0.785]].forEach(f => {
-        const A = FLIP_ART[f[0]], s = FLIP_SCALE;
-        const hx = A.hx * s, hy = A.hy * s;
+    // 靜止 21°、揮到頂 -45°（0.785 rad）：66° 的行程決定板尖線速度，改角度等於改手感
+    [["l", 74, 668], ["r", W - 74, 668]].forEach(([side, px, py]) => {
+        const A = FLIP_ART[side];
+        const hx = A.hx, hy = A.hy;
         const node = el("div", "seg flipper");
-        node.style.cssText = `left:${f[1] - hx}px;top:${f[2] - hy}px;width:${A.w * s}px;height:${A.h * s}px`;
-        const base = el("div", "flip-base"), blade = el("div", "flip-blade");
-        base.style.backgroundImage = `url("asset/battle/flip-${f[0]}-base.png?v=2")`;
-        blade.style.backgroundImage = `url("asset/battle/flip-${f[0]}-blade.png")`;
-        blade.style.transformOrigin = `${hx}px ${hy}px`;
-        node.append(base, blade);
+        node.style.cssText = `left:${px - hx}px;top:${py - hy}px;width:${A.w}px;height:${A.h}px;` +
+            `background-image:url("${A.src}");transform-origin:${hx}px ${hy}px`;
+        // 金色圖疊在最底層的第一個子節點，技能符文之後才掛上去，不會被蓋住
+        const gold = el("div", "flip-gold");
+        gold.style.backgroundImage = `url("${A.gold}")`;
+        node.appendChild(gold);
         PF.field.appendChild(node);
-        const flip = { side: f[0], px: f[1], py: f[2], len: 100, rad: 14, angRest: f[3], angUp: f[4],
-            ang: f[3], t: 0, omega: 0, node, blade, hx, hy, off: FLIP_OFF * s, sx: 1,
-            rest: 0.6, flashAt: 0, lv: -1, frame: -1 };
+        const flip = { side, px, py, len: 116, rad: FLIP_RAD, angRest: A.rest,
+            angUp: side === "l" ? FLIP_UP : Math.PI - FLIP_UP,
+            ang: A.rest, t: 0, omega: 0, node, gold, gv: -1, gt: -1, hx, hy, off: FLIP_OFF,
+            rest: 0.6, flashAt: 0, lv: -1, hot: false };
         PF.flippers.push(flip);
-        paintFlipper(flip, 0, 0);            // 先上 Lv0 的科技藍，之後由 step() 跟著連擊換色
     });
+    PF.goldT = -1;
 
     PF.rays = el("div", "rays");
     PF.vfx.appendChild(PF.rays);
@@ -2873,6 +3071,13 @@ function spawnFoe() {
     // 被球撞飛的額外速度：獨立存放，才不會被下方 AI 每幀重算的 vx/vy 蓋掉
     mk.body.kx = 0; mk.body.ky = 0;
     if (enemy.boss) mk.body.ball.classList.add("boss");
+    // 帶 alpha 的整張大圖（RO 王）不套球體那圈放射遮罩，否則翅膀與尾巴會被切掉
+    if (enemy.battleSkinAlpha) {
+        mk.body.ball.classList.add("alpha-art");
+        // 掛在 .ent 上，球體與小王血條兩個子節點才吃得到
+        mk.body.node.style.setProperty("--art-face", `${enemy.battleSkinFace}%`);
+        mk.body.node.style.setProperty("--art-lift", `${enemy.battleSkinLift}px`);
+    }
     PF.foe = mk.body;
     enemyF = mk.fighter;
     playFighter(enemyF, "enter");
@@ -2893,7 +3098,7 @@ function spawnFoe() {
         }
     }
     initializeEnemyWave();
-    queueBossEntrance();
+    if (enemy.boss) queueBossEntrance();
 }
 
 function beginEnemyDive(e, target) {
@@ -2907,10 +3112,50 @@ function beginEnemyDive(e, target) {
 
 const FX_ART_TYPES = ["slash", "punch", "beam", "heal", "burst"];
 
+// 技能煙霧格：BDragon1727「Free Smoke Fx Pixel 2」裁成 64×64 一格的水平條
+const SMOKE_SHEETS = {
+    puff:  { file: "smoke-puff.png",  frames: 11, dur: 620 },
+    ring:  { file: "smoke-ring.png",  frames: 11, dur: 640 },
+    swirl: { file: "smoke-swirl.png", frames: 11, dur: 700 },
+    rise:  { file: "smoke-rise.png",  frames: 11, dur: 760 },
+    spike: { file: "smoke-spike.png", frames: 11, dur: 460 }
+};
+
 const FX = {
     shakeOn: true,
     // 傷害數字自帶物理：往上拋、受重力、隨機左右飄，逐幀在 pfLoop 裡更新
     pops: [],
+    // 打擊像素動畫（IceMaan 免費 VFX 包）：單排 32×32 幀表，逐格推進
+    IMPACT: {
+        hit:  { src: "asset/fx/vfx/impact_hit.png",  frames: 5, ms: 190, scale: 1.9, gap: 55 },
+        crit: { src: "asset/fx/vfx/impact_crit.png", frames: 6, ms: 220, scale: 2.4, gap: 40 },
+        kill: { src: "asset/fx/vfx/impact_kill.png", frames: 6, ms: 240, scale: 2.2, gap: 40 },
+        weak: { src: "asset/fx/vfx/impact_weak.png", frames: 4, ms: 150, scale: 2.2, gap: 45 },
+        flip: { src: "asset/fx/vfx/impact_flip.png", frames: 5, ms: 160, scale: 1.5, gap: 90 },
+        dash: { src: "asset/fx/vfx/impact_dash.png", frames: 19, ms: 300, scale: 2.8, gap: 120 }
+    },
+    sprites: [],
+    lastSpriteAt: {},
+    // 衝刺：Wind Lines 的白色速度線，轉成球的行進方向，看起來像被甩出去
+    sprite(x, y, kind, rot) {
+        const s = this.IMPACT[kind];
+        if (!s) return;
+        const now = performance.now();
+        if (now - (this.lastSpriteAt[kind] || 0) < s.gap) return;
+        this.lastSpriteAt[kind] = now;
+        const n = el("div", "impact-vfx");
+        n.style.cssText = `left:${x}px;top:${y}px;background-image:url(${s.src});--k:${s.scale};--r:${rot || 0}rad`;
+        PF.vfx.appendChild(n);
+        n.animate(
+            [{ backgroundPositionX: "0px" }, { backgroundPositionX: (-32 * s.frames) + "px" }],
+            { duration: s.ms, easing: `steps(${s.frames}, end)`, fill: "both" });
+        n._timer = setTimeout(() => {
+            n.remove();
+            const i = this.sprites.indexOf(n);
+            if (i >= 0) this.sprites.splice(i, 1);
+        }, s.ms + 40);
+        this.sprites.push(n);
+    },
     pop(x, y, text, cls, scale) {
         const n = el("div", "dmg-pop " + (cls || ""));
         n.textContent = text;
@@ -2918,7 +3163,9 @@ const FX = {
         n.style.top = (y - 18) + "px";
         n.style.transform = "translate(-50%, -50%)";
         PF.vfx.appendChild(n);
-        if (scale && scale !== 1) n.style.fontSize = Math.round(parseFloat(getComputedStyle(n).fontSize) * scale) + "px";
+        // 純數字改用素材包點陣字；中文（灼燒、星脈…）維持原本的文字樣式
+        const pixel = PIXEL_TEXT.paint(n, text, cls, scale);
+        if (!pixel && scale && scale !== 1) n.style.fontSize = Math.round(parseFloat(getComputedStyle(n).fontSize) * scale) + "px";
         this.pops.push({
             node: n, px: 0, py: 0,
             vx: Math.random() * 2 - 1,   // 每次撞擊左右亂飄
@@ -2946,6 +3193,8 @@ const FX = {
     clearPops() {
         for (const p of this.pops) p.node.remove();
         this.pops.length = 0;
+        for (const n of this.sprites) { clearTimeout(n._timer); n.remove(); }
+        this.sprites.length = 0;
     },
     bloom(x, y, color, size) {
         const n = el("div", "bloom");
@@ -2999,6 +3248,31 @@ const FX = {
         setTimeout(() => n.remove(), opt.ms || (kind === "heal" ? 900 : 700));
         return n;
     },
+    // 技能煙霧：kind 是 puff／ring／swirl／rise／spike，依技能動作型態挑，element 決定顏色
+    smoke(kind, x, y, element, size, opt) {
+        opt = opt || {};
+        const sheet = SMOKE_SHEETS[kind];
+        if (!sheet) return null;
+        // 一場最多同時八坨煙，超過先收掉最舊的
+        const live = PF.vfx.querySelectorAll(".pf-smoke");
+        if (live.length >= 8) live[0].remove();
+        const s = (size || 190) / 64;
+        const n = el("div", "pf-smoke smoke-" + kind);
+        n.style.left = x + "px";
+        n.style.top = y + "px";
+        n.style.setProperty("--smsrc", `url(asset/fx/smoke/${sheet.file})`);
+        n.style.setProperty("--smw", 64 * s + "px");
+        n.style.setProperty("--smh", 64 * s + "px");
+        n.style.setProperty("--smmw", sheet.frames * 64 * s + "px");
+        n.style.setProperty("--smmh", 64 * s + "px");
+        n.style.setProperty("--smx", -(sheet.frames - 1) * 64 * s + "px");
+        n.style.setProperty("--c", (ELEMENTS[element] || ELEMENTS.fire).color);
+        n.style.setProperty("--rot", (opt.rot || 0) + "deg");
+        n.style.animation = `pfSmokeStep ${sheet.dur}ms steps(${sheet.frames}, end) forwards, pfSmokePop ${sheet.dur}ms cubic-bezier(.2,.7,.3,1) forwards`;
+        PF.vfx.appendChild(n);
+        setTimeout(() => n.remove(), sheet.dur + 90);
+        return n;
+    },
     flash(color) {
         PF.el.style.setProperty("--fc", color || "#fff");
         PF.el.classList.remove("flash"); void PF.el.offsetWidth; PF.el.classList.add("flash");
@@ -3017,7 +3291,7 @@ function cdSpeed(m) { const s = shieldOf(m.ch.id); return s && s.gauge ? 1 + s.g
 function addCd(m, pct) {
     if (bossEntranceFreezesBattle()) return;
     if (m.ch.gauge >= 100) return;
-    pct *= 1 + 0.2 * deepPerk("gauge");
+    pct *= 1 + statStep("gauge") + crossBonus("gauge");
     m.ch.gauge = Math.min(100, m.ch.gauge + pct);
     if (m.ch.gauge >= 100) {
         queueReadySkill(m);
@@ -3072,9 +3346,48 @@ function captainType() {
 
 // 連擊狂熱：連段數直接放大撞擊傷害（1 連擊 +1%），撞不到怪就斷
 function bumpCombo(n) {
+    const before = combo;
     combo += n; comboAt = performance.now();
+    // 星脈・連擊爆發：只在「跨過 40」時蓄勢一次，用掉後要重新累積
+    if (combo >= 40 && before < 40 && towerMutation("damage")) {
+        PF.comboSurge = true;
+        const lead = PF.members.find(m => m.body);
+        if (lead) FX.pop(lead.body.x, lead.body.y - 40, "星脈蓄勢", "energy");
+    }
     const chip = $("pf-combo-chip");
     if (chip) { chip.classList.remove("bump"); void chip.offsetWidth; chip.classList.add("bump"); }
+    if (FEVER.active) {
+        feverCombo += n;
+        const fc = $("pf-fever-combo");
+        if (fc) { fc.classList.remove("bump"); void fc.offsetWidth; fc.classList.add("bump"); }
+    }
+}
+// 星脈・暴擊回流：暴擊時全隊補技能能量
+function critRefund() {
+    if (!towerMutation("crit")) return;
+    const gain = mutPower("crit");
+    PF.members.forEach(x => { if (!x.down && x.body && x.ch.hp > 0) addCd(x, gain); });
+}
+// 殺戮星脈：暴擊疊攻擊，最多 5 層，通關重新計算
+function killSurge(m) {
+    if (!deepCrossOn("dm_crit") || (PF.killStacks || 0) >= 5) return;
+    PF.killStacks = Math.min(5, (PF.killStacks || 0) + 1);
+    if (m && m.body) FX.pop(m.body.x, m.body.y - 44, `殺戮 ${PF.killStacks}/5`, "energy");
+    log(`✦ 殺戮星脈：<b>${m ? charName(m.ch.id) : "隊伍"}</b> 攻擊 +${PF.killStacks * 5}%（${PF.killStacks}/5 層）。`);
+}
+// 詠唱星脈：施放技能時全隊回復 3% 最大生命
+function chantStarHeal(m) {
+    if (!deepCrossOn("gauge_heal")) return;
+    let any = false;
+    PF.members.forEach(x => {
+        if (x.down || !x.body || x.ch.hp <= 0) return;
+        applyHeal(x, 0.03);
+        any = true;
+    });
+    if (any) {
+        if (m && m.body) FX.pop(m.body.x, m.body.y - 52, "詠唱星脈", "heal");
+        log("✧ 詠唱星脈：全隊回復 3% 最大生命。");
+    }
 }
 function comboMult() { return POWER_FLIP.enabled ? 1 : 1 + combo * COMBO_RUSH; }
 
@@ -3108,9 +3421,7 @@ function startWeakCast() {
         nodes.push({ x, y, r: 26, node, hit: false, a, orbitR: r, spd: 0.62 + (i % 3) * 0.16 });
     }
     PF.weak = { at: performance.now(), dur: WEAK_DUR, nodes, seq: PF.foeSeq, lastBreak: 0, done: false };
-    PF.el.classList.add("weak-screen");
-    FX.flash("#ff4a26"); SFX.nuke();
-    pfBanner("⚠ 弱點展開", `倒數 ${(WEAK_DUR / 1000).toFixed(0)} 秒內擊破 ${n} 個標記`);
+    SFX.nuke();
     log(`⚠️ <b style='color:#ff8a95'>${enemy.name} 開始蓄力毀滅砲！</b>場上出現 <b>${n}</b> 個弱點，撞掉或用技能敲掉可打斷並打出 <b style='color:#ffe98a'>BREAK</b>。`);
 }
 
@@ -3119,8 +3430,8 @@ function hitWeak(w, m) {
     w.hit = true;
     w.node.classList.add("pop");
     setTimeout(() => w.node.remove(), 420);
-    FX.aura(w.x, w.y, 150); FX.sparks(w.x, w.y, "#ffce5a", 12);
     SFX.weakHit();
+    FX.sprite(w.x, w.y, "weak");
     bumpCombo(2);
     if (m) cutCd(m, 2);
     const left = PF.weak ? PF.weak.nodes.filter(x => !x.hit).length : 0;
@@ -3144,14 +3455,11 @@ function checkWeakDone() {
 
 function triggerBreak() {
     const now = performance.now();
-    const e = PF.foe;
     clearWeak();
     PF.breakUntil = now + BREAK_MS;
     PF.stunUntil = now + BREAK_MS;
     PF.nextCastAt = now + BREAK_MS + 7000;
-    if (e) FX.bloom(e.x, e.y, "#ffb036", 340);
-    FX.flash("#fff0b8"); FX.shake(); SFX.breaking();
-    pfBanner("B R E A K", `受到傷害 ×${BREAK_TAKEN}｜${BREAK_MS / 1000} 秒輸出窗口`);
+    SFX.breaking();
     log(`💥 <b style='color:#ffe98a'>BREAK！</b>弱點全破，<b>${enemy.name}</b> 癱瘓 ${BREAK_MS / 1000} 秒，期間受到傷害 ×${BREAK_TAKEN}。`);
 }
 
@@ -3160,10 +3468,7 @@ function weakFail() {
     const left = PF.weak.nodes.filter(x => !x.hit).length;
     clearWeak();
     PF.nextCastAt = now + 9000;
-    FX.flash("#ff4757"); FX.shake();
-    if (PF.foe) FX.bloom(PF.foe.x, PF.foe.y, "#ff4757", 360);
     SFX.nuke();
-    pfBanner("☄ 毀滅砲", `弱點殘留 ${left} 個｜全隊重傷`);
     log(`☄️ <b style='color:#ff8a95'>施法失敗（弱點殘留 ${left} 個）</b>——${enemy.name} 的毀滅砲落下！`);
     const scale = 1 + 0.3 * (teamIds.length - 1);
     const dmg = Math.max(1, Math.round(enemy.atk * 1.5 * scale));
@@ -3190,7 +3495,7 @@ function applyDamage(srcCh, dmg, opt) {
     opt = opt || {};
     const now = performance.now();
     dmg = Math.round(dmg * DMG_SCALE);
-    dmg = Math.round(dmg * (1 + 0.12 * deepPerk("damage")));
+    dmg = Math.round(dmg * (1 + statStep("damage") + crossBonus("damage")));
     const sh = srcCh && shieldOf(srcCh.id);
     if (sh && sh.dmg) dmg = Math.round(dmg * (1 + sh.dmg / 100));
     if (now < PF.breakUntil) dmg = Math.round(dmg * BREAK_TAKEN);   // BREAK 窗口：受到傷害放大
@@ -3199,17 +3504,12 @@ function applyDamage(srcCh, dmg, opt) {
     const ef = e.fighter || (e === PF.foe ? enemyF : null);
     const dealt = damageEnemyUnit(e, dmg);
     dmgTotal += dealt;
-    const col = srcCh ? ELEMENTS[CHAR_TABLE[srcCh.id].element].color : "#f3b942";
     if (e) {
         const popClass = [opt.cls || (now < PF.breakUntil ? "brk" : ""), opt.critical ? "critical" : ""].filter(Boolean).join(" ");
         FX.pop(e.x, e.y - e.r, fmt(dmg), popClass, opt.popScale);
-        if (ef && !e.defeated) FX.hit(ef.fx);
-        if (opt.bloom) FX.bloom(e.x, e.y, col, opt.bloom);
-        if (opt.sparks) FX.sparks(e.x, e.y, opt.sparkColor || col, opt.sparks);
+        if (!opt.dot) FX.sprite(e.x, e.y, e.defeated ? "kill" : (opt.critical ? "crit" : "hit"));
         if (ef && !e.defeated) playFighter(ef, "hurt");
     }
-    if (opt.flash) FX.flash(col);
-    if (opt.shake) FX.shake();
     if (opt.combo) bumpCombo(opt.combo);
     // 技能也能敲掉弱點，但每 320ms 只算一次，多段技不會瞬間清盤；灼燒跳血不算直接命中
     if (!opt.dot && PF.weak && now - PF.weak.lastBreak > 320) { PF.weak.lastBreak = now; breakOneWeak(null); }
@@ -3224,7 +3524,7 @@ function checkKill() {
 }
 
 // 暴擊率＝基礎值＋隊長被動，上限 75%；暴擊倍率固定，沒有暴擊傷害乘區
-function critRate(ch) { return clamp(CRIT_RATE + leadVal(ch.id, "crit") + 0.05 * deepPerk("crit"), 0, 0.75); }
+function critRate(ch) { return clamp(CRIT_RATE + leadVal(ch.id, "crit") + statStep("crit") + crossBonus("crit"), 0, 0.75); }
 function rollCrit(ch) { return Math.random() < critRate(ch); }
 
 // 技能傷害：攻擊力 × 技能倍率 × 屬性克制 × 暴擊
@@ -3235,8 +3535,14 @@ function skillHit(m, mult, opt) {
     // 持續傷害（DOT）固定不暴擊，也不播放暴擊音效。
     const crit = !o.dot && rollCrit(m.ch);
     const talent = o.dot ? 1 : 1 + .06 * talentRank(m.ch, 'skill');
-    const dmg = Math.max(1, Math.round(atkOf(m.ch) * mult * talent * eMult * (crit ? CRIT_DMG : 1)));
-    if (crit) SFX.critical();
+    const surge = !o.dot && PF.comboSurge && !!towerMutation("damage");
+    const burst = !o.dot && eMult > 1 && !!towerMutation("element") && Math.random() < mutPower("element");
+    const dmg = Math.max(1, Math.round(atkOf(m.ch) * mult * talent * eMult * (crit ? CRIT_DMG : 1) * (surge ? 1 + mutPower("damage") : 1) * (burst ? 2 : 1)));
+    if (surge) {
+        PF.comboSurge = false;
+        if (m.body) FX.pop(m.body.x, m.body.y - 38, `星脈爆發 +${Math.round(mutPower("damage") * 100)}%`, "energy");
+    }
+    if (crit) { critRefund(); killSurge(m); SFX.critical(); }
     const base = o.cls || "";
     o.cls = [base, !base && eMult > 1 ? "weak" : "", crit ? "crit" : ""].filter(Boolean).join(" ");
     o.critical = crit;
@@ -3269,6 +3575,7 @@ function dashTo(m) {
     const a = Math.atan2(e.y - b.y, e.x - b.x);
     b.vx = Math.cos(a) * 980;
     b.vy = Math.sin(a) * 980;
+    FX.sprite(b.x, b.y, "dash", a);
 }
 
 function launchBall(m) {
@@ -3343,22 +3650,26 @@ function hitFoe(m, speed, target) {
     m.lastDmg = now;
     bumpCombo(1);
     addCd(m, SKILL_HIT_CHARGE);         // 撞到怪就是技能蓄能的主要來源
-    feverAdd(FEVER_ADD_FOE, { x: (m.body.x + target.x) / 2, y: (m.body.y + target.y) / 2 });
+    feverAdd(FEVER_ADD_FOE);
 
     const mult = deepElementMultiplier(CHAR_TABLE[m.ch.id].element, enemy.element);
     const stun = now < PF.stunUntil ? 1.25 : 1;   // 暈眩是敵人狀態，不算傷害乘區
     const crit = rollCrit(m.ch);
     const rush = comboMult();
-    const dmg = applyDamage(m.ch, Math.max(1, Math.round(atkOf(m.ch) * mult * stun * rush * (crit ? CRIT_DMG : 1))),
+    // 星脈・元素爆發：克制命中時有機率整下 ×2
+    const burst = mult > 1 && !!towerMutation("element") && Math.random() < mutPower("element");
+    const dmg = applyDamage(m.ch, Math.max(1, Math.round(atkOf(m.ch) * mult * stun * rush * (crit ? CRIT_DMG : 1) * (burst ? 2 : 1))),
         { cls: [mult > 1 ? "weak" : "", crit ? "crit" : ""].filter(Boolean).join(" "), critical: crit,
-          bloom: Math.min(200, 110 + combo * 3), sparks: 9, popScale: 1 + Math.min(0.7, combo * 0.01), target });
+          popScale: 1 + Math.min(0.7, combo * 0.01), target });
+    if (crit) { critRefund(); killSurge(m); }
     if (enemyUnitAlive(target)) applyElemStatus(m, target);
     playFighter(m.fighter, "attack");
-    if (crit) { FX.shake(); SFX.critical(); } else SFX.hit(1);
+    if (crit) SFX.critical(); else SFX.hit(1);
 
     const tag = mult > 1 ? " <span style='color:#2ed573'>(克制)</span>" : mult < 1 ? " <span style='color:#ff4757'>(被抗)</span>" : "";
     const rushTag = rush > 1 ? ` <span style='color:#ffce5a'>(連擊 ×${rush.toFixed(2)})</span>` : "";
-    log(`⚔️ <b>${charName(m.ch.id)}</b> 撞擊 [${enemy.name}]：${dmg} 傷害${tag}${rushTag}${stun > 1 ? " <span style='color:#c3a5ff'>(暈眩)</span>" : ""}${crit ? ` <span style='color:#ffce5a'>(暴擊 ×${CRIT_DMG})</span>` : ""}`);
+    const burstTag = burst ? " <span style='color:#7fcdd0'>(元素爆發 ×2)</span>" : "";
+    log(`⚔️ <b>${charName(m.ch.id)}</b> 撞擊 [${enemy.name}]：${dmg} 傷害${tag}${rushTag}${burstTag}${stun > 1 ? " <span style='color:#c3a5ff'>(暈眩)</span>" : ""}${crit ? ` <span style='color:#ffce5a'>(暴擊 ×${CRIT_DMG})</span>` : ""}`);
     powerFlipContact(m, target);
     checkKill();
 }
@@ -3368,10 +3679,19 @@ function killFoe() {
     // win 台詞只在 BOSS 倒下時講，一般怪幾秒一隻，每殺都喊會變成雜音
     const win = !!(enemy && enemy.boss);
     PF.members.forEach(m => { if (!m.down) { playFighter(m.fighter, "victory"); if (win) SFX.voice(m.ch.id, "win"); } });
-    FX.flash("#fff"); FX.bloom(PF.foe.x, PF.foe.y, "#f3b942", 260);
     SFX.kill();
-    log(`🎉 擊殺 <b>${enemy.name}</b>！全隊經驗 +${enemy.expReward}`);
-    aliveMembers().forEach(m => addExp(m.ch, enemy.expReward));
+    const expTotal = Math.max(0, enemy.expReward);
+    const survivors = aliveMembers();
+    // 經驗只發給還站著的成員，而且由他們平分；倒下的人拿不到，也不能重複領整份
+    const expShare = survivors.length ? Math.floor(expTotal / survivors.length) : 0;
+    const expExtra = survivors.length ? expTotal % survivors.length : 0;
+    log(expShare <= 0
+        ? `🎉 擊殺 <b>${enemy.name}</b>！`
+        : survivors.length === 1
+            ? `🎉 擊殺 <b>${enemy.name}</b>！經驗 +${expTotal}`
+            : `🎉 擊殺 <b>${enemy.name}</b>！經驗 ${expTotal} 由場上 ${survivors.length} 人平分，各 +${expShare}${expExtra ? `～${expShare + 1}` : ''}`);
+    if (expShare > 0) survivors.forEach((m, i) => addExp(m.ch, expShare + (i < expExtra ? 1 : 0)));
+    gainRankExp(expTotal);
     // 獨立關卡打完就停在結算面板：不記 kills、不掉寶箱碎片、也不會自己接下一隻怪
     if (gateOn()) { gateVictory(); return; }
     kills += enemy.groupSize || 1;
@@ -3384,9 +3704,13 @@ function killFoe() {
         stage++;
         floorWins = 0;
         deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
-        const healPct = 0.25 + 0.1 * deepPerk("heal");
+        const healPct = 0.25 + statStep("heal") + crossBonus("heal");
         PF.members.forEach(m => { m.ch.hp = Math.min(hpMax(m.ch), m.ch.hp + Math.ceil(hpMax(m.ch) * healPct)); });
         log(`🏕️ 通過第 ${stage - 1} 層：全隊回復 ${Math.round(healPct * 100)}% 生命。`);
+        triggerHealSurge();
+        PF.guardSave = false;   // 不屈星壁每層重置
+        PF.killStacks = 0;      // 殺戮星脈疊層每層重置
+        grantEntryCharge();
     }
     if (defeatedDeepBoss) awardTowerTalentPoint();
     saveGame();
@@ -3395,12 +3719,40 @@ function killFoe() {
 
 function memberStrike(m, dmg, why) {
     if (!m || m.down) return;
-    dmg = Math.max(1, Math.round(dmg * (1 - 0.1 * deepPerk("guard")) * (1 - .01 * talentRank(m.ch, 'survival'))));
+    dmg = Math.max(1, Math.round(dmg * Math.max(0.4, 1 - statStep("guard") - crossBonus("guard")) * (1 - .01 * talentRank(m.ch, 'survival'))));
+    // 星脈・不屈星壁：每層第一次致命傷保留 1 HP，強化版擋下後再回一段生命
+    let guardHeal = 0;
+    if (m.ch.hp - dmg <= 0 && towerMutation("guard") && !PF.guardSave) {
+        PF.guardSave = true;
+        dmg = Math.max(0, m.ch.hp - 1);
+        guardHeal = mutPower("guard");
+        if (m.body) FX.pop(m.body.x, m.body.y - 30, "不屈星壁", "heal");
+        log(`🛡 星脈・不屈星壁：<b>${charName(m.ch.id)}</b> 擋下致命傷害，保留 1 HP（本層一次）。`);
+    }
     m.ch.hp = Math.max(0, m.ch.hp - dmg);
+    if (guardHeal) {
+        const before = m.ch.hp;
+        m.ch.hp = Math.min(hpMax(m.ch), m.ch.hp + Math.round(hpMax(m.ch) * guardHeal));
+        const got = m.ch.hp - before;
+        if (got > 0) {
+            FX.pop(m.body.x, m.body.y - 52, "+" + got, "heal");
+            triggerHealSurge();
+            log(`✚ 星脈・不屈星壁強化：<b>${charName(m.ch.id)}</b> 回復 <b style='color:#2ed573'>${got}</b> 點生命。`);
+        }
+    }
     FX.pop(m.body.x, m.body.y - 26, "-" + dmg, "hurt");
-    FX.flash("#ff4757"); FX.shake();
     playFighter(m.fighter, "hurt");
     log(`💥 ${why}：<b>${charName(m.ch.id)}</b> 受到 <b style='color:#ff4757'>${dmg}</b> 點傷害`);
+    // 反擊星脈：被克制屬性的攻擊打到時，把受到的傷害整份彈回去
+    if (dmg > 0 && deepCrossOn("guard_element") && PF.foe && enemyUnitAlive(PF.foe)
+        && elementMultiplier(enemy.element, CHAR_TABLE[m.ch.id].element) > 1) {
+        const back = applyDamage(m.ch, dmg, { target: PF.foe });
+        if (back > 0) {
+            FX.pop(m.body.x, m.body.y - 48, "反擊", "energy");
+            log(`✦ 反擊星脈：<b>${charName(m.ch.id)}</b> 反彈 <b style='color:#ffd257'>${back}</b> 點傷害。`);
+            checkKill();
+        }
+    }
     if (m.ch.hp <= 0) downMember(m);
 }
 
@@ -3468,17 +3820,13 @@ function castSkill(m) {
     m.ch.gauge = 0;
     const d = CHAR_TABLE[m.ch.id], sk = SKILLS[m.ch.id];
     const col = ELEMENTS[d.element].color;
-    playFighter(m.fighter, "skill");
     showCut(m);
-    playSkillSignature(m);
+    playFighter(m.fighter, "skill");
     SFX.voice(m.ch.id, "skill");
-    FX.flash(col); FX.shake();
     SFX.skill(d.element);
-    FX.bloom(m.body.x, m.body.y, col, 200);
-    FX.sparks(m.body.x, m.body.y, "#fff", 14);
-    if (PF.foe) FX.aura(PF.foe.x, PF.foe.y, 340);
     log(`⚡ <b style='color:${col}'>${d.name}·【${sk.name}】</b>${sk.tag} 技能施放！`);
     sk.cast(m, PF.foeSeq);
+    chantStarHeal(m);
     castUnison(m);
     checkKill();
     return true;
@@ -3491,8 +3839,6 @@ function castUnison(m) {
     if (!uid || !SKILLS[uid] || !roster[uid] || !roster[uid].unlocked) return;
     const ud = CHAR_TABLE[uid], usk = SKILLS[uid];
     const av = { ch: roster[uid], idx: -1, body: null, fighter: null, down: false, lastDmg: 0 };
-    // 副手沿用主手位置做視覺演出，不把虛擬位置交給傷害流程。
-    playSkillSignature({ ch: av.ch, body: m.body });
     log(`🔗 合擊搭檔 <b style='color:${ELEMENTS[ud.element].color}'>${ud.name}·【${usk.name}】</b>同步釋放！`);
     usk.cast(av, PF.foeSeq);
 }
@@ -3515,7 +3861,6 @@ function step(dt, now) {
         if (manual) want = f.side === "l" ? PF.holdL : PF.holdR;
         else for (const m of movers) if (autoWant(m.body, f)) { want = true; break; }
         const target = want ? 1 : 0;
-        const prev = f.t;
         f.t += Math.sign(target - f.t) * Math.min(Math.abs(target - f.t), (want ? 24 : 13) * dt);
         const angPrev = f.ang;
         const angNext = f.angRest + (f.angUp - f.angRest) * f.t;
@@ -3526,25 +3871,19 @@ function step(dt, now) {
         for (let i = 1; i < segs; i++) {
             f.ang = angPrev + (angNext - angPrev) * i / segs;
             for (const m of movers) if (resolveFlipperCollision(m.body, f)) {
-                PF.lastContact = now; f.flashAt = now; SFX.flipperHit();
+                PF.lastContact = now; f.flashAt = now; SFX.flipperHit(); FX.sprite(m.body.x, m.body.y, "flip");
             }
         }
         f.ang = angNext;
-        // 圖上的板身已經是靜止角，所以只轉「相對靜止角」的差；伸長幀也疊在這裡
-        f.blade.style.transform = `rotate(${f.ang - f.angRest}rad) scaleX(${f.sx})`;
+        // 圖上的板身已經是靜止角，所以只轉「相對靜止角」的差
+        f.node.style.transform = `rotate(${f.ang - f.angRest}rad)`;
 
-        // 五幀的取捨：擊球那一下最優先（3 號白光幀）；揮過頂是 2 號；
-        // 中途看「正在上揮還是回彈」分 1 號、4 號；完全落下就是 0 號靜止。
-        const fr = now - f.flashAt < 110 ? 3 : f.t > .86 ? 2 : f.t > .12 ? (f.t > prev ? 1 : 4) : 0;
-        if (flv !== f.lv || fr !== f.frame) paintFlipper(f, flv, fr);
-        if (f.t > prev && f.t > 0.85) {
-            for (const m of movers) {
-                const b = m.body;
-                if (b.y > f.py - 170 && Math.abs(b.x - f.px) < f.len + 40) {
-                    FX.beam(f.px + Math.cos(f.ang) * f.len, f.py + Math.sin(f.ang) * f.len, f.ang);
-                    break;
-                }
-            }
+        // 擊球那 110ms 提亮，其餘時間只有連擊等級的光暈；光暈顏色跟著金化程度走
+        const hot = now - f.flashAt < 110;
+        const gt = PF.goldT || 0;
+        if (flv !== f.lv || hot !== f.hot || Math.abs(gt - f.gt) > 0.1) {
+            f.lv = flv; f.hot = hot; f.gt = gt;
+            f.node.style.filter = flipperFilter(flv, hot, gt);
         }
     }
 
@@ -3569,7 +3908,9 @@ function step(dt, now) {
         for (const s of PF.segs) if (segCollide(b, s)) PF.lastContact = now;
         // 打到彈板就點亮那塊板的「擊球閃光」幀，110ms 後自己退回去
         for (const f of PF.flippers) if (resolveFlipperCollision(b, f)) {
-            PF.lastContact = now; f.flashAt = now; SFX.flipperHit();
+            PF.lastContact = now; f.flashAt = now; SFX.flipperHit(); FX.sprite(b.x, b.y, "flip");
+            // 用力打出去那一下才拖速度線，輕碰不會
+            if (b.vy < -600) FX.sprite(b.x, b.y, "dash", Math.atan2(b.vy, b.vx));
         }
 
         // 連續多個物理子步仍碰著彈板，視為被卡住；直接向上並朝場中央強制脫離。
@@ -3742,7 +4083,12 @@ function render() {
             PF.rays.style.transform = `translate(${b.x - 110}px, ${b.y - 110}px) rotate(${b.spin * 0.6}rad)`;
         }
     }
-    if (enemyUnitAlive(PF.foe)) { enforceBattleCeiling(PF.foe); PF.foe.node.style.transform = `translate(${PF.foe.x}px, ${PF.foe.y}px)`; setHpBar(PF.foe, PF.foe.hp / PF.foe.maxHp); }
+    if (enemyUnitAlive(PF.foe)) {
+        enforceBattleCeiling(PF.foe);
+        PF.foe.node.style.transform = `translate(${PF.foe.x}px, ${PF.foe.y}px)`;
+        const enterHp = bossEntranceHpRatio();
+        setHpBar(PF.foe, enterHp === null ? PF.foe.hp / PF.foe.maxHp : enterHp);
+    }
     for (const g of PF.extraFoes) { if (!enemyUnitAlive(g)) continue; enforceBattleCeiling(g); g.node.style.transform = `translate(${g.x}px, ${g.y}px)`; setHpBar(g, g.hp / g.maxHp); }
 }
 
@@ -3765,7 +4111,7 @@ function pfLoop(ts) {
         const subs = FEVER.active ? 4 : 2;
         for (let i = 0; i < subs; i++) step(dt / 2, ts);
         FX.updatePops(dt);                       // 傷害數字的拋物線／淡出
-        if (ts - comboAt > COMBO_HOLD && combo) combo = 0;   // 連擊狂熱斷鏈，加成歸零
+        if (ts - comboAt > COMBO_HOLD && combo) { combo = 0; PF.comboSurge = false; }   // 連擊狂熱斷鏈，加成歸零
         render();
     }
 }
@@ -3884,16 +4230,21 @@ function gateStats(g) {
 function spawnEnemy() {
     enemy.battleSkinUrl = '';
     enemy.battleSkinFailed = false;
+    enemy.battleSkinAlpha = false;
+    enemy.battleSkinFace = -100; enemy.battleSkinLift = 88;
     const g = gateOf();
     if (g) {
         const b = BOSS_TABLE.find(x => x.id === g.boss), st = gateStats(g);
         enemy.id = b.id; enemy.name = b.name; enemy.icon = b.icon; enemy.element = b.element;
         const appearance = GATE_ENEMY_APPEARANCES[g.id];
         enemy.name = appearance.name; enemy.battleSkinUrl = appearance.skin;
+        enemy.battleSkinAlpha = !!appearance.alpha;
+        enemy.battleSkinFace = appearance.face;
+        enemy.battleSkinLift = appearance.lift;
         enemy.boss = true;
         enemy.maxHp = st.hp; enemy.hp = st.hp; enemy.atk = st.atk;
-        // 經驗對齊「同樣的血量在深層要啃多久」，打門不會比掛深層虧
-        enemy.expReward = Math.round(st.hp / 6);
+        // 異界迴廊只給結晶與擊破紀錄，不給經驗
+        enemy.expReward = 0;
         return;
     }
     const boss = stage % BOSS_EVERY === 0;
@@ -3909,7 +4260,7 @@ function spawnEnemy() {
     enemy.maxHp = st.hp;
     enemy.hp = enemy.maxHp;
     enemy.atk = st.atk;
-    enemy.expReward = (20 + stage * 10) * (boss ? 3 : 1);
+    enemy.expReward = (15 + stage * 7) * (boss ? 3 : 1);
 }
 
 // 主頁異界迴廊：母頁開一個獨立戰場視窗；門的戰鬥由 iframe 裡那份實例自己跑
@@ -3952,22 +4303,20 @@ addEventListener("message", ev => {
     if (!gateBattleOpen) return;                          // 沒開窗時一律不收帳
     const d = (ev.data && typeof ev.data === "object") ? ev.data : {};
     if (d.type === "wf-gate-result") {
-        // 結晶、擊破次數、經驗都由母頁入帳，門的實例自己不存檔
+        // 結晶、擊破次數都由母頁入帳，門的實例自己不存檔
         // 門 id 必須列得出來；獎勵欄位全部夾限，iframe 內被竄改也領不到天價
         const g = BOSS_STAGES.find(s => s.id === d.gate);
         if (!g) return;
         const shards = Math.max(0, Math.min(9999, Math.floor(+d.shards) || 0));
-        const exp = Math.max(0, Math.min(9999999, Math.floor(+d.exp) || 0));
         const win = Math.max(0, Math.floor(+d.win) || 0);
         const first = !!d.first;
         const gName = (typeof d.gateName === "string" && d.gateName ? d.gateName : g.gate).slice(0, 40);
         bossWin[g.id] = Math.max(bossWin[g.id] || 0, win);
         shardTotal += shards;
-        (Array.isArray(d.expIds) ? d.expIds : []).forEach(id => { if (roster[id]) addExp(roster[id], exp); });
         saveGame();
         paintHome();
         log(first
-            ? `🏆 <b style='color:#ffce5a'>${gName}・首次擊破</b>（獨立戰場）：結晶 +${shards}｜經驗 +${fmt(exp)}。`
+            ? `🏆 <b style='color:#ffce5a'>${gName}・首次擊破</b>（獨立戰場）：結晶 +${shards}。`
             : `⚔️ <b>${gName}</b> 再度擊破（獨立戰場）：結晶 +${shards}。`);
         if (homeTabOn === "boss") renderPage();
     } else if (d.type === "wf-gate-close") {
@@ -4008,7 +4357,7 @@ function gateVictory() {
         gate: g.gate, boss: enemy.name, el: g.el, first, shards, win: bossWin[g.id],
         sec: Math.max(1, Math.round((performance.now() - GATE.t0) / 1000)),
         dmg: Math.max(0, Math.round(dmgTotal - GATE.dmg0)),
-        exp: enemy.expReward, hp: enemy.maxHp
+        hp: enemy.maxHp
     };
     setPaused(true);
     $("rs-tag").textContent = first ? "首次擊破" : "再度擊破";
@@ -4019,20 +4368,18 @@ function gateVictory() {
         `<span>王的生命</span><b>${fmt(res.hp)}</b>`
         + `<span>用時</span><b>${Math.floor(res.sec / 60)}:${String(res.sec % 60).padStart(2, "0")}</b>`
         + `<span>此關傷害</span><b>${fmt(res.dmg)}</b>`
-        + `<span>全隊經驗</span><b>+${fmt(res.exp)}</b>`
         + `<span class="hl">結晶</span><b class="hl">+${res.shards}</b>`
         + `<span>累計擊破</span><b>${res.win} 次</b>`;
     $("pf-result").classList.add("on");
     log(first
-        ? `🏆 <b style='color:#ffce5a'>${res.gate}・首次擊破</b>：結晶 +${res.shards}｜經驗 +${fmt(res.exp)}｜用時 ${res.sec} 秒。`
+        ? `🏆 <b style='color:#ffce5a'>${res.gate}・首次擊破</b>：結晶 +${res.shards}｜用時 ${res.sec} 秒。`
         : `⚔️ <b>${res.gate}</b> 再度擊破（累計 ${res.win} 次）：結晶 +${res.shards}。`);
     saveGame();
     // 門的實例：把結果交給母頁入帳（自己的存檔寫入已被 saveGame 擋掉）
     if (GATE_MODE && window.parent !== window) {
         window.parent.postMessage({
             type: "wf-gate-result", gate: g.id, gateName: g.gate, first,
-            shards, win: bossWin[g.id], exp: enemy.expReward,
-            expIds: PF.members.filter(m => !m.down).map(m => m.ch.id)
+            shards, win: bossWin[g.id]
         }, GATE_TARGET);
     }
 }
@@ -4120,12 +4467,12 @@ function restartFailedDeepAt(target) {
     if (PF.cut) PF.cut.innerHTML = "";
     FX.clearPops();
     if (PF.vfx) PF.vfx.innerHTML = "";
-    if (PF.el) PF.el.querySelectorAll('.fev-orb').forEach(n => n.remove());
     if (FEVER.active) feverEnd();
     Object.assign(FEVER, { value: 0, maxValue: FEVER_BASE, active: false, left: 0, times: 0 });
     POWER_FLIP.lockMs = POWER_FLIP.buffMs = POWER_FLIP.buffPct = 0;
     COLLISION_TRIAL.dashLeft = 0;
-    combo = 0; comboAt = 0;
+    combo = 0; comboAt = 0; feverCombo = 0;
+    PF.comboSurge = false; PF.guardSave = false; PF.healSurgeUntil = 0; PF.killStacks = 0;
     PF.members.forEach(m => {
         m.down = false; m.respawnAt = 0;
         m.ch.hp = hpMax(m.ch); m.ch.gauge = 0;
@@ -4133,6 +4480,7 @@ function restartFailedDeepAt(target) {
     });
     $("deep-fail").classList.remove("on");
     hideOver();
+    grantEntryCharge();
     nextEnemy();
     setPaused(false);
     saveGame();
@@ -4188,7 +4536,7 @@ function battleTick() {
         if (PF.foeSeq !== bu.seq || !src || !enemyUnitAlive(bu.target) || enemy.hp <= 0) bu.ticks = 0;
         else if (now >= bu.at) {
             bu.at = now + 400;
-            skillHit(src, bu.mult, { cls: "burn", dot: true, target: bu.target, sparks: 3, bloom: 80, sparkColor: bu.kind === "poison" ? "#b98bff" : "#ff8a3c" });
+            skillHit(src, bu.mult, { cls: "burn", dot: true, target: bu.target, sparks: 3, sparkColor: bu.kind === "poison" ? "#b98bff" : "#ff8a3c" });
             bu.ticks--;
             checkKill();
         }
@@ -4201,6 +4549,10 @@ function battleTick() {
         PF.buff = null;
         log(`⬇️ 全隊攻擊增益結束，回到基礎值。`);
     }
+    if (PF.healSurgeUntil && now >= PF.healSurgeUntil) {
+        PF.healSurgeUntil = 0;
+        log(`⬇️ 星脈・生命共振的攻擊加成結束。`);
+    }
 
     // 弱點讀條／BREAK 窗口／連擊計數逾期
     tickWeak(now);
@@ -4212,10 +4564,10 @@ function battleTick() {
         PF.lastContact = now;
         for (const m of aliveMembers()) {
             const mult = deepElementMultiplier(CHAR_TABLE[m.ch.id].element, enemy.element);
-            const dmg = Math.max(1, Math.round(atkOf(m.ch) * mult * (1 + 0.12 * deepPerk("damage"))));
+            const dmg = Math.max(1, Math.round(atkOf(m.ch) * mult * (1 + statStep("damage") + crossBonus("damage"))));
             enemy.hp -= dmg; dmgTotal += dmg;
             FX.pop(PF.foe.x, PF.foe.y - PF.foe.r, fmt(dmg), "");
-            FX.hit(enemyF.fx); playFighter(enemyF, "hurt");
+            playFighter(enemyF, "hurt");
             log(`🪐 場上無碰撞，${charName(m.ch.id)} 以遠程脈衝補 ${dmg} 點傷害。`);
             if (enemy.hp <= 0) { enemy.hp = 0; killFoe(); break; }
         }
@@ -4231,7 +4583,7 @@ function addExp(ch, amount) {
 }
 
 // 擊殺掉角色碎片：一隻角色 10 片，湊滿到「角色」頁兌換
-//   未解鎖角色用於兌換，已解鎖角色用於突破；光・闇暫時不掉片。
+//   未解鎖角色用於兌換，已解鎖角色用於上限解放；光・闇暫時不掉片。
 function rollShards() {
     const crystal = 1 + Math.floor(Math.random() * 2) + Math.floor(stage / 12);
     shardTotal += crystal;
@@ -4251,7 +4603,7 @@ function rollShards() {
         hit.push(id);
         const ch = roster[id], d = CHAR_TABLE[id];
         ch.shards = Math.min(ch.unlocked ? 999999 : d.need, ch.shards + add);
-        log(ch.unlocked ? `🧩 <b>${d.name}</b> 突破碎片 +${add}（持有 ${ch.shards}）` : ch.shards >= d.need
+        log(ch.unlocked ? `🧩 <b>${d.name}</b> 上限解放碎片 +${add}（持有 ${ch.shards}）` : ch.shards >= d.need
             ? `🧩 <b style='color:#f3b942'>${d.name}</b> 碎片湊齊 ${ch.shards}/${d.need}——到「角色」頁按兌換就入隊。`
             : `🧩 <b>${d.name}</b> 碎片 +${add}（${ch.shards}/${d.need}）`);
     }
@@ -4268,7 +4620,6 @@ function exchangeChar(id) {
     ch.unlocked = true;
     if (teamIds.length < TEAM_MAX) { teamIds.push(id); syncTeamField(); spawnEnemy(); spawnFoe(); }
     log(`🎊 <b style='color:#f3b942'>兌換成功！</b><b>${d.name}</b>（${ELEMENTS[d.element].label}・${TYPE_INFO[d.type].n}）加入名冊${teamIds.indexOf(id) >= 0 ? "，直接上場" : ""}。`);
-    FX.flash("#f3b942");
     saveGame(); renderPage(); updateUI();
 }
 
@@ -4341,7 +4692,6 @@ function setCaptain(id) {
     syncTeamField();
     const ti = TYPE_INFO[CHAR_TABLE[id].type];
     log(`👑 <b>${charName(id)}</b> 就任隊長｜<b style='color:#ffce5a'>${ti.n}</b>——${ti.d}<br>📜 隊長特性：${CHAR_TABLE[id].lead}`);
-    if (PF.running) pfBanner("隊長換人", `${ti.n}　${CHAR_TABLE[id].lead}`);
     updateUI();
 }
 
@@ -4359,37 +4709,79 @@ const $ = id => document.getElementById(id);
 
 let slotsSig = "", rosterSig = "", hudSig = "";
 
+// 戰力只是編成頁的參考數字：攻擊抓得比 HP 重，換隊長也會跟著變。
+function teamPower() {
+    return teamIds.reduce((sum, id) => {
+        const ch = roster[id];
+        return ch ? sum + Math.round(ch.baseAtk * 3 + hpMax(ch) * .8) : sum;
+    }, 0);
+}
+
 function buildSlots() {
     const box = $("team-slots");
-    let html = "";
+    let lineup = "", stage = "", stats = "";
     for (let i = 0; i < TEAM_MAX; i++) {
         const id = teamIds[i];
-        if (!id) { html += `<div class="slot empty">空槽位 ${i + 1}：從下方名冊點選上場</div>`; continue; }
-        const d = CHAR_TABLE[id];
-        const un = unisonOf(id);
-        const ti = TYPE_INFO[d.type] || TYPE_INFO.knight;
-        html += `<div class="slot">
-            <div class="sprite-placeholder sp" id="slot-sp-${i}"></div>
-            <div class="info">
-                <div class="nm">${d.name}<span class="element-badge ${ELEMENTS[d.element].cls}">${ELEMENTS[d.element].label}</span>
-                    <span class="type-chip" title="職業決定技能蓄能速度"><img src="${WF_ICON}sprites/types/${ti.img}.png" onerror="this.parentNode.style.display='none'">${ti.n}</span>
-                    <span class="cap${i === 0 ? "" : " cap-set"}"${i === 0 ? "" : ` onclick="setCaptain('${id}')" title="點一下換隊長，全隊改吃他的隊長特性"`}>${i === 0 ? "隊長" : "隊友 ▸ 設隊長"}</span></div>
-                <div class="st">Lv.<span id="slot-lv-${i}">1</span>｜ATK <span id="slot-atk-${i}">0</span>｜<span style="color:#7c4dff">${SKILLS[id].name}</span>${i === 0 ? `｜<span style="color:#7ba0ff">⏱ 技能蓄能 ${Math.round((SKILL_CD[d.type] || 15) * SKILL_CHARGE_TIME)}s</span>` : ""}<br><span class="lead-chip${i === 0 ? " cap" : ""}">${i === 0 ? "👑 " + d.lead : "👑 吃到隊長：" + (leadTagsFor(id) || "無（屬性不同）")}</span>
-                    ${equipMap[id] ? `<br><span style="color:#4a9de0;font-size:9px">🛡 ${SHIELD_TABLE[equipMap[id]].n}</span>` : ""}</div>
-                <div class="mini"><div id="slot-hp-${i}" class="hp-fill" style="width:100%"></div></div>
-                <div class="mini"><div id="slot-gauge-${i}" class="skill-fill" style="width:0%"></div></div>
-                <div class="uni${un ? "" : " none"}">
-                    <div class="sprite-placeholder u-sp" id="slot-uni-sp-${i}">${un ? "" : "＋"}</div>
-                    <span class="u-tag">合擊 ${un ? CHAR_TABLE[un].name : "空"}</span>
-                    <span>${un ? "放技時同步釋放" : "3+3 槽位就緒"}</span>
-                </div>
+        if (!id) {
+            lineup += `<div class="fm-unit empty">
+                <div class="fm-portrait"><div class="fm-empty-ic">＋</div></div>
+                <div class="fm-weapon empty">—</div>
+                <div class="fm-sub none"><span>空位 ${i + 1}</span></div>
+            </div>`;
+            stage += `<div class="fm-ped empty"><div class="fm-ped-top"></div></div>`;
+            stats += `<div class="fm-stat empty"><div class="fm-empty">空位 ${i + 1}<br>從下方名冊點選上場</div></div>`;
+            continue;
+        }
+        const d = CHAR_TABLE[id], un = unisonOf(id), ti = TYPE_INFO[d.type] || TYPE_INFO.knight;
+        const sid = equipMap[id], shield = sid ? SHIELD_TABLE[sid] : null;
+        const el = EL_COLOR[d.element] || "#8fa0c0";
+        const cd = Math.round((SKILL_CD[d.type] || 15) * SKILL_CHARGE_TIME);
+        const head = i === 0;
+        lineup += `<div class="fm-unit${head ? " lead" : " setcap"}"${head ? "" : ` onclick="setCaptain('${id}')" title="點一下設為隊長，全隊改吃他的隊長特性"`}>
+            <div class="fm-portrait" style="--el:${el}">
+                <div class="fm-art" id="slot-sp-${i}"></div>
+                <div class="fm-el">${ELEMENTS[d.element].label}</div>
+                ${head ? `<div class="fm-leader">隊長</div>` : `<div class="fm-cap-hint">設為隊長</div>`}
+                <div class="fm-lv"><span>Lv.<b id="slot-lv-${i}">1</b></span><span class="fm-type">${ti.n}</span></div>
             </div>
-            <button class="out" onclick="toggleTeam('${id}')">下場</button>
+            <div class="fm-weapon${shield ? "" : " empty"}" title="${shield ? shield.n : "尚未裝備武器"}">${shield ? `<img src="${WF_EQUIP}${sid}.png" alt="${shield.n}" onerror="this.parentNode.textContent='🛡'">` : "🛡"}</div>
+            <div class="fm-sub${un ? "" : " none"}"><div class="fm-sub-art" id="slot-uni-sp-${i}">${un ? "" : "＋"}</div><span>${un ? CHAR_TABLE[un].name : "合擊空位"}</span></div>
+        </div>`;
+        stage += `<div class="fm-ped${head ? " lead" : ""}"><div class="fm-ball" style="--el:${el}"><img src="${WF_ICON}sprites/elements/${EL_ICON_FILE[d.element] || "element_white"}.png" alt="" onerror="this.style.visibility='hidden'"></div><div class="fm-ped-top" style="--el:${el}"></div></div>`;
+        stats += `<div class="fm-stat" style="--el:${el}" title="${d.name}｜${SKILLS[id].name}">
+            <div class="fm-sname">${d.name}</div>
+            <div class="fm-row"><span>HP</span><b id="slot-hpnum-${i}">0</b></div>
+            <div class="fm-bar hp"><i id="slot-hp-${i}"></i></div>
+            <div class="fm-row"><span>攻擊</span><b id="slot-atk-${i}">0</b></div>
+            <div class="fm-row"><span>冷卻</span><b>${cd}s</b></div>
+            <div class="fm-bar cd"><i style="width:100%"></i></div>
+            <div class="fm-row"><span>能量</span><b id="slot-en-${i}">0%</b></div>
+            <div class="fm-bar en"><i id="slot-gauge-${i}"></i></div>
+            <div class="fm-skill">${SKILLS[id].name}</div>
+            <button class="fm-out" onclick="toggleTeam('${id}')">✕ 下場</button>
         </div>`;
     }
-    box.innerHTML = html;
+    const cap = teamIds[0] ? CHAR_TABLE[teamIds[0]] : null;
+    const mates = teamIds.slice(1)
+        .map(id => `${CHAR_TABLE[id].name} ${leadTagsFor(id) || "無加成"}`).join("／");
+    const leadNote = cap
+        ? `<b style="color:#ffd77a">${cap.name}</b>：${cap.lead}${mates ? `<br><span style="color:#7c9dc6">隊友吃到：${mates}</span>` : ""}`
+        : "還沒有人上場，先從下方名冊點一位。";
+    box.innerHTML = `<div class="fm">
+        <div class="fm-head">
+            <div><small>最多 ${TEAM_MAX} 人同時上場</small><b>出戰隊伍</b></div>            <div class="fm-count">${teamIds.length} / ${TEAM_MAX}</div>
+        </div>
+        <div class="fm-lineup">${lineup}</div>
+        <div class="fm-stage">${stage}</div>
+        <div class="fm-powerrow"><div class="fm-power"><span>戰力</span><strong>${teamPower().toLocaleString()}</strong></div></div>
+        <div class="fm-stats">${stats}</div>
+        <div class="fm-lead"><span>隊長特性</span><p>${leadNote}</p></div>
+    </div>`;
     for (let i = 0; i < TEAM_MAX; i++) {
-        const un = unisonOf(teamIds[i]);
+        const id = teamIds[i];
+        if (!id) continue;
+        const un = unisonOf(id);
+        paintSprite($("slot-sp-" + i), "hero", id, "idle", CHAR_TABLE[id].name.slice(0, 1));
         if (un) paintSprite($("slot-uni-sp-" + i), "hero", un, "idle", CHAR_TABLE[un].name.slice(0, 1));
     }
 }
@@ -4442,6 +4834,16 @@ function buildHudTeam() {
     PF.members.forEach((m, i) => paintSprite($("mc-sp-" + i), "hero", m.ch.id, "idle", charName(m.ch.id).slice(0, 1)));
 }
 
+// 點陣字只在字串變了才重畫，避免每幀重建 <i> 格
+function setPixelNum(node, text, style, scale, force) {
+    if (!node) return false;
+    const sig = text + "|" + style + "|" + scale + "|" + (force ? 1 : 0);
+    if (node.dataset.pxSig === sig) return true;
+    if (!PIXEL_TEXT.paint(node, text, style, scale, force)) return false;
+    node.dataset.pxSig = sig;
+    return true;
+}
+
 // 技能蓄能資訊顯示在 HUD 的隊伍頭像晶片。
 function updateUI() {
     refreshBattleBounds();
@@ -4463,7 +4865,9 @@ function updateUI() {
             atk.textContent = atkOf(m.ch);
             $("slot-sp-" + i) && paintSprite($("slot-sp-" + i), "hero", m.ch.id, "idle", charName(m.ch.id).slice(0, 1));
             $("slot-hp-" + i).style.width = clampPct(m.ch.hp / cap);
+            $("slot-hpnum-" + i).textContent = m.ch.hp;
             $("slot-gauge-" + i).style.width = clampPct(m.ch.gauge / 100);
+            $("slot-en-" + i).textContent = Math.round(m.ch.gauge) + "%";
         }
         const chip = $("mc-" + i);
         if (chip) {
@@ -4489,6 +4893,14 @@ function updateUI() {
     cm.textContent = POWER_FLIP.enabled ? (flipLevel() ? `PF Lv${flipLevel()}` : `${FLIP_AT[0] - combo}擊蓄勢`) : `傷害 +${Math.round(combo * COMBO_RUSH * 100)}%`;
     const comboLeft = comboAt ? clamp(1 - (performance.now() - comboAt) / COMBO_HOLD, 0, 1) : 0;
     $("pf-combo-life").style.transform = `scaleX(${comboLeft.toFixed(3)})`;
+
+    // 中央：FEVER 字下面只算 Fever 期間的連擊
+    const fc = $("pf-fever-combo");
+    if (fc) {
+        const flabel = "COMBO x" + feverCombo;
+        if (!setPixelNum(fc, flabel, "damage", feverCombo > 99 ? 1 : 1.2, true)) fc.textContent = flabel;
+        fc.classList.toggle("on", FEVER.active && feverCombo > 0);
+    }
 
     // 弱點讀條
     const wb = $("weak-bar");
@@ -4527,14 +4939,19 @@ function updateUI() {
     const buffTxt = [
         PF.buff ? `⬆ 全隊 ATK +${PF.buff.atk}` : "",
         POWER_FLIP.enabled && POWER_FLIP.buffMs > 0 ? `⚡ 應援 攻擊 +${Math.round(POWER_FLIP.buffPct * 100)}% ${Math.ceil(POWER_FLIP.buffMs / 1000)}秒` : "",
-        ...TOWER_TALENTS.filter(p => deepPerk(p.id) > 0).map(p => `✨${p.name}×${deepPerk(p.id)}`)
+        ...TOWER_TALENTS.filter(p => deepPerk(p.id) > 0).map(p => deepPerk(p.id) >= 3 ? `✨${TOWER_MUTATIONS[p.id].name}・強化`
+            : deepPerk(p.id) >= 2 ? `✨${TOWER_MUTATIONS[p.id].name}` : `✨${p.name}`),
+        ...TOWER_CROSS.filter(c => deepCrossOn(c.id)).map(c => `✦${c.name}`)
     ].filter(Boolean).join("｜");
     $("pf-buff-txt").textContent = buffTxt;
     $("pf-buff-txt").parentElement.style.display = buffTxt ? "" : "none";
-    $("enemy-hp-txt").textContent = `${Math.max(0, enemy.hp)}/${enemy.maxHp}`;
-    $("enemy-hp-bar").style.width = clampPct(enemy.hp / enemy.maxHp);
+    // 登場期間血條由入場流程灌值（從 0 充到滿），其他時候照真實血量
+    const entranceHp = bossEntranceHp();
+    const hpView = entranceHp === null ? enemy.hp : entranceHp;
+    $("enemy-hp-txt").textContent = `${Math.max(0, hpView)}/${enemy.maxHp}`;
+    $("enemy-hp-bar").style.width = clampPct(hpView / enemy.maxHp);
 
-    paintFeverGauge();
+    paintFeverFlippers();
 
     $("shard-total").textContent = shardTotal;
     $("char-unlocked").textContent = `${OPEN_CHAR_IDS.filter(id => roster[id].unlocked).length}/${OPEN_CHAR_IDS.length}`;
@@ -4561,7 +4978,7 @@ function saveGame() {
             r[id] = { unlocked: c.unlocked, shards: c.shards, lvl: c.lvl, exp: c.exp, nextExp: c.nextExp, baseAtk: c.baseAtk, maxHp: c.maxHp,
                 growthVersion: c.growthVersion, legacyCap: c.legacyCap, breakthrough: c.breakthrough, talents: { ...c.talents } };
         });
-        localStorage.setItem(SAVE_KEY, JSON.stringify({ v: 6, picked: starterPicked, tutorialSeen, stage, kills, floorWins, deepTimeLeft, towerTree: saveTowerTalentState(), shardTotal, teamIds, unisonMap, shieldBag, equipMap, titleOn, bossWin, shakeOn: FX.shakeOn, roster: r }));
+        localStorage.setItem(SAVE_KEY, JSON.stringify({ v: 6, picked: starterPicked, tutorialSeen, stage, rankLv, rankExp, kills, floorWins, deepTimeLeft, towerTree: saveTowerTalentState(), shardTotal, teamIds, unisonMap, shieldBag, equipMap, titleOn, bossWin, shakeOn: FX.shakeOn, roster: r }));
     } catch (err) { log(`💾 存檔失敗：${err.message}`); }
 }
 let saveNote = "";   // loadGame 失敗原因，開場首頁才說得出「為什麼進度重來」
@@ -4577,6 +4994,10 @@ function loadGame() {
         kills = Math.max(0, Math.min(999999, Math.floor(+p.kills) || 0));
         const sv = Math.floor(+p.stage) || 0;
         stage = sv > 0 ? Math.min(999999, sv) : 1 + Math.floor(kills / 3);
+        // 舊存檔沒有 RANK 等級：沿用當時顯示的樓層數字，經驗從 0 開始
+        rankLv = Math.max(1, Math.min(999999, Math.floor(+p.rankLv) || stage));
+        rankExp = Math.max(0, Math.floor(+p.rankExp) || 0);
+        while (rankExp >= rankExpNeed(rankLv)) { rankExp -= rankExpNeed(rankLv); rankLv++; }
         floorWins = stage % BOSS_EVERY === 0 ? 0 : Math.max(0, Math.min(NORMAL_FLOOR_WAVES - 1, Math.floor(+p.floorWins) || 0));
         deepTimeLeft = Math.max(1, Math.min(stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS,
             Math.floor(+p.deepTimeLeft) || (stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS)));
@@ -4586,7 +5007,7 @@ function loadGame() {
             const saved = p.roster && p.roster[id];
             if (!saved) return;
             Object.assign(roster[id], saved);
-            if (saved.growthVersion !== 1) roster[id].growthVersion = 0;
+            if (saved.growthVersion !== 1 && saved.growthVersion !== 2) roster[id].growthVersion = 0;
             normalizeCharacterGrowth(roster[id]);
             roster[id].hp = roster[id].maxHp;
             roster[id].gauge = 0;
@@ -4628,7 +5049,7 @@ function resetSave() {
 }
 
 // ==========================================================
-// 主頁（仿彈射世界首頁）：RANK＝深層、體力＝隊伍生命、彩珠＝結晶、綠幣＝擊殺
+// 主頁（仿彈射世界首頁）：RANK＝帳號等級、EXP＝RANK 經驗、彩珠＝結晶、綠幣＝擊殺
 // 圖示取自 eliya 收藏庫的屬性／類型小圖
 // ==========================================================
 const WF_ICON = "https://eliya-bot.herokuapp.com/img/assets/";
@@ -4743,23 +5164,23 @@ function spawnMotes() {
 // 由 updateUI 每幀呼叫，內容沒變就不碰 DOM
 function paintHome() {
     if ($("home").style.display === "none") return;
-    const teamNow = PF.members.reduce((sum, m) => sum + Math.max(0, m.ch.hp), 0);
-    const teamMax = PF.members.reduce((sum, m) => sum + hpMax(m.ch), 0);
-    const hpPct = teamMax ? Math.max(0, Math.min(100, Math.round(teamNow / teamMax * 100))) : 100;
+    // 這張卡顯示 RANK 目前這一級的經驗進度，不是角色經驗
+    const need = rankExpNeed(rankLv);
+    const expPct = Math.max(0, Math.min(100, Math.floor(rankExp / need * 100)));
     const progress = stage % BOSS_EVERY === 0
         ? 95
         : Math.min(90, (((stage - 1) % BOSS_EVERY) + floorWins / NORMAL_FLOOR_WAVES) / BOSS_EVERY * 100);
-    const sig = [stage, floorWins, deepTimeLeft, shardTotal, kills, titleOn, hpPct].join("|");
+    const sig = [stage, floorWins, deepTimeLeft, shardTotal, kills, titleOn, rankLv, Math.floor(rankExp), need].join("|");
     if (sig === homeSig) return;
     homeSig = sig;
-    $("hm-rank").textContent = stage;
+    $("hm-rank").textContent = rankLv;
     $("hm-name").textContent = titleName();
     $("hm-stage-tag").textContent = stage % BOSS_EVERY === 0 ? "BOSS 層" : `距離王關 ${BOSS_EVERY - (stage % BOSS_EVERY)} 層`;
     $("hm-wave").textContent = stage % BOSS_EVERY === 0 ? "BOSS 戰" : `第 ${floorWins + 1}/${NORMAL_FLOOR_WAVES} 波`;
     $("hm-progress").style.width = `${progress}%`;
-    $("hm-energy-pct").textContent = `${hpPct}%`;
-    $("hm-energy-bar").style.width = `${hpPct}%`;
-    $("hm-energy-card").classList.toggle("low", hpPct <= 30);
+    $("hm-energy-pct").textContent = `${expPct}%`;
+    $("hm-energy-bar").style.width = `${expPct}%`;
+    $("hm-energy-card").title = `RANK ${rankLv}：經驗 ${Math.floor(rankExp)} / ${need}`;
     $("hm-shard").textContent = shardTotal;
     $("hm-kill").textContent = kills;
 }
@@ -4798,7 +5219,7 @@ function pageChars() {
     if (pickerFor) return pagePicker(pickerFor);
     if (growthFor) return renderGrowthPage();
     let h = `<div class="pg-sec">角色</div>
-        <div class="pg-empty" style="padding:0 2px 10px;text-align:left">3★ 全員 ${OPEN_CHAR_IDS.length} 隻。10 片解鎖角色；解鎖後仍會掉碎片，可用於突破。按「培養」查看升級、突破與天賦。</div>`;
+        <div class="pg-empty" style="padding:0 2px 10px;text-align:left">3★ 全員 ${OPEN_CHAR_IDS.length} 隻。10 片解鎖角色；解鎖後仍會掉碎片，可用於上限解放。按「培養」查看升級、上限解放與天賦。</div>`;
     OPEN_EL.forEach(elKey => {
         const ids = CHAR_IDS.filter(id => CHAR_TABLE[id].element === elKey);
         const got = ids.filter(id => roster[id].unlocked).length;
@@ -4832,7 +5253,7 @@ function charRow(id) {
                 <div class="nm">${d.name}<span class="tag2" style="background:${EL_COLOR[d.element]}">${ELEMENTS[d.element].label}</span>
                     <span class="tag2 r${d.rarity}">${d.rarity}★</span><span class="tag2" style="background:#3a4a6b">${TYPE_INFO[d.type].n}</span>
                     ${teamIds.indexOf(id) >= 0 ? '<span class="tag2" style="background:#2b8ad0">場上</span>' : ""}</div>
-                <div class="sub">${d.title}｜Lv.${ch.lvl}/${growthCap(ch)}｜突破 ${ch.breakthrough || 0} 次｜碎片 ${ch.shards}</div>
+                <div class="sub">${d.title}｜Lv.${ch.lvl}/${growthCap(ch)}｜上限解放 ${breakthroughStage(ch)}/${GROWTH_BREAK_RANKS.length}｜碎片 ${ch.shards}</div>
                 <div class="st">攻擊 <b>${atkOf(ch)}</b>｜生命 <b>${hpMax(ch)}</b>｜技能 <b>${SKILLS[id].name}</b></div>
                 <div class="st" style="color:#c8a54a">👑 隊長特性：${d.lead}</div>
                 <div class="st" style="color:#8fa0c0">⏱ 技能蓄能約 ${Math.round((SKILL_CD[d.type] || 15) * SKILL_CHARGE_TIME)} 秒（撞擊會加速）｜${TYPE_INFO[d.type].d}</div>
@@ -5124,13 +5545,20 @@ function pageMenu() {
     return `<div class="pg-sec">設定</div>
         <button class="mi" onclick="toggleSfx(); renderPage()"><span class="k">🔊 8-bit 音效</span>
             <span class="v${SFX.enabled ? "" : " off"}">${SFX.enabled ? "開" : "關"}</span></button>
-        <div class="pg-sec">戰績</div>
-        <div class="pgc"><div class="st">無限波利塔 <b>${stage}</b>｜擊殺 <b>${kills}</b>｜總傷害 <b>${fmt(dmgTotal)}</b></div>
-            <div class="sub" style="margin-top:5px">持有結晶 <b>${shardTotal}</b>｜武器 <b>${Object.keys(shieldBag).length}</b> 把｜佩戴頭銜 <b>${titleName()}</b></div></div>
         <div class="pg-sec">移動</div>
         <button class="mi" onclick="homeTabOn='team'; renderTabs(); enterBattle()"><span class="k">⚔️ 回到彈珠台</span><span class="v">繼續戰鬥 ›</span></button>
         <button class="mi" onclick="resetSave()"><span class="k">🗑️ 重置當地存檔</span><span class="v off">重新開始</span></button>
-        <div class="pg-empty">彈珠勇者・直式彈珠台<br>裝備圖取自彈射世界收藏庫</div>`;
+        <div class="pg-sec">戰績</div>
+        <div class="pgc"><div class="st">無限波利塔 <b>${stage}</b>｜擊殺 <b>${kills}</b>｜總傷害 <b>${fmt(dmgTotal)}</b></div>
+            <div class="sub" style="margin-top:5px">持有結晶 <b>${shardTotal}</b>｜武器 <b>${Object.keys(shieldBag).length}</b> 把｜佩戴頭銜 <b>${titleName()}</b></div></div>
+        <div class="pg-empty">彈珠勇者・直式彈珠台<br>裝備圖取自彈射世界收藏庫</div>
+        <div class="pg-sec">授權</div>
+        <div class="pg-credit">
+            <b>美術素材</b> © Cygames, Inc. / Citail — World Flipper 公開素材，僅供學習交流用途<br>
+            <b>煙霧特效</b> BDragon1727（Free Smoke Fx Pixel 2）<br>
+            <b>打擊／衝刺特效</b> IceMaan（FREE PIXEL VFX ESSENTIALS）<br>
+            <b>點陣傷害數字</b> Riclmbr（CC0）
+        </div>`;
 }
 
 // ===== 輸入 =====
@@ -5180,8 +5608,12 @@ PF.cut = $("pf-cut");
 PF.bgEl = document.querySelector(".pf-bg");
 PF.turfEl = $("pf-turf");
 
+// 中央 FEVER 字改用傷害點陣字，開場先畫好，之後只切換亮暗
+setPixelNum($("pf-fever"), "FEVER", "gold", 1.5, true);
+
 // 技能特效圖先抓好，第一次放招才不會空一格
 FX_ART_TYPES.forEach(n => { const im = new Image(); im.src = "asset/fx/" + n + ".webp"; });
+Object.values(SMOKE_SHEETS).forEach(s => { const im = new Image(); im.src = "asset/fx/smoke/" + s.file; });
 
 buildField();
 bindInput();
@@ -5231,8 +5663,5 @@ PF.last = performance.now();
 requestAnimationFrame(pfLoop);
 battleTimer = setInterval(battleTick, 200);
 </script>
-<div style="position:fixed;bottom:0;left:0;right:0;text-align:center;font-size:9px;color:rgba(120,140,180,.5);padding:1px 0;pointer-events:none;z-index:9999;background:rgba(5,7,12,.6)">
-美術素材 © Cygames, Inc. / Citail — World Flipper 公開素材，僅供學習交流用途
-</div>
 </body>
 </html>

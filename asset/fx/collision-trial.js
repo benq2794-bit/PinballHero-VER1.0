@@ -90,8 +90,6 @@ function triggerAirDash() {
         if (b.vy <= 100 && speed >= 450 && alignment >= .55) continue;
         b.vx = dx / distance * 1050; b.vy = dy / distance * 1050;
         b.dashActiveMs = 150;
-        b.ball.classList.add('air-dashing');
-        FX.sparks(b.x, b.y, '#bdeaff', 5);
         used = true;
     }
     if (used) { COLLISION_TRIAL.dashLeft = COLLISION_TRIAL.dashCooldown; SFX.launch(); }
@@ -105,7 +103,6 @@ function updateCollisionTrial(dtMs) {
         if (!b) continue;
         b.exitLockMs = Math.max(0, (b.exitLockMs || 0) - dtMs);
         b.dashActiveMs = Math.max(0, (b.dashActiveMs || 0) - dtMs);
-        if (!b.dashActiveMs) b.ball.classList.remove('air-dashing');
     }
     triggerAirDash();
 }

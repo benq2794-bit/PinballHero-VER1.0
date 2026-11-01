@@ -1,0 +1,14 @@
+Pixel Floating Text & Damage Numbers — Free Pack
+作者：Riclmbr
+來源：https://riclmbr.itch.io/pixel-floating-text-damage-numbers-free-pack
+授權：CC0 1.0（可個人／商用、可修改、不用署名；這裡仍列在頁尾致謝）
+
+取用其中 Big 版字表（368×75、字身 24px），檔名改成顏色語意：
+  damage.png   Damage_Big.png    白／銀，玩家受傷
+  critical.png Critical_Big.png  橘紅，暴擊
+  heal.png     Heal_Big.png      綠，治療
+  burn.png     Burn_Big.png      橙，灼燒
+  mana.png     Mana_Big.png      藍，遲緩／能量
+  poison.png   Poison_Big.png    紫，麻痺
+  gold.png     Gold_Big.png      金，一般傷害
+八種字表的格位完全相同，所以 asset/fx/pixel-text.js 只內嵌一份 metrics。

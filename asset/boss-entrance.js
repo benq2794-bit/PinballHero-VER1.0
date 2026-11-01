@@ -1,12 +1,50 @@
+// BOSS 登場三幕：預兆（法陣、粒子、震場）→ 本體砸地（煙塵、霸體光）→ 血條充能＋稱號橫幅
 const BOSS_ENTRANCE = { seq: -1, pending: false, elapsed: 0, duration: 2000, data: null };
+
+// 稱號按屬性給：BOSS 名字本身已經帶「・」副名，橫幅再補一層身分
+const BOSS_TITLES = {
+    fire: '炎災之孽', water: '深雪之華', wind: '裂空之嵐',
+    thunder: '天罰之雷', light: '聖詠之座', dark: '蝕夜之影'
+};
+
 function bossAppearanceName() {
     const names = { 'angeling.png': '天使波利', 'ghostring.png': '幽靈波利', 'deviling.png': '惡魔波利' };
     const file = (enemy.battleSkinUrl || '').split('/').pop();
     return names[file] || enemy.name;
 }
+
+// 異界迴廊的王比較大尾，節奏再放慢一格
+function bossEntranceTiming(gate) {
+    return gate ? { omen: 820, reveal: 980, engage: 1040 } : { omen: 700, reveal: 880, engage: 960 };
+}
+
+// 充能期間 HUD 顯示的值：入場流程自己灌，其餘時間回傳 null（照真實血量）
+function bossEntranceHp() {
+    const data = BOSS_ENTRANCE.data;
+    if (!data || BOSS_ENTRANCE.seq !== PF.foeSeq) return null;
+    return data.hpShown;
+}
+
+// 頭上那條小王血也要跟著充能；render() 每幀都會重寫，所以由這裡統一發號
+function bossEntranceHpRatio() {
+    const data = BOSS_ENTRANCE.data;
+    if (!data || BOSS_ENTRANCE.seq !== PF.foeSeq) return null;
+    return data.hpShown / data.maxHp;
+}
+
+function bossEntranceFreezesBattle() {
+    return !!(BOSS_ENTRANCE.data && BOSS_ENTRANCE.seq === PF.foeSeq && enemy.boss && enemy.hp > 0);
+}
+
+function paintBossEntranceHp(data) {
+    const bar = $('enemy-hp-bar'), txt = $('enemy-hp-txt');
+    if (bar) bar.style.width = clampPct(data.hpShown / data.maxHp);
+    if (txt) txt.textContent = `${data.hpShown}/${data.maxHp}`;
+}
+
 function hideBossEntrance() {
     const data = BOSS_ENTRANCE.data;
-    if (data && data.gate && data.freezeAt !== null && BOSS_ENTRANCE.seq === PF.foeSeq) {
+    if (data && data.freezeAt !== null && BOSS_ENTRANCE.seq === PF.foeSeq) {
         const stopped = Math.max(0, performance.now() - data.freezeAt);
         // Absolute clocks must also resume from where the entrance stopped them.
         for (const key of ['nextCastAt', 'stunUntil', 'slowUntil', 'paralyzeReady', 'gustReady']) {
@@ -19,50 +57,165 @@ function hideBossEntrance() {
         if (GATE.id) GATE.t0 += stopped;
     }
     BOSS_ENTRANCE.pending = false; BOSS_ENTRANCE.data = null;
-    if (PF.el) PF.el.classList.remove('boss-entry-stop');
+    if (PF.el) {
+        PF.el.classList.remove('boss-entry-stop', 'boss-entry-omen', 'boss-entry-reveal', 'boss-entry-engage', 'boss-hp-charge', 'boss-quake');
+        PF.el.style.removeProperty('--bc');
+    }
+    const px = $('boss-omen-px');
+    if (px) px.textContent = '';
+    if (PF.foe) {
+        PF.foe.node.classList.remove('boss-gone');
+        PF.foe.ball.classList.remove('boss-drop', 'boss-superarmor');
+    }
     const panel = $('boss-entrance');
     if (panel) { panel.classList.remove('on', 'leaving', 'gate-enter'); panel.setAttribute('aria-hidden', 'true'); }
+    paintBossEntranceHp({ hpShown: Math.max(0, enemy.hp), maxHp: Math.max(1, enemy.maxHp) });
 }
-function bossEntranceFreezesBattle() {
-    return !!(BOSS_ENTRANCE.data && BOSS_ENTRANCE.data.gate && BOSS_ENTRANCE.seq === PF.foeSeq && enemy.boss && enemy.hp > 0);
-}
+
 function queueBossEntrance() {
     hideBossEntrance();
     if (!enemy.boss) return;
-    BOSS_ENTRANCE.seq = PF.foeSeq; BOSS_ENTRANCE.pending = true; BOSS_ENTRANCE.elapsed = 0;
     const gate = gateOn();
-    BOSS_ENTRANCE.duration = gate ? 2600 : 2000;
-    BOSS_ENTRANCE.data = { name: bossAppearanceName(), image: enemy.battleSkinUrl, gate, freezeAt: gate ? performance.now() : null,
-        floor: gate ? gateOf().gate : `無限波利塔 · 第 ${stage} 層`, element: enemy.element };
-    if (gate) {
-        if (PF.el) PF.el.classList.add('boss-entry-stop');
-        const panel = $('boss-entrance'); if (panel) panel.classList.add('gate-enter');
+    const timing = bossEntranceTiming(gate);
+    const element = ELEMENTS[enemy.element] || ELEMENTS.fire;
+    BOSS_ENTRANCE.seq = PF.foeSeq;
+    BOSS_ENTRANCE.pending = true;
+    BOSS_ENTRANCE.elapsed = 0;
+    BOSS_ENTRANCE.duration = timing.omen + timing.reveal + timing.engage;
+    BOSS_ENTRANCE.data = {
+        name: bossAppearanceName(), title: BOSS_TITLES[enemy.element] || '未知之影',
+        image: enemy.battleSkinUrl, alpha: !!enemy.battleSkinAlpha, gate, element: enemy.element, color: element.color,
+        floor: gate ? gateOf().gate : `無限波利塔 · 第 ${stage} 層`,
+        timing, phase: 0, hpShown: 0, hpMarks: 0, maxHp: Math.max(1, enemy.maxHp),
+        freezeAt: performance.now()
+    };
+    if (PF.el) {
+        PF.el.style.setProperty('--bc', element.color);
+        PF.el.classList.add('boss-entry-stop');
     }
 }
+
+// 粒子從外圈往法陣中心收束；角度平均分佈再加一點抖動，才不會像節拍器
+function spawnBossParticles() {
+    const layer = $('boss-omen-px');
+    if (!layer) return;
+    layer.textContent = '';
+    const count = 20;
+    for (let i = 0; i < count; i++) {
+        const p = document.createElement('i');
+        p.className = 'boss-px';
+        p.style.setProperty('--a', ((i / count) * 360 + Math.random() * 14).toFixed(1) + 'deg');
+        p.style.setProperty('--d', (150 + Math.random() * 110).toFixed(0) + 'px');
+        p.style.setProperty('--dl', (Math.random() * 0.22).toFixed(2) + 's');
+        p.style.width = p.style.height = (3 + Math.round(Math.random() * 4)) + 'px';
+        layer.appendChild(p);
+    }
+}
+
+function openBossEntrance(data) {
+    const panel = $('boss-entrance');
+    if (!panel) return;
+    $('boss-entrance-floor').textContent = data.floor;
+    // 跟技能插播同一種排版：上面一行小字是事件＋稱號，下面才是王名
+    $('boss-entrance-title').textContent = '⚠ BOSS 登場　' + data.title;
+    $('boss-entrance-name').textContent = data.name;
+    const element = ELEMENTS[data.element] || ELEMENTS.fire;
+    const badge = $('boss-entrance-element');
+    badge.textContent = element.label;
+    badge.style.background = element.color;
+    badge.style.boxShadow = `0 0 12px ${element.color}`;
+    const image = $('boss-entrance-image');
+    image.hidden = !data.image; image.alt = data.name;
+    // 細筆畫大圖不要用像素放大（test 用的假 DOM 沒有 toggle，這裡用 add/remove）
+    if (data.alpha) image.classList.add('alpha-art'); else image.classList.remove('alpha-art');
+    image.onerror = () => { image.hidden = true; };
+    if (data.image) image.src = data.image;
+    panel.classList.toggle('gate-enter', data.gate);
+    panel.classList.remove('on', 'leaving');
+    panel.setAttribute('aria-hidden', 'true');
+
+    // 第一幕：王先藏起來，場地先變色
+    if (PF.foe) PF.foe.node.classList.add('boss-gone');
+    if (PF.el) PF.el.classList.add('boss-entry-omen');
+    spawnBossParticles();
+    paintBossEntranceHp(data);
+    SFX.tone(92, 48, .55, 'sine', .18, 0, .03);
+    SFX.noise(.5, .06, 900, 220, 0, { mode: 'band' });
+}
+
+function beginBossReveal(data) {
+    if (PF.el) {
+        PF.el.classList.remove('boss-entry-omen');
+        PF.el.classList.add('boss-entry-reveal', 'boss-quake');
+        setTimeout(() => { if (PF.el) PF.el.classList.remove('boss-quake'); }, 620);
+    }
+    if (PF.foe) {
+        PF.foe.node.classList.remove('boss-gone');
+        PF.foe.ball.classList.add('boss-drop', 'boss-superarmor');
+    }
+    const b = PF.foe;
+    if (b) {
+        FX.smoke('puff', b.x, b.y + b.r * .7, data.element, 260);
+        FX.smoke('ring', b.x, b.y + b.r * .4, data.element, 200);
+        FX.sparks(b.x, b.y + b.r * .5, data.color, 18);
+    }
+    FX.flash(data.color);
+    SFX.tone(70, 30, .5, 'sine', .3, 0, .002);
+    SFX.tone(150, 52, .3, 'square', .12, 0, .002);
+    SFX.noise(.4, .12, 2200, 260, 0, { mode: 'band' });
+}
+
+function beginBossEngage(data) {
+    if (PF.el) {
+        PF.el.classList.remove('boss-entry-reveal');
+        PF.el.classList.add('boss-entry-engage', 'boss-hp-charge');
+    }
+    const panel = $('boss-entrance');
+    if (panel) {
+        panel.classList.remove('leaving');
+        void panel.offsetWidth;
+        panel.classList.add('on');
+        panel.setAttribute('aria-hidden', 'false');
+    }
+    data.hpShown = 0; data.hpMarks = 0;
+    paintBossEntranceHp(data);
+    SFX.tone(320, 640, .18, 'triangle', .12, 0, .004);
+    SFX.tone(640, 960, .16, 'square', .05, .1, .004);
+}
+
 function updateBossEntrance(dtMs) {
     const data = BOSS_ENTRANCE.data;
     if (!data) return;
     if (BOSS_ENTRANCE.seq !== PF.foeSeq || !enemy.boss || enemy.hp <= 0) { hideBossEntrance(); return; }
     const frame = $('pf-frame');
-    if (PF.paused || !PF.ready || !PF.running || (frame && frame.style.display === 'none')) return;
-    const panel = $('boss-entrance');
-    if (!panel) return;
+    // 門戰不經 showScreen，inline display 一直是 none（靠 CSS !important 顯示），
+    // 所以用實際版面判斷戰場有沒有在畫面上，不能只看 inline style
+    if (PF.paused || !PF.ready || !PF.running || (frame && !frame.offsetWidth)) return;
+
     if (BOSS_ENTRANCE.pending) {
-        $('boss-entrance-floor').textContent = data.floor;
-        $('boss-entrance-name').textContent = data.name;
-        const element = ELEMENTS[data.element];
-        const badge = $('boss-entrance-element'); badge.textContent = element.label + '屬性'; badge.style.color = element.color;
-        const image = $('boss-entrance-image');
-        image.hidden = !data.image; image.alt = data.name;
-        image.onerror = () => { image.hidden = true; };
-        if (data.image) image.src = data.image;
-        panel.classList.remove('leaving'); void panel.offsetWidth;
-        panel.classList.add('on'); panel.setAttribute('aria-hidden', 'false');
         BOSS_ENTRANCE.pending = false;
-        SFX.tone(130, 70, .18, 'sine', .12, 0, .002);
-        SFX.tone(390, 260, .12, 'triangle', .05, .06, .002);
+        openBossEntrance(data);
     }
+
     BOSS_ENTRANCE.elapsed += dtMs;
-    if (BOSS_ENTRANCE.elapsed >= BOSS_ENTRANCE.duration) hideBossEntrance();
-    else if (BOSS_ENTRANCE.elapsed >= BOSS_ENTRANCE.duration - (data.gate ? 420 : 260)) panel.classList.add('leaving');
+    const t = BOSS_ENTRANCE.elapsed, tm = data.timing;
+    if (data.phase === 0 && t >= tm.omen) { data.phase = 1; beginBossReveal(data); }
+    if (data.phase === 1 && t >= tm.omen + tm.reveal) { data.phase = 2; beginBossEngage(data); }
+    if (data.phase === 2) {
+        const k = Math.max(0, Math.min(1, (t - tm.omen - tm.reveal) / tm.engage));
+        const eased = 1 - Math.pow(1 - k, 3);
+        data.hpShown = Math.round(data.maxHp * eased);
+        paintBossEntranceHp(data);
+        // 充能到三分之一就補一顆音，聽起來像儀錶在跳
+        const mark = (data.hpMarks + 1) / 3;
+        if (data.hpMarks < 3 && eased >= mark) {
+            data.hpMarks++;
+            SFX.tone(520 + data.hpMarks * 150, 700 + data.hpMarks * 160, .09, 'square', .07, 0, .002);
+        }
+        if (k > .78) {
+            const panel = $('boss-entrance');
+            if (panel) panel.classList.add('leaving');
+        }
+    }
+    if (t >= BOSS_ENTRANCE.duration) hideBossEntrance();
 }

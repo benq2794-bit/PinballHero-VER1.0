@@ -1,0 +1,233 @@
+/* 奶油黃像素按鈕皮：參考 pixta 111655740
+   面＝奶油黃漸層、邊＝深酒紅、上緣高光、下緣陰影、外圈淡色光暈、底部實心投影 */
+:root {
+    --pb-hi: #fff4b6;
+    --pb-top: #fbe27f;
+    --pb-face: #f6d15b;
+    --pb-low: #e9b846;
+    --pb-foot: #d99b36;
+    --pb-edge: #5b2438;
+    --pb-halo: #fff7c9;
+    --pb-ink: #572439;
+    --pb-base: #34121e;
+    --pb-mute-1: #efe5c6;
+    --pb-mute-2: #d3c4a2;
+    --pb-mute-edge: #6c5a50;
+    --pb-mute-ink: #8a7768;
+}
+
+/* base */
+.mini-btn,
+.pg .mini-btn,
+.pg .mini-btn.gold,
+.pg .mini-btn.gray,
+.pg-head .bk,
+.pg-head .tm-go,
+.pp-box button,
+.pp-box button.pp-go,
+.dex-tab button,
+.pg .dex-tab button,
+.pg .dex-tab button.on,
+.dex-bar .clr,
+.bsg .go,
+.slot .out,
+.pt-start,
+.gate-top .gx,
+.pg .mi,
+.gate-challenge,
+.pg .gate-challenge,
+.tower-tree-header .tt-reset,
+.tower-tree-detail .mini-btn,
+.tower-tree-detail .mini-btn.gold,
+.pf-hud .hud-sq {
+    border: 2px solid var(--pb-edge) !important;
+    border-radius: 8px;
+    background: linear-gradient(180deg, var(--pb-hi) 0%, var(--pb-top) 24%, var(--pb-face) 56%, var(--pb-low) 80%, var(--pb-foot) 100%) !important;
+    color: var(--pb-ink) !important;
+    font-weight: 800;
+    letter-spacing: .5px;
+    text-shadow: 0 1px 0 rgba(255, 249, 214, .85);
+    box-shadow:
+        inset 0 2px 0 rgba(255, 250, 220, .95),
+        inset 0 -3px 0 rgba(146, 80, 24, .32),
+        0 0 0 2px var(--pb-halo),
+        0 4px 0 var(--pb-base),
+        2px 6px 0 rgba(6, 2, 8, .4) !important;
+}
+
+/* 主頁右側快捷：貼齊畫面邊緣，只留左側圓角 */
+.hm-side > div {
+    border: 2px solid var(--pb-edge);
+    border-right: 0;
+    border-radius: 9px 0 0 9px;
+    background: linear-gradient(180deg, var(--pb-hi) 0%, var(--pb-top) 24%, var(--pb-face) 56%, var(--pb-low) 80%, var(--pb-foot) 100%);
+    color: var(--pb-ink);
+    font-weight: 800;
+    letter-spacing: .5px;
+    text-shadow: 0 1px 0 rgba(255, 249, 214, .85);
+    box-shadow: inset 0 2px 0 rgba(255, 250, 220, .95), inset 0 -3px 0 rgba(146, 80, 24, .32),
+        0 4px 0 var(--pb-base), 2px 6px 0 rgba(6, 2, 8, .4);
+}
+
+/* 底部導覽晶片 */
+.hm-tabs .tb .ic {
+    border: 2px solid var(--pb-edge);
+    border-radius: 7px;
+    background: linear-gradient(180deg, var(--pb-hi) 0%, var(--pb-top) 24%, var(--pb-face) 58%, var(--pb-low) 100%);
+    color: var(--pb-ink);
+    box-shadow: inset 0 2px 0 rgba(255, 250, 220, .9), 0 0 0 2px var(--pb-halo), 0 3px 0 var(--pb-base);
+}
+.hm-tabs .tb.on .ic {
+    border-color: var(--pb-edge);
+    background: linear-gradient(180deg, #f7d977 0%, #f0cb57 40%, #e2a63c 100%);
+    color: var(--pb-ink);
+    transform: translateY(3px);
+    box-shadow:
+        inset 0 3px 0 rgba(255, 250, 214, .65),
+        inset 0 -2px 0 rgba(146, 80, 24, .35),
+        0 0 0 2px var(--pb-halo),
+        0 1px 0 var(--pb-base);
+}
+.hm-tabs .tb.on { color: #ffdf8a; }
+
+/* hover：整體提亮，不改立體感 */
+.mini-btn:hover,
+.pg .mini-btn:hover,
+.pg-head .bk:hover,
+.pg-head .tm-go:hover,
+.pp-box button:hover,
+.dex-tab button:hover,
+.pg .dex-tab button:hover,
+.dex-bar .clr:hover,
+.bsg .go:hover,
+.slot .out:hover,
+.pt-start:hover,
+.gate-top .gx:hover,
+.pg .mi:hover,
+.pg .gate-challenge:hover,
+.tower-tree-header .tt-reset:hover,
+.tower-tree-detail .mini-btn:hover,
+.pf-hud .hud-sq:hover,
+.hm-side > div:hover {
+    filter: brightness(1.06) saturate(1.05);
+    background: linear-gradient(180deg, #fff9cf 0%, #ffe89a 26%, #f8d866 58%, #f0c04b 100%) !important;
+}
+
+/* active：壓下去，厚度收回來 */
+.mini-btn:active,
+.pg .mini-btn:active,
+.pg-head .bk:active,
+.pg-head .tm-go:active,
+.pp-box button:active,
+.dex-tab button:active,
+.dex-bar .clr:active,
+.bsg .go:active,
+.slot .out:active,
+.pt-start:active,
+.gate-top .gx:active,
+.pg .mi:active,
+.pg .gate-challenge:active,
+.tower-tree-header .tt-reset:active,
+.tower-tree-detail .mini-btn:active,
+.pf-hud .hud-sq:active,
+.hm-side > div:active {
+    transform: translateY(3px);
+    box-shadow:
+        inset 0 2px 0 rgba(255, 250, 220, .8),
+        inset 0 -1px 0 rgba(146, 80, 24, .3),
+        0 0 0 2px var(--pb-halo),
+        0 1px 0 var(--pb-base) !important;
+    filter: brightness(.98);
+}
+
+/* 主頁底部三大鈕：造型照奶油皮，保留原本的斜切／圓形輪廓 */
+.hm-nav .wing {
+    border: 3px solid var(--pb-edge);
+    border-bottom: 0;
+    background: linear-gradient(180deg, var(--pb-hi) 0%, var(--pb-top) 26%, var(--pb-face) 60%, var(--pb-low) 100%);
+    color: var(--pb-ink);
+    box-shadow:
+        inset 0 2px 0 rgba(255, 250, 220, .9),
+        inset 0 -5px 0 rgba(146, 80, 24, .25),
+        0 5px 0 var(--pb-base);
+}
+.hm-nav .wing .w2 { color: var(--pb-ink); text-shadow: 0 1px 0 rgba(255, 249, 214, .8); }
+.hm-nav .wing .w1 { filter: none; }
+.hm-go {
+    border: 4px solid var(--pb-edge);
+    background: radial-gradient(circle at 38% 30%, #fff6c2 0%, #f8da76 42%, #f2c74f 68%, #dfa63c 100%);
+    color: var(--pb-ink);
+    box-shadow:
+        inset 0 4px 0 rgba(255, 252, 230, .9),
+        inset 0 -6px 0 rgba(146, 80, 24, .3),
+        0 0 0 4px var(--pb-halo),
+        0 7px 0 var(--pb-base);
+}
+.hm-go .g1, .hm-go .g2 { color: var(--pb-ink); text-shadow: 0 1px 0 rgba(255, 249, 214, .8); }
+
+/* 選取中的分頁：看起來是按住狀態 */
+.pg .dex-tab button.on {
+    background: linear-gradient(180deg, #fbe58c 0%, #f3cd55 40%, #e2a63c 100%) !important;
+    box-shadow: inset 0 3px 0 rgba(255, 248, 210, .7), inset 0 -2px 0 rgba(146, 80, 24, .3),
+        0 0 0 2px var(--pb-halo), 0 1px 0 var(--pb-base) !important;
+}
+
+/* disabled：去色奶油，保留同一個形狀 */
+.mini-btn[disabled],
+.mini-btn:disabled,
+.pg .mini-btn[disabled],
+.pg .mini-btn:disabled,
+.pg .mini-btn.gold:disabled,
+.tower-tree-detail .mini-btn:disabled,
+.tower-tree-detail .mini-btn.gold:disabled,
+.pgc .mini-btn:disabled,
+.tower-tree-header .tt-reset:disabled,
+.pg-head .tm-go:disabled,
+.pp-box button:disabled,
+.dex-tab button:disabled,
+.bsg .go:disabled,
+.gate-challenge:disabled {
+    background: linear-gradient(180deg, var(--pb-mute-1) 0%, #e2d8bb 55%, var(--pb-mute-2) 100%) !important;
+    border-color: var(--pb-mute-edge) !important;
+    color: var(--pb-mute-ink) !important;
+    text-shadow: none;
+    cursor: not-allowed;
+    opacity: 1;
+    filter: none;
+    box-shadow:
+        inset 0 2px 0 #fbf6e6,
+        inset 0 -2px 0 rgba(108, 90, 80, .2),
+        0 0 0 2px #efe7cd,
+        0 3px 0 #43332b !important;
+}
+.mini-btn[disabled]:active,
+.pg .mini-btn[disabled]:active,
+.tower-tree-detail .mini-btn:disabled:active {
+    transform: none;
+    box-shadow:
+        inset 0 2px 0 #fbf6e6,
+        0 0 0 2px #efe7cd,
+        0 3px 0 #43332b !important;
+}
+
+/* 雙修節點的「已解鎖」提示文字，在奶油底上改深酒紅 */
+.pg .mi .v { color: #8a3c26; }
+.pg .mi .v.off { color: #8a6b5b; }
+
+/* 天賦頁重配鈕的小字與禁用色 */
+.tower-tree-header .tt-reset small { color: #673043; }
+.tower-tree-header .tt-reset:disabled small { color: #8a7768; }
+
+/* 暫停選單的重置存檔：維持危險色，只換成同一套立體造型 */
+.pp-box #pp-reset {
+    background: linear-gradient(180deg, #ffb1a0 0%, #ef6a58 45%, #cf4141 100%) !important;
+    border-color: #5c1a22 !important;
+    color: #fff8ea !important;
+    text-shadow: 0 1px 0 rgba(90, 20, 24, .5);
+    box-shadow:
+        inset 0 2px 0 rgba(255, 226, 214, .9),
+        inset 0 -3px 0 rgba(110, 20, 24, .35),
+        0 0 0 2px #ffd9cc,
+        0 4px 0 #3a0d14,
+        2px 6px 0 rgba(6, 2, 8, .4) !important;
+}

@@ -15,9 +15,15 @@ for (let i = 0; i < 3; i++) { ctx.spawnEnemy(); towerIds.push(ctx.enemy.id); ass
 assert.equal(new Set(towerIds).size, 3);
 for (const id of ['fire', 'water', 'wind', 'thunder']) {
     gateId = id; ctx.spawnEnemy(); assert.equal(ctx.enemy.id, ctx.gates.find(g => g.id === id).boss);
-    assert.equal(ctx.enemy.battleSkinUrl, `asset/battle/gate-boss/${id}.gif`);
+    // 四道門都換成 RO 圖庫的動畫 webp（整張帶 alpha），體型再依圖幅各自校正
+    const skin = `asset/battle/gate-boss/${id === 'fire' ? 'nidhogg' : id}.webp`;
+    assert.equal(ctx.enemy.battleSkinUrl, skin);
+    assert.equal(ctx.enemy.battleSkinAlpha, true);
+    assert.ok(ctx.enemy.battleSkinFace < 0 && ctx.enemy.battleSkinLift > 0);
     assert.ok(!towerIds.includes(ctx.enemy.id));
-    const file = fs.readFileSync(path.join(root, ctx.enemy.battleSkinUrl)); assert.ok(file.subarray(0, 6).toString().startsWith('GIF8'));
+    const file = fs.readFileSync(path.join(root, ctx.enemy.battleSkinUrl));
+    assert.equal(file.subarray(0, 4).toString(), 'RIFF');
+    assert.equal(file.subarray(8, 12).toString(), 'WEBP');
     assert.ok(fs.existsSync(path.join(root, `asset/battle/bg/gate_${id}.webp`)));
 }
 gateId = null; ctx.spawnEnemy(); assert.equal(ctx.enemy.id, towerIds[0], 'gates never consume tower rotation');
@@ -25,11 +31,13 @@ ctx.stage = 11; ctx.spawnEnemy(); assert.equal(ctx.enemy.id, 'ordinary'); assert
 const browserSource = fs.readFileSync(path.join(root, 'asset/gate-browser.js'), 'utf8');
 vm.runInContext(browserSource, ctx);
 let view = ctx.renderGateBrowser();
-assert.ok(view.includes('asset/battle/bg/gate_fire.webp') && view.includes('asset/battle/gate-boss/fire.gif'));
+assert.ok(view.includes('asset/battle/bg/gate_fire.webp') && view.includes('asset/battle/gate-boss/nidhogg.webp'));
 assert.ok(view.includes('再戰獎勵') && view.includes('首勝已領取') && view.includes('再次挑戰'));
 assert.ok(!view.includes('/ro/'), 'gate browser never uses tower artwork');
 ctx.selectGateDisplay('water'); view = ctx.renderGateBrowser();
 assert.ok(view.includes("enterBossGate('water')") && view.includes('首勝獎勵'));
+assert.ok(view.includes('asset/battle/gate-boss/water.webp'), 'each gate browser card uses its own RO art');
+assert.ok(!view.includes('.gif'), 'no pixel-GIF boss art remains');
 ctx.selectGateDisplay('thunder'); ctx.shiftGateDisplay(1); assert.ok(ctx.renderGateBrowser().includes('04 / 04'));
 ctx.selectGateDisplay('fire'); ctx.shiftGateDisplay(-1); assert.ok(ctx.renderGateBrowser().includes('01 / 04'));
 const before = renders; ctx.selectGateDisplay('invalid'); assert.equal(renders, before);

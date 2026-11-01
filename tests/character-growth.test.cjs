@@ -4,6 +4,7 @@ const src = fs.readFileSync(path.join(root, 'asset/character-growth.js'), 'utf8'
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const noop = () => {};
 const ctx = { bossEntranceFreezesBattle: () => false, roster: {}, shardTotal: 1000, hmToast: noop, log: noop, charName: id => id,
+    rankLv: 100,
     $: () => null, renderPage: noop, updateUI: noop, saveGame: noop, atkOf: ch => ch.baseAtk,
     hpMax: ch => Math.round(ch.maxHp * (1 + .04 * (ch.talents?.survival || 0))),
     CHAR_TABLE: { hero: { name: '測試角色' } }, homeTabOn: 'chars', pickerFor: null };
@@ -17,25 +18,42 @@ function make(overrides = {}) {
 {
     const ch = make(); ctx.roster.hero = ch;
     assert.equal(ctx.gainGrowthExp(ch, 100), 1); assert.equal(ch.lvl, 2); assert.equal(ch.baseAtk, 15); assert.equal(ch.maxHp, 170);
-    ctx.gainGrowthExp(ch, 1e8); assert.equal(ch.lvl, 30); assert.equal(ch.exp, ch.nextExp);
+    ctx.gainGrowthExp(ch, 1e8); assert.equal(ch.lvl, 80); assert.equal(ch.exp, ch.nextExp);
     assert.equal(ctx.gainGrowthExp(ch, 1000), 0);
-    ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 30, 'cannot buy without fragments');
-    ch.shards = 10; ctx.breakthroughChar('hero');
-    assert.equal(ch.shards, 0); assert.equal(ctx.growthCap(ch), 40); assert.equal(ch.lvl, 31, 'banked XP used after breakthrough');
+    ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 80, 'cannot buy without fragments');
+    ch.shards = 20; ctx.breakthroughChar('hero');
+    assert.equal(ch.shards, 0); assert.equal(ctx.growthCap(ch), 85); assert.equal(ch.lvl, 81, 'banked XP used after breakthrough');
     ch.shards = 1000;
     while (ctx.growthCap(ch) < 100) ctx.breakthroughChar('hero');
     ctx.gainGrowthExp(ch, 1e10); assert.equal(ch.lvl, 100);
     const shards = ch.shards; ctx.breakthroughChar('hero'); assert.equal(ch.shards, shards, 'no spending past max');
 }
 {
+    const ch = make({ shards: 1000 }); ctx.roster.hero = ch;
+    ctx.rankLv = 39; ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 80, 'RANK 39 cannot open the first stage');
+    ctx.rankLv = 40; ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 85); assert.equal(ch.shards, 980);
+    ctx.rankLv = 59; ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 85, 'second stage needs RANK 60');
+    ctx.rankLv = 60; ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 90); assert.equal(ch.shards, 950);
+    ctx.rankLv = 79; ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 90, 'third stage needs RANK 80');
+    ctx.rankLv = 100; ctx.breakthroughChar('hero'); ctx.breakthroughChar('hero');
+    assert.equal(ctx.growthCap(ch), 100); assert.equal(ch.shards, 860, 'costs are 20/30/40/50');
+    ctx.rankLv = 100;
+}
+{
     const old = make({ lvl: 57, baseAtk: 180, maxHp: 1270, nextExp: 10000, exp: 5000, growthVersion: undefined });
     ctx.normalizeCharacterGrowth(old);
-    assert.equal(old.lvl, 57); assert.equal(old.baseAtk, 180); assert.equal(old.maxHp, 1270); assert.equal(ctx.growthCap(old), 60);
+    assert.equal(old.lvl, 57); assert.equal(old.baseAtk, 180); assert.equal(old.maxHp, 1270); assert.equal(ctx.growthCap(old), 80);
     assert.equal(old.exp, Math.floor(ctx.growthExpNeed(57) / 2));
     const saved = JSON.parse(JSON.stringify(old)); ctx.normalizeCharacterGrowth(saved);
-    assert.equal(saved.exp, old.exp, 'migration is idempotent on reload'); assert.equal(saved.legacyCap, 60);
+    assert.equal(saved.exp, old.exp, 'migration is idempotent on reload'); assert.equal(saved.legacyCap, 80);
     const veryOld = make({ lvl: 140, growthVersion: undefined }); ctx.normalizeCharacterGrowth(veryOld);
     ctx.gainGrowthExp(veryOld, 1e9); assert.equal(veryOld.lvl, 140, 'existing above-100 levels preserved');
+    const v1low = make({ lvl: 70, growthVersion: 1, legacyCap: 30, breakthrough: 4 }); ctx.normalizeCharacterGrowth(v1low);
+    assert.equal(ctx.growthCap(v1low), 80); assert.equal(v1low.breakthrough, 0, 'old caps below 80 convert to zero stages');
+    const v1mid = make({ lvl: 90, growthVersion: 1, legacyCap: 30, breakthrough: 6 }); ctx.normalizeCharacterGrowth(v1mid);
+    assert.equal(ctx.growthCap(v1mid), 90); assert.equal(v1mid.breakthrough, 2, 'old cap 90 converts to two stages');
+    const v1max = make({ lvl: 100, growthVersion: 1, legacyCap: 30, breakthrough: 7 }); ctx.normalizeCharacterGrowth(v1max);
+    assert.equal(ctx.growthCap(v1max), 100); assert.equal(v1max.breakthrough, 4, 'old max converts to four stages');
 }
 {
     const ch = make(); ctx.roster.hero = ch; ctx.shardTotal = 1000;
@@ -55,7 +73,7 @@ function make(overrides = {}) {
     assert.ok(ch.hp <= 75, 'respec cannot farm healing');
     ch.hp = 1; ctx.upgradeTalent('hero', 'survival'); ctx.resetTalents('hero'); assert.equal(ch.hp, 1, 'respec cannot kill a living character');
     ch.hp = 0; ctx.upgradeTalent('hero', 'survival'); assert.equal(ch.hp, 0, 'talents do not revive a downed character');
-    ctx.setGrowthView('hero'); const view = ctx.renderGrowthPage(); assert.ok(view.includes('碎片突破') && view.includes('角色天賦'));
+    ctx.setGrowthView('hero'); const view = ctx.renderGrowthPage(); assert.ok(view.includes('上限解放') && view.includes('角色天賦'));
 }
 {
     const ch = make({ talents: { skill: 100, pf: 100, survival: 100 } });

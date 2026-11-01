@@ -6,29 +6,42 @@ const GROWTH_PATHS = {
 let growthFor = null;
 let growthViewSignature = '';
 const growthInt = (n, min, max) => Math.max(min, Math.min(max, Math.floor(Number(n) || 0)));
+const GROWTH_BASE_CAP = 80;
+const GROWTH_MAX_CAP = 100;
+const GROWTH_CAP_STEP = 5;
+// 上限解放 4 階：每階需要的最高 RANK（推過的最高樓層）與碎片
+const GROWTH_BREAK_RANKS = [40, 60, 80, 100];
+const GROWTH_BREAK_SHARDS = [20, 30, 40, 50];
 function growthExpNeed(level) { const n = Math.max(0, level - 1); return 100 + 45 * n + 15 * n * n; }
-function growthCap(ch) { return Math.max(ch.lvl > 100 ? ch.lvl : 0, Math.min(100, (ch.legacyCap || 30) + (ch.breakthrough || 0) * 10)); }
+function growthRank() { return Math.max(1, Math.floor(Number(rankLv) || 1)); }
+function breakthroughStage(ch) { return growthInt(ch && ch.breakthrough, 0, GROWTH_BREAK_RANKS.length); }
+function growthCap(ch) { return Math.max(ch.lvl > GROWTH_MAX_CAP ? ch.lvl : 0, Math.min(GROWTH_MAX_CAP, GROWTH_BASE_CAP + breakthroughStage(ch) * GROWTH_CAP_STEP)); }
 function talentRank(ch, key) { return growthInt(ch && ch.talents && ch.talents[key], 0, 8); }
 function talentBudget(ch) { return Math.min(12, 2 + Math.floor(ch.lvl / 5)); }
 function talentUsed(ch) { return Object.keys(GROWTH_PATHS).reduce((n, k) => n + talentRank(ch, k), 0); }
 function talentCost(rank) { return 20 + 15 * rank; }
 function talentRefund(ch) { return Object.keys(GROWTH_PATHS).reduce((n, k) => { const r = talentRank(ch, k); return n + r * 20 + 15 * r * (r - 1) / 2; }, 0); }
-function breakthroughCost(ch) { return 10 + (ch.breakthrough || 0) * 5; }
+function breakthroughRankNeed(ch) { return GROWTH_BREAK_RANKS[breakthroughStage(ch)]; }
+function breakthroughCost(ch) { return GROWTH_BREAK_SHARDS[breakthroughStage(ch)]; }
 
 function normalizeCharacterGrowth(ch) {
     ch.lvl = growthInt(ch.lvl, 1, 999999);
     const oldNeed = Math.max(1, Number(ch.nextExp) || 100);
     const oldExp = Math.max(0, Number(ch.exp) || 0);
-    if (ch.growthVersion !== 1) {
-        // Grandfather existing levels and preserve progress toward the next level.
-        ch.legacyCap = Math.max(30, Math.ceil(ch.lvl / 10) * 10);
-        ch.breakthrough = 0;
-        ch.exp = Math.floor(Math.min(1, oldExp / oldNeed) * growthExpNeed(ch.lvl));
-    } else {
-        ch.legacyCap = Math.max(30, growthInt(ch.legacyCap, 30, 999999), Math.ceil(Math.min(ch.lvl, 100) / 10) * 10 - growthInt(ch.breakthrough, 0, 7) * 10);
+    if (ch.growthVersion === 2) {
         ch.exp = oldExp;
+    } else {
+        const v1 = ch.growthVersion === 1;
+        // 舊制上限：v1＝30 + 突破×10；更早的版本只有等級
+        const oldCap = v1
+            ? Math.max(ch.lvl > 100 ? ch.lvl : 0, Math.min(100, growthInt(ch.legacyCap, 30, 999999) + growthInt(ch.breakthrough, 0, 7) * 10))
+            : Math.max(30, Math.ceil(Math.min(ch.lvl, 100) / 10) * 10);
+        // 換算成新制的解放階數，只升不降
+        ch.breakthrough = growthInt(Math.ceil(Math.max(0, oldCap - GROWTH_BASE_CAP) / GROWTH_CAP_STEP), 0, GROWTH_BREAK_RANKS.length);
+        ch.exp = v1 ? oldExp : Math.floor(Math.min(1, oldExp / oldNeed) * growthExpNeed(ch.lvl));
     }
-    ch.breakthrough = growthInt(ch.breakthrough, 0, Math.max(0, Math.ceil((100 - ch.legacyCap) / 10)));
+    ch.legacyCap = GROWTH_BASE_CAP;
+    ch.breakthrough = growthInt(ch.breakthrough, 0, GROWTH_BREAK_RANKS.length);
     ch.shards = growthInt(ch.shards, 0, 999999);
     ch.nextExp = growthExpNeed(ch.lvl);
     if (ch.lvl >= growthCap(ch)) ch.exp = Math.min(ch.exp, ch.nextExp);
@@ -39,7 +52,7 @@ function normalizeCharacterGrowth(ch) {
         ch.talents[key] = Math.min(remaining, growthInt(oldTalents[key], 0, 8));
         remaining -= ch.talents[key];
     }
-    ch.growthVersion = 1;
+    ch.growthVersion = 2;
 }
 
 function gainGrowthExp(ch, amount) {
@@ -70,12 +83,14 @@ function refreshGrowthAfterPurchase() {
 }
 function breakthroughChar(id) {
     const ch = roster[id];
-    if (!ch || !ch.unlocked || growthCap(ch) >= 100) return;
+    if (!ch || !ch.unlocked || growthCap(ch) >= GROWTH_MAX_CAP) return;
+    const need = breakthroughRankNeed(ch);
+    if (growthRank() < need) { hmToast(`上限解放需要 RANK ${need}，目前 RANK ${growthRank()}`); return; }
     const cost = breakthroughCost(ch);
-    if (ch.shards < cost) { hmToast(`突破需要 ${cost} 片，目前 ${ch.shards} 片`); return; }
-    ch.shards -= cost; ch.breakthrough++;
+    if (ch.shards < cost) { hmToast(`上限解放需要 ${cost} 片，目前 ${ch.shards} 片`); return; }
+    ch.shards -= cost; ch.breakthrough = breakthroughStage(ch) + 1;
     const levels = gainGrowthExp(ch, 0);
-    log(`🌟 <b>${charName(id)}</b> 突破！等級上限 ${growthCap(ch)}${levels ? '，已使用預存經驗升級' : ''}。`);
+    log(`🌟 <b>${charName(id)}</b> 上限解放！等級上限 ${growthCap(ch)}（${ch.breakthrough} / ${GROWTH_BREAK_RANKS.length}）${levels ? '，已使用預存經驗升級' : ''}。`);
     refreshGrowthAfterPurchase();
 }
 function upgradeTalent(id, key) {
@@ -99,7 +114,7 @@ function resetTalents(id) {
     refreshGrowthAfterPurchase();
 }
 
-function growthSignature(ch) { return [ch.id, ch.lvl, ch.exp, ch.shards, ch.breakthrough, shardTotal, ...Object.keys(GROWTH_PATHS).map(k => talentRank(ch, k))].join('|'); }
+function growthSignature(ch) { return [ch.id, ch.lvl, ch.exp, ch.shards, ch.breakthrough, shardTotal, growthRank(), ...Object.keys(GROWTH_PATHS).map(k => talentRank(ch, k))].join('|'); }
 function syncGrowthView() {
     if (!growthFor || homeTabOn !== 'chars' || pickerFor || !roster[growthFor]) return;
     const page = $('page'), body = $('pg-body');
@@ -114,18 +129,22 @@ function renderGrowthPage() {
     const ch = roster[growthFor], d = ch && CHAR_TABLE[ch.id];
     if (!ch || !d || !ch.unlocked) { growthFor = null; return pageChars(); }
     growthViewSignature = growthSignature(ch);
-    const cap = growthCap(ch), cost = breakthroughCost(ch), used = talentUsed(ch), budget = talentBudget(ch);
-    const capped = ch.lvl >= cap, final = cap >= 100;
+    const cap = growthCap(ch), used = talentUsed(ch), budget = talentBudget(ch);
+    const breakStage = breakthroughStage(ch), need = breakthroughRankNeed(ch), cost = breakthroughCost(ch);
+    const rank = growthRank(), maxed = cap >= GROWTH_MAX_CAP, rankOk = maxed || rank >= need;
+    const capped = ch.lvl >= cap;
     return `<button class="mini-btn gray" onclick="closeGrowth()">‹ 返回角色</button>
         <div class="pg-sec">${d.name}・角色培養</div>
         <div class="pgc"><div class="nm">① 打怪升級　Lv.${ch.lvl} / ${cap}</div>
             <div class="st">攻擊 <b>${atkOf(ch)}</b>｜最大生命 <b>${hpMax(ch)}</b></div>
             <div class="bar"><i style="width:${Math.min(100, ch.exp / ch.nextExp * 100)}%"></i></div>
-            <div class="sub">${capped ? (final ? '已達最高等級' : '已達等級上限，突破後可繼續升級') : `經驗 ${Math.floor(ch.exp)} / ${ch.nextExp}`}</div>
-            <div class="sub">上場打怪自動獲得經驗，每級攻擊 +3、生命 +20。${capped && !final ? `預存經驗 ${Math.floor(ch.exp)} / ${ch.nextExp}` : ''}</div></div>
-        <div class="pgc"><div class="nm">② 碎片突破</div><div class="st">持有 <b>${ch.shards}</b> 片｜已突破 ${ch.breakthrough || 0} 次</div>
-            <div class="sub">${final ? '等級上限已完成；舊角色原有等級與能力保留。' : `使用 ${cost} 片專屬碎片，上限 ${cap} → ${Math.min(100, cap + 10)}；不必等滿級即可突破。`}</div>
-            <button class="mini-btn gold" ${final || ch.shards < cost ? 'disabled' : ''} onclick="breakthroughChar('${ch.id}')">${final ? '上限已完成' : `突破 · ${cost} 片`}</button></div>
+            <div class="sub">${capped ? (maxed ? '已達最高等級' : '已達等級上限，上限解放後可繼續升級') : `經驗 ${Math.floor(ch.exp)} / ${ch.nextExp}`}</div>
+            <div class="sub">上場打怪自動獲得經驗，每級攻擊 +3、生命 +20。${capped && !maxed ? `預存經驗 ${Math.floor(ch.exp)} / ${ch.nextExp}` : ''}</div></div>
+        <div class="pgc"><div class="nm">② 上限解放　${breakStage} / ${GROWTH_BREAK_RANKS.length}</div>
+            <div class="st">持有 <b>${ch.shards}</b> 片｜目前上限 <b>${cap}</b>｜目前 RANK <b>${rank}</b></div>
+            <div class="sub">${maxed ? `等級上限已解放到 ${GROWTH_MAX_CAP}。` : `解放後上限 ${cap} → ${Math.min(GROWTH_MAX_CAP, cap + GROWTH_CAP_STEP)}；需要 RANK ${need} ＋ ${cost} 片碎片。`}</div>
+            <div class="sub">RANK 靠打怪經驗升級、不會倒退；不必等滿級即可解放。</div>
+            <button class="mini-btn gold" ${maxed || !rankOk || ch.shards < cost ? 'disabled' : ''} onclick="breakthroughChar('${ch.id}')">${maxed ? '上限已達 100' : !rankOk ? `需要 RANK ${need}` : `上限解放 · ${cost} 片`}</button></div>
         <div class="pgc"><div class="nm">③ 角色天賦　${used} / ${budget} 點</div>
             <div class="sub">初始 2 點，每 5 級多 1 點，最多 12 點；每條最多 8 階。只強化此角色，PF 以隊長天賦為準。</div>
             ${Object.entries(GROWTH_PATHS).map(([key, p]) => { const rank = talentRank(ch, key), price = talentCost(rank); return `<div class="growth-path"><div><b>${p.icon} ${p.name}　${rank} / 8</b><div class="sub">${p.desc}</div></div>

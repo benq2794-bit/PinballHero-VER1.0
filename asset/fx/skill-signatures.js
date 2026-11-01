@@ -114,6 +114,12 @@ const SIGNATURE_GLYPHS = {
     flask: '<path d="M-8-25H8M-5-25V-8L-20 14Q-24 24-12 25H12Q24 24 20 14L5-8V-25M-14 8H14"/>'
 };
 
+// 動作型態 → 煙霧格：讓同一個動作家族的角色共享煙霧語彙
+const SIGNATURE_SMOKE = {
+    burst: 'ring', volley: 'spike', cross: 'puff',
+    rise: 'rise', spiral: 'swirl', orbit: 'swirl'
+};
+
 function playSkillSignature(m) {
     const profile = SKILL_SIGNATURES[m.ch.id];
     if (!profile || !m.body || !PF.vfx) return;
@@ -130,6 +136,10 @@ function playSkillSignature(m) {
     node.style.left = target.x + 'px'; node.style.top = target.y + 'px';
     node.style.setProperty('--sig-color', ELEMENTS[d.element].color);
     const angle = Math.atan2(target.y - m.body.y, target.x - m.body.x);
+    if (FX.smoke) {
+        const smokeKind = SIGNATURE_SMOKE[profile.motion] || 'puff';
+        FX.smoke(smokeKind, target.x, target.y, d.element, 150 + profile.count * 8, { rot: (profile.phase * 57) % 120 - 60 });
+    }
     const glyph = SIGNATURE_GLYPHS[profile.motif];
     let figures = '';
     for (let i = 0; i < profile.count; i++) {

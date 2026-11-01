@@ -14,7 +14,7 @@ function gatePreview(id, direction) {
     const g = BOSS_STAGES.find(g => g.id === id), art = GATE_ENEMY_APPEARANCES[id];
     if (!g || !art) return '';
     return `<button type="button" class="gate-preview" style="--gate:${ELEMENTS[g.el].color};background-image:linear-gradient(90deg,#08122288,#081222cc),url('asset/battle/bg/gate_${id}.webp')" onclick="selectGateDisplay('${id}')" aria-label="${direction === 'up' ? '上一關' : '下一關'}：${g.gate}">
-        <img src="${art.skin}" alt="${art.name}"><span><small>${direction === 'up' ? '⌃ 上一關' : '⌄ 下一關'}</small><b>${g.gate}</b></span>
+        <img src="${art.skin}" alt="${art.name}"${art.alpha ? ' class="alpha-art" style="--art-zoom:' + (art.zoom || 1) + '"' : ''}><span><small>${direction === 'up' ? '⌃ 上一關' : '⌄ 下一關'}</small><b>${g.gate}</b></span>
         <em>${bossWin[id] ? '已擊破' : '未擊破'}</em></button>`;
 }
 function renderGateBrowser() {
@@ -28,7 +28,7 @@ function renderGateBrowser() {
         <section class="gate-feature" aria-label="${g.gate}關卡詳情">
             <div class="gate-scene" style="background-image:url('asset/battle/bg/gate_${id}.webp')">
                 <div class="gate-scene-shade"></div><span class="gate-world-number">${counter}</span>
-                <div class="gate-boss-portrait"><img src="${art.skin}" alt="${art.name}"></div>
+                <div class="gate-boss-portrait"><img src="${art.skin}" alt="${art.name}"${art.alpha ? ' class="alpha-art" style="--art-zoom:' + (art.zoom || 1) + '"' : ''}></div>
                 <span class="gate-completion${wins ? ' cleared' : ''}">${wins ? '✓ 已擊破' : '等待挑戰'}</span>
             </div>
             <div class="gate-feature-details"><div class="gate-feature-title"><h3>${g.gate}</h3><span>${ELEMENTS[g.el].label}屬性</span></div>

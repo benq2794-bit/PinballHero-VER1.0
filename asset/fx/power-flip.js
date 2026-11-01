@@ -5,7 +5,6 @@ const POWER_FLIP_NAMES = { knight: '旋刃', fighter: '連拳', ranger: '貫光'
 function clearPowerFlip(b) {
     if (!b) return;
     b.powerFlip = null;
-    b.ball.classList.remove('pf-powered');
 }
 // Only a real upward flipper stroke can consume the team's combo.
 function launchPowerFlip(b) {
@@ -19,11 +18,8 @@ function launchPowerFlip(b) {
     const type = CHAR_TABLE[source.id].type;
     b.powerFlip = { type, lv, source, seq: PF.foeSeq, left: 1800,
         pending: true, contacted: false, hits: 0, hitWait: 0, contactTarget: null };
-    b.ball.classList.add('pf-powered');
-    b.ball.style.setProperty('--pf-color', ELEMENTS[CHAR_TABLE[source.id].element].color);
     combo = 0; comboAt = 0;
     POWER_FLIP.lockMs = 300;
-    FX.pop(b.x, b.y - 35, `PF ${lv}・${POWER_FLIP_NAMES[type]}`, 'energy');
     SFX.impact(.6 + lv * .25, { snap: .012, body: 230, ring: .05, vol: .7 });
 }
 
@@ -37,7 +33,7 @@ function powerFlipDamage(state, target, mult) {
     const crit = rollCrit(ch);
     const damage = Math.max(1, Math.round(atkOf(ch) * mult * (1 + .08 * talentRank(ch, 'pf')) *
         deepElementMultiplier(CHAR_TABLE[ch.id].element, enemy.element) * (crit ? CRIT_DMG : 1)));
-    applyDamage(ch, damage, { target, critical: crit, cls: 'pf-damage', combo: 1, sparks: 4, bloom: 65 + state.lv * 15 });
+    applyDamage(ch, damage, { target, critical: crit, cls: 'pf-damage', combo: 1 });
     if (crit) SFX.critical(); else SFX.hit(1);
 }
 function powerFlipContact(m, target) {
@@ -49,9 +45,6 @@ function powerFlipContact(m, target) {
         state.left = Math.min(state.left, 650);
         state.hitWait = 0;
     } else if (state.type === 'special') {
-        const col = ELEMENTS[CHAR_TABLE[state.source.id].element].color;
-        FX.art('burst', target.x, target.y, CHAR_TABLE[state.source.id].element, 140 + state.lv * 40);
-        FX.bloom(target.x, target.y, col, 140 + state.lv * 40);
         for (const unit of enemyTargetsInRadius(target.x, target.y, 80 + state.lv * 35)) {
             powerFlipDamage(state, unit, [0, 2.2, 3.4, 4.8][state.lv]);
         }
@@ -69,7 +62,6 @@ function updatePowerFlip(dtMs) {
         if (m.down || state.seq !== PF.foeSeq || enemy.hp <= 0) { clearPowerFlip(b); continue; }
         state.left -= dtMs; state.hitWait -= dtMs;
         if (state.left <= 0) { clearPowerFlip(b); continue; }
-        const element = CHAR_TABLE[state.source.id].element;
         if (state.pending) {
             state.pending = false;
             if (state.type === 'supporter') {
@@ -77,7 +69,6 @@ function updatePowerFlip(dtMs) {
                 POWER_FLIP.buffMs = 5000;
                 for (const x of aliveMembers()) {
                     addCd(x, [0, 3, 5, 7][state.lv]);
-                    FX.art('heal', x.body.x, x.body.y, element, 90 + state.lv * 15);
                 }
                 clearPowerFlip(b);
                 continue;
@@ -90,7 +81,6 @@ function updatePowerFlip(dtMs) {
                     return { t, along: dx * ux + dy * uy, across: Math.abs(dx * uy - dy * ux) };
                 }).filter(h => h.along >= 0 && h.along <= 760 && h.across <= h.t.r + width)
                   .sort((a, z) => a.along - z.along);
-                FX.laser(b.x, b.y, angle, 760);
                 for (const hit of hits) powerFlipDamage(state, hit.t, [0, 2.0, 3.2, 4.6][state.lv]);
                 clearPowerFlip(b);
             }
@@ -100,14 +90,12 @@ function updatePowerFlip(dtMs) {
             const near = powerFlipTargets().filter(t => Math.hypot(t.x - b.x, t.y - b.y) <= t.r + b.r + range);
             if (near.length) {
                 state.hits++; state.hitWait = 220;
-                FX.art('slash', b.x, b.y, element, range * 2, { rot: state.hits % 2 ? -30 : 30 });
                 for (const unit of near) powerFlipDamage(state, unit, [0, .65, .85, 1.05][state.lv]);
             }
         } else if (state.type === 'fighter' && state.contacted && state.hitWait <= 0) {
             const target = state.contactTarget;
             if (!powerFlipTargets().includes(target)) { clearPowerFlip(b); continue; }
             state.hits++; state.hitWait = 85;
-            FX.art('punch', target.x, target.y, element, 70 + state.lv * 18, { rot: state.hits * 27 });
             powerFlipDamage(state, target, [0, .6, .75, .9][state.lv]);
         }
         if (state.hits >= 2 + state.lv) clearPowerFlip(b);

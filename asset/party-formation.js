@@ -54,7 +54,6 @@ function syncPartyFormation(reset = false) {
         enforceBattleCeiling(b);
         b.vx = head.vx; b.vy = head.vy; b.spin = head.spin;
         b.dashActiveMs = head.dashActiveMs || 0;
-        b.ball.classList.toggle('air-dashing', b.dashActiveMs > 0);
         // Only the physical pilot owns a charged Power Flip.
         if (b.powerFlip) clearPowerFlip(b);
     }

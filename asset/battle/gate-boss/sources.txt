@@ -1,6 +1,10 @@
 Dedicated elemental-gate boss sprites. These do not belong to the Poring Tower pool.
-Original character sprite source selected earlier by the user: https://vivaldi6352.github.io/
-fire.gif: https://vivaldi6352.github.io/assets/rarity5/fire_dragon/walk_front.gif
-water.gif: https://vivaldi6352.github.io/assets/rarity5/waterdragon_kunfu/walk_front.gif
-wind.gif: https://vivaldi6352.github.io/assets/rarity5/wind_dragon/walk_front.gif
-thunder.gif: https://vivaldi6352.github.io/assets/rarity4/thunder_dragon/walk_front.gif
+All four use the RO monster database art (animated webp with alpha), via
+https://rd.fharr.com/images/sprite/idle/id/<monster id>/?format=webp
+
+nidhogg.webp  fire   monster 2022  尼德霍格的影子 (Nidhoggr's Shadow)
+water.webp    water  monster 22178 コーラルマリン (Coral Marine), Large
+wind.webp     wind   monster 1259  獅鷲獸 (Gryphon), Large
+thunder.webp  thunder monster 1623 RSX-0806, Large
+
+Source pages: https://rd.fharr.com/db/monster/<id>/
