@@ -3820,12 +3820,13 @@ const FX = {
 
 // PF 點陣特效表：職業決定用哪張橫條，顏色由素材本身烙死（不再跟屬性變色）。
 // beam＝光束厚度，該型改採「長度跟 beamLength、厚度跟等級」各自拉伸，不做等比縮放。
+// scale 全部校成「螢幕高度跟換裝前一致」，素材出自 pixelfx（MIT）。
 const PF_FX = {
-    knight: { src: "asset/fx/pixelfx/spin-slash.png", frames: 16, ms: 530, fw: 208, fh: 104, scale: 1.1 },
-    fighter: { src: "asset/fx/pixelfx/pf-fighter.png", frames: 13, ms: 300, fw: 216, fh: 136, scale: .8 },
-    ranger: { src: "asset/fx/pixelfx/pf-ranger.png", frames: 18, ms: 500, fw: 264, fh: 100, beam: 150 },
-    special: { src: "asset/fx/pixelfx/pf-special.png", frames: 27, ms: 650, fw: 224, fh: 200, scale: .85 },
-    supporter: { src: "asset/fx/pixelfx/pf-supporter.png", frames: 24, ms: 780, fw: 128, fh: 128, scale: 1.2 }
+    knight: { src: "asset/fx/pixelfx/pf-knight.png", frames: 16, ms: 530, fw: 264, fh: 150, scale: .76 },
+    fighter: { src: "asset/fx/pixelfx/pf-fighter.png", frames: 13, ms: 300, fw: 128, fh: 96, scale: 1.13 },
+    ranger: { src: "asset/fx/pixelfx/pf-ranger.png", frames: 18, ms: 500, fw: 248, fh: 104, beam: 150 },
+    special: { src: "asset/fx/pixelfx/pf-special.png", frames: 27, ms: 650, fw: 224, fh: 176, scale: .97 },
+    supporter: { src: "asset/fx/pixelfx/pf-supporter.png", frames: 24, ms: 780, fw: 124, fh: 120, scale: 1.28 }
 };
 function showPowerFlipVFX(type, x, y, angle = 0, level = 1, visualScale = 1, beamLength = 170) {
     if (!PF.vfx) return;
