@@ -1,0 +1,985 @@
+/* 統一介面主題：深灰、銀白金屬表面；遊戲場景與角色素材維持原色，金色主要操作保留。 */
+:root {
+    --ui-metal-950:#101316;
+    --ui-metal-900:#171b1f;
+    --ui-metal-800:#242a30;
+    --ui-metal-700:#343c43;
+    --ui-metal-line:#89939b;
+    --ui-metal-highlight:#d7dde1;
+    --ui-metal-text:#eef1f3;
+    --ui-metal-muted:#bdc5cb;
+    --ui-gold:#f2bd48;
+}
+
+/* 共用卡片與面板 */
+#app-frame .panel,
+#app-frame .pgc,
+#app-frame .bsg,
+#app-frame .starter .s-card,
+#app-frame #team .fm-panel,
+#app-frame #team .fm-unit,
+#app-frame #team .rcard,
+#app-frame #team .fm-roster-card,
+#app-frame .slot,
+#app-frame .pp-box,
+#app-frame .dex-cell,
+#app-frame .eq-cell,
+#app-frame .hm-status-card,
+#app-frame .hm-rank,
+#app-frame .hm-energy-card,
+#app-frame .hm-chip,
+#app-frame .gate-challenge-card,
+#app-frame .battle-log-panel,
+#app-frame .pg-head,
+#app-frame .account-stats .as-panel,
+#app-frame .job-talent-screen .jt-shell,
+#app-frame .job-talent-screen .jt-point,
+#app-frame .job-talent-screen .jt-passive,
+#app-frame .job-talent-screen .jt-detail,
+#app-frame .job-talent-screen .jt-canvas,
+#app-frame .account-stats .as-stat,
+#app-frame .account-stats .as-summary,
+#app-frame .account-stats .as-derived,
+#app-frame .account-stats .as-available,
+.gate-veil .gate-top {
+    border-color:var(--ui-metal-line) !important;
+    background:linear-gradient(155deg,#3b434a 0%,#292f35 42%,#1b2024 100%) !important;
+    color:var(--ui-metal-text) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 -2px 0 rgba(0,0,0,.38),0 3px 6px rgba(0,0,0,.4) !important;
+}
+#app-frame .pg { background:linear-gradient(180deg,#242a30,#111519 68%,#0c1013) !important; }
+#app-frame .pf { border-color:#89939a !important; box-shadow:0 0 0 6px #121619,0 0 0 8px #555f66,0 14px 40px rgba(0,0,0,.78) !important; }
+#app-frame .pg-head,
+.gate-veil .gate-top { background:linear-gradient(180deg,#4a535a,#252b30 88%) !important; border-bottom-color:#aeb6bc !important; }
+#app-frame .pg-sec,
+#app-frame .pg h2,
+#app-frame .pg h3,
+#app-frame .pp-t,
+#app-frame .battle-log-head h2 { color:#e7ebee !important; text-shadow:0 1px 2px #000 !important; }
+#app-frame .pg .sub,
+#app-frame .pg .st,
+#app-frame .pg .cap,
+#app-frame .hint,
+#app-frame .pg-empty { color:var(--ui-metal-muted) !important; }
+
+/* 普通按鈕與可操作控制 */
+#app-frame button:not(.tb),
+#app-frame .btn,
+#app-frame .btn-ghost,
+#app-frame .mini-btn:not(.gold),
+#app-frame .pg .mi,
+#app-frame .dex-tab button,
+#app-frame .dex-bar .clr,
+#app-frame .slot .out,
+#app-frame .gate-top .gx,
+#app-frame .pg-head .bk,
+#app-frame .pg-head .tm-go,
+#app-frame .tower-tree-header .tt-reset,
+#app-frame .tower-tree-detail .mini-btn:not(.gold),
+#app-frame .pf-hud .hud-sq,
+#app-frame .pf-hud .mchip,
+#app-frame .pt-start,
+#app-frame #team .fm-cap-btn,
+#app-frame #team .fm-out,
+.gate-veil button {
+    border-color:#9ba5ac !important;
+    background:linear-gradient(180deg,#606a72 0%,#444c53 48%,#2c3338 100%) !important;
+    color:#f1f3f5 !important;
+    text-shadow:0 1px 2px #000 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -2px 0 rgba(0,0,0,.42),0 2px 4px rgba(0,0,0,.4) !important;
+}
+#app-frame button:hover,
+#app-frame .btn:hover,
+#app-frame .mini-btn:hover,
+#app-frame .pg .mi:hover,
+.gate-veil button:hover { border-color:#e0e4e7 !important; filter:brightness(1.08) !important; }
+#app-frame button:disabled { filter:grayscale(.7) brightness(.8) !important; opacity:.62; }
+#app-frame button.on,
+#app-frame button.active,
+#app-frame button.selected,
+#app-frame .rcard.onfield,
+#app-frame .fm-roster-card.onfield,
+#app-frame .dex-tab button.on { border-color:#d9dfe3 !important; background:linear-gradient(180deg,#737d84,#434b51) !important; color:#fff !important; }
+
+/* 金色主要行動按鈕不受灰白通用按鈕影響 */
+#app-frame button.mini-btn.gold,
+#app-frame .mini-btn.gold,
+#app-frame .pg .mini-btn.gold,
+#app-frame button.gate-challenge,
+#app-frame .pg button.gate-challenge,
+#app-frame .pp-box button.pp-go,
+#app-frame .hm-go,
+#app-frame .bsg .go,
+#app-frame .tower-tree-detail .mini-btn.gold {
+    border-color:#ffe4a0 !important;
+    background:linear-gradient(180deg,#fff0a4 0%,#f6c34e 53%,#d58a29 100%) !important;
+    color:#38240e !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.55) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,230,.8),inset 0 -2px 0 rgba(117,69,19,.36),0 3px 5px rgba(0,0,0,.42) !important;
+}
+
+/* 主頁上方帳號卡、資源膠囊與側邊快捷 */
+#app-frame .hm { box-shadow:0 0 0 6px #121619,0 0 0 8px #737d84,0 14px 40px rgba(0,0,0,.78) !important; }
+#app-frame .hm-profile-card,
+#app-frame .hm-status-card,
+#app-frame .hm-rank,
+#app-frame .hm-chip,
+#app-frame .hm-energy-card,
+#app-frame .hm-rank-badge,
+#app-frame .hm-account-bonus {
+    border-color:#a1abb2 !important;
+    background:linear-gradient(155deg,rgba(86,95,102,.98),rgba(48,55,61,.98) 48%,rgba(27,32,36,.98)) !important;
+    color:#f0f2f4 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.27),inset 0 -2px 0 rgba(0,0,0,.35),0 2px 5px rgba(0,0,0,.48) !important;
+}
+#app-frame .hm-profile-card { border-width:2px !important; }
+#app-frame .hm-avatar { border-color:#e0e4e7 !important; outline-color:#9ba5ac !important; background:#20262b !important; }
+#app-frame .hm-profile-title > b,
+#app-frame .hm-profile-info,
+#app-frame .hm-rank .lb,
+#app-frame .hm-rank .vv,
+#app-frame .hm-exp-label,
+#app-frame .hm-exp-label b,
+#app-frame .hm-stage-row,
+#app-frame .hm-stage-row .hm-wave,
+#app-frame .hm-stage-row #hm-stage-tag,
+#app-frame .hm-chip .label,
+#app-frame .hm-chip b,
+#app-frame .hm-energy-card .energy-label,
+#app-frame .hm-energy-card b,
+#app-frame .hm-energy-card small,
+#app-frame .hm-account-bonus { color:#eef1f3 !important; text-shadow:0 1px 2px #000 !important; }
+#app-frame .hm-energy-track,
+#app-frame .hm-floor-progress { border-color:#aab2b8 !important; background:#23292e !important; box-shadow:inset 0 1px 2px #000 !important; }
+#app-frame .hm-energy-track i,
+#app-frame .hm-floor-progress i,
+#app-frame .hm-progress i { background:linear-gradient(180deg,#f0f2f4,#9ca6ad) !important; box-shadow:none !important; }
+#app-frame .hm-side > div:not(.hm-nav),
+#app-frame .hm-nav .wing {
+    border-color:#a0aab1 !important;
+    background:linear-gradient(180deg,#646e75,#41494f 52%,#282e33) !important;
+    color:#f1f3f5 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -3px 0 rgba(0,0,0,.4),0 3px 5px rgba(0,0,0,.5) !important;
+}
+#app-frame .hm-nav .wing .w2 { color:#f1f3f5 !important; text-shadow:0 1px 2px #000 !important; }
+
+/* 底部導覽與主頁快捷列 */
+#app-frame .hm-tabs,
+#app-frame .hm-dock-tabs { border-color:#969fa6 !important; background:linear-gradient(180deg,#424a50,#20262b) !important; box-shadow:0 -2px 6px rgba(0,0,0,.45) !important; }
+#app-frame .hm-tabs .tb,
+#app-frame .hm-dock-tabs > * { border-color:#a3adb4 !important; background:linear-gradient(180deg,#626c73,#41494f 55%,#2b3237) !important; color:#f0f2f4 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 2px 4px rgba(0,0,0,.44) !important; text-shadow:0 1px 2px #000 !important; }
+#app-frame .hm-tabs .tb .ic { border-color:#aab3b9 !important; background:linear-gradient(145deg,#737d84,#41494f) !important; color:#f5f6f7 !important; box-shadow:none !important; }
+#app-frame .hm-tabs .tb.on .ic { border-color:#ffe4a0 !important; background:linear-gradient(145deg,#fff0a4,#e6aa37) !important; color:#2d2415 !important; }
+#app-frame .hm-dock-tabs .hm-action.active { border-color:#ffe4a0 !important; }
+
+/* 底部導覽改成乾淨的珍珠白金屬面，保留金色選取狀態。 */
+#app-frame .hm-tabs {
+    background:linear-gradient(180deg,#41484d,#202529) !important;
+    border-top-color:#c5ccd0 !important;
+    box-shadow:0 -2px 6px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.2) !important;
+}
+#app-frame .hm-tabs .tb {
+    border-color:#d9dfe2 !important;
+    background:linear-gradient(180deg,#f1f3f4 0%,#cbd1d4 44%,#8e989e 100%) !important;
+    color:#263039 !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.6) !important;
+    box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(51,60,66,.25),0 2px 4px rgba(0,0,0,.42) !important;
+}
+#app-frame .hm-tabs .tb .ic {
+    border:1px solid #e8ecee !important;
+    background:linear-gradient(145deg,#667078,#384148) !important;
+    color:#f5f7f8 !important;
+    text-shadow:0 1px 2px #20272c !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.35) !important;
+}
+#app-frame .hm-tabs .tb.on {
+    border-color:#fff0b5 !important;
+    background:linear-gradient(180deg,#fff8dc 0%,#e6c76e 48%,#b88a35 100%) !important;
+    color:#382a12 !important;
+}
+#app-frame .hm-tabs .tb.on .ic {
+    border-color:#fff0b5 !important;
+    background:linear-gradient(145deg,#fff0a4,#e6aa37) !important;
+    color:#382a12 !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.5) !important;
+}
+
+/* 主頁戰鬥日誌、HUD 控件與其他暗色文字區 */
+#app-frame .battle-log-panel,
+#app-frame .battle-log,
+#app-frame .battle-log-list,
+#app-frame .battle-log-body { border-color:#8f9aa1 !important; background-color:rgba(20,24,28,.96) !important; color:#edf0f2 !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 5px rgba(0,0,0,.42) !important; }
+#app-frame .pf-hud .hud-pill,
+#app-frame .pf-hud .mchip { border-color:#a0aab1 !important; background:linear-gradient(180deg,#555f66,#272e33) !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 4px rgba(0,0,0,.5) !important; }
+#app-frame .pf-hud .hud-pill b { color:#f0f2f4 !important; text-shadow:0 1px 2px #000 !important; }
+#app-frame .gate-top .gn,
+#app-frame .hm-job-badge,
+#app-frame .hm-rank-badge,
+#app-frame .hm-account-bonus { border-color:#a0aab1 !important; background:linear-gradient(#5b656c,#30373d) !important; color:#f0f2f4 !important; }
+
+/* 編成頁卡片與屬性面板 */
+#app-frame #team .fm-slot,
+#app-frame #team .fm-summary,
+#app-frame #team .fm-captain-art,
+#app-frame #team .fm-member-art,
+#app-frame #team .fm-roster-card,
+#app-frame .pg input,
+#app-frame .pg select,
+#app-frame .pg textarea,
+#app-frame input,
+#app-frame select,
+#app-frame textarea { border-color:#89949b !important; background:linear-gradient(150deg,#424a50,#22282d) !important; color:#eff1f3 !important; }
+#app-frame .account-stats .as-portrait,
+#app-frame .account-stats .as-job-fixed { border-color:#aab3b9 !important; background:linear-gradient(#535d64,#30373c) !important; color:#f1f3f5 !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.4) !important; }
+#app-frame .account-stats .as-stat,
+#app-frame .account-stats .as-summary,
+#app-frame .account-stats .as-derived,
+#app-frame .account-stats .as-available { border-color:#89939a !important; background:linear-gradient(150deg,#3b4349,#23292e) !important; color:#e9edef !important; }
+
+/* 職業天賦與其他選擇介面不再有藍色節點光暈 */
+#app-frame .job-talent-screen .jt-shell { --jt-primary:#b8c1c7 !important; --jt-secondary:#edf0f2 !important; --jt-base:#242a2f !important;
+    background:linear-gradient(180deg,rgba(33,38,42,.97),rgba(12,15,18,.98)) !important; border-color:#89939a !important; box-shadow:inset 0 0 0 2px rgba(0,0,0,.6),0 2px 7px rgba(0,0,0,.45) !important; }
+#app-frame .job-talent-screen .jt-header,
+#app-frame .job-talent-screen .jt-passive,
+#app-frame .job-talent-screen .jt-detail,
+#app-frame .job-talent-screen .jt-canvas,
+#app-frame .job-talent-screen .jt-point,
+#app-frame .job-talent-screen .jt-active-note { border-color:#77828a !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 2px 5px rgba(0,0,0,.35) !important; }
+#app-frame .job-talent-screen .jt-job-tab,
+#app-frame .job-talent-screen .jt-job-tab.active,
+#app-frame .job-talent-screen .jt-detail-actions button { border-color:#9ca6ad !important; background:linear-gradient(#606a71,#30373d) !important; color:#f1f3f5 !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 4px rgba(0,0,0,.4) !important; }
+#app-frame .job-talent-screen .jt-node,
+#app-frame .job-talent-screen .jt-node.available,
+#app-frame .job-talent-screen .jt-node.learned,
+#app-frame .job-talent-screen .jt-node.maxed { --node-color:#c2c9ce !important; border-color:#a6afb5 !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 2px 4px rgba(0,0,0,.45) !important; }
+#app-frame .job-talent-screen .jt-node.selected { outline-color:#edf0f2 !important; }
+#app-frame .job-talent-screen .jt-tree-svg .jt-link.lit { stroke:#cbd1d5 !important; filter:none !important; }
+#app-frame .job-talent-screen .jt-root-orb { fill:#e3e7ea !important; stroke:#a0a9af !important; filter:none !important; }
+#app-frame .job-talent-screen .jt-root { border-color:#e3e7ea !important; box-shadow:inset 0 0 0 3px #262d32 !important; }
+#app-frame .job-talent-screen .jt-icon { filter:grayscale(1) !important; }
+#app-frame .mi .v,
+#app-frame .mi .v.off { color:#e0e4e7 !important; text-shadow:0 1px 2px #000 !important; }
+#app-frame .pp-box #pp-home { text-align:center !important; }
+#app-frame .hm-tabs .tb { justify-content:center !important; }
+#app-frame .hm-tabs .tb-label { display:none !important; }
+#app-frame input:focus,
+#app-frame select:focus,
+#app-frame textarea:focus { outline:1px solid #cbd1d5 !important; box-shadow:0 0 4px rgba(220,226,231,.24) !important; }
+
+.battle-log-empty { position:absolute; z-index:1; left:10px; right:10px; bottom:8px; height:55px; display:grid; place-items:center;
+    color:#c0c7cc; font-size:10px; text-shadow:0 1px 2px #000; pointer-events:none; }
+.battle-log-empty[hidden] { display:none !important; }
+
+@media (prefers-reduced-motion: reduce) { #app-frame button,.gate-veil button { transition:none !important; } }
+
+/* World Flipper inspired pearl-metal UI pass: keep art/gameplay colors untouched. */
+:root {
+    --ui-metal-950:#171b1f;
+    --ui-metal-900:#252b30;
+    --ui-metal-800:#d9dfe2;
+    --ui-metal-700:#f0f3f4;
+    --ui-metal-line:#87939a;
+    --ui-metal-highlight:#ffffff;
+    --ui-metal-text:#263039;
+    --ui-metal-muted:#56636b;
+}
+
+/* Shared windows and cards use a clean silver face instead of muddy charcoal/blue. */
+#app-frame .panel,
+#app-frame .pgc,
+#app-frame .bsg,
+#app-frame .starter .s-card,
+#app-frame #team .fm-panel,
+#app-frame #team .fm-unit,
+#app-frame #team .rcard,
+#app-frame #team .fm-roster-card,
+#app-frame .slot,
+#app-frame .pp-box,
+#app-frame .dex-cell,
+#app-frame .eq-cell,
+#app-frame .hm-status-card,
+#app-frame .hm-rank,
+#app-frame .hm-energy-card,
+#app-frame .hm-chip,
+#app-frame .gate-challenge-card,
+#app-frame .battle-log-panel,
+#app-frame .pg-head,
+#app-frame .account-stats .as-panel,
+#app-frame .job-talent-screen .jt-point,
+#app-frame .job-talent-screen .jt-detail,
+#app-frame .account-stats .as-stat,
+#app-frame .account-stats .as-summary,
+#app-frame .account-stats .as-derived,
+#app-frame .account-stats .as-available {
+    border-color:#aab3b8 !important;
+    background:linear-gradient(155deg,#f4f6f6 0%,#dce1e3 48%,#c5cdd1 100%) !important;
+    color:#263039 !important;
+    box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(75,87,94,.16),0 3px 6px rgba(0,0,0,.32) !important;
+}
+#app-frame .pg,
+#app-frame .job-talent-screen .jt-shell { background:linear-gradient(180deg,#e7ebed,#cbd2d5 72%,#bbc4c8) !important; }
+#app-frame .pg-head,
+#app-frame .job-talent-screen .jt-header { background:linear-gradient(180deg,#f8f9f9,#d8dee1) !important; border-bottom-color:#98a4aa !important; }
+#app-frame .pg-sec,
+#app-frame .pg h2,
+#app-frame .pg h3,
+#app-frame .pp-t,
+#app-frame .battle-log-head h2,
+#app-frame .job-talent-screen .jt-header h2 { color:#27323a !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame .pg .sub,
+#app-frame .pg .st,
+#app-frame .pg .cap,
+#app-frame .hint,
+#app-frame .pg-empty,
+#app-frame .job-talent-screen .jt-active-note,
+#app-frame .job-talent-screen .jt-footnote { color:#4f5c64 !important; }
+
+/* Standard controls, filters and tabs share the same pale metal finish. */
+#app-frame button:not(.gold):not(.hm-go):not(.go),
+#app-frame .btn,
+#app-frame .btn-ghost,
+#app-frame .mini-btn:not(.gold),
+#app-frame .pg .mi,
+#app-frame .dex-tab button,
+#app-frame .dex-bar .clr,
+#app-frame .slot .out,
+#app-frame .gate-top .gx,
+#app-frame .pg-head .bk,
+#app-frame .tower-tree-header .tt-reset,
+#app-frame .tower-tree-detail .mini-btn:not(.gold),
+#app-frame .pf-hud .hud-sq,
+#app-frame .pf-hud .mchip,
+#app-frame .pt-start,
+#app-frame #team .fm-cap-btn,
+#app-frame #team .fm-out,
+#app-frame .hm-tabs .tb,
+#app-frame .hm-dock-tabs > *,
+#app-frame .job-talent-screen .jt-job-tab,
+#app-frame .job-talent-screen .jt-detail-actions button,
+.gate-veil button:not(.gold) {
+    border-color:#a6b0b5 !important;
+    background:linear-gradient(180deg,#f7f8f8 0%,#dce1e3 48%,#c2cacf 100%) !important;
+    color:#263039 !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.72) !important;
+    box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(72,84,91,.18),0 2px 4px rgba(0,0,0,.3) !important;
+}
+#app-frame button.on,
+#app-frame button.active,
+#app-frame button.selected,
+#app-frame .rcard.onfield,
+#app-frame .fm-roster-card.onfield,
+#app-frame .dex-tab button.on,
+#app-frame .hm-tabs .tb.on {
+    border-color:#f0d58b !important;
+    background:linear-gradient(180deg,#fff8dc,#e8d49b 52%,#c5a85f) !important;
+    color:#392f1c !important;
+}
+#app-frame button:hover,
+#app-frame .btn:hover,
+#app-frame .mini-btn:hover,
+#app-frame .pg .mi:hover,
+#app-frame .hm-tabs .tb:hover,
+.gate-veil button:hover { filter:brightness(1.035) !important; border-color:#e8ecee !important; }
+#app-frame button:disabled { color:#737d83 !important; }
+
+/* Top account strips and home cards are pearl-metal too; preserve character art. */
+#app-frame .hm-profile-card,
+#app-frame .hm-status-card,
+#app-frame .hm-rank,
+#app-frame .hm-chip,
+#app-frame .hm-energy-card,
+#app-frame .hm-rank-badge,
+#app-frame .hm-account-bonus {
+    border-color:#b5bec2 !important;
+    background:linear-gradient(155deg,rgba(247,248,248,.97),rgba(218,224,226,.97) 54%,rgba(190,199,203,.97)) !important;
+    color:#27323a !important;
+}
+#app-frame .hm-profile-title > b,
+#app-frame .hm-profile-info,
+#app-frame .hm-rank .lb,
+#app-frame .hm-rank .vv,
+#app-frame .hm-exp-label,
+#app-frame .hm-exp-label b,
+#app-frame .hm-stage-row,
+#app-frame .hm-stage-row .hm-wave,
+#app-frame .hm-stage-row #hm-stage-tag,
+#app-frame .hm-chip .label,
+#app-frame .hm-chip b,
+#app-frame .hm-energy-card .energy-label,
+#app-frame .hm-energy-card b,
+#app-frame .hm-energy-card small,
+#app-frame .hm-account-bonus { color:#29343b !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame .hm-tabs { background:linear-gradient(180deg,#e5e9eb,#aeb8bd) !important; border-color:#9da8ae !important; }
+#app-frame .hm-tabs .tb .ic { background:linear-gradient(145deg,#eef1f2,#c3cbd0) !important; color:#354149 !important; border-color:#f8f9f9 !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame .hm-tabs .tb.on .ic { background:linear-gradient(145deg,#fff0a4,#e6aa37) !important; color:#382a12 !important; }
+
+/* Dropdown lists must remain dark-on-light when opened; retain native menu behavior. */
+#app-frame select,
+#app-frame .pg select { color-scheme:light !important; background:#edf0f1 !important; color:#263039 !important; }
+#app-frame select option,
+#app-frame .pg select option { background:#edf0f1 !important; color:#263039 !important; }
+
+/* 結晶數量只留在主頁資源列，其他分頁標題列不再重複顯示。 */
+#page .pg-head .rs { display:none !important; }
+
+/* Talent tree receives neutral silver connectors and nodes, not job-colored blue lighting. */
+#app-frame .job-talent-screen .jt-node,
+#app-frame .job-talent-screen .jt-node.available,
+#app-frame .job-talent-screen .jt-node.learned,
+#app-frame .job-talent-screen .jt-node.maxed { --node-color:#8a969c !important; border-color:#89969d !important; background:radial-gradient(circle at 35% 25%,#f4f6f6,#bac4c9 78%) !important; }
+#app-frame .job-talent-screen .jt-node .jt-icon { filter:grayscale(1) brightness(.55) !important; }
+#app-frame .job-talent-screen .jt-node small,
+#app-frame .job-talent-screen .jt-root small,
+#app-frame .job-talent-screen .jt-detail p,
+#app-frame .job-talent-screen .jt-branch-name { color:#344149 !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame .job-talent-screen .jt-canvas { background:linear-gradient(180deg,#dbe1e3,#bbc5ca) !important; }
+
+/* 高亮銀色底上的文字統一改深色，避免沿用舊版白字造成低對比。 */
+#app-frame .pg :is(h1,h2,h3,p,span,b,strong,small,label,li,em),
+#app-frame #team :is(h1,h2,h3,p,span,b,strong,small,label,li,em),
+#app-frame .account-stats :is(h1,h2,h3,p,span,b,strong,small,label,li,em),
+#app-frame .job-talent-screen :is(h1,h2,h3,p,span,b,strong,small,label,li,em),
+.gate-veil :is(h1,h2,h3,p,span,b,strong,small,label,li,em) {
+    color:#263039 !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.62) !important;
+}
+/* 狀態、屬性與稀有度顏色仍保留辨識用途。 */
+#app-frame .pg :is(.hl,.gold,.rarity,.rarity-1,.rarity-2,.rarity-3,.rarity-4,.rarity-5,.element-tag,.el-tag,.positive,.negative),
+#app-frame #team :is(.hl,.gold,.rarity,.rarity-1,.rarity-2,.rarity-3,.rarity-4,.rarity-5,.element-tag,.el-tag,.positive,.negative) {
+    text-shadow:0 1px 0 rgba(255,255,255,.45) !important;
+}
+#app-frame .pg input,
+#app-frame .pg textarea,
+#app-frame .pg select,
+#app-frame #team input,
+#app-frame .account-stats input { color:#263039 !important; caret-color:#263039 !important; }
+
+/* World Flipper light palette: white/silver surfaces, sky-blue framing, warm gold CTA. */
+:root {
+    --ui-metal-950:#263238;
+    --ui-metal-900:#37474f;
+    --ui-metal-800:#f5f7fa;
+    --ui-metal-700:#ffffff;
+    --ui-metal-line:#8eafc1;
+    --ui-metal-highlight:#ffffff;
+    --ui-metal-text:#263238;
+    --ui-metal-muted:#586a73;
+}
+#app-frame .pg,
+#app-frame .job-talent-screen .jt-shell { background:linear-gradient(180deg,#f8fafb 0%,#edf2f5 60%,#e2e9ed 100%) !important; }
+#app-frame .pg-head,
+#app-frame .job-talent-screen .jt-header { background:linear-gradient(180deg,#ffffff,#edf3f6) !important; border-color:#9bb7c6 !important; }
+#app-frame .pg-head .tt,
+#app-frame .pg-sec,
+#app-frame .pg h2,
+#app-frame .pg h3,
+#app-frame .pp-t,
+#app-frame .battle-log-head h2,
+#app-frame .job-talent-screen .jt-header h2 { color:#263238 !important; }
+
+#app-frame .panel,
+#app-frame .pgc,
+#app-frame .bsg,
+#app-frame .starter .s-card,
+#app-frame #team .fm-panel,
+#app-frame #team .fm-unit,
+#app-frame #team .rcard,
+#app-frame #team .fm-roster-card,
+#app-frame .slot,
+#app-frame .pp-box,
+#app-frame .dex-cell,
+#app-frame .eq-cell,
+#app-frame .hm-status-card,
+#app-frame .hm-rank,
+#app-frame .hm-energy-card,
+#app-frame .hm-chip,
+#app-frame .gate-challenge-card,
+#app-frame .battle-log-panel,
+#app-frame .account-stats .as-panel,
+#app-frame .job-talent-screen .jt-point,
+#app-frame .job-talent-screen .jt-detail,
+#app-frame .account-stats .as-stat,
+#app-frame .account-stats .as-summary,
+#app-frame .account-stats .as-derived,
+#app-frame .account-stats .as-available {
+    border-color:#a9c1ce !important;
+    background:linear-gradient(160deg,#ffffff 0%,#f5f7fa 58%,#e8eef1 100%) !important;
+    color:#263238 !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 5px rgba(48,77,91,.16) !important;
+}
+
+#app-frame button:not(.gold):not(.hm-go):not(.go),
+#app-frame .btn,
+#app-frame .btn-ghost,
+#app-frame .mini-btn:not(.gold),
+#app-frame .pg .mi,
+#app-frame .dex-tab button,
+#app-frame .dex-bar .clr,
+#app-frame .slot .out,
+#app-frame .gate-top .gx,
+#app-frame .pg-head .bk,
+#app-frame .tower-tree-header .tt-reset,
+#app-frame .tower-tree-detail .mini-btn:not(.gold),
+#app-frame .pf-hud .hud-sq,
+#app-frame .pf-hud .mchip,
+#app-frame .pt-start,
+#app-frame #team .fm-cap-btn,
+#app-frame #team .fm-out,
+#app-frame .hm-tabs .tb,
+#app-frame .hm-dock-tabs > *,
+#app-frame .job-talent-screen .jt-job-tab,
+#app-frame .job-talent-screen .jt-detail-actions button,
+.gate-veil button:not(.gold) {
+    border-color:#7daec6 !important;
+    background:linear-gradient(180deg,#ffffff 0%,#edf4f7 54%,#dce8ed 100%) !important;
+    color:#263238 !important;
+    text-shadow:0 1px 0 #fff !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(37,87,111,.16) !important;
+}
+#app-frame button.on,
+#app-frame button.active,
+#app-frame button.selected,
+#app-frame .rcard.onfield,
+#app-frame .fm-roster-card.onfield,
+#app-frame .dex-tab button.on,
+#app-frame .hm-dock-tabs .hm-action.active,
+#app-frame .job-talent-screen .jt-job-tab.active {
+    border-color:#159bd1 !important;
+    background:linear-gradient(180deg,#dff7ff,#9ee5f7) !important;
+    color:#17394a !important;
+}
+#app-frame .hm-tabs { background:linear-gradient(180deg,#f5f8fa,#dce7ec) !important; border-color:#8eafc1 !important; }
+#app-frame .hm-tabs .tb .ic { border-color:#9bbbc9 !important; background:linear-gradient(145deg,#ffffff,#dce8ed) !important; color:#287595 !important; }
+#app-frame .hm-tabs .tb.on { border-color:#ffe4a0 !important; background:linear-gradient(180deg,#fff8dc,#e8d49b 52%,#c5a85f) !important; color:#392f1c !important; }
+#app-frame .hm-tabs .tb.on .ic { border-color:#fff0b5 !important; background:linear-gradient(145deg,#fff0a4,#e6aa37) !important; color:#382a12 !important; }
+#app-frame .hm-profile-card,
+#app-frame .hm-status-card,
+#app-frame .hm-rank,
+#app-frame .hm-chip,
+#app-frame .hm-energy-card,
+#app-frame .hm-rank-badge,
+#app-frame .hm-account-bonus { border-color:#a9c1ce !important; background:linear-gradient(160deg,#fff,#edf3f6) !important; color:#263238 !important; }
+#app-frame .hm-profile-title > b,
+#app-frame .hm-profile-info,
+#app-frame .hm-rank .lb,
+#app-frame .hm-rank .vv,
+#app-frame .hm-exp-label,
+#app-frame .hm-exp-label b,
+#app-frame .hm-stage-row,
+#app-frame .hm-stage-row .hm-wave,
+#app-frame .hm-stage-row #hm-stage-tag,
+#app-frame .hm-chip .label,
+#app-frame .hm-chip b,
+#app-frame .hm-energy-card .energy-label,
+#app-frame .hm-energy-card b,
+#app-frame .hm-energy-card small,
+#app-frame .hm-account-bonus { color:#263238 !important; text-shadow:0 1px 0 #fff !important; }
+
+#app-frame .job-talent-screen .jt-canvas { background:linear-gradient(180deg,#edf5f8,#d9e8ee) !important; border-color:#96bacb !important; }
+#app-frame .job-talent-screen .jt-node,
+#app-frame .job-talent-screen .jt-node.available,
+#app-frame .job-talent-screen .jt-node.learned,
+#app-frame .job-talent-screen .jt-node.maxed { --node-color:#168fc0 !important; border-color:#6eabc3 !important; background:radial-gradient(circle at 35% 25%,#fff,#d8e9ef 78%) !important; }
+#app-frame .job-talent-screen .jt-node.available { border-color:#08a5dc !important; box-shadow:0 0 0 2px rgba(0,160,233,.16),0 2px 5px rgba(36,90,111,.2) !important; }
+#app-frame .job-talent-screen .jt-tree-svg .jt-link.lit { stroke:#00a0e9 !important; filter:none !important; }
+#app-frame .job-talent-screen .jt-root-orb { fill:#fff !important; stroke:#00a0e9 !important; filter:none !important; }
+#app-frame .job-talent-screen .jt-node .jt-icon { filter:none !important; }
+
+#app-frame select,
+#app-frame .pg select,
+#app-frame select option,
+#app-frame .pg select option { background:#f5f7fa !important; color:#263238 !important; }
+
+/* Role roster: compact paged grid keeps the full catalogue in a single viewport. */
+#pg-body.char-directory-page { overflow:hidden !important; padding:8px 8px 5px !important; }
+.char-directory { height:100%; min-height:0; display:flex; flex-direction:column; gap:7px; color:#263238; }
+.char-directory-head { flex:none; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:3px 2px; }
+.char-directory-head > div { display:flex; align-items:baseline; gap:8px; min-width:0; }
+.char-directory-head b { color:#17394a; font-size:15px; font-weight:900; }
+.char-directory-head small,.char-directory-head > span { color:#50636d; font-size:10px; font-weight:700; }
+.char-directory-tools { flex:none; display:flex; flex-direction:column; gap:5px; }
+.char-directory-search { display:grid; grid-template-columns:minmax(0,1fr) 48px; gap:5px; }
+.char-directory-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
+.char-directory-tools input,.char-directory-tools select { min-width:0; height:31px; padding:4px 7px; border:1px solid #8fb1c2 !important; border-radius:4px; background:#fff !important; color:#263238 !important; font-family:inherit; font-size:10px; font-weight:600; }
+.char-directory-tools button { min-width:0; padding:3px 5px; border:1px solid #6fa9c4 !important; border-radius:4px; background:linear-gradient(#fff,#e3f0f5) !important; color:#244858 !important; font-family:inherit; font-size:10px; font-weight:800; }
+.char-directory-grid { min-height:0; flex:1; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr)); gap:6px; }
+.char-directory-grid .char-card { position:relative; min-width:0; min-height:0; margin:0; padding:5px 4px 4px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:2px; overflow:hidden;
+    border:1px solid #a8c2ce !important; border-radius:5px; background:linear-gradient(160deg,#fff,#eef3f5) !important; box-shadow:0 1px 3px rgba(38,69,83,.14) !important; }
+.char-directory-grid .char-card.locked { opacity:.78; }
+.char-card-art { width:43px; height:45px; flex:none; display:grid; place-items:center; overflow:hidden; border:1px solid #c3d5dd; border-radius:4px; background:#e9f1f4; }
+.char-card-art img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
+.char-card-info { width:100%; min-width:0; text-align:center; }
+.char-directory-grid .char-card .nm { display:block; overflow:hidden; color:#1c3542 !important; font-size:10px; line-height:1.2; font-weight:900; text-overflow:ellipsis; white-space:nowrap; }
+.char-card-tags { min-height:15px; display:flex; align-items:center; justify-content:center; gap:2px; overflow:hidden; }
+.char-directory-grid .char-card .tag2 { flex:none; padding:1px 3px; border-radius:3px; color:#fff !important; font-size:7px; line-height:1.25; font-weight:800; }
+.char-directory-grid .char-card .sub { margin-top:2px; overflow:hidden; color:#465b65 !important; font-size:8px; line-height:1.2; white-space:nowrap; text-overflow:ellipsis; }
+.char-card-stat,.char-card-skill { overflow:hidden; color:#354b56; font-size:8px; line-height:1.2; white-space:nowrap; text-overflow:ellipsis; }
+.char-card-skill { color:#51656f; }
+.char-field-tag { color:#087ead; }
+.char-card-action { min-height:21px; margin-top:auto; padding:2px 6px !important; font-size:8px !important; line-height:1.1; }
+.char-directory-grid .char-card .bar { width:92%; height:4px; margin-top:3px; }
+.char-directory-empty { grid-column:1/-1; display:grid; place-items:center; color:#455a64; font-size:12px; }
+.char-directory-pages { flex:none; height:32px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.char-directory-pages span { color:#344b56; font-size:10px; font-weight:800; }
+.char-directory-pages button { min-width:82px; min-height:28px; border:1px solid #85adc0 !important; border-radius:4px; background:linear-gradient(#fff,#e5eef2) !important; color:#274957 !important; font-family:inherit; font-size:9px; font-weight:700; }
+.char-directory-pages button:disabled { opacity:.42 !important; }
+@media(max-height:700px) {
+    .char-directory { gap:4px; }
+    .char-directory-tools input,.char-directory-tools select { height:27px; }
+    .char-directory-grid { gap:4px; }
+    .char-card-art { width:36px; height:37px; }
+    .char-directory-grid .char-card { padding:3px; }
+}
+
+/* Stronger contrast for character growth and gate browser labels on light surfaces. */
+#app-frame .pg .pgc .nm,
+#app-frame .pg .pgc .growth-path b,
+#app-frame .pg .growth-path b,
+#app-frame .pg .char-directory-head b { color:#1b3542 !important; text-shadow:none !important; }
+#app-frame .pg .pgc .sub,
+#app-frame .pg .pgc .st,
+#app-frame .pg .growth-path .sub,
+#app-frame .pg .growth-path .st { color:#405660 !important; text-shadow:none !important; }
+#app-frame .pg .pgc .st b { color:#174d68 !important; }
+#app-frame .gate-browser-heading b { color:#17394a !important; text-shadow:none !important; }
+#app-frame .gate-browser-heading span,
+#app-frame .gate-edge-note,
+#app-frame .gate-browser-note { color:#465d68 !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame .gate-feature { border-color:#8eafc1 !important; background:#f5f7fa !important; box-shadow:0 2px 5px rgba(38,69,83,.2) !important; }
+#app-frame .gate-feature-details { background:linear-gradient(160deg,#fff,#edf3f6) !important; }
+#app-frame .gate-feature-title h3 { color:#1c3542 !important; text-shadow:none !important; }
+#app-frame .gate-boss-name,
+#app-frame .gate-stat-row,
+#app-frame .gate-reward-row { color:#435963 !important; }
+#app-frame .gate-stat-row b { color:#183d50 !important; }
+#app-frame .gate-reward-row b { color:#9a6500 !important; }
+#app-frame .gate-preview { color:#233d49 !important; text-shadow:0 1px 0 rgba(255,255,255,.85) !important; }
+#app-frame .gate-preview small { color:#405660 !important; }
+#app-frame .gate-preview b { color:#183c4e !important; text-shadow:0 1px 0 #fff !important; }
+
+/* Home quick-action labels and icons need contrast on the newly bright metal buttons. */
+#app-frame .hm-dock-tabs .hm-action-label { color:#263840 !important; text-shadow:0 1px 0 #fff !important; font-weight:800 !important; }
+#app-frame .hm-dock-tabs .hm-action-icon { color:#087eaa !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame .hm-dock-tabs .hm-action.active .hm-action-label,
+#app-frame .hm-dock-tabs .hm-action.active .hm-action-icon { color:#28351f !important; }
+#app-frame .hm-tabs .tb .ic svg.nav-book-icon { display:block; width:100%; height:100%; overflow:visible; }
+#app-frame .hm-tabs .tb .ic svg.nav-book-icon .book-pages { fill:#168bb8 !important; stroke:#125d7a; stroke-width:.8; stroke-linejoin:round; }
+#app-frame .hm-tabs .tb .ic svg.nav-book-icon .book-spine { fill:none !important; stroke:#f8fcfd !important; stroke-width:2; stroke-linecap:round; }
+#app-frame .hm-tabs .tb.on .ic svg.nav-book-icon .book-pages { fill:#344c58 !important; stroke:#344c58 !important; }
+#app-frame .hm-tabs .tb.on .ic svg.nav-book-icon .book-spine { stroke:#fff8df !important; }
+
+/* Shared readability and compact navigation finish: keep page text consistent over silver UI. */
+#app-frame {
+    --ui-copy:#263238;
+    --ui-copy-secondary:#43545d;
+    --ui-copy-muted:#586a73;
+    --ui-copy-heading:#17394a;
+}
+#app-frame .pg-body,
+#app-frame .pg-body :is(p,span,b,strong,small,label,li,em,dt,dd),
+#app-frame #team :is(p,span,b,strong,small,label,li,em,dt,dd),
+#app-frame .account-stats :is(p,span,b,strong,small,label,li,em,dt,dd),
+#app-frame .job-talent-screen :is(p,span,b,strong,small,label,li,em,dt,dd) {
+    text-shadow:none !important;
+}
+#app-frame .pg-body { color:var(--ui-copy) !important; }
+#app-frame .pg-body :is(.pg-sec,.pg-head .tt,h1,h2,h3,.section-title,.dex-cnt,.dex-cell .n,.char-directory-head b) {
+    color:var(--ui-copy-heading) !important;
+}
+#app-frame .pg-body :is(.pg-empty,.pg-credit,.dex-cell .t,.dex-cell .rl,.dex-bar .dex-cnt,.char-directory-head small,.char-directory-head > span) {
+    color:var(--ui-copy-muted) !important;
+}
+#app-frame .pg-body :is(.pgc,.mi,.dex-cell,.char-card,.gate-feature-details,.growth-path,.as-stat,.as-summary,.as-derived) {
+    color:var(--ui-copy) !important;
+}
+#app-frame .pg-body .mi .k,
+#app-frame .pg-body .mi .v,
+#app-frame .pg-body .mi .v.off {
+    color:#263238 !important;
+    text-shadow:none !important;
+    font-weight:800 !important;
+}
+#app-frame .pg-body .mi .v.off { color:#586a73 !important; }
+#app-frame .pg-body .char-directory-grid .char-card .nm { color:#183746 !important; }
+#app-frame .pg-body .char-directory-grid .char-card .sub,
+#app-frame .pg-body .char-card-stat,
+#app-frame .pg-body .char-card-skill { color:#405660 !important; }
+#app-frame .pg-body .char-directory-grid .char-card.locked { opacity:1 !important; }
+#app-frame .pg-body .dex-cell .n { color:#183746 !important; }
+#app-frame .pg-body .dex-cell .t { color:#405660 !important; }
+#app-frame .pg-body .dex-cell .rl { color:#405660 !important; }
+#app-frame .pg-body .dex-cnt { color:#344b56 !important; font-weight:700 !important; }
+#app-frame .pg-body .pg-credit b { color:#263238 !important; }
+
+/* Tighter bottom dock; each destination reads as a separate physical button. */
+#app-frame .hm-tabs {
+    height:66px !important;
+    gap:5px !important;
+    padding:5px 8px 6px !important;
+    align-items:center !important;
+    background:linear-gradient(180deg,#dfe4e7,#aeb8be 45%,#78848b) !important;
+    border-top:1px solid #eef2f4 !important;
+    box-shadow:0 -2px 5px rgba(0,0,0,.34),inset 0 1px 0 #fff !important;
+}
+#app-frame .hm-tabs .tb {
+    height:52px !important;
+    min-width:0 !important;
+    padding:2px 1px !important;
+    border:1px solid #717d84 !important;
+    border-radius:9px !important;
+    background:linear-gradient(180deg,#f7f9fa 0%,#d9dfe2 46%,#aeb8be 100%) !important;
+    box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(47,57,63,.22),0 3px 0 #566168,0 4px 6px rgba(0,0,0,.28) !important;
+    transform:translateY(-1px);
+}
+#app-frame .hm-tabs .tb .ic {
+    width:30px !important;
+    height:30px !important;
+    line-height:29px !important;
+    border:1px solid #78858c !important;
+    border-radius:6px !important;
+    background:linear-gradient(145deg,#59656c,#303a40) !important;
+    color:#f5f7f8 !important;
+    text-shadow:0 1px 1px #263238 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.48),0 1px 2px rgba(0,0,0,.3) !important;
+}
+#app-frame .hm-tabs .tb.on {
+    border-color:#8c6828 !important;
+    background:linear-gradient(180deg,#fff3c8,#e8bd58 52%,#bd8a2c) !important;
+    box-shadow:inset 0 1px 0 #fff9e7,inset 0 -2px 0 rgba(100,65,12,.24),0 3px 0 #75531b,0 4px 6px rgba(0,0,0,.3) !important;
+}
+#app-frame .hm-tabs .tb.on .ic {
+    border-color:#e7c565 !important;
+    background:linear-gradient(145deg,#fff2ae,#e3a92f) !important;
+    color:#3b2a0b !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.55) !important;
+}
+#app-frame .hm-tabs .tb:active {
+    transform:translateY(2px) !important;
+    box-shadow:inset 0 2px 4px rgba(31,40,45,.24),0 1px 0 #566168 !important;
+}
+#app-frame .hm-tabs .tb:hover { filter:brightness(1.05) !important; }
+/* 主頁快捷列也做成有邊框、底座與按壓回饋的按鈕，不再像貼在一起的標籤。 */
+#app-frame .hm-dock-tabs {
+    gap:4px !important;
+    padding:3px 5px 2px !important;
+    background:linear-gradient(180deg,#dfe4e7,#aeb8be 46%,#78848b) !important;
+    border-top:1px solid #f5f7f8 !important;
+}
+#app-frame .hm-dock-tabs > .hm-action {
+    height:30px !important;
+    min-height:30px !important;
+    border:1px solid #78848b !important;
+    border-bottom:3px solid #5a656c !important;
+    border-radius:5px !important;
+    background:linear-gradient(180deg,#f8fafb,#d7dde0 52%,#aeb8be) !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 0 rgba(40,49,55,.35) !important;
+    color:#263238 !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.8) !important;
+}
+#app-frame .hm-dock-tabs > .hm-action .hm-action-label { color:#263238 !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame .hm-dock-tabs > .hm-action .hm-action-icon { color:#405660 !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame .hm-dock-tabs > .hm-action:nth-child(5) {
+    border-color:#9d762b !important;
+    border-bottom-color:#76551e !important;
+    background:linear-gradient(180deg,#fff2bd,#e9c568 55%,#c29438) !important;
+}
+#app-frame .hm-dock-tabs > .hm-action:nth-child(5) .hm-action-label,
+#app-frame .hm-dock-tabs > .hm-action:nth-child(5) .hm-action-icon { color:#44310f !important; }
+#app-frame .hm-dock-tabs > .hm-action:active { transform:translateY(2px) !important; border-bottom-width:1px !important; }
+/* 主頁下緣原本被深色漸層壓暗；加一層柔和銀白過渡，與亮銀導覽列接起來。 */
+#app-frame .hm::before {
+    background:linear-gradient(180deg,transparent 58%,rgba(211,220,224,.10) 72%,rgba(211,220,224,.48) 100%) !important;
+}
+#app-frame .pg-body { bottom:66px !important; }
+#app-frame .hm-nav { bottom:66px !important; }
+@media (max-height:620px) {
+    #app-frame .hm-tabs { height:60px !important; }
+    #app-frame .hm-tabs .tb { height:48px !important; }
+    #app-frame .pg-body,#app-frame .hm-nav { bottom:60px !important; }
+}
+
+/* Polita-inspired pixel-metal nav: single-face buttons with crisp, stepped edges and custom icons. */
+#app-frame .hm-tabs .tb {
+    position:relative !important;
+    border:2px solid #747f85 !important;
+    border-radius:3px !important;
+    background:linear-gradient(180deg,#f2f5f6 0%,#d4dade 44%,#a9b3b9 100%) !important;
+    box-shadow:inset 0 2px 0 #fff,inset 0 -2px 0 rgba(67,77,83,.24),0 3px 0 #59646a,2px 4px 0 rgba(40,48,53,.3) !important;
+    transform:none !important;
+}
+#app-frame .hm-tabs .tb .ic {
+    display:grid !important;
+    place-items:center !important;
+    width:34px !important;
+    height:34px !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    color:#354149 !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.82) !important;
+    box-shadow:none !important;
+}
+#app-frame .hm-tabs .tb .ic svg.nav-icon {
+    display:block;
+    width:28px;
+    height:28px;
+    fill:currentColor;
+    shape-rendering:crispEdges;
+}
+#app-frame .hm-tabs .tb .ic svg.nav-icon .nav-cut { fill:#eef1f2; }
+#app-frame .hm-tabs .tb .ic svg.nav-book-icon .book-pages { fill:#354149 !important; stroke:#354149 !important; }
+#app-frame .hm-tabs .tb .ic svg.nav-book-icon .book-spine { stroke:#eef1f2 !important; }
+#app-frame .hm-tabs .tb.on {
+    border-color:#8c6828 !important;
+    background:linear-gradient(180deg,#fff1bd 0%,#e8bd58 50%,#bd8a2c 100%) !important;
+    box-shadow:inset 0 2px 0 #fff9e7,inset 0 -2px 0 rgba(100,65,12,.25),0 3px 0 #75531b,2px 4px 0 rgba(40,32,20,.3) !important;
+}
+#app-frame .hm-tabs .tb.on .ic { color:#493611 !important; }
+#app-frame .hm-tabs .tb.on .ic svg.nav-icon .nav-cut { fill:#fff0ad; }
+#app-frame .hm-tabs .tb.on .ic svg.nav-book-icon .book-pages { fill:#493611 !important; stroke:#493611 !important; }
+#app-frame .hm-tabs .tb.on .ic svg.nav-book-icon .book-spine { stroke:#fff0ad !important; }
+
+/* Character catalogue cards: replace the glare-white faces with a calmer silver plate. */
+#app-frame .char-directory-grid .char-card {
+    border-color:#75838a !important;
+    background:linear-gradient(155deg,#d9dfe2 0%,#c4ccd0 52%,#aeb8bd 100%) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -2px 0 rgba(71,82,88,.18),0 2px 4px rgba(28,39,45,.22) !important;
+}
+#app-frame .char-directory-grid .char-card-art {
+    border-color:#89969c !important;
+    background:linear-gradient(145deg,#e1e6e8,#b8c2c7) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.75) !important;
+}
+#app-frame .char-directory-grid .char-card .nm { color:#182c36 !important; }
+#app-frame .char-directory-grid .char-card .sub,
+#app-frame .char-directory-grid .char-card-stat,
+#app-frame .char-directory-grid .char-card-skill { color:#344a54 !important; }
+
+/* Catalogue element marker: show the existing pixel element crest instead of a plain color dot. */
+#app-frame .dex-cell .elb2.element-badge {
+    top:4px !important;
+    right:4px !important;
+    width:18px !important;
+    height:18px !important;
+    border:1px solid #5d6b72 !important;
+    border-radius:2px !important;
+    background-color:#d5dde0 !important;
+    box-shadow:0 1px 2px rgba(20,30,36,.32),inset 0 1px 0 rgba(255,255,255,.88) !important;
+    image-rendering:pixelated !important;
+}
+#app-frame .hm-tabs .tb:active {
+    transform:translateY(2px) !important;
+    box-shadow:inset 0 2px 3px rgba(31,40,45,.18),0 1px 0 #59646a !important;
+}
+
+/* 職業天賦頁：林間祭壇底圖、清晰淺色字與圖示卡片按鈕。 */
+#app-frame #pg-body.job-talent-page .jt-shell.jt-embedded {
+    --jt-primary:#c8d8c5 !important;
+    --jt-secondary:#f4f5e9 !important;
+    --jt-base:#172522 !important;
+    color:#f4f6ef !important;
+    font-family:"Noto Sans TC","Microsoft JhengHei UI","Microsoft JhengHei",sans-serif !important;
+    background:linear-gradient(180deg,rgba(8,18,19,.78),rgba(12,23,21,.88)),url("ui/job-talents/shrine-background.png") center 46% / cover no-repeat !important;
+    border-color:#aabbb4 !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded :is(.jt-header small,.jt-header h2,.jt-point b,.jt-point small,.jt-active-note,.jt-branch-name,.jt-detail-title b,.jt-detail p,.jt-footnote,.jt-root small,.jt-node small) {
+    color:#f0f4ed !important;
+    text-shadow:0 1px 2px #07110f !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-point {
+    background:rgba(14,25,24,.9) !important;
+    border-color:#aabbb4 !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tabs { gap:5px !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab {
+    min-height:43px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:4px !important;
+    padding:4px 3px !important;
+    border:1px solid #9caeaa !important;
+    border-radius:4px !important;
+    color:#f1f4ee !important;
+    background:linear-gradient(180deg,rgba(83,101,96,.96),rgba(35,49,47,.98)) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.46),0 2px 0 rgba(0,0,0,.42) !important;
+    text-shadow:0 1px 2px #101817 !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-icon {
+    width:21px !important;
+    height:21px !important;
+    flex:none !important;
+    display:grid !important;
+    place-items:center !important;
+    border:1px solid rgba(232,239,228,.72) !important;
+    border-radius:3px !important;
+    background:linear-gradient(145deg,#8c9b92,#47564f) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-icon .jt-icon { width:15px !important;height:15px !important;filter:none !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy { min-width:0;display:flex;flex-direction:column;align-items:flex-start;line-height:1.15; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy b { color:#fff !important;font-size:9px !important;white-space:nowrap; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy small { color:#d5dfd7 !important;font-size:7px !important;white-space:nowrap; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab.active {
+    border-color:#ecebdc !important;
+    color:#fff !important;
+    background:linear-gradient(180deg,#8d9b92,#53625a) !important;
+    box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(241,239,219,.4),0 2px 0 rgba(0,0,0,.46) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab.equipped:not(.active)::after { margin-left:auto !important;color:#f2d57c !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas {
+    border-color:#aabbb4 !important;
+    background:linear-gradient(180deg,rgba(8,19,19,.60),rgba(10,21,19,.78)),url("ui/job-talents/shrine-background.png") center 52% / cover no-repeat !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-mist { background:linear-gradient(180deg,rgba(8,17,16,.12),rgba(8,17,16,.36)) !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail {
+    border-color:#aabbb4 !important;
+    background:linear-gradient(145deg,rgba(35,48,44,.96),rgba(15,25,24,.97)) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 0 rgba(0,0,0,.35) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-title b { color:#fff4c9 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions { gap:7px !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle {
+    min-height:40px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:7px !important;
+    padding:5px 8px !important;
+    border:1px solid #c0cbc5 !important;
+    border-radius:4px !important;
+    color:#f5f5ee !important;
+    background:linear-gradient(180deg,#65736c,#39463f) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.48),0 2px 0 rgba(0,0,0,.4) !important;
+    font-family:"Noto Sans TC","Microsoft JhengHei UI","Microsoft JhengHei",sans-serif !important;
+    font-size:10px !important;
+    font-weight:700 !important;
+    text-shadow:0 1px 2px #101612 !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button > span:first-child,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle > span:first-child {
+    width:22px;height:22px;flex:none;display:grid;place-items:center;border:1px solid rgba(255,255,255,.55);border-radius:3px;background:rgba(18,29,25,.38);font-size:15px;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button > span:last-child,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle > span:last-child { display:flex;flex-direction:column;gap:2px;line-height:1.12; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button small,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle small { color:#e1e7e1 !important;font-size:8px !important;font-weight:400 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-reset { flex:0 0 39% !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-learn {
+    flex:1 !important;border-color:#b9974b !important;color:#34290f !important;
+    background:linear-gradient(180deg,#fff0b1,#dfbd67 58%,#b78c3e) !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.65) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-learn small { color:#493b1d !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button:disabled { filter:grayscale(.35);opacity:.72 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle { display:inline-flex !important;min-height:30px !important;vertical-align:middle; }
+@media(max-width:390px) {
+    #app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab { gap:2px !important;padding:3px 2px !important; }
+    #app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-icon { width:18px !important;height:18px !important; }
+    #app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy b { font-size:8px !important; }
+}
+
+/* 已持有角色卡整張可點擊進入培養。 */
+#app-frame .char-directory-grid .char-card.cultivable { cursor:pointer; }
+#app-frame .char-directory-grid .char-card.cultivable:focus-visible { outline:2px solid #e9bb4d; outline-offset:1px; }

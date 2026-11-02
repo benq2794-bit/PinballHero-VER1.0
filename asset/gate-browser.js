@@ -23,7 +23,7 @@ function renderGateBrowser() {
     const stats = gateStats(g), wins = bossWin[id] || 0;
     const counter = String(index + 1).padStart(2, '0');
     return `<div class="gate-browser" style="--gate:${ELEMENTS[g.el].color}">
-        <div class="gate-browser-heading"><b>異界迴廊</b><span>選擇一個世界　${counter} / 04</span></div>
+        <div class="gate-browser-heading"><b>異界迴廊</b><div class="gate-header-actions"><span>選擇一個世界　${counter} / 04</span><button type="button" class="gate-training-mini" onclick="enterTrainingGround('${id}')" aria-label="進入${g.gate}訓練場" title="訓練場">訓練</button></div></div>
         ${index > 0 ? gatePreview(GATE_DISPLAY_ORDER[index - 1], 'up') : '<div class="gate-edge-note">旅途從這道門開始</div>'}
         <section class="gate-feature" aria-label="${g.gate}關卡詳情">
             <div class="gate-scene" style="background-image:url('asset/battle/bg/gate_${id}.webp')">
@@ -39,6 +39,11 @@ function renderGateBrowser() {
             </div>
         </section>
         ${index < GATE_DISPLAY_ORDER.length - 1 ? gatePreview(GATE_DISPLAY_ORDER[index + 1], 'down') : '<div class="gate-edge-note">已抵達最後一道門</div>'}
-        <div class="gate-browser-note">上下切換關卡 · 挑戰後進入獨立戰場<br>強度隨波利塔層數與隊伍人數調整。</div>
+        <div class="gate-browser-note">上下切換關卡 · 挑戰後進入獨立戰場<br>異界迴廊有自己的固定強度，依出戰隊伍人數微調；不受波利塔層數影響。</div>
     </div>`;
+}
+
+function enterTrainingGround(id) {
+    const g = BOSS_STAGES.find(stage => stage.id === id);
+    if (g) openGateBattle(g, true);
 }

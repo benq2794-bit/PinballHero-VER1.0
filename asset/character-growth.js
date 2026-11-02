@@ -116,7 +116,7 @@ function resetTalents(id) {
 
 function growthSignature(ch) { return [ch.id, ch.lvl, ch.exp, ch.shards, ch.breakthrough, shardTotal, growthRank(), ...Object.keys(GROWTH_PATHS).map(k => talentRank(ch, k))].join('|'); }
 function syncGrowthView() {
-    if (!growthFor || homeTabOn !== 'chars' || pickerFor || !roster[growthFor]) return;
+    if (!growthFor || homeTabOn !== 'chars' || !roster[growthFor]) return;
     const page = $('page'), body = $('pg-body');
     if (!body || !page || page.style.display === 'none') return;
     const signature = growthSignature(roster[growthFor]);

@@ -3,6 +3,9 @@
 .gate-browser-heading { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
 .gate-browser-heading b { color:#ffe1a1; font-size:16px; }
 .gate-browser-heading span { color:#9cb1cd; font-size:10px; }
+.gate-header-actions { display:flex; align-items:center; gap:8px; }
+.pg .gate-training-mini { min-width:40px; min-height:22px; margin:0; padding:2px 7px; border:1px solid #6c8293; border-radius:4px; background:linear-gradient(#374b5c,#202f3b); color:#d0dce5; font:700 9px 'Microsoft JhengHei',sans-serif; opacity:.82; }
+.pg .gate-training-mini:hover { opacity:1; background:linear-gradient(#465b6b,#293b49); }
 .pg .gate-preview { display:flex; align-items:center; gap:12px; width:100%; min-height:69px; margin:0; padding:5px 12px; border:1px solid #66819a66; border-left:3px solid var(--gate); border-radius:5px; background-position:center 40%; background-size:cover; text-align:left; color:#ddeafa; font-family:inherit; box-shadow:0 2px 0 #030916; }
 .pg .gate-preview:hover { filter:brightness(1.12); }
 .gate-preview img { width:52px; height:52px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 3px 2px #0008); }
@@ -38,4 +41,4 @@
 .pg .gate-challenge:hover { background:linear-gradient(#ffedb5,#ffc65b); }
 .gate-browser-note { text-align:center; color:#8ea5c0; font-size:10px; line-height:1.7; }
 
-.pg .gate-preview:focus-visible,.pg .gate-challenge:focus-visible { outline:2px solid #e9f8ff; outline-offset:2px; }
+.pg .gate-preview:focus-visible,.pg .gate-challenge:focus-visible,.pg .gate-training-mini:focus-visible { outline:2px solid #e9f8ff; outline-offset:2px; }

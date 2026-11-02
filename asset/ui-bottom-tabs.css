@@ -1,0 +1,24 @@
+/* Bottom navigation structure only. Its shared silver/gold appearance lives in ui-metal-theme.css. */
+.hm-tabs {
+    display:flex;
+    align-items:center;
+    gap:5px;
+    padding:5px 8px 6px;
+}
+.hm-tabs .tb {
+    box-sizing:border-box;
+    flex:1 1 0;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:1px;
+    cursor:pointer;
+    font-family:inherit;
+}
+.hm-tabs .tb .ic {
+    display:block;
+    flex:none;
+    text-align:center;
+}

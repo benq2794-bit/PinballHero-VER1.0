@@ -15,7 +15,7 @@ function bossAppearanceName() {
 
 // 異界迴廊的王比較大尾，節奏再放慢一格
 function bossEntranceTiming(gate) {
-    return { name: 500, intro: Math.round(110 * 1000 / 60), charge: Math.round(35 * 1000 / 60) };
+    return { name: 820, intro: 1800, charge: 760 };
 }
 
 // 充能期間 HUD 顯示的值：入場流程自己灌，其餘時間回傳 null（照真實血量）
@@ -55,15 +55,6 @@ function paintBossEntranceHp(data) {
     if (txt) txt.textContent = `${data.hpShown}/${data.maxHp}`;
 }
 
-// 名稱提示貼著王本體下方定位，跟隨王的位置，避免遮住王或畫面中央戰鬥區。
-function positionBossEntrance() {
-    const panel = $('boss-entrance'), boss = PF.foe;
-    if (!panel || !boss) return;
-    const half = Math.min(190, W / 2 - 12);
-    panel.style.left = `${Math.max(half, Math.min(W - half, boss.x))}px`;
-    panel.style.top = `${Math.min(H - 105, boss.y + boss.r + 24)}px`;
-}
-
 function hideBossEntrance() {
     const data = BOSS_ENTRANCE.data;
     shiftBossEntranceClocks(data);
@@ -72,16 +63,14 @@ function hideBossEntrance() {
         PF.el.classList.remove('boss-entry-stop', 'boss-entry-omen', 'boss-entry-reveal', 'boss-entry-engage', 'boss-hp-charge', 'boss-quake');
         PF.el.style.removeProperty('--bc');
     }
-    const px = $('boss-omen-px');
-    if (px) px.textContent = '';
+    const fxLayer = $('boss-fx-back'); if (fxLayer) fxLayer.textContent = '';
     if (PF.foe) {
         PF.foe.node.classList.remove('boss-gone');
         PF.foe.ball.classList.remove('boss-drop', 'boss-superarmor');
     }
     const panel = $('boss-entrance');
     if (panel) {
-        panel.classList.remove('on', 'leaving', 'gate-enter', 'slam');
-        panel.removeAttribute('style');
+        panel.classList.remove('on', 'leaving', 'gate-enter');
         panel.setAttribute('aria-hidden', 'true');
     }
     paintBossEntranceHp({ hpShown: Math.max(0, enemy.hp), maxHp: Math.max(1, enemy.maxHp) });
@@ -110,21 +99,31 @@ function queueBossEntrance() {
     }
 }
 
-// 粒子從外圈往法陣中心收束；角度平均分佈再加一點抖動，才不會像節拍器
-function spawnBossParticles() {
-    const layer = $('boss-omen-px');
-    if (!layer) return;
-    layer.textContent = '';
-    const count = 20;
-    for (let i = 0; i < count; i++) {
-        const p = document.createElement('i');
-        p.className = 'boss-px';
-        p.style.setProperty('--a', ((i / count) * 360 + Math.random() * 14).toFixed(1) + 'deg');
-        p.style.setProperty('--d', (150 + Math.random() * 110).toFixed(0) + 'px');
-        p.style.setProperty('--dl', (Math.random() * 0.22).toFixed(2) + 's');
-        p.style.width = p.style.height = (3 + Math.round(Math.random() * 4)) + 'px';
-        layer.appendChild(p);
-    }
+// pixelfx 匯出的登場橫條：尺寸／幀數／時長全寫在 CSS 的 .boss-fx-* 上，
+// 這裡只決定落在哪個座標、放大多少、播完幾毫秒後把節點收掉。
+// 全部掛在 #boss-fx-back —— 那層排在 .pf-field 前面，特效在他背後炸，不會把他糊掉。
+const BOSS_FX = {
+    pillar: { host: 'boss-fx-back', life: 1260 },
+    slam:   { host: 'boss-fx-back', life: 320 },
+    burst:  { host: 'boss-fx-back', life: 820 },
+    rays:   { host: 'boss-fx-back', life: 780 }
+};
+
+function playBossFx(key, x, y, sx, sy) {
+    const cfg = BOSS_FX[key];
+    const host = cfg && $(cfg.host);
+    if (!host) return;
+    const n = document.createElement('div');
+    n.className = 'boss-fx boss-fx-' + key;
+    n.style.cssText = `--fx:${Math.round(x)}px;--fy:${Math.round(y)}px;--sx:${sx};--sy:${sy}`;
+    host.appendChild(n);
+    setTimeout(() => n.remove(), cfg.life);
+}
+
+// 演出座標：王腳下那一點（著地面），四條橫條都以它為中心
+function bossFxAnchor() {
+    const b = PF.foe;
+    return { x: b ? b.x : W / 2, y: b ? b.y + b.r * .62 : H * .4 };
 }
 
 function openBossEntrance(data) {
@@ -138,41 +137,63 @@ function openBossEntrance(data) {
     panel.classList.remove('on', 'leaving');
     panel.setAttribute('aria-hidden', 'true');
 
-    // 第一幕：王先藏起來，場地先變色
+    // 第一幕：場上只剩一根照著落點的聚光，王還沒現身
     if (PF.foe) PF.foe.node.classList.add('boss-gone');
     if (PF.el) PF.el.classList.add('boss-entry-omen');
-    spawnBossParticles();
     paintBossEntranceHp(data);
     SFX.tone(92, 48, .55, 'sine', .18, 0, .03);
     SFX.noise(.5, .06, 900, 220, 0, { mode: 'band' });
 }
 
+// bossSlam 的著地幀在 60%（.78s 的 468ms），落地那拍才放衝擊，早一幀就變成飄下來的氣球
+const BOSS_TOUCHDOWN_MS = 468;
+
 function beginBossReveal(data) {
     if (PF.el) {
         PF.el.classList.remove('boss-entry-omen');
-        PF.el.classList.add('boss-entry-reveal', 'boss-quake');
-        setTimeout(() => { if (PF.el) PF.el.classList.remove('boss-quake'); }, 620);
+        PF.el.classList.add('boss-entry-reveal');
     }
     if (PF.foe) {
         PF.foe.node.classList.remove('boss-gone');
         PF.foe.ball.classList.add('boss-drop', 'boss-superarmor');
     }
+    // 落下途中只有全黑遮罩、一道天光與低頻：震屏、煙霧、名稱卡全部留給著地那一拍
+    const a = bossFxAnchor();
+    // 光柱的地面法陣在源圖第 195 行（框高 232），放大 2.15 倍後離中心 170px；
+    // 把中心往上抬這麼多，法陣才會正好落在王腳下那一點
+    playBossFx('pillar', a.x, a.y - 170, 2.15, 2.15);
+    setTimeout(() => bossTouchdown(data), BOSS_TOUCHDOWN_MS);
+    SFX.tone(70, 30, .5, 'sine', .3, 0, .002);
+    SFX.tone(150, 52, .3, 'square', .12, 0, .002);
+}
+
+function bossTouchdown(data) {
+    if (BOSS_ENTRANCE.data !== data || !PF.foe) return;
     const b = PF.foe;
-    if (b) {
-        FX.smoke('puff', b.x, b.y + b.r * .7, data.element, 260);
-        FX.smoke('ring', b.x, b.y + b.r * .4, data.element, 200);
-        FX.sparks(b.x, b.y + b.r * .5, data.color, 18);
+    const iy = b.y + b.r * .62;
+    // 放射線撐到場地寬的 1.2 倍、縱向 421px：再大就把整個畫面洗白，王的輪廓會一起消失；
+    // 腳下再補一團黑煙，它是實心形體，不能一起拉長，否則會變成一顆拉糊的黑棗
+    playBossFx('slam', b.x, iy, 1.2, 2.34);
+    playBossFx('burst', b.x, iy, 1.1, 1.1);
+    if (PF.el) {
+        PF.el.classList.add('boss-quake');
+        setTimeout(() => { if (PF.el) PF.el.classList.remove('boss-quake'); }, 760);
+    }
+    FX.sparks(b.x, b.y + b.r * .5, data.color, 18);
+    if (PF.vfx) {
+        const flash = document.createElement('div');
+        flash.className = 'boss-whiteout';
+        PF.vfx.appendChild(flash);
+        setTimeout(() => flash.remove(), 260);
     }
     const panel = $('boss-entrance');
     if (panel) {
-        positionBossEntrance();
         panel.classList.remove('leaving');
-        panel.classList.add('on', 'slam');
+        panel.classList.add('on');
         panel.setAttribute('aria-hidden', 'false');
     }
-    SFX.tone(70, 30, .5, 'sine', .3, 0, .002);
-    SFX.tone(150, 52, .3, 'square', .12, 0, .002);
-    SFX.noise(.4, .12, 2200, 260, 0, { mode: 'band' });
+    SFX.tone(52, 26, .62, 'sine', .34, 0, .002);
+    SFX.noise(.42, .16, 1800, 120, 0, { mode: 'band' });
 }
 
 function beginBossCharge(data) {
@@ -187,7 +208,9 @@ function finishBossEntrance(data) {
     const pilot = partyPilot();
     if (pilot && pilot.body) {
         const b = pilot.body;
-        b.x = W / 2; b.y = -50; b.vx = 0; b.vy = 0; b.introDrop = true;
+        // 從 Boss 碰撞區下方進場，避免開場從頭頂直落連撞造成秒殺；縮短落地距離但仍保留落場動作。
+        const bossBottom = PF.foe ? PF.foe.y + PF.foe.r + b.r + 22 : H * .46;
+        b.x = W / 2; b.y = Math.max(H * .48, bossBottom); b.vx = 0; b.vy = 0; b.introDrop = true;
         syncPartyFormation(true);
         for (const m of aliveMembers()) if (m.body) m.body.node.style.transform = `translate(${m.body.x}px, ${m.body.y}px)`;
     }
@@ -198,12 +221,13 @@ function beginBossEngage(data) {
         PF.el.classList.remove('boss-entry-reveal');
         PF.el.classList.add('boss-entry-engage', 'boss-hp-charge');
     }
+    // 充能這拍從他背後打一道天光：血條灌滿時，光是從他身上出來的，不是場地亮的
+    const a = bossFxAnchor();
+    playBossFx('rays', a.x, a.y - 40, 1.34, 2.6);
     const panel = $('boss-entrance');
     if (panel) {
-        positionBossEntrance();
         panel.classList.remove('leaving');
         panel.classList.add('on');
-        panel.classList.remove('slam');
         panel.setAttribute('aria-hidden', 'false');
     }
     data.hpShown = 0; data.hpMarks = 0;
@@ -225,8 +249,6 @@ function updateBossEntrance(dtMs) {
         BOSS_ENTRANCE.pending = false;
         openBossEntrance(data);
     }
-
-    if (data.phase >= 1 && data.phase <= 2) positionBossEntrance();
 
     BOSS_ENTRANCE.elapsed += dtMs;
     const t = BOSS_ENTRANCE.elapsed, tm = data.timing;
