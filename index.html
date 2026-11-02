@@ -1621,6 +1621,7 @@
 <link rel="stylesheet" href="asset/ui-bottom-tabs.css">
 <link rel="stylesheet" href="asset/pixel-rpg-ui.css">
 <link rel="stylesheet" href="asset/ui-metal-theme.css">
+<link rel="stylesheet" href="asset/ui/nav-tabs.css">
 <link rel="stylesheet" href="asset/gate-settlement.css">
 </head>
 <body>
@@ -6099,12 +6100,12 @@ const WF_ICON = "https://eliya-bot.herokuapp.com/img/assets/";
 const EL_ICON_FILE = { fire: "element_red", water: "element_blue", thunder: "element_yellow",
                        wind: "element_green", light: "element_white", dark: "element_black" };
 const HOME_TABS = [
-    { k: "home", ic: '<svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M3 14 16 3l13 11v15H19v-9h-6v9H3z"/><path class="nav-cut" d="M7 15v10h3v-9h12v9h3V15L16 7z"/></svg>', t: "主頁" },
-    { k: "chars", ic: '<svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14ZM4 29c0-6 5-10 12-10s12 4 12 10v1H4z"/><path class="nav-cut" d="M16 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM8 27c1-3 4-5 8-5s7 2 8 5z"/></svg>', t: "角色" },
-    { k: "talents", ic: '<svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="m16 1 4.1 9.5L30 7l-3.5 9 4.5 4-10 .6L16 31l-5-10.4L1 20l5-4-3-9 9.5 3.5z"/><path class="nav-cut" d="m16 8 2.5 6 6-1.7-2 5 3 2-6 .4-3.5 7-3.4-7-5.5.2 3-2.5-1.6-5 5.5 1.8z"/></svg>', t: "天賦" },
-    { k: "team", ic: '<svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="m5 3 5-2 8 19-5 2zM27 3l-5-2-8 19 5 2zM10 24l4-3 7 8-4 3zM22 24l-4-3-7 8 4 3z"/><path class="nav-cut" d="m7 5 2-1 6 14-2 1zM25 5l-2-1-6 14 2 1z"/></svg>', t: "隊伍" },
-    { k: "book", ic: '<svg class="nav-book-icon" viewBox="0 0 32 32" aria-hidden="true"><path class="book-pages" d="M4 6.5h8.2c2.1 0 3.8 1.1 3.8 3v16c0-1.8-1.7-2.8-3.8-2.8H4zM28 6.5h-8.2c-2.1 0-3.8 1.1-3.8 3v16c0-1.8 1.7-2.8 3.8-2.8H28z"/><path class="book-spine" d="M16 9v16"/></svg>', t: "圖鑑" },
-    { k: "menu", ic: '<svg class="nav-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M3 5h26v4H3zM3 14h26v4H3zM3 23h26v4H3z"/><path class="nav-cut" d="M6 6h20v1H6zM6 15h20v1H6zM6 24h20v1H6z"/></svg>', t: "選單" }
+    { k: "home", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-home.png" alt="" draggable="false">', t: "主頁" },
+    { k: "chars", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-chars.png" alt="" draggable="false">', t: "角色" },
+    { k: "talents", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-talents.png" alt="" draggable="false">', t: "天賦" },
+    { k: "team", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-team.png" alt="" draggable="false">', t: "隊伍" },
+    { k: "book", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-book.png" alt="" draggable="false">', t: "圖鑑" },
+    { k: "menu", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-menu.png" alt="" draggable="false">', t: "選單" }
 ];
 let homeTabOn = "home", homeSig = "", toastTimer = 0;
 
