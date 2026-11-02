@@ -8,9 +8,19 @@ const ctx = { bossEntranceFreezesBattle: () => false, roster: {}, shardTotal: 10
     $: () => null, renderPage: noop, updateUI: noop, saveGame: noop, atkOf: ch => ch.baseAtk,
     hpMax: ch => Math.round(ch.maxHp * (1 + .04 * (ch.talents?.survival || 0))),
     CHAR_TABLE: { hero: { name: '測試角色' } }, homeTabOn: 'chars', pickerFor: null };
+ctx.window = ctx;
+ctx.mainAccountJob = 'warrior'; ctx.TRAINING_MODE = false;
+ctx.mainAccountBonus = () => ({ skillDamage: 0, hp: 0 });
+ctx.elementMultiplier = () => 1;
 vm.createContext(ctx);
+for (const file of ['asset/damage-formulas.js', 'asset/reward-formulas.js', 'asset/combat-rules.js', 'asset/skill-system.js']) {
+    vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), ctx);
+}
 vm.runInContext(fs.readFileSync(path.join(root, 'asset/enemy-wave.js'), 'utf8'), ctx);
-vm.runInContext(src + ';this.setGrowthView=id=>{growthFor=id;};', ctx);
+vm.runInContext(fs.readFileSync(path.join(root, 'asset/job-effects.js'), 'utf8'), ctx);
+    ctx.jobEffects = ctx.JobEffects.create({ getJob: () => ctx.mainAccountJob, isActive: () => false,
+        getStat: () => 1, getTalent: () => 0, isFever: () => false });
+    vm.runInContext(src + ';this.setGrowthView=id=>{growthFor=id;};', ctx);
 function make(overrides = {}) {
     return { id: 'hero', unlocked: true, lvl: 1, exp: 0, nextExp: 100, baseAtk: 12, maxHp: 150, hp: 150,
         shards: 0, growthVersion: 1, legacyCap: 30, breakthrough: 0, talents: { skill: 0, pf: 0, survival: 0 }, ...overrides };
@@ -83,15 +93,26 @@ function make(overrides = {}) {
     assert.equal(locked.lvl, 1); assert.equal(ctx.talentUsed(locked), 0);
 }
 // Run the actual fragment drop function with deterministic randomness.
-const drops = html.slice(html.indexOf('function rollShards()'), html.indexOf('// 兌換：碎片滿', html.indexOf('function rollShards()')));
-ctx.CHAR_IDS = ['hero', 'locked']; ctx.CHAR_TABLE = { hero: { open: true, need: 10, name: '已解鎖' }, locked: { open: true, need: 10, name: '未解鎖' } };
+const rollStart = html.indexOf('function rollShards()');
+const exchangeStart = html.indexOf('function exchangeChar(', rollStart);
+const exchangeEnd = html.indexOf('// ===== 開場選角', exchangeStart);
+const drops = html.slice(rollStart, html.indexOf('// 兌換：碎片滿', rollStart)) + html.slice(exchangeStart, exchangeEnd);
+ctx.CHAR_IDS = ['hero', 'locked']; ctx.CHAR_TABLE = {
+    hero: { open: true, rarity: 4, need: 10, name: '已解鎖', element: 'fire', type: 'test' },
+    locked: { open: true, rarity: 4, need: 10, name: '未解鎖', element: 'fire', type: 'test' }
+};
+ctx.ELEMENTS = { fire: { label: '火' } }; ctx.TYPE_INFO = { test: { n: '測試職業' } };
 ctx.roster = { hero: make({ shards: 9 }), locked: make({ id: 'locked', unlocked: false, shards: 9 }) };
-ctx.teamIds = ['hero']; ctx.unisonMap = {}; ctx.enemy = { boss: false }; ctx.stage = 1;
+ctx.teamIds = ['hero']; ctx.TEAM_MAX = 3; ctx.syncTeamField = noop; ctx.spawnEnemy = noop; ctx.spawnFoe = noop;
+ctx.unisonMap = {}; ctx.enemy = { boss: false }; ctx.stage = 1;
 ctx.Math = Object.create(Math); ctx.Math.random = () => 0;
 vm.runInContext(drops, ctx); ctx.rollShards();
-assert.equal(ctx.roster.hero.shards, 10); assert.equal(ctx.roster.locked.shards, 10);
+assert.equal(ctx.roster.hero.shards, 10);
+assert.equal(ctx.roster.locked.unlocked, true, 'reaching the fragment requirement auto-unlocks the character');
+assert.equal(ctx.roster.locked.shards, 0, 'automatic unlock consumes the required fragments');
+assert.ok(ctx.teamIds.includes('locked'), 'an automatically unlocked character joins an empty team slot');
 ctx.rollShards(); assert.equal(ctx.roster.hero.shards, 11, 'unlocked fragments exceed unlock cost');
-assert.equal(ctx.roster.locked.shards, 10, 'ready-to-unlock character is not overfilled');
+assert.equal(ctx.roster.locked.shards, 1, 'unlocked characters continue receiving growth fragments');
 // Exercise the game's actual combat entry points, not just the talent counters.
 {
     const ch = make({ lvl: 60, talents: { skill: 2, pf: 0, survival: 8 } });
@@ -113,12 +134,17 @@ assert.equal(ctx.roster.locked.shards, 10, 'ready-to-unlock character is not ove
     ctx.memberStrike(member, 100, 'test'); assert.equal(ch.hp, 58, 'survival talent reduces actual incoming damage');
     let healPct = 0;
     ctx.applyHeal = (m, pct) => { healPct = pct; return 1; };
-    vm.runInContext(html.slice(html.indexOf('const SKILL_CAST = {'), html.indexOf('const SKILLS = {}')) + ';this.skillCasts=SKILL_CAST;', ctx);
+    ctx.skillCasts = ctx.SkillSystem.createRuntime({
+        skillHit: ctx.skillHit, dashTo: noop, repeat: noop, talentRank: ctx.talentRank,
+        applyHeal: ctx.applyHeal, cutCd: noop, aliveMembers: () => [member],
+        getEnemy: () => ctx.enemy, getPartyState: () => ctx.PF,
+        pop: noop, now: () => 0
+    }).byRole;
     ctx.skillCasts.supporter(member);
     assert.equal(healPct, .10 * 1.04, 'skill talent improves outgoing support healing');
 }
 new Function(src);
 for (const b of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new Function(b[1]);
-assert.match(html, /growthVersion: c.growthVersion/); assert.match(html, /talents: \{ \.\.\.c.talents \}/);
-assert.match(html, /normalizeCharacterGrowth\(roster\[id\]\)/);
+assert.match(html, /SaveSystem.createSnapshot/);
+assert.match(fs.readFileSync(path.join(root, 'asset/save-system.js'), 'utf8'), /normalizeCharacterGrowth\(state.roster\[id\]\)/);
 console.log('PASS: automatic leveling, level caps, banked XP, fragment payments/drops, old saves, round trips, talent budgets/costs/refunds, HP safety, locked characters, growth UI and syntax.');

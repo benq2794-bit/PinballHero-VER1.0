@@ -5,7 +5,7 @@ let field = { top: 100, width: 860 }, hud = { bottom: 340, height: 200 }, combo 
 const ctx = { PF: { el: { offsetWidth: 430, getBoundingClientRect: () => field, querySelector: () => ({ getBoundingClientRect: () => hud }) } },
     $: () => ({ getBoundingClientRect: () => combo }), PHYS: { wallRest: .66 } };
 vm.createContext(ctx); vm.runInContext(code + ';this.bounds=BATTLE_BOUNDS;', ctx);
-ctx.refreshBattleBounds(); assert.equal(ctx.bounds.top, 178, 'HUD bounds converted from 2x zoom');
+ctx.refreshBattleBounds(); assert.equal(ctx.bounds.top, 176, 'protected minimum remains below the scaled HUD');
 field = { top: 10, width: 215 }; hud = { bottom: 115, height: 70 }; combo = { bottom: 90, height: 20 };
 ctx.refreshBattleBounds(); assert.equal(ctx.bounds.top, 218, 'small screens and expanded HUD');
 field.width = 0; ctx.refreshBattleBounds(); assert.equal(ctx.bounds.top, 218, 'hidden scene retains valid boundary');

@@ -10,5 +10,10 @@ artisticdude (submitted by Ogrebane), Battle Sound Effects (CC0 option)
 https://opengameart.org/content/battle-sound-effects
 Used: swish_2.wav, swish_3.wav, swish_4.wav (randomized direct hit / Power Flip).
 
+Fupi, Erase / Escape (CC0)
+https://opengameart.org/content/erase-escape
+Used: erase_0.wav cut to outhole_erase.wav (0.585s, mono 44.1k, tanh soft-sat,
+peak 0.85 matched to hit_punch) for the outhole bite.
+
 The Spell Sounds Starter Pack was not included because its listed licenses
 (CC-BY-SA 3.0 / GPL 2.0 / GPL 3.0) need additional redistribution handling.

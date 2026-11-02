@@ -17,13 +17,12 @@ function launchPowerFlip(b) {
     clearPowerFlip(b);
     clearArcherPierce(member);
     const type = CHAR_TABLE[source.id].type;
-    const passiveOn = isJobPassiveActive();
     // 戰士在 15 Combo 以上發動 PF 時短暫浮游；仍會照常碰撞與反彈。
-    if (mainAccountJob === 'warrior' && passiveOn && combo >= 15) {
+    if (jobEffects.active('warrior') && combo >= 15) {
         b._warriorFloatUntil = performance.now() + 1500;
         showPassiveFX('wind', b.x, b.y + 8, { follow: b, dy: 8, ms: 1500, behind: true });
     }
-    const archerPierce = mainAccountJob === 'archer' && passiveOn && type === 'ranger';
+    const archerPierce = jobEffects.active('archer') && type === 'ranger';
     b.powerFlip = { type, lv, source, seq: PF.foeSeq, left: 1800, archerPierce,
         pending: true, contacted: false, hits: 0, hitWait: 0, contactTarget: null };
     if (archerPierce) {
@@ -47,7 +46,7 @@ function powerFlipOwner(state) {
 }
 function archerPierceActive(member, now = performance.now()) {
     const b = member && member.body;
-    if (!b || mainAccountJob !== 'archer' || !isJobPassiveActive()
+    if (!b || !jobEffects.active('archer')
         || !b._archerPierceActive
         || b._archerPierceSeq !== PF.foeSeq || now >= (b._archerPierceUntil || 0)) return false;
     return true;
@@ -81,18 +80,18 @@ function archerPierceHit(member, target, speed, isBoss = false) {
 }
 // 盜賊被動：碰撞後短暫冷卻，再對附近敵人補一段範圍衝擊；不做 hit-stop，避免看起來卡頓。
 function triggerThiefShockwave(ch, target) {
-    if (mainAccountJob !== 'thief' || !isJobPassiveActive() || !ch || !target || !enemyUnitAlive(target)) return false;
+    if (!jobEffects.active('thief') || !ch || !target || !enemyUnitAlive(target)) return false;
     const now = performance.now();
     if (now < (ch._thiefShockReadyAt || 0)) return false;
     ch._thiefShockReadyAt = now + 550;
-    const radius = Math.min(144, 58 + jobPassiveStat('str') * 1.5 + jobTalentRank('thief_shock_radius') * 2.8);
+    const radius = jobEffects.shockRadius();
     powerFlipWeakCircle(target.x, target.y, radius, { seq: PF.foeSeq, source: ch });
     // 被動專屬的衝擊環：半徑跟實際判定同步，不再借用爆裂型的爆炸。
     showPassiveFX('shock', target.x, target.y, { scale: radius / 90 });
     for (const splash of powerFlipTargets()) {
         if (splash === target || Math.hypot(splash.x - target.x, splash.y - target.y) > radius + splash.r) continue;
         const shockCrit = rollCrit(ch, 'shockwave');
-        const shock = Math.max(1, Math.round(atkOf(ch) * Math.min(.82, .35 + jobPassiveStat('str') * .005 + jobTalentRank('thief_shock_damage') * .024)
+        const shock = Math.max(1, Math.round(atkOf(ch) * jobEffects.shockMultiplier()
             * (shockCrit ? CRIT_DMG : 1)));
         applyDamage(ch, shock, { target: splash, critical: shockCrit, cls: 'pf-damage', pf: true });
     }
@@ -138,16 +137,14 @@ function powerFlipDamage(state, target, mult) {
         showPowerFlipVFX(state.type, target.x, target.y, angle, state.lv);
     }
     const crit = rollCrit(ch);
-    const archerPierce = mainAccountJob === 'archer' && isJobPassiveActive() && state.type === 'ranger'
-        ? Math.min(.30, jobPassiveStat('dex') * .005
-            + jobTalentRank('archer_direct') * .01 + jobTalentRank('archer_pierce') * .01) : 0;
+    const archerPierce = jobEffects.pfBonus(state.type);
     const damage = Math.max(1, Math.round(atkOf(ch) * mult * (1 + mainAccountBonus().powerFlipDamage + archerPierce) * (1 + .08 * talentRank(ch, 'pf')) *
         elementMultiplier(CHAR_TABLE[ch.id].element, enemy.element) * (crit ? CRIT_DMG : 1)));
     const dealt = applyDamage(ch, damage, { target, critical: crit, cls: 'pf-damage', combo: 1, pf: true });
-    if (mainAccountJob === 'warrior' && isJobPassiveActive() && dealt > 0) {
+    if (jobEffects.active('warrior') && dealt > 0) {
         const owner = powerFlipOwner(state);
         if (owner && owner.ch.hp > 0) {
-            const heal = Math.min(Math.ceil(hpMax(owner.ch) * .05), Math.round(dealt * Math.min(.05, .015 + jobPassiveStat('str') * .0005)));
+            const heal = jobEffects.lifeSteal(dealt, hpMax(owner.ch));
             if (heal > 0) owner.ch.hp = Math.min(hpMax(owner.ch), owner.ch.hp + heal);
         }
     }
@@ -204,8 +201,7 @@ function updatePowerFlip(dtMs) {
                 const angle = aim ? Math.atan2(aim.t.y - b.y, aim.t.x - b.x) : Math.atan2(b.vy, b.vx);
                 const ux = Math.cos(angle), uy = Math.sin(angle);
                 const width = 12 + state.lv * 8
-                    + (mainAccountJob === 'archer' && isJobPassiveActive()
-                        ? Math.min(24, jobPassiveStat('int') * .8 + jobTalentRank('archer_beam') * 2) : 0);
+                    + jobEffects.beamWidth(true);
                 // 射擊型：從球指向目標以長條光束掃過弱點。
                 showPowerFlipVFX('ranger', b.x, b.y, angle, state.lv, 1, 760);
                 powerFlipWeakRay(b.x, b.y, ux, uy, 760, width, state);

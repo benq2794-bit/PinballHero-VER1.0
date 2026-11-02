@@ -94,7 +94,7 @@ for (const side of ['l', 'r']) {
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 new Function(source);
 for (const block of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new Function(block[1]);
-assert.match(html, /if \(!COLLISION_TRIAL.enabled \|\| n.canDamage\) hitFoe/);
+assert.match(html, /if \(!COLLISION_TRIAL.enabled \|\| n.canDamage\) \{/);
 assert.match(html, /if \(!COLLISION_TRIAL.enabled \|\| contact.canDamage\) hitFoe/);
 assert.match(html, /updateCollisionTrial\(dt \* 1000\)/);
 assert.ok(!html.includes('pp-collision-trial') && !html.includes('toggleCollisionTrial'), 'no manual collision/auto-dash switch');

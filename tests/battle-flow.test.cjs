@@ -1,0 +1,141 @@
+const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
+const assert = require('node:assert/strict');
+const root = path.resolve(__dirname, '..'), ctx = { window: {} };
+vm.createContext(ctx);
+for (const name of ['battle-lifecycle', 'battle-settlement', 'ui-router', 'reward-formulas', 'job-effects']) {
+    vm.runInContext(fs.readFileSync(path.join(root, 'asset/' + name + '.js'), 'utf8'), ctx);
+}
+const { BattleLifecycle, BattleSettlement, UIRouter, RewardFormulas, JobEffects } = ctx.window;
+function clock() {
+    const state = { paused: false, running: true, holdL: true, holdR: true };
+    let time = 1000, intro = false, cinematic = false;
+    const resumed = [];
+    const life = BattleLifecycle.create({ getState: () => state, now: () => time,
+        isIntro: () => intro, isCinematic: () => cinematic,
+        onResume: ms => { resumed.push(ms); BattleLifecycle.shiftDeadlines(state, ms); } });
+    return { life, state, resumed, elapse: ms => { time += ms; },
+        intro: value => { intro = value; }, cinematic: value => { cinematic = value; } };
+}
+{
+    const c = clock(), hits = [];
+    c.life.schedule(180, () => hits.push('hit'));
+    c.life.advance(100); c.life.setPaused(true); c.elapse(5000); c.life.advance(5000);
+    assert.equal(hits.length, 0); assert.equal(c.state.holdL, false);
+    c.life.setPaused(true); c.life.setPaused(false);
+    assert.deepEqual(c.resumed, [5000], 'nested pause calls do not double-count elapsed time');
+    c.life.advance(79); assert.equal(hits.length, 0);
+    c.life.advance(1); assert.deepEqual(hits, ['hit']);
+    c.life.schedule(10, () => hits.push('stale'));
+    c.life.invalidate(); c.life.advance(50); assert.equal(hits.length, 1);
+    c.life.schedule(20, () => hits.push('after-skill'));
+    c.cinematic(true); c.life.advance(2000); assert.equal(c.life.phase(), 'skill');
+    c.cinematic(false); c.intro(true); c.life.advance(2000); assert.equal(c.life.phase(), 'intro');
+    c.intro(false); c.life.advance(20); assert.equal(hits.length, 2);
+    c.life.setRunning(false); assert.equal(c.life.phase(), 'defeated');
+    assert.equal(c.life.claimOnce('reward'), true); assert.equal(c.life.claimOnce('reward'), false);
+    c.life.invalidate(); assert.equal(c.life.claimOnce('reward'), true);
+    // A callback that changes encounters also cancels the rest of the same frame's tasks.
+    c.life.setRunning(true);
+    c.life.schedule(1, () => c.life.invalidate()); c.life.schedule(1, () => hits.push('old-wave'));
+    c.life.advance(10); assert.equal(hits.includes('old-wave'), false);
+}
+{
+    const state = { nextCastAt: 2000, breakUntil: 2100, weak: { at: 1000 },
+        aura: { at: 1200, until: 2400 }, buff: { until: 3000 }, burns: [{ at: 1100 }],
+        members: [{ respawnAt: 1500, ch: { _thiefShockReadyAt: 1600 }, body: { _archerPierceUntil: 1700 } }] };
+    BattleLifecycle.shiftDeadlines(state, 5000);
+    assert.equal(state.weak.at, 6000); assert.equal(state.breakUntil, 7100);
+    assert.equal(state.aura.until, 7400); assert.equal(state.burns[0].at, 6100);
+    assert.equal(state.members[0].body._archerPierceUntil, 6700);
+}
+function settlement(training = false, gate = null) {
+    const c = clock(), events = [], members = [{ ch: { id: 'a' } }, { ch: { id: 'b' } }];
+    const state = { training, gate, seq: 1, enemy: { hp: 0, expReward: 101, name: 'Boss', maxHp: 1000 },
+        gateDefinition: gate ? { id: gate, gate: '火關', el: 'fire', shards: 60, replay: 12 } : null,
+        bossWin: {}, now: 2200, startedAt: 1000, damage: 1000, damageStart: 0 };
+    const actions = Object.fromEntries(['playVictory', 'trainingNotice', 'resetTraining', 'experienceNotice',
+        'gainRankExp', 'gateVictory', 'settleTower', 'showGateResult', 'save', 'publishGateResult'].map(name =>
+        [name, (...args) => events.push({ name, args })]));
+    actions.survivors = () => members;
+    actions.addExp = (ch, amount) => events.push({ name: 'exp', id: ch.id, amount });
+    actions.applyGateReward = (g, result) => { state.bossWin[g.id] = result.win; events.push({ name: 'reward', result }); };
+    const runtime = BattleSettlement.create({ getState: () => state, lifecycle: c.life,
+        splitExperience: RewardFormulas.splitExperience, actions });
+    return { ...c, state, events, runtime };
+}
+{
+    const t = settlement();
+    assert.equal(t.runtime.resolveWave(), true); assert.equal(t.runtime.resolveWave(), false);
+    assert.deepEqual(t.events.filter(e => e.name === 'exp').map(e => e.amount), [51, 50]);
+    assert.equal(t.events.filter(e => e.name === 'settleTower').length, 1);
+}
+{
+    const t = settlement(false, 'fire');
+    t.runtime.resolveWave(); t.life.advance(499);
+    assert.equal(t.events.some(e => e.name === 'gateVictory'), false);
+    t.life.setPaused(true); t.life.advance(1000); t.life.setPaused(false); t.life.advance(1);
+    assert.equal(t.events.filter(e => e.name === 'gateVictory').length, 1);
+    assert.equal(t.runtime.resolveGate(), true); assert.equal(t.runtime.resolveGate(), false);
+    assert.equal(t.events.find(e => e.name === 'reward').result.shards, 60);
+    t.life.invalidate(); t.state.seq++; t.runtime.resolveGate();
+    assert.equal(t.events.filter(e => e.name === 'reward')[1].result.shards, 12);
+    const receipts = new Map();
+    assert.equal(BattleSettlement.acceptGateReceipt(receipts, { gate: 'fire', win: 1 }), true);
+    assert.equal(BattleSettlement.acceptGateReceipt(receipts, { gate: 'fire', win: 1 }), false);
+    assert.equal(BattleSettlement.acceptGateReceipt(receipts, { gate: 'fire', win: 2 }), true);
+}
+{
+    const t = settlement(true, 'fire');
+    t.runtime.resolveWave(); t.life.advance(500);
+    assert.equal(t.events.filter(e => e.name === 'resetTraining').length, 1);
+    assert.equal(t.events.some(e => e.name === 'exp' || e.name === 'reward' || e.name === 'settleTower'), false);
+    assert.equal(t.runtime.resolveGate(), false);
+    const stale = settlement(false, 'fire'); stale.runtime.resolveWave(); stale.life.invalidate(); stale.life.advance(1000);
+    assert.equal(stale.events.some(e => e.name === 'gateVictory'), false);
+}
+{
+    const elements = Object.fromEntries(['home', 'page', 'team', 'battle'].map(id => [id, { style: {} }]));
+    const calls = []; let tab = 'home', embedded = false;
+    const router = UIRouter.create({ screens: { home: 'home', page: 'page', team: 'team', battle: 'battle' },
+        getElement: id => elements[id], getPages: () => ({ chars: '角色', talents: '天賦' }),
+        setTab: value => { tab = value; }, paintHome: () => {}, renderPage: () => calls.push(tab), renderTabs: () => {},
+        onBattle: () => {}, onHomeParty: () => {}, onLeave: () => {},
+        closeOverlays: () => calls.push('close'), closeEmbeddedGate: () => embedded,
+        leaveGateContext: () => calls.push('leave'), resume: () => calls.push('resume') });
+    router.select('chars'); assert.equal(tab, 'chars'); assert.equal(elements.page.style.display, '');
+    assert.equal(elements.home.style.display, 'none'); router.select('team'); assert.equal(tab, 'team');
+    router.home(); assert.equal(tab, 'home'); assert.deepEqual(calls.slice(-3), ['close', 'leave', 'resume']);
+    router.select('talents'); embedded = true; router.home(); assert.equal(tab, 'talents');
+    embedded = false; router.select('unknown'); assert.equal(router.current(), 'home');
+}
+{
+    let job = 'archer', enabled = false, fever = false;
+    const effect = JobEffects.create({ getJob: () => job, isActive: () => enabled,
+        getStat: () => 99, getTalent: () => 5, isFever: () => fever });
+    assert.equal(effect.directBonus(), 0); enabled = true;
+    assert.equal(effect.directBonus(), .30); assert.equal(effect.beamWidth(true), 24);
+    assert.equal(effect.pfBonus('ranger'), .30); assert.equal(effect.pfBonus('knight'), 0);
+    job = 'priest'; assert.equal(effect.gaugeMultiplier(), 1.198); fever = true;
+    assert.equal(effect.attackMultiplier(), 2); assert.equal(effect.gaugeMultiplier(), 2); assert.equal(effect.shield(), .18);
+    job = 'warrior'; assert.equal(effect.floating(14, 0, 100), false); assert.equal(effect.floating(15, 0, 100), true);
+    assert.equal(effect.lifeSteal(100000, 1000), 50); assert.ok(effect.gravity() >= .55);
+    job = 'mage'; assert.equal(effect.weakDelay(1500), 0); assert.equal(effect.enemyTimeScale(1000, 500), .45);
+    job = 'thief'; assert.ok(effect.shockRadius() <= 144); assert.equal(effect.shockCritical(''), 0);
+    enabled = false; assert.equal(effect.shockCritical('shockwave'), 0);
+}
+{
+    const c = clock(); c.life.setPaused(true); c.elapse(1000); c.life.invalidate();
+    c.state.nextCastAt = 3000; c.elapse(500); c.life.setPaused(false);
+    assert.equal(c.state.nextCastAt, 3500, 'new encounters only inherit pause time after their creation');
+}
+{
+    ctx.mainAccountJob = 'warrior';
+    vm.runInContext(fs.readFileSync(path.join(root, 'asset/job-talents.js'), 'utf8'), ctx);
+    vm.runInContext('jobPassiveActive = true; jobTalentRanks = normalizeJobTalentRanks({});', ctx);
+    assert.equal(ctx.isJobPassiveActive(), false, 'passive remains locked before the actual tree is maxed');
+    vm.runInContext(`jobTalentRanks = normalizeJobTalentRanks({ warrior: Object.fromEntries(
+        JOB_TALENT_TREES.warrior.branches.flatMap(branch => branch.nodes.map(node => [node.id, 5]))) });`, ctx);
+    assert.equal(ctx.isJobPassiveActive(), true);
+    ctx.mainAccountJob = 'mage'; assert.equal(ctx.isJobPassiveActive('warrior'), false);
+}
+console.log('PASS: battle phases, paused deadlines, canceled multihits, delayed/unique rewards, gate receipts, training isolation, page routes and profession effect bounds.');

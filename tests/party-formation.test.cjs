@@ -19,6 +19,7 @@ function setup(count = 3) {
         memberStrike: (m, damage) => { strikes.push(m.ch.id); m.ch.hp -= damage; if (m.ch.hp <= 0) { m.down = true; m.body = null; } },
         attachBall: m => { m.body = body(); }, $: () => ({ style: { display: '' } }),
         FX: { sparks() {} }, SFX: { launch() {} } };
+    ctx.enforceHeroBattleCeiling = ctx.enforceBattleCeiling;
     vm.createContext(ctx); vm.runInContext(fs.readFileSync(path.join(root, "asset/enemy-wave.js"), "utf8") + formation + collisions + ';this.formation=PARTY_FORMATION;this.dash=COLLISION_TRIAL;', ctx);
     return { c: ctx, members, strikes };
 }

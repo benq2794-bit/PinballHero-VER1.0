@@ -3,7 +3,7 @@ const BOSS_ENTRANCE = { seq: -1, pending: false, elapsed: 0, duration: 2000, dat
 
 // 稱號按屬性給：BOSS 名字本身已經帶「・」副名，橫幅再補一層身分
 const BOSS_TITLES = {
-    fire: '炎災之孽', water: '深雪之華', wind: '裂空之嵐',
+    fire: '炎災之孽', water: '珊潮之華', wind: '裂空之嵐',
     thunder: '天罰之雷', light: '聖詠之座', dark: '蝕夜之影'
 };
 
@@ -40,11 +40,7 @@ function bossEntranceFreezesBattle() {
 function shiftBossEntranceClocks(data) {
     if (!data || data.freezeAt === null || BOSS_ENTRANCE.seq !== PF.foeSeq) return;
     const stopped = Math.max(0, performance.now() - data.freezeAt);
-    for (const key of ['nextCastAt', 'stunUntil', 'slowUntil', 'paralyzeReady', 'gustReady']) if (PF[key]) PF[key] += stopped;
-    if (PF.lastContact) PF.lastContact += stopped;
-    if (PF.buff && PF.buff.until) PF.buff.until += stopped;
-    (PF.members || []).forEach(m => { if (m.respawnAt) m.respawnAt += stopped; });
-    (PF.burns || []).forEach(b => { b.at += stopped; });
+    BattleLifecycle.shiftDeadlines(PF, stopped);
     if (GATE.id) GATE.t0 += stopped;
     data.freezeAt = null;
 }
@@ -162,7 +158,7 @@ function beginBossReveal(data) {
     // 光柱的地面法陣在源圖第 195 行（框高 232），放大 2.15 倍後離中心 170px；
     // 把中心往上抬這麼多，法陣才會正好落在王腳下那一點
     playBossFx('pillar', a.x, a.y - 170, 2.15, 2.15);
-    setTimeout(() => bossTouchdown(data), BOSS_TOUCHDOWN_MS);
+    data.touchdownAt = data.timing.name + BOSS_TOUCHDOWN_MS;
     SFX.tone(70, 30, .5, 'sine', .3, 0, .002);
     SFX.tone(150, 52, .3, 'square', .12, 0, .002);
 }
@@ -253,6 +249,9 @@ function updateBossEntrance(dtMs) {
     BOSS_ENTRANCE.elapsed += dtMs;
     const t = BOSS_ENTRANCE.elapsed, tm = data.timing;
     if (data.phase === 0 && t >= tm.name) { data.phase = 1; beginBossReveal(data); }
+    if (data.phase >= 1 && !data.touchedDown && t >= data.touchdownAt) {
+        data.touchedDown = true; bossTouchdown(data);
+    }
     if (data.phase === 1 && t >= tm.intro) {
         data.phase = 2; beginBossCharge(data); beginBossEngage(data);
     }

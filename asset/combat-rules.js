@@ -5,7 +5,6 @@ function combatDamageAfterModifiers(source, amount, now = performance.now()) {
 }
 
 function combatDamageReceivedBy(member, amount, sourceElement = null) {
-    const jobShield = mainAccountJob === 'priest' && isJobPassiveActive() && FEVER.active
-        ? Math.min(.18, jobPassiveStat('vit') * .003) : 0;
+    const jobShield = jobEffects.shield();
     return DamageFormulas.receivedDamage(amount, jobShield, talentRank(member.ch, 'survival'));
 }

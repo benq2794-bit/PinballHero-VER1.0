@@ -9,3 +9,8 @@ marin.png: 冰波利 https://rd.fharr.com/images/sprite/idle/id/1242/
 angeling.png: 天使波利 https://rd.fharr.com/images/sprite/idle/id/1096/
 ghostring.png: 幽靈波利 https://rd.fharr.com/images/sprite/idle/id/1120/
 deviling.png: 惡魔波利 https://rd.fharr.com/images/sprite/idle/id/1582/
+chimney_brown.png: 褐方體惡魔 https://rd.fharr.com/images/sprite/idle/id/1754/
+chimney_black.png: 黑方體惡魔 https://rd.fharr.com/images/sprite/idle/id/1755/
+chimney_angel_blue.png: 天使藍方體惡魔 https://rd.fharr.com/images/sprite/idle/id/20604/
+chimney_angel_red.png: 天使紅方體惡魔 https://rd.fharr.com/images/sprite/idle/id/20605/
+21569 冰河天使方體惡魔的 idle 圖與 20604 位元組相同，共用 chimney_angel_blue.png

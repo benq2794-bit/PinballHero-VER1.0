@@ -1,38 +1,88 @@
 /* 主頁小隊閒逛展示：純視覺，不參與彈珠戰鬥或傷害計算。 */
 (() => {
-    const W = 430, H = 180, FLOOR_Y = 180;
+    // 走道位於背景圖約 87% 高度；角色腳底固定在走道面，不貼著展示區最下緣。
+    const W = 430, H = 180, FLOOR_Y = 158;
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 
     class Background {
         constructor(width = W, height = H) {
             this.width = width; this.height = height;
-            this.polita = new Image();
-            this.polita.src = "asset/ui/ui-background-polita.png";
+            this.scene = new Image();
+            this.scene.src = "asset/home/party-stage-bg.png";
+            this.backgroundOffset = 0;
+            this.floorOffset = 0;
+            // 固定星點，讓角色展示區接續主頁宇宙海報，不使用會捲動的地景。
+            this.stars = Array.from({ length:18 }, (_, i) => ({
+                x:(i * 71 + 29) % width, y:10 + ((i * 43 + 17) % 132), r:i % 5 === 0 ? 1.5 : .8,
+                a:.18 + (i % 4) * .07
+            }));
         }
-        update() { /* 背景固定；只讓角色移動，避免地景捲動造成暈眩。 */ }
+        update(dt, speed = 0) {
+            // 遠景慢速視差、腳下平台全速反向移動，讓隊伍像走在地面上。
+            const travel = speed * dt / 1000;
+            this.backgroundOffset += travel * .18;
+            this.floorOffset += travel;
+        }
         draw(ctx) {
             const w = this.width, h = this.height;
-            // 從波利塔背景取下方石徑與草地，固定成一條平台，角色只在平台上行走。
-            ctx.fillStyle = "#19352f"; ctx.fillRect(0, 0, w, h);
-            if (this.polita.complete && this.polita.naturalWidth) {
-                const img = this.polita, cropY = Math.floor(img.naturalHeight * .68), cropH = Math.floor(img.naturalHeight * .16);
+            ctx.save();
+            if (this.scene.complete && this.scene.naturalWidth) {
+                // 把背景拆成遠景與地面兩層，左右鏡像循環，避免移動時露出空白。
+                const image = this.scene, splitY = Math.floor(image.naturalHeight * .81);
+                const scale = h / image.naturalHeight, tileW = image.naturalWidth * scale;
+                const farH = splitY * scale, floorH = h - farH;
                 ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(img, 0, cropY, img.naturalWidth, cropH, 0, 0, w, h);
-                ctx.fillStyle = "rgba(9,25,27,.18)"; ctx.fillRect(0, 0, w, h);
-            } else {
-                ctx.fillStyle = "#315943"; ctx.fillRect(0, 0, w, h);
-                ctx.fillStyle = "#71835a"; ctx.fillRect(0, 9, w, 4);
-                ctx.fillStyle = "#a59a68"; ctx.fillRect(0, 14, w, 31);
-                for (let x = 4; x < w; x += 29) {
-                    ctx.fillStyle = "#687452"; ctx.fillRect(x, 17 + (x % 3), 19, 8);
-                    ctx.fillStyle = "#c2b47d"; ctx.fillRect(x + 2, 17 + (x % 3), 13, 2);
-                }
+                const drawLoop = (offset, sy, sh, y, dh) => {
+                    const first = Math.floor(offset / tileW) - 1;
+                    const last = Math.ceil((offset + w) / tileW) + 1;
+                    for (let tile = first; tile <= last; tile++) {
+                        const x = tile * tileW - offset;
+                        ctx.save();
+                        if (Math.abs(tile % 2) === 1) {
+                            ctx.translate(x + tileW, 0); ctx.scale(-1, 1);
+                            ctx.drawImage(image, 0, sy, image.naturalWidth, sh, 0, y, tileW, dh);
+                        } else {
+                            ctx.drawImage(image, 0, sy, image.naturalWidth, sh, x, y, tileW, dh);
+                        }
+                        ctx.restore();
+                    }
+                };
+                drawLoop(this.backgroundOffset, 0, splitY, 0, farH);
+                drawLoop(this.floorOffset, splitY, image.naturalHeight - splitY, farH, floorH);
+                // 輕微暗化角色活動區，讓小尺寸像素角色仍清楚突出。
+                const shade = ctx.createLinearGradient(0, h * .45, 0, h);
+                shade.addColorStop(0, "rgba(5,12,25,.08)"); shade.addColorStop(1, "rgba(5,12,25,.34)");
+                ctx.fillStyle = shade; ctx.fillRect(0, 0, w, h);
+                ctx.restore();
+                return;
             }
-            // 固定的前後景硬邊，保留平台層次而不製造移動錯覺。
-            ctx.fillStyle = "rgba(15,40,34,.7)"; ctx.fillRect(0, FLOOR_Y, w, h - FLOOR_Y);
-            ctx.fillStyle = "#263f32"; ctx.fillRect(0, FLOOR_Y - 2, w, 3);
-            ctx.fillStyle = "#a8b77c"; ctx.fillRect(0, FLOOR_Y - 2, w, 1);
+            // 淡淡的宇宙光暈承接新主頁海報，保留透明區讓主背景自然透出。
+            const haze = ctx.createRadialGradient(w * .5, h * .68, 4, w * .5, h * .68, w * .52);
+            haze.addColorStop(0, "rgba(51,111,174,.20)"); haze.addColorStop(.58, "rgba(29,70,121,.09)"); haze.addColorStop(1, "rgba(8,14,29,0)");
+            ctx.fillStyle = haze; ctx.fillRect(0, 0, w, h);
+            this.stars.forEach((s, i) => {
+                ctx.globalAlpha = s.a; ctx.fillStyle = i % 3 === 0 ? "#c9efff" : "#ffffff";
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+            // 中央傳送門只留低對比圓弧，避免和角色、按鈕搶視線。
+            ctx.strokeStyle = "rgba(102,177,228,.12)"; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.ellipse(w * .5, h * .59, 69, 48, 0, Math.PI * 1.08, Math.PI * 1.92); ctx.stroke();
+            ctx.beginPath(); ctx.ellipse(w * .5, h * .59, 58, 39, 0, Math.PI * 1.12, Math.PI * 1.88); ctx.stroke();
+            // 角色腳下的寬幅能量台：銀藍內圈配合紅藍雙色核心，固定不移動。
+            const floor = ctx.createRadialGradient(w * .5, FLOOR_Y - 6, 3, w * .5, FLOOR_Y - 6, w * .47);
+            floor.addColorStop(0, "rgba(45,104,148,.34)"); floor.addColorStop(.72, "rgba(17,40,67,.42)"); floor.addColorStop(1, "rgba(8,15,29,0)");
+            ctx.fillStyle = floor; ctx.beginPath(); ctx.ellipse(w * .5, FLOOR_Y - 5, w * .48, 18, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = "rgba(157,211,238,.5)"; ctx.lineWidth = 1.4;
+            ctx.beginPath(); ctx.ellipse(w * .5, FLOOR_Y - 4, w * .43, 10, 0, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = "rgba(81,151,203,.24)"; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.ellipse(w * .5, FLOOR_Y - 4, w * .34, 6, 0, 0, Math.PI * 2); ctx.stroke();
+            // 地面接觸線很淡，讓角色站穩但不形成新的硬邊。
+            const line = ctx.createLinearGradient(0, 0, w, 0);
+            line.addColorStop(0, "rgba(101,163,204,0)"); line.addColorStop(.5, "rgba(174,222,243,.34)"); line.addColorStop(1, "rgba(101,163,204,0)");
+            ctx.fillStyle = line; ctx.fillRect(0, FLOOR_Y - 1, w, 1);
+            ctx.restore();
         }
     }
 
@@ -44,7 +94,10 @@
             this.isFrozen = false; this.frozenCanvas = null;
             this.attackTimer = 0; this.idleTimer = 0; this.walkTimer = rand(1800, 3300);
             this.walkPhase = rand(0, Math.PI * 2); this.isWalking = false;
+            this.stepCycle = Math.floor(this.walkPhase / (Math.PI * 2)); this.stepDust = [];
+            this.nextAmbientAction = rand(2600, 6200); this.ambientAction = null; this.ambientActionTime = 0;
             this.width = isLeader ? 29 : 27; this.height = isLeader ? 38 : 35;
+            this.alphaBoundsCache = new WeakMap(); this.alphaBoundsCanvas = null;
             this.images = Object.create(null); this.imageLoads = Object.create(null); this.failedImages = new Set();
             this.sources = spriteSrc || {};
         }
@@ -68,6 +121,31 @@
             };
             tryNext(); return null;
         }
+        visibleBounds(img, now) {
+            if (!img || !img.naturalWidth || !img.naturalHeight) return null;
+            const animated = /\.gif(?:$|[?#])/i.test(img.currentSrc || img.src || "");
+            const cached = this.alphaBoundsCache.get(img);
+            if (cached && now - cached.time < (cached.failed ? 3000 : animated ? 120 : Infinity)) return cached.bounds;
+            let bounds = { x:0, y:0, width:img.naturalWidth, height:img.naturalHeight }, failed = false;
+            try {
+                if (!this.alphaBoundsCanvas) this.alphaBoundsCanvas = document.createElement("canvas");
+                const canvas = this.alphaBoundsCanvas;
+                canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+                const c = canvas.getContext("2d", { willReadFrequently:true });
+                c.clearRect(0, 0, canvas.width, canvas.height); c.drawImage(img, 0, 0);
+                const pixels = c.getImageData(0, 0, canvas.width, canvas.height).data;
+                let left = canvas.width, top = canvas.height, right = -1, bottom = -1;
+                for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
+                    if (pixels[(y * canvas.width + x) * 4 + 3] > 20) {
+                        if (x < left) left = x; if (x > right) right = x;
+                        if (y < top) top = y; if (y > bottom) bottom = y;
+                    }
+                }
+                if (right >= left && bottom >= top) bounds = { x:left, y:top, width:right - left + 1, height:bottom - top + 1 };
+            } catch (_) { failed = true; }
+            this.alphaBoundsCache.set(img, { bounds, time:now, failed });
+            return bounds;
+        }
         addTrailPoint(distance, x, y) {
             const last = this.history[this.history.length - 1];
             if (last && Math.abs(last.distance - distance) < .01 && Math.hypot(last.x - x, last.y - y) < .5) return;
@@ -87,6 +165,36 @@
             }
             return { ...this.history[this.history.length - 1], distance };
         }
+        updateAmbient(dt) {
+            const cycle = Math.floor(this.walkPhase / (Math.PI * 2));
+            if (this.isWalking && cycle > this.stepCycle) {
+                // 每次完整步伐只揚起兩顆小塵光，角色各自錯開節奏。
+                for (let i = 0; i < 2; i++) this.stepDust.push({
+                    x:this.x + (Math.random() - .5) * 9, y:FLOOR_Y - 2,
+                    vx:(Math.random() - .5) * 12, vy:-rand(9, 19), life:rand(180, 300), maxLife:300
+                });
+            }
+            this.stepCycle = cycle;
+            const seconds = dt / 1000;
+            this.stepDust = this.stepDust.filter(p => {
+                p.life -= dt; p.x += p.vx * seconds; p.y += p.vy * seconds; p.vy += 24 * seconds;
+                return p.life > 0;
+            });
+
+            if (this.ambientAction) {
+                this.ambientActionTime -= dt;
+                if (this.ambientActionTime <= 0) {
+                    this.ambientAction = null;
+                    this.nextAmbientAction = rand(4200, 7600);
+                }
+            } else {
+                this.nextAmbientAction -= dt;
+                if (this.nextAmbientAction <= 0 && !this.isCastingSkill && this.state !== "attack") {
+                    this.ambientAction = "cheer";
+                    this.ambientActionTime = 700;
+                }
+            }
+        }
         freeze() {
             this.isFrozen = true;
             const img = this.imageFor("walk");
@@ -102,22 +210,62 @@
             const bob = this.isWalking && !this.isCastingSkill ? Math.round(Math.sin(this.walkPhase) * 1.15) : 0;
             ctx.fillStyle = "rgba(0,0,0,.4)";
             ctx.beginPath(); ctx.ellipse(this.x, footY, this.width * (.38 - Math.abs(bob) * .025), 3, 0, 0, Math.PI * 2); ctx.fill();
+            // 腳步塵光畫在角色後方，快速淡出，不遮住道路或人物。
+            this.stepDust.forEach(p => {
+                ctx.globalAlpha = Math.max(0, p.life / p.maxLife) * .42;
+                ctx.fillStyle = "#c8eaff"; ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 1);
+            });
+            ctx.globalAlpha = 1;
             const drawState = this.isCastingSkill ? "skill" : this.state === "attack" ? "attack" : "walk";
             const stateImg = this.isFrozen ? null : this.imageFor(drawState);
             const img = this.isFrozen ? this.frozenCanvas : stateImg || (drawState !== "walk" ? this.imageFor("walk") : null);
+            const actionProgress = this.ambientAction ? 1 - this.ambientActionTime / 700 : 0;
+            const actionLift = this.ambientAction === "cheer" && !this.isCastingSkill && this.state !== "attack"
+                ? Math.round(Math.sin(actionProgress * Math.PI) * 2) : 0;
+            this.drawAmbientCue(ctx, footY, actionProgress);
             if (img && (img.complete === undefined || img.complete) && (img.naturalWidth === undefined || img.naturalWidth)) {
                 ctx.save(); ctx.translate(Math.round(this.x), 0); ctx.scale(this.direction < 0 ? -1 : 1, 1);
                 ctx.imageSmoothingEnabled = false;
                 if (this.isFrozen) ctx.drawImage(img, -this.width / 2, Math.round(footY - this.height));
                 else {
-                    // 技能素材常帶較多留白；技能時稍微放大並以腳底對齊，避免角色看起來突然縮小。
-                    const skillScale = this.isCastingSkill && stateImg ? 1.35 : 1;
-                    const drawW = this.width * skillScale, drawH = this.height * skillScale;
-                    ctx.drawImage(img, -drawW / 2, Math.round(footY - drawH + bob), drawW, drawH);
+                    if (this.isCastingSkill && stateImg) {
+                        // 技能素材可能有透明留白：裁掉留白，按走路素材的可見範圍等比例縮放並貼齊腳底。
+                        const skillBox = this.visibleBounds(stateImg, now), walkImg = this.imageFor("walk");
+                        const walkBox = walkImg && walkImg.complete && walkImg.naturalWidth ? this.visibleBounds(walkImg, now) : null;
+                        if (skillBox && walkBox) {
+                            const targetW = this.width * walkBox.width / walkImg.naturalWidth;
+                            const targetH = this.height * walkBox.height / walkImg.naturalHeight;
+                            const scale = Math.min(targetW / skillBox.width, targetH / skillBox.height);
+                            const drawW = skillBox.width * scale, drawH = skillBox.height * scale;
+                            ctx.drawImage(stateImg, skillBox.x, skillBox.y, skillBox.width, skillBox.height,
+                                -drawW / 2, Math.round(footY - drawH + bob - actionLift), drawW, drawH);
+                        } else {
+                            ctx.drawImage(img, -this.width / 2, Math.round(footY - this.height + bob - actionLift), this.width, this.height);
+                        }
+                    } else {
+                        ctx.drawImage(img, -this.width / 2, Math.round(footY - this.height + bob - actionLift), this.width, this.height);
+                    }
                 }
                 ctx.restore();
-            } else this.drawPixelFallback(ctx, footY);
+            } else this.drawPixelFallback(ctx, footY - actionLift);
             if (this.isCastingSkill) this.drawSkillEffect(ctx, now);
+        }
+        drawAmbientCue(ctx, footY, progress) {
+            if (!this.ambientAction || this.isCastingSkill || this.state === "attack") return;
+            // 光點沿角色輪廓散開，整體寬高約等於角色本身，並畫在人物後方。
+            const pulse = Math.sin(progress * Math.PI), cx = this.x;
+            const cy = footY - this.height * .56, rx = this.width * .58, ry = this.height * .47;
+            ctx.save(); ctx.globalAlpha = .22 + pulse * .42;
+            ctx.shadowBlur = 4; ctx.shadowColor = "#8edfff";
+            for (let i = 0; i < 4; i++) {
+                const angle = i * Math.PI / 2 + progress * .7;
+                const x = Math.round(cx + Math.cos(angle) * rx), y = Math.round(cy + Math.sin(angle) * ry);
+                const color = i % 2 ? "#ffe08a" : "#a9e8ff";
+                ctx.fillStyle = color;
+                ctx.fillRect(x - 1, y - 3, 2, 6); ctx.fillRect(x - 3, y - 1, 6, 2);
+                ctx.fillStyle = "#ffffff"; ctx.fillRect(x - 1, y - 1, 2, 2);
+            }
+            ctx.restore();
         }
         drawPixelFallback(ctx, footY) {
             const colors = this.isLeader
@@ -220,11 +368,16 @@
             this.members.forEach((ch, i) => {
                 if (i === 0) return;
                 const prev = this.members[i - 1], target = prev.sampleTrail(prev.distanceTravelled - 31);
-                ch.x = target.x; ch.y = FLOOR_Y - ch.height; ch.distanceTravelled = Math.max(ch.distanceTravelled, target.distance);
-                ch.direction = lead.direction; ch.state = ch.attackTimer > 0 ? "attack" : "walk";
+                // 以短時間常數柔順追上路徑點；隊伍距離恢復時不瞬間滑位。
+                const followBlend = 1 - Math.exp(-dt / 38);
+                ch.x += (target.x - ch.x) * followBlend;
+                ch.y = FLOOR_Y - ch.height; ch.distanceTravelled = Math.max(ch.distanceTravelled, target.distance);
+                // 隊友走到轉彎位置才改變面向，不再和領頭者同一影格集體轉身。
+                ch.direction = target.direction || prev.direction; ch.state = ch.attackTimer > 0 ? "attack" : "walk";
                 ch.isWalking = lead.isWalking; if (ch.isWalking) ch.walkPhase += dt * .012;
                 ch.addTrailPoint(ch.distanceTravelled, ch.x, ch.y);
             });
+            this.members.forEach(ch => ch.updateAmbient(dt));
             this.members.forEach(ch => { if (ch.attackTimer > 0) { ch.attackTimer -= dt; if (ch.attackTimer <= 0) ch.state = "walk"; } });
             if (this.attackWait <= 0 && this.members.length) {
                 const attacker = this.members[Math.floor(Math.random() * this.members.length)];

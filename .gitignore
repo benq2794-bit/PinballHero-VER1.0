@@ -1,0 +1,20 @@
+# 探測產出：headless Chrome 的 log、截圖暫存，重跑就會再生
+_rv.txt
+*.log
+*.tmp
+
+# 從 World Flipper 導覽列截圖切下來的按鈕素材（含切圖預覽）。
+# 原圖是解包素材，有版權風險，刻意不進版，也別讓 git add -A 撿回來。
+nav-src.png
+nav-buttons/
+preview.png
+codex-clipboard-*.png
+
+# 桌面貼上留下的截圖與暫存圖檔（不是遊戲素材，只在 root 層）
+/ChatGPT *.png
+/image_*.jpeg
+
+# Windows / OneDrive 自己寫的縮圖與設定
+Thumbs.db
+desktop.ini
+.DS_Store

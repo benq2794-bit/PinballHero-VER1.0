@@ -9,14 +9,22 @@ function setup(stage) {
         BOSS_EVERY: 10, NORMAL_FLOOR_SECONDS: 60, BOSS_FLOOR_SECONDS: 90, FEVER_BASE: 1000,
         shardTotal: 123, deepPerks: { damage: 2 },
         PF: { paused: true, running: false, members: [member], foeSeq: 8, cut: {}, vfx: {},
-            el: { querySelectorAll: () => [] }, skillQueue: [member], skillCastWait: 300, buff: {}, cutTimer: 99 },
+            el: { classList: { remove() {} }, querySelectorAll: () => [] }, skillQueue: [member], skillCastWait: 300, buff: {}, cutTimer: 99 },
         FEVER: { active: true, value: 1000, times: 3 }, POWER_FLIP: { lockMs: 150, buffMs: 2000, buffPct: .2 },
         COLLISION_TRIAL: { dashLeft: 800 }, FX: { clearPops() {} }, clearTimeout() {},
         $: () => ({ classList: { contains: key => visible.has(key), remove: key => visible.delete(key) } }),
         gateOn: () => false, hpMax: () => 500, attachBall: m => { m.body = {}; }, hideOver() {},
         feverEnd: () => { ctx.FEVER.active = false; }, setPaused: v => { ctx.PF.paused = v; },
         nextEnemy: () => { spawns++; ctx.PF.foeSeq++; }, saveGame: () => saves++, log() {} };
-    vm.createContext(ctx); vm.runInContext(source, ctx);
+    ctx.window = ctx;
+    ctx.cancelSkillCinematic = () => {}; ctx.hideBossEntrance = () => {};
+    ctx.clearWeak = () => {}; ctx.clearField = () => {};
+    ctx.clearPowerFlip = () => {}; ctx.clearArcherPierce = () => {};
+    vm.createContext(ctx);
+    vm.runInContext(fs.readFileSync(require('node:path').resolve(__dirname, '../asset/battle-lifecycle.js'), 'utf8'), ctx);
+    ctx.battleLifecycle = ctx.BattleLifecycle.create({ getState: () => ctx.PF, now: () => 0 });
+    vm.runInContext(html.slice(html.indexOf('function resetBattleTransient()'), html.indexOf('function el(tag, cls)')), ctx);
+    vm.runInContext(source, ctx);
     return { ctx, character, visible, counts: () => ({ saves, spawns }) };
 }
 for (const [from, to, seconds] of [[27, 17, 60], [20, 10, 90], [10, 1, 60], [8, 1, 60], [1, 1, 60]]) {

@@ -10,12 +10,23 @@ function setup(count = 3, budget = 90) {
         breakUntil: 0, weak: null, burns: [], burn: null }, enemy: { hp: budget, maxHp: budget, boss: count === 1 },
         enemyF: units[0].fighter, clearTimeout: noop, dmgTotal: 0, DMG_SCALE: 1, BREAK_TAKEN: 1.8,
         performance: { now: () => 1000 }, deepPerk: () => 0, shieldOf: () => null,
-        FX: Object.fromEntries(['pop', 'hit', 'bloom', 'sparks', 'flash', 'shake'].map(k => [k, noop])),
+        FX: Object.fromEntries(['pop', 'hit', 'bloom', 'sparks', 'flash', 'shake', 'sprite'].map(k => [k, noop])),
         CHAR_TABLE: { hero: { element: 'fire' } }, ELEMENTS: { fire: { color: '#f00' } },
         fmt: String, playFighter: noop, bumpCombo: noop, breakOneWeak: noop,
         killFoe: () => rewards++, deepElementMultiplier: () => 1, rollCrit: () => false,
         talentRank: () => 0, atkOf: () => 10, CRIT_DMG: 1.5, SFX: { critical: noop }, applyElemStatus: noop };
-    vm.createContext(ctx); vm.runInContext(source, ctx); ctx.initializeEnemyWave();
+    ctx.window = ctx;
+    ctx.SKILL_CINEMATIC = { active: false }; ctx.SKILL_ART = {};
+    ctx.mainAccountJob = 'warrior'; ctx.mainAccountBonus = () => ({ skillDamage: 0 });
+    ctx.elementMultiplier = () => 1;
+    vm.createContext(ctx);
+    for (const file of ['asset/damage-formulas.js', 'asset/combat-rules.js']) {
+        vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), ctx);
+    }
+    vm.runInContext(fs.readFileSync(path.join(root, 'asset/job-effects.js'), 'utf8'), ctx);
+    ctx.jobEffects = ctx.JobEffects.create({ getJob: () => ctx.mainAccountJob, isActive: () => false,
+        getStat: () => 1, getTalent: () => 0, isFever: () => false });
+    vm.runInContext(source, ctx); ctx.initializeEnemyWave();
     const damageCode = html.slice(html.indexOf('function applyDamage('), html.indexOf('// 暴擊率＝'));
     const skillCode = html.slice(html.indexOf('function skillHit('), html.indexOf('// 多段技：'));
     vm.runInContext(damageCode + skillCode, ctx);

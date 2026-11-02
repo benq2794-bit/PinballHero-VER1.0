@@ -104,9 +104,9 @@ function normalizeJobTalentRanks(saved) {
     return normalized;
 }
 function jobTalentRank(id, job = mainAccountJob) { return Math.max(0, Math.min(JOB_TALENT_MAX_RANK, Math.floor(Number(jobTalentRanks[job] && jobTalentRanks[job][id]) || 0))); }
-function jobTalentSpent(job = null) {
+function jobTalentSpent(job = null, ranks = jobTalentRanks) {
     const jobs = job ? [job] : Object.keys(JOB_TALENT_TREES);
-    return jobs.reduce((sum, key) => sum + Object.values(jobTalentRanks[key] || {}).reduce((spent, rank) => spent + Math.max(0, Math.min(JOB_TALENT_MAX_RANK, Math.floor(Number(rank) || 0))), 0), 0);
+    return jobs.reduce((sum, key) => sum + Object.values(ranks[key] || {}).reduce((spent, rank) => spent + Math.max(0, Math.min(JOB_TALENT_MAX_RANK, Math.floor(Number(rank) || 0))), 0), 0);
 }
 function jobTalentTreeMaxed(job) {
     const tree = JOB_TALENT_TREES[job];

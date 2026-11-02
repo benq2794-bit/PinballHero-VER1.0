@@ -8,11 +8,11 @@ const ctx = { stage: 10, enemy: {}, homeTabOn: 'boss', renderPage: () => renders
     gateOf: () => ctx.gates.find(g => g.id === gateId) };
 vm.createContext(ctx);
 vm.runInContext(html.match(/const BOSS_TABLE = (\[[\s\S]*?\]);/)[0] + html.match(/const BOSS_STAGES = (\[[\s\S]*?\]);/)[0] +
-    html.slice(html.indexOf('const TOWER_BOSS_TABLE ='), html.indexOf('let enemy = {')) + ';this.gates=BOSS_STAGES;', ctx);
+    html.slice(html.indexOf('const TOWER_BOSS_TABLE ='), html.indexOf('let enemy = {')) + ';this.gates=BOSS_STAGES;this.towerBossCount=TOWER_BOSS_TABLE.length;', ctx);
 vm.runInContext(html.slice(html.indexOf('function spawnEnemy()'), html.indexOf('// 主頁異界迴廊：')), ctx);
 const towerIds = [];
-for (let i = 0; i < 3; i++) { ctx.spawnEnemy(); towerIds.push(ctx.enemy.id); assert.ok(ctx.enemy.battleSkinUrl.includes('/ro/')); }
-assert.equal(new Set(towerIds).size, 3);
+for (let i = 0; i < ctx.towerBossCount; i++) { ctx.spawnEnemy(); towerIds.push(ctx.enemy.id); assert.ok(ctx.enemy.battleSkinUrl.includes('/ro/')); }
+assert.equal(new Set(towerIds).size, ctx.towerBossCount);
 for (const id of ['fire', 'water', 'wind', 'thunder']) {
     gateId = id; ctx.spawnEnemy(); assert.equal(ctx.enemy.id, ctx.gates.find(g => g.id === id).boss);
     // 四道門都換成 RO 圖庫的動畫 webp（整張帶 alpha），體型再依圖幅各自校正
@@ -43,7 +43,7 @@ ctx.selectGateDisplay('fire'); ctx.shiftGateDisplay(-1); assert.ok(ctx.renderGat
 const before = renders; ctx.selectGateDisplay('invalid'); assert.equal(renders, before);
 for (const b of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new Function(b[1]);
 assert.match(html, /bossEntranceFreezesBattle\(\)\) \{ render\(\); return; \}/);
-assert.match(html, /function battleTick\(\) \{\s*if \(bossEntranceFreezesBattle\(\)\) return;/);
+assert.match(html, /function battleTick\(\) \{[\s\S]*?if \(bossEntranceFreezesBattle\(\)\) return;/);
 assert.ok(html.includes("gateOn() ? zone.name : '波利塔'"));
 assert.ok(html.includes('gateOn() ? "試煉" : `第 ${stage} 層`'));
 console.log('PASS: independent tower/gate registries, four local boss/background assets, gate navigation, actual completion/rewards, cinematic stop hooks and tower floor label.');

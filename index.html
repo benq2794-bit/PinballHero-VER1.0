@@ -70,6 +70,39 @@
         .rcard .b { flex: 1; min-width: 0; }
         .rcard .nm { font-size: 11px; color: #dfe6f5; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .rcard .sub { font-size: 9px; color: #8fa0c0; }
+        /* ===== 異界迴廊兌換商店 ===== */
+        #pg-body .shop-intro { margin: 4px 2px 12px; color: #c5d4e1; font-size: 11px; line-height: 1.55; }
+        #pg-body .shop-gate { margin: 10px 0 12px; padding: 9px; border: 1px solid #425b70; border-radius: 8px; background: linear-gradient(145deg,rgba(24,43,59,.96),rgba(10,20,31,.98)); box-shadow: inset 0 1px rgba(255,255,255,.07), 0 3px 8px rgba(0,0,0,.2); }
+        #pg-body .shop-gate-head { display:flex; align-items:center; gap:7px; margin:0 0 8px; padding-bottom:7px; border-bottom:1px solid rgba(151,190,211,.22); color:#f4f7f8; font-size:12px; }
+        #pg-body .shop-element-icon { width:22px; height:22px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 1px 2px rgba(0,0,0,.7)); }
+        #pg-body .shop-token { margin-left:auto; display:flex; align-items:center; gap:5px; padding:3px 7px; border-radius:12px; background:rgba(5,12,20,.7); border:1px solid rgba(154,194,213,.35); color:#f6d774; font-weight:800; font-size:10px; }
+        #pg-body .shop-products { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+        #pg-body .shop-product { min-width:0; display:grid; grid-template-columns:42px minmax(0,1fr); align-items:center; gap:6px; padding:6px; border:1px solid #344b5e; border-radius:6px; background:linear-gradient(150deg,rgba(39,58,72,.86),rgba(12,23,34,.96)); }
+        #pg-body .shop-product-art { width:40px; height:40px; display:grid; place-items:center; overflow:hidden; border:1px solid #617d8e; border-radius:5px; background:radial-gradient(circle at 50% 35%,#344d60,#111e2b 72%); }
+        #pg-body .shop-product-art img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; image-rendering:crisp-edges; }
+        #pg-body .shop-product-art .shop-item-icon { width:34px; height:34px; object-fit:contain; }
+        #pg-body .shop-product-info { min-width:0; }
+        #pg-body .shop-product-name { overflow:hidden; color:#f2f5f7; font-weight:800; font-size:10px; white-space:nowrap; text-overflow:ellipsis; }
+        #pg-body .shop-product-desc { margin-top:2px; color:#aebfca; font-size:9px; }
+        #pg-body .shop-product .mini-btn { width:100%; grid-column:1 / -1; min-height:27px; padding:4px 5px; font-size:10px; }
+        #pg-body .shop-material { margin-top:8px; padding-top:8px; border-top:1px dashed rgba(151,190,211,.3); }
+        #pg-body .shop-material .shop-product { grid-template-columns:42px minmax(0,1fr) auto; }
+        #pg-body .shop-material .mini-btn { width:auto; grid-column:auto; min-width:88px; }
+        #pg-body .inventory-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:8px 0; }
+        #pg-body .inventory-total { min-width:0; padding:8px 6px; text-align:center; border:1px solid #718895; border-radius:6px; background:linear-gradient(145deg,#344b59,#1a2934); }
+        #pg-body .inventory-total b { display:block; color:#fff0ad; font-size:15px; text-shadow:0 1px 2px #111; }
+        #pg-body .inventory-total span { color:#f0f4f5; font-size:10px; font-weight:700; text-shadow:0 1px 2px #111; }
+        #pg-body .inventory-filters { display:flex; gap:5px; margin:8px 0; }
+        #pg-body .inventory-filters .mini-btn { flex:1; min-width:0; padding:6px 3px; }
+        #pg-body .inventory-row { display:grid; grid-template-columns:38px minmax(0,1fr) auto; align-items:center; gap:8px; padding:7px; border:1px solid #43596a; border-radius:6px; background:linear-gradient(145deg,rgba(42,59,71,.92),rgba(17,27,38,.97)); margin:5px 0; }
+        #pg-body .inventory-row.has-action { grid-template-columns:38px minmax(0,1fr) auto auto; }
+        #pg-body .inventory-row-art { width:36px; height:36px; display:grid; place-items:center; overflow:hidden; border:1px solid #697c89; border-radius:5px; background:#0d1823; }
+        #pg-body .inventory-row-art img { width:30px; height:30px; object-fit:contain; image-rendering:pixelated; }
+        #pg-body .inventory-row-name { color:#f3f6f7; font-size:11px; font-weight:700; }
+        #pg-body .inventory-row-desc { color:#b5c3cc; font-size:9px; margin-top:2px; }
+        #pg-body .inventory-count { color:#ffe18b; font-weight:800; font-size:12px; white-space:nowrap; }
+        #pg-body .inventory-action { min-width:62px; padding:5px 7px; }
+        @media (max-width:360px) { #pg-body .shop-products { grid-template-columns:1fr; } }
         .rsec { display: flex; align-items: center; font-size: 10px; font-weight: 700; color: #b9c6dd;
             margin: 4px 0 -1px; padding-bottom: 3px; border-bottom: 1px solid #232a3a; }
         .rsec .rsec-n { margin-left: auto; font-size: 9px; color: #6d7893; font-weight: 400; }
@@ -127,7 +160,7 @@
         }
         /* 關卡有專屬原圖時（深層競技場／異界迴廊）：原圖就是地板，程序草皮與格線全關掉，
            只留最外圈一點暗角壓住場框，不然會像隔著一塊布在看背景。 */
-        #pf.gate-art .pf-turf, #pf.deep-art .pf-turf { opacity: 0; }
+        #pf.gate-art .pf-turf, #pf.deep-art .pf-turf, #pf:not(.gate-art):not(.deep-art) .pf-turf { opacity: 0; }
         #pf.gate-art .pf-grid, #pf.deep-art .pf-grid { opacity: 0; }
         #pf.gate-art .pf-rock, #pf.deep-art .pf-rock {
             background: radial-gradient(ellipse at 50% 46%, transparent 58%, rgba(6,8,18,.5) 94%);
@@ -282,6 +315,15 @@
         .ball.foe.frames .face img { -webkit-mask-image: none; mask-image: none;
             filter: brightness(1.06) saturate(1.02) drop-shadow(0 3px 5px rgba(0,0,0,.55)); }
         .ball.foe.frames::after { inset: -26px; }
+        /* 方體惡魔這種「淺色＋方正」的 RO 透明圖：球體那圈放射遮罩會削掉稜角，
+           而黑底 GIF 专用的 brightness(1.35) 會把本来就接近白色的身體直接壓成 255，
+           整顆洗成一團白、連眼睛都糊掉。遮罩關掉留下方形，亮度回到 1.0，靠陰影把它從淺色地布上拉出來。 */
+        /* -12% 只把原圖上方那條透明留白補回來，再多就會頂到頭上那條小王血條 */
+        .ball.foe.ro-art .face { inset: -12%; }
+        .ball.foe.ro-art .face img { -webkit-mask-image: none; mask-image: none;
+            filter: brightness(1) saturate(1.25)
+                    drop-shadow(0 0 1px rgba(0,0,0,.9)) drop-shadow(0 0 1px rgba(0,0,0,.6))
+                    drop-shadow(0 3px 4px rgba(0,0,0,.45)); }
         /* RO 王這類「整張帶 alpha 的大圖」：翅膀與尾巴會超出碰撞圓，遮罩一罩就斷掉；
            也不該套 pixelated，細筆畫被硬切會碎成鋸齒。
            四隻王的圖幅差很多（火龍 172×292、水獸 172×165、獅鷲 104×154、機兵 175×203），
@@ -429,6 +471,18 @@
             to { box-shadow: 0 0 22px rgba(255,222,110,.86), inset 0 0 17px rgba(255,235,150,.62); }
         }
 
+        /* 阱洞（Outhole）：擱在彈板下方落球口的循環點陣洞。eclipse 每 5 幀取 1、共 24 幀，
+           4 秒跑滿一圈就是原速。分兩層是因為吞球那一拍要重排 animation，
+           橫條若掛在同一個節點上，會被從第 0 幀跳回去、每次掉球都閃一下。 */
+        .outhole { position:absolute; width:160px; height:144px; margin:-72px 0 0 -80px; z-index:3; pointer-events:none; }
+        .outhole > i { display:block; width:100%; height:100%; image-rendering:pixelated;
+            background:url("asset/fx/pixelfx/outhole-eclipse.png") left center / 3840px 144px no-repeat;
+            animation:outholeChew 4s steps(24,end) infinite; }
+        @keyframes outholeChew { from { background-position-x:0; } to { background-position-x:-3840px; } }
+        .outhole.bite { animation:outholeBite .4s cubic-bezier(.2,.9,.3,1); }
+        @keyframes outholeBite { 0% { transform:scale(1,1); } 24% { transform:scale(1.24,.7); filter:brightness(2.2); }
+            58% { transform:scale(.86,1.14); } 100% { transform:none; filter:none; } }
+
 
         .pf-center { position: absolute; left: 0; right: 0; top: 50%; text-align: center; z-index: 9; pointer-events: none; }
 
@@ -537,6 +591,10 @@
         .dmg-pop.paralyze { color: #e3c8ff; font-size: 17px; -webkit-text-stroke: 0;
             text-shadow: 1px 0 0 #170a2a, -1px 0 0 #170a2a, 0 1px 0 #170a2a, 0 -1px 0 #170a2a, 0 2px 2px rgba(0,0,0,.9);
             filter: drop-shadow(0 0 9px rgba(170,110,255,.95)); }
+        /* 「COMBO 中斷」是中文小字，走細邊＋柔光；套傷害數字的粗描邊會糊成一塊 */
+        .dmg-pop.outhole { color: #ffabd4; font-size: 17px; -webkit-text-stroke: 0;
+            text-shadow: 1px 0 0 #2a0413, -1px 0 0 #2a0413, 0 1px 0 #2a0413, 0 -1px 0 #2a0413, 0 2px 2px rgba(0,0,0,.9);
+            filter: drop-shadow(0 0 9px rgba(255,96,158,.95)); }
         .dmg-pop.energy { color: #c4baff; font-size: 19px; -webkit-text-stroke: 0;
             /* 小字的黑框要收斂：基準樣式是 em 級距，17px 的粗黑環會把中文筆畫吃光 */
             text-shadow: 1px 0 0 #0b0703, -1px 0 0 #0b0703, 0 1px 0 #0b0703, 0 -1px 0 #0b0703,
@@ -684,11 +742,6 @@
         .rs-tag.re { background: #3a4a6b; }
         .rs-gate { margin-top: 8px; font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #ffce5a; }
         .rs-boss { margin-top: 3px; font-size: 12px; color: #8fa0c0; letter-spacing: 1px; }
-        .rs-rows { margin-top: 11px; display: grid; grid-template-columns: 1fr auto; gap: 4px 10px;
-            font-size: 12px; color: #a8b6d0; text-align: left; }
-        .rs-rows b { color: #fff; text-align: right; font-variant-numeric: tabular-nums; }
-        .rs-rows .hl { color: #ffce5a; }
-        .rs-rows .hl b { color: #ffce5a; }
         .rs-btns { margin-top: 14px; display: flex; gap: 8px; justify-content: center; }
 
         /* ===== 暫停選單（戰鬥畫面內，照原作：只在這一層放功能按鈕） ===== */
@@ -807,14 +860,13 @@
         .foe-bar .foe-k b { color: #fff; font-size: 10px; }
 
         /* ==========================================================
-           主頁（仿彈射世界首頁版面）：跟編成同一套深色底
-           海報 asset/home/main-bg.png 留著當底紋，上面壓一層深色玻璃讓介面統一
+           主頁：新背景海報完整置於上半部，下面以深色漸層承接介面
            ========================================================== */
         .hm { position: relative; width: 430px; height: 760px; overflow: hidden; border-radius: 16px; user-select: none;
             font-family: "Microsoft JhengHei", "PingFang TC", "Heiti TC", sans-serif; color: #dfe6f2;
-            background: linear-gradient(180deg, rgba(9,12,20,.36) 0%, rgba(7,9,15,.48) 55%, rgba(5,7,12,.60) 100%),
-                        image-set(url('asset/home/main-bg.webp') type('image/webp'), url('asset/home/main-bg.png') type('image/png')) center / cover no-repeat,
-                        linear-gradient(180deg, #151a26, #0d1017) #0d1017;
+            background: linear-gradient(180deg, rgba(9,12,20,.10) 0%, rgba(7,9,15,.22) 30%, rgba(5,7,12,.92) 58%, rgba(5,7,12,.98) 100%),
+                        url('asset/home/main-bg-user.jpeg') center 84px / 100% auto no-repeat,
+                        linear-gradient(180deg, #111a2d, #080e19) #080e19;
             box-shadow: 0 0 0 6px #0d1020, 0 0 0 8px #1d2440, 0 14px 40px rgba(0,0,0,.75); }
         /* 讓主視覺保持明亮，底部再稍微壓暗以襯托導覽按鈕 */
         .hm::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
@@ -1131,7 +1183,7 @@
         .account-stats .as-reset { flex:none; padding:6px 8px; color:#ffc3bc; background:#3b2025; border:1px solid #9b5550; border-radius:2px; font-size:10px; }
         .hm-avatar { appearance:none; -webkit-appearance:none; padding:0; cursor:pointer; font:inherit; }
         .hm-avatar:focus-visible { outline:2px solid #ffe16b; outline-offset:2px; }
-        .hm-party-stage { position:absolute; z-index:4; left:0; right:0; top:518px; height:70px; overflow:hidden; pointer-events:none; }
+        .hm-party-stage { position:absolute; z-index:4; left:0; right:0; top:320px; height:180px; overflow:hidden; pointer-events:none; }
         .hm-party-stage canvas { display:block; width:100%; height:100%; image-rendering:auto; }
 
         /* ===== UI 視覺統一：賽璐璐色塊、像素描邊、硬邊陰影 ===== */
@@ -1351,6 +1403,51 @@
            而 opacity 是 JS 寫 inline 的，只能靠 !important 才壓得過 */
         .boss-entry-omen .rays, .boss-entry-reveal .rays, .boss-entry-engage .rays { opacity:0 !important; }
 
+        /* ===== 換層轉場：向上捲動一層 =====
+           只推「場布那幾層」，單位與物理完全不動。真把 .pf-field 抬上去，血條、腳下光暈、
+           四條登場橫條的 --fy 錨點全得跟著重算，那是整場視覺的座標系統重寫。
+           .pf-bg 本來就走 cover，把盒子往上多伸兩屏再整塊往下推一屏：鏡頭往上爬＝內容往下跑，
+           所以是正的 translateY，而且全程都有圖蓋著，不會露出底下的空黑。 */
+        .pf-climb-streak { position:absolute; inset:0; z-index:4; pointer-events:none; opacity:0;
+            /* 週期 44px 的橫向流光，往下掃＝地面快速掠過。放在單位之下（z 4 < .ent 的 5），
+               珠子不會被條紋糊掉——這條教訓是放射線壓王那一次學到的。
+               亮段從 .13 提到 .3：場布本身很亮，.13 實拍等於沒放。 */
+            background-image: repeating-linear-gradient(180deg,
+                rgba(255,255,255,0) 0 20px, rgba(226,244,255,.30) 20px 27px,
+                rgba(255,255,255,0) 27px 33px, rgba(150,196,255,.13) 33px 44px); }
+        .pf-climb-seam { position:absolute; left:-12px; right:-12px; top:0; height:1300px; z-index:11;
+            pointer-events:none; opacity:0;
+            /* 上下各 100px 柔邊、中段 1100px 實心黑：整條帶子蓋過畫面才真的藏得住換圖那一下 */
+            background: linear-gradient(180deg, rgba(3,9,20,0) 0 100px, #030914 100px 1200px, rgba(3,9,20,0) 1200px 1300px); }
+        /* 帶子前後兩道亮邊＝樓板的邊緣。少了它這塊黑只是黑屏，有邊才讀得出「穿過了一層樓板」 */
+        .pf-climb-seam::before, .pf-climb-seam::after { content:""; position:absolute; left:0; right:0; height:5px;
+            background: linear-gradient(90deg, transparent, #ffe9bd 16%, #ffcf6f 50%, #ffe9bd 84%, transparent); }
+        .pf-climb-seam::before { top:96px; }
+        .pf-climb-seam::after { bottom:96px; }
+        /* roll 只有 520ms，而且在中段就摘掉：那個兩屏高的背景盒子裁切方式和平常不同，
+           一定要在帶子全覆蓋時拿掉，否則露出來的瞬間會看到背景「跳格」。 */
+        #pf.pf-climb-roll .pf-bg { top:-800px; bottom:auto; height:2340px;
+            animation: pfClimbBg 520ms cubic-bezier(.4,.02,.66,.14) both; }
+        @keyframes pfClimbBg { from { transform: translateY(0); } to { transform: translateY(760px); } }
+        #pf.pf-climb-roll .pf-turf { animation: pfClimbTurf 520ms cubic-bezier(.4,.02,.66,.14) both; }
+        /* 草皮只有 600px 高、釘在底邊，照樣推一屏就會讓上頭空掉；它只掠過一小段並壓暗就夠了 */
+        @keyframes pfClimbTurf { from { transform: translateY(0); opacity:1; } to { transform: translateY(420px); opacity:.2; } }
+        #pf.pf-climb-roll .pf-grid { animation: pfClimbGrid 520ms linear both; }
+        @keyframes pfClimbGrid { from { background-position-y: 0; } to { background-position-y: 520px; } }
+        #pf.pf-climb .pf-climb-streak { animation: pfClimbRush 900ms ease-out both, pfClimbStreak 900ms linear both; }
+        @keyframes pfClimbRush { 0% { opacity:0; } 14% { opacity:.9; } 62% { opacity:.9; } 100% { opacity:0; } }
+        /* 掃過 440px 正好是漸層週期 44px 的十倍，接得回原點，不會在結尾抖一下 */
+        @keyframes pfClimbStreak { from { background-position-y: 0; } to { background-position-y: 440px; } }
+        /* 帶子走 linear：這是一塊以等速掠過的樓板，不是要加速的鏡頭。
+           實心段 1100px 比場地高 340px，全覆蓋正好落在 383–527ms 那 144ms，換圖就排在中間；
+           停在 -170 時實心段是 [-70,830]，把 760 高的場蓋死，-1310 則讓底邊完全退出畫面。 */
+        #pf.pf-climb .pf-climb-seam { animation: pfClimbSeam 900ms linear both; }
+        @keyframes pfClimbSeam {
+            0% { opacity:1; transform: translateY(790px); }
+            100% { opacity:1; transform: translateY(-1310px); }
+        }
+        #pf.pf-climb .pf-field { filter: brightness(.72) saturate(.85); }
+
         /* 登場點陣層排在 .pf-field 前面，所以特效是在王的「後面」炸：
            放射線與黑煙再大都不會把他蓋掉。霸氣是他站在風暴前面，不是被風暴蓋住。 */
         .boss-fx-back { position:absolute; inset:0; pointer-events:none; }
@@ -1510,6 +1607,11 @@
             .boss-fx-slam { opacity:.6; background-position-x:-640px; }
             .boss-fx-burst { opacity:.9; background-position-x:-3080px; }
             .boss-fx-rays { opacity:.6; background-position-x:0; }
+            /* 換層在減速偏好下改成「暗一下再亮」：黑帶與流光都不出現，換圖仍發生在那 0.5 秒的暗裡。
+               對不想要位移的人，長黑比黑帶更難受，所以直接不收這塊黑。 */
+            #pf.pf-climb-roll .pf-bg, #pf.pf-climb-roll .pf-turf, #pf.pf-climb-roll .pf-grid,
+            #pf.pf-climb .pf-climb-streak, #pf.pf-climb .pf-climb-seam { animation:none !important; }
+            #pf.pf-climb-roll .pf-bg { top:-20px; bottom:-20px; height:auto; }
         }
     </style>
 <link rel="stylesheet" href="asset/gate-browser.css">
@@ -1519,6 +1621,7 @@
 <link rel="stylesheet" href="asset/ui-bottom-tabs.css">
 <link rel="stylesheet" href="asset/pixel-rpg-ui.css">
 <link rel="stylesheet" href="asset/ui-metal-theme.css">
+<link rel="stylesheet" href="asset/gate-settlement.css">
 </head>
 <body>
 
@@ -1549,11 +1652,11 @@
 
             <nav class="hm-dock-tabs" aria-label="主頁快捷選單">
                 <button class="hm-action" type="button" onclick="hmToast('公告：無限波利塔持續開放中')"><span class="hm-action-icon">📢</span><span class="hm-action-label">公告</span></button>
-                <button class="hm-action" type="button" onclick="hmToast('信件：暫無新郵件')"><span class="hm-action-icon">✉</span><span class="hm-action-label">信件</span></button>
-                <button class="hm-action" type="button" onclick="hmToast('任務：擊殺強敵取得角色碎片')"><span class="hm-action-icon">▤</span><span class="hm-action-label">任務</span></button>
+                <button class="hm-action" type="button" onclick="pickHomeTab('items')"><span class="hm-action-icon">✉</span><span class="hm-action-label">通貨統計</span></button>
+                <button class="hm-action" type="button" onclick="openShopSection('exchange')"><span class="hm-action-icon">▤</span><span class="hm-action-label">兌換商店</span></button>
                 <button class="hm-action" type="button" onclick="pickHomeTab('boss')"><span class="hm-action-icon">⚔</span><span class="hm-action-label">BOSS 戰</span></button>
                 <button class="hm-action" type="button" onclick="enterBattle()"><span class="hm-action-icon">⚔</span><span class="hm-action-label">出發冒險</span></button>
-                <button class="hm-action" type="button" onclick="showScreen('team')"><span class="hm-action-icon">▥</span><span class="hm-action-label">隊伍</span></button>
+                <button class="hm-action" type="button" onclick="openShopSection('gacha')"><span class="hm-action-icon">✦</span><span class="hm-action-label">轉蛋商店</span></button>
             </nav>
 
             <section class="panel battle-log-panel home-battle-log-panel" aria-label="戰鬥日誌">
@@ -1596,6 +1699,9 @@
             <div class="pf-turf" id="pf-turf"></div>
             <div class="pf-grid"></div>
             <div class="pf-cave"></div>
+            <!-- 換層向上捲動：流光條在單位之下（不糊珠子），黑帶在最上（要蓋住換圖那一下） -->
+            <div class="pf-climb-streak" aria-hidden="true"></div>
+            <div class="pf-climb-seam" aria-hidden="true"></div>
             <!-- 金色覆蓋層：FEVER 時點亮。位置在零件之上、場內角色之下，靠 DOM 順序分層 -->
             <div class="fev-veil"></div>
 
@@ -1650,19 +1756,8 @@
 
             <div class="pf-over" id="pf-over"><div id="pf-over-txt">隊伍全滅</div><div style="font-size:11px;color:#7a86a8;">正在原地重組…</div></div>
 
-            <!-- ===== 異界迴廊結算面板：只有打完獨立關卡才出現 ===== -->
-            <div class="pf-result" id="pf-result">
-                <div class="rs-box">
-                    <div class="rs-tag" id="rs-tag">首次擊破</div>
-                    <div class="rs-gate" id="rs-gate">異界迴廊</div>
-                    <div class="rs-boss" id="rs-boss">崩壞巨像</div>
-                    <div class="rs-rows" id="rs-rows"></div>
-                    <div class="rs-btns">
-                        <button class="mini-btn gray" onclick="gateExit()">返回門列表</button>
-                        <button class="mini-btn gold" onclick="gateRetry()">再戰一次</button>
-                    </div>
-                </div>
-            </div>
+            <!-- ===== 異界迴廊結算面板：內容整層由 asset/gate-settlement.js 現-build ===== -->
+            <div class="pf-result" id="pf-result"></div>
 
             <div class="pf-result" id="deep-fail">
                 <div class="rs-box">
@@ -1773,6 +1868,13 @@
 <script src="asset/gate-browser.js"></script>
 <script src="asset/home-party.js"></script>
 <script src="asset/game-data.js"></script>
+<script src="asset/skill-system.js"></script>
+<script src="asset/save-system.js"></script>
+<script src="asset/battle-lifecycle.js"></script>
+<script src="asset/battle-settlement.js"></script>
+<script src="asset/gate-settlement.js"></script>
+<script src="asset/job-effects.js"></script>
+<script src="asset/ui-router.js"></script>
 <script>
 'use strict';
 
@@ -1832,7 +1934,8 @@ const EX_BOSS = "asset/battle/boss/";
 const EX_GROUPS = {
     idle: ["idle", "walk"], up: ["walk", "idle"], down: ["walk", "idle"],
     attack: ["attack", "hit"], hurt: ["hit", "damage"],
-    skill: ["special", "skill"], victory: ["win", "idle"], enter: ["walk", "idle"]
+    // 角色技能展示統一採用素材站較短的 skill_ready；special 留作日後獨立長演出。
+    skill: ["skill_ready"], victory: ["win", "idle"], enter: ["walk", "idle"]
 };
 // 沒有 asset/ 資料夾時，逐檔試探會把 console 淹掉：連續缺檔到門檻就認定解包圖不存在，
 // 之後只走圖站與本機備援。任何一檔解包路徑成功載入都會把這個開關重新打開。
@@ -1850,13 +1953,26 @@ const UNIT_STATE_FILE = { idle: "walk_front", up: "walk_back", down: "walk_front
 const UNIT_STATE_FALLBACK = "neutral";
 const BALL_ACTION_FILE = { idle: "collision", up: "walk_back", down: "walk_front", attack: "launch", hurt: "collision", skill: "cast", victory: "focus", enter: "launch" };
 
-// ===== 角色池：四屬 5★ 角色（DEX＝圖鑑同一份資料） =====
+// ===== 可遊玩角色：四屬 4★／5★ 角色（DEX＝圖鑑同一份資料） =====
 const DEX = GAME_DATA.characters;
+
+// 招募池分類：節慶／周年版本與合作角色列為限定，其餘角色列為常駐。
+// 以角色 ID 維護，避免因顯示名稱裁掉括號後把不同版本混成同一角色。
+const LIMITED_CHARACTER_IDS = new Set([
+    "battle_maid_xm19", "heavenly_one", "tiger_treasure_hunter_smr20", "kunoichi_1anv", "lady_summoner_xm20", "onmyoji_boy_wt21",
+    "bodysuit_trooper_smr21", "suzumiya_haruhi", "pirates_girl_2anv", "tsundere_bountyhunter_vt22",
+    "lightbullet_wiz_ny20", "prince_zero_smr20", "minamoto_sakura", "emilia", "rem", "mermaid_1halfanv", "freeze_eye_xm21",
+    "nagato_yuki", "ice_witch_2anv", "kyouka", "samurai_xm19", "illusionist_smr20", "dimension_witch_smr20",
+    "rec_android_1anv", "heavenly_two", "machine_police_girl_smr21", "white_tiger_2anv", "nikaido_saki",
+    "kokkoro", "wind_spgirl_1anv", "timid_kunoichi_ny21", "elf_princess_1halfanv", "bigwing_shaman_smr21",
+    "mercenary_smr21", "combat_animal_xm21", "wind_dragon_wt22", "pecorine", "arisa", "ram", "subaru"
+]);
+function summonCategory(unit) { return LIMITED_CHARACTER_IDS.has(unit) ? "limited" : "permanent"; }
 
 // 全站共用角色名稱：移除名字尾端的全形／半形括號與括號內容，避免角色卡、戰鬥訊息和圖鑑顯示不一致。
 DEX.forEach(c => { c[3] = String(c[3]).replace(/\s*[（(].*$/u, "").trim(); });
 
-// 名冊直接由圖鑑同一份 DEX 生成：只收四屬五星角色
+// 名冊直接由圖鑑 DEX 生成：四星可由戰鬥碎片解鎖；五星只從轉蛋取得
 //   只讀取火、水、雷、風四屬性；光、闇僅在使用者特別要求時才加入
 const OPEN_EL = ["fire", "water", "thunder", "wind"];
 const OPEN_ELEMENTS = new Set(OPEN_EL);
@@ -1889,13 +2005,13 @@ function leadText(el, type) {
     return s;
 }
 const CHAR_TABLE = {};
-DEX.filter(c => c[1] === 5 && OPEN_ELEMENTS.has(c[2])).forEach(c => {
+DEX.filter(c => (c[1] === 4 || c[1] === 5) && OPEN_ELEMENTS.has(c[2])).forEach(c => {
     const unit = c[0], el = c[2], name = c[3], title = c[4];
     const type = WEAPON_TYPE[c[5]] || "knight";
     const st = TYPE_STAT[type];
     CHAR_TABLE[unit] = { name, title, element: el, unit, rarity: c[1],
                          atk: st.atk, hp: st.hp, need: SHARD_NEED, type,
-                         open: OPEN_ELEMENTS.has(el), lead: leadText(el, type) };
+                         open: OPEN_ELEMENTS.has(el), lead: leadText(el, type), summonCategory: summonCategory(unit) };
 });
 
 // ==========================================================
@@ -1921,10 +2037,11 @@ const CRIT_RATE = 0.08;    // 基礎暴擊率，隊長被動的暴擊率直接�
 const DMG_SCALE = 1.20;
 // ===== 連擊狂熱：撞擊傷害隨連擊數線性放大，連擊一斷就歸零 =====
 const COMBO_RUSH = 0.01;         // 1 連擊＝撞擊傷害 +1%
+const COMBO_DAMAGE_CAP = 50;     // 連擊撞擊傷害最多 +50%；Combo 本身仍可繼續累積 PF 等級
 const COMBO_HOLD = 2100;         // 多久沒撞到怪就斷連擊（毫秒）
 // ===== 技能：撞擊蓄能，滿了自動施放 =====
 const SKILL_CD = { knight: 15, fighter: 12, ranger: 12, supporter: 18, special: 18 };
-const SKILL_CHARGE_TIME = 2.5;   // 純靠時間要基礎冷卻 ×2.5 才滿（撞擊會大幅加速）
+const SKILL_CHARGE_TIME = 2.0;   // 純靠時間保底縮短 20%；撞擊與弱點命中仍是主要回能來源
 const SKILL_HIT_CHARGE = 2.4;    // 撞到敵人一次 +2.4%
 const SKILL_CAST_GAP_MS = 400;
 const SKILL_CINEMATIC = { active: false, startedAt: 0, until: 0, canvas: null, ctx: null, specialImage: null, hiddenFace: null, faceVisibility: "", caster: null, target: null, particles: [], raf: 0, shaken: false, impactFired: false, onImpact: null };
@@ -1967,10 +2084,10 @@ const ACCOUNT_STATS = [
 const FLIP_AT = [9, 15, 39];
 // 場上三位分别屬於劍士／射擊／格鬥，另外兩種形態先保留給之後的隊長
 const BOSS_TABLE = [
-    { id: "colossus_fire",    name: "熾焰龍王・焚天", element: "fire",    icon: "🌋" },
-    { id: "colossus_water",   name: "冰淵龍姬・霜華", element: "water",   icon: "💧" },
-    { id: "colossus_wind",    name: "翠嵐龍王・裂空", element: "wind",    icon: "🌪️" },
-    { id: "colossus_thunder", name: "玄雷龍皇・震霄", element: "thunder", icon: "🌩️" },
+    { id: "colossus_fire",    name: "赤焰龍・焚原",   element: "fire",    icon: "🌋" },
+    { id: "colossus_water",   name: "滄溟貝・溺音",   element: "water",   icon: "💧" },
+    { id: "colossus_wind",    name: "金鬣鷲・掠雲",   element: "wind",    icon: "🌪️" },
+    { id: "colossus_thunder", name: "玄雷機・軋空",   element: "thunder", icon: "🌩️" },
     // 自製 BOSS：圖框在 asset/battle/boss/ancient_golem/frames/，由 JS 逐格撥（見 ANIM_BOSS）
     { id: "ancient_golem",    name: "遠古石魔",       element: "fire",    icon: "🗿" }
 ];
@@ -1993,24 +2110,26 @@ const PARALYZE_MS = 800;   // 雷麻痺秒數
 const PARALYZE_GAP = 3000; // 麻痺最短間隔，避免多段技無限鎖王
 
 // ==========================================================
-// 主頁「BOSS戰」＝四道異界迴廊，各鎖一隻屬性龍王。
+// 主頁「BOSS戰」＝四道異界迴廊，各鎖一隻屬性王（龍／貝／鷲／機郭，名字照圖取）。
 //   與波利塔獨立：使用固定的迴廊基準層，不讀取塔目前層數；只按出戰隊伍人數微調。
 //   mult／amult 決定四道門彼此的生命與攻擊難度；zone 直接寫死地帶 id。
 //   克制走官方環 水→火→風→雷→水，hint 講的就是這條環上的正解屬性。
 // ==========================================================
 const BOSS_STAGES = [
+    // par＝這道門的「速度滿分線」（秒）：結算用時拿它換算速度獎勵與 SS/S/A 評級，
+    // 抓的是各門血厚度的實際通關節奏，不是隨便一個常數。
     { id: "thunder", el: "thunder", boss: "colossus_thunder", gate: "雷鳴禁域", zone: "ruin",
-      mult: 9,  amult: 1.2, shards: 90,  replay: 18,
-      hint: "玄雷龍皇・震霄盤踞在銳牙的戰場。風克雷——希薇在場上，撞擊和克制一起吃到。" },
+      mult: 9,  amult: 1.2, shards: 90,  replay: 18, par: 50,
+      hint: "玄雷機・軋空盤踞在銳牙的戰場。風克雷——希薇在場上，撞擊和克制一起吃到。" },
     { id: "wind",    el: "wind",    boss: "colossus_wind",    gate: "翠風裂谷", zone: "gale",
-      mult: 12, amult: 1.3, shards: 130, replay: 26,
-      hint: "翠嵐龍王・裂空的風壓很硬。火克風——羅爾夫是這道門的正解。" },
+      mult: 12, amult: 1.3, shards: 130, replay: 26, par: 65,
+      hint: "金鬣鷲・掠雲的風壓很硬。火克風——羅爾夫是這道門的正解。" },
     { id: "water",   el: "water",   boss: "colossus_water",   gate: "蒼瀧深域", zone: "frost",
-      mult: 16, amult: 1.5, shards: 190, replay: 38,
-      hint: "冰淵龍姬・霜華鎮守蒼瀧深域，是四道門裡最厚的一層。雷克水——讓斬鐵打頭陣。" },
+      mult: 16, amult: 1.5, shards: 190, replay: 38, par: 80,
+      hint: "滄溟貝・溺音鎮守蒼瀧深域，是四道門裡最厚的一層。雷克水——讓斬鐵打頭陣。" },
     { id: "fire",    el: "fire",    boss: "colossus_fire",    gate: "紅蓮熔境", zone: "lava",
-      mult: 6,  amult: 1.1, shards: 60,  replay: 12,
-      hint: "熾焰龍王・焚天是門口的新手王。水克火——莉潔兒或尤維爾上場，別用火對噴。" }
+      mult: 6,  amult: 1.1, shards: 60,  replay: 12, par: 40,
+      hint: "赤焰龍・焚原是門口的新手王。水克火——莉潔兒或尤維爾上場，別用火對噴。" }
 ];
 const GATE_BASE_LEVEL = 30; // 異界迴廊自己的固定強度基準，不隨波利塔層數變動
 
@@ -2035,76 +2154,20 @@ function titleName() { const t = TITLE_TABLE.find(x => x.id === titleOn); return
 
 let titleOn = "novice";
 
-// ===== 技能：可遊玩五星角色共用五套職業機制，名稱由屬性＋職業組出來 =====
+// ===== 技能：可遊玩角色共用五套職業機制，名稱由屬性＋職業組出來 =====
 //   劍士＝突進重斬、格鬥＝連打、射擊＝光束多段、輔助＝回復與全隊攻UP、特殊＝範圍爆裂
-const SKILL_WORD = GAME_DATA.skills.word;
-const SKILL_MOVE = GAME_DATA.skills.move;
 const SKILL_ART = GAME_DATA.skills.art;
-const SKILL_TAG = GAME_DATA.skills.tag;
-const SKILL_DESC = GAME_DATA.skills.desc;
-const SKILL_TRAIT_PROFILE = Object.freeze(GAME_DATA.skills.traitProfile);
+Object.freeze(GAME_DATA.skills.traitProfile);
 function artSize(base) { return base; }
-const SKILL_CAST = {
-    knight(m, seq) {
-        skillHit(m, 2.2, { cls: "crit", combo: 2 });
-        if (enemy.hp > 0) {
-            dashTo(m);
-            // 突進後追加一次確定的範圍斬擊，不再依賴球體是否剛好撞中敵人。
-            repeat(m, seq, 2, 180, () => {
-                const target = PF.foe;
-                if (!target) return;
-                skillHit(m, 1.0, { combo: 1, areaRadius: 110 });
-            });
-        }
-    },
-    fighter(m, seq) {
-        skillHit(m, 0.8, { combo: 1 });
-        repeat(m, seq, 4, 100, () => {
-            skillHit(m, 0.8, { combo: 1 });
-        });
-    },
-    ranger(m, seq) {
-        const b = m.body, e = PF.foe;
-        const beam = b && e ? { x: b.x, y: b.y, angle: Math.atan2(e.y - b.y, e.x - b.x), length: 640, width: 18 } : null;
-        skillHit(m, 1.9, { cls: "crit", combo: 2, beam });
-        repeat(m, seq, 3, 90, () => skillHit(m, 0.75, { combo: 1 }));
-    },
-    supporter(m) {
-        const healPct = .10 * (1 + .02 * talentRank(m.ch, 'skill'));
-        PF.buff = { atk: Math.round(m.ch.baseAtk * 0.3), until: performance.now() + 6000 };
-        for (const x of PF.members) {
-            if (x.down || !x.body || x.ch.hp <= 0) continue;
-            if (applyHeal(x, healPct)) FX.pop(x.body.x, x.body.y - 30, `+${(healPct * 100).toFixed(1)}%`, "heal");
-            if (x !== m) cutCd(x, 3);
-        }
-    },
-    special(m) {
-        skillHit(m, 2.8, { cls: "crit", combo: 3, areaRadius: 155 });
-        for (const x of aliveMembers()) if (x !== m) cutCd(x, 2);
-    }
-};
-// ===== 角色專屬技能：形狀照原作，總倍率仍鎖在同職業預算內（特殊＝2.8）=====
-//   莉莉露：投出炸彈引爆，衝擊後再拖一次延遲爆炸；1.5 + 1.3 = 2.8
-const SKILL_CAST_UNIT = {
-    alchemist(m, seq) {
-        skillHit(m, 1.5, { cls: "crit", combo: 2, areaRadius: 155 });
-        repeat(m, seq, 2, 260, () => skillHit(m, 1.3, { combo: 1, areaRadius: 170, popScale: 1.4 }));
-        for (const x of aliveMembers()) if (x !== m) cutCd(x, 2);
-    }
-};
-const SKILL_DESC_UNIT = GAME_DATA.skills.unitDesc;
-const SKILLS = {};
-Object.keys(CHAR_TABLE).forEach(id => {
-    const d = CHAR_TABLE[id];
-    const trait = SKILL_TRAIT_PROFILE[d.type] || SKILL_TRAIT_PROFILE.special;
-    SKILLS[id] = {
-        name: SKILL_SIGNATURES[id]?.name || SKILL_WORD[d.element] + SKILL_MOVE[d.type],
-        tag: `${SKILL_TAG[d.type]}・${trait.label}`,
-        desc: SKILL_DESC_UNIT[id] || `${trait.effect}；${SKILL_DESC[d.type]}命中會套用${ELEMENTS[d.element].label}屬性效果。`,
-        cast: SKILL_CAST_UNIT[id] || SKILL_CAST[d.type],
-        art: SKILL_ART[d.type],
-        trait: { ...trait, element: d.element, role: d.type }
-    };
+// 依賴在實際施放時才讀取，因此可取得最新的戰鬥狀態。
+const skillRuntime = SkillSystem.createRuntime({
+    skillHit, dashTo, repeat, talentRank, applyHeal, cutCd, aliveMembers,
+    getEnemy: () => enemy, getPartyState: () => PF,
+    pop: (...args) => FX.pop(...args), now: () => performance.now()
+});
+const SKILLS = SkillSystem.buildCatalog({
+    characters: CHAR_TABLE, signatures: SKILL_SIGNATURES,
+    config: GAME_DATA.skills, elements: ELEMENTS, runtime: skillRuntime
 });
 
 // ===== 現場型技能：掛在施放者球體周圍，battleTick 每 200ms 問一次敵人有沒有靠近 =====
@@ -2150,11 +2213,11 @@ const ENEMY_UNIT = {
     spirit_fire:{ unit: "spirit_fire",        rarity: 1 },   // 火焰之靈／炎靈
     slime_yellow:{ unit: "slango_yellow",     rarity: 1 },   // 雷之彈彈／黃色噗露
     slime_green: { unit: "slango_green",      rarity: 1 },   // 風之彈彈／綠色噗露
-    // 王關改用圖庫的四隻屬性龍王，比魔物大隻得多；星級就是 CDN 路徑，全部核過 kachidoki／neutral／skill_ready／walk_back／walk_front 都在
-    colossus_fire:    { unit: "fire_dragon",        rarity: 5 },   // 熾焰龍王・焚天
-    colossus_water:   { unit: "waterdragon_kunfu",  rarity: 5 },   // 冰淵龍姬・霜華
-    colossus_wind:    { unit: "wind_dragon",        rarity: 5 },   // 翠嵐龍王・裂空
-    colossus_thunder: { unit: "thunder_dragon",     rarity: 4 },   // 玄雷龍皇・震霄
+    // 王關改用圖庫的四隻屬性王，比魔物大隻得多；星級就是 CDN 路徑，全部核過 kachidoki／neutral／skill_ready／walk_back／walk_front 都在
+    colossus_fire:    { unit: "fire_dragon",        rarity: 5 },   // 赤焰龍・焚原
+    colossus_water:   { unit: "waterdragon_kunfu",  rarity: 5 },   // 滄溟貝・溺音
+    colossus_wind:    { unit: "wind_dragon",        rarity: 5 },   // 金鬣鷲・掠雲
+    colossus_thunder: { unit: "thunder_dragon",     rarity: 4 },   // 玄雷機・軋空
     // 自製 BOSS 沒有圖站對應，走下面 ANIM_BOSS 那條圖框路
     ancient_golem:    { unit: "ancient_golem",      rarity: 1 },
     // ↓ 真實解包素材敵人：special.gif 是像素精靈動畫，直接用解包路徑載入
@@ -2200,7 +2263,7 @@ function spriteCandidates(kind, id, state) {
         // 球體用解包的動作檔名；cut＝技能插播，要的是相簿那張大圖
         const local = kind === "cut" ? cdn : (BALL_ACTION_FILE[state] || "collision");
         const dir = CDN_BASE + "rarity" + ref.rarity + "/" + ref.unit;
-        // 技能卡依指定狀態載入圖站動作；左側指定 kachidoki，技能演出本體另播 special GIF。
+        // 技能卡與場上技能演出都使用素材站的 skill_ready，不再把長版 special 插入角色展示。
         if (kind === "cut" && !ref.exOnly) {
             const cutState = state === "skill" ? "skill_ready" : (UNIT_STATE_FILE[state] || UNIT_STATE_FALLBACK);
             out.push(dir + "/" + cutState + ".gif");
@@ -2244,7 +2307,8 @@ const missingSprites = new Set();
 function paintSprite(node, kind, id, state, fallbackText) {
     if (!node) return;
     // 普通敵人各自固定一種波利外觀，受擊／攻擊時不重新抽選或重播 GIF。
-    if (kind === "enemy" && !enemy.boss) {
+    // 表格有 skin 的怪（方體惡魔）走下面 battleSkinUrl 那條路，畫自家的圖。
+    if (kind === "enemy" && !enemy.boss && !enemy.battleSkinUrl) {
         if (!node.dataset.poringSkin) {
             node.dataset.poringSkin = String(Math.floor(Math.random() * NORMAL_PORING_SKINS.length));
         }
@@ -2358,6 +2422,8 @@ const SFX = {
         skill: ["asset/sfx/oga/skill-zap.mp3"],
         fever: ["asset/sfx/oga/fever-power.mp3"],
         nuke: ["asset/sfx/oga/doom-laser.mp3"],
+        // 阱洞吞球：Erase／Escape（CC0），下行音調那顆
+        outhole: ["asset/sfx/oga/outhole_erase.wav"],
         hitLegacy: ["asset/sfx/hit_punch_1.wav", "asset/sfx/hit_punch_2.wav"]
     },
     sampleBuf: {}, sampleState: {}, sampleLoaded: false,
@@ -2697,7 +2763,9 @@ function syncShakeLabel() {
 
 // 暫停：戰鬥中唯一的開關，暫停時物理與規則迴圈都不走，計時也停
 function togglePause() {
-    PF.paused = !PF.paused;
+    if (!accountCreated || !starterPicked) return;
+    if (['pf-result', 'deep-fail', 'pf-tutorial'].some(id => $(id)?.classList.contains('on'))) return;
+    setPaused(!PF.paused);
     $("pf-pause").classList.toggle("on", PF.paused);
     $("btn-pause").innerHTML = PF.paused ? "▶" : "❚❚";
     const restart = $("pp-restart");
@@ -2740,7 +2808,7 @@ let unisonMap = {};
 function unisonOf(mainId) { return unisonMap[mainId] || null; }
 function initRoster() {
     roster = {};
-    // 五星角色先鎖住，碎片在戰場上打；只有開場選的那一位直接給
+    // 角色預設鎖定；四星靠一般戰鬥碎片解鎖，五星只從轉蛋取得。
     CHAR_IDS.forEach(id => { roster[id] = newChar(id, false); });
     teamIds = [];
     unisonMap = {};
@@ -2786,7 +2854,7 @@ function atkOf(ch) {
     const buff = PF.buff && now < PF.buff.until ? PF.buff.atk : 0;
     let base = Math.round(ch.baseAtk * (1 + leadVal(ch.id, "atk")) * (1 + mainAccountBonus().atk)) + buff;
     // 牧師被動：FEVER 期間全隊輸出翻倍，其他職業維持原倍率。
-    if (mainAccountJob === "priest" && isJobPassiveActive() && FEVER.active) base = Math.round(base * 2);
+    base = Math.round(base * jobEffects.attackMultiplier());
     return Math.round(base * (1 + (POWER_FLIP.enabled ? POWER_FLIP.buffPct : 0)));
 }
 function charName(id) { return CHAR_TABLE[id] ? CHAR_TABLE[id].name : id; }
@@ -2800,19 +2868,21 @@ const NORMAL_PORING_SKINS = [
 const TOWER_BOSS_TABLE = [
     { id: 'tower_angeling', name: '天使波利', element: 'light', icon: '👼', skin: 'asset/monster/ro/angeling.png' },
     { id: 'tower_ghostring', name: '幽靈波利', element: 'dark', icon: '👻', skin: 'asset/monster/ro/ghostring.png' },
-    { id: 'tower_deviling', name: '惡魔波利', element: 'dark', icon: '😈', skin: 'asset/monster/ro/deviling.png' }
+    { id: 'tower_deviling', name: '惡魔波利', element: 'dark', icon: '😈', skin: 'asset/monster/ro/deviling.png' },
+    { id: 'tower_chimney_brown', name: '褐方體惡魔', element: 'light', icon: '🟫', roArt: true, skin: 'asset/monster/ro/chimney_brown.png' },
+    { id: 'tower_chimney_black', name: '黑方體惡魔', element: 'light', icon: '⬛', roArt: true, skin: 'asset/monster/ro/chimney_black.png' }
 ];
 // face／lift 是「臉框外擴 %」與「血條離球頂 px」：四張 RO 圖幅不同，靠這兩格把本體都放到 200px 級。
 // zoom 是 BOSS 頁圓框頭像與上下關卡小圖的縮放：圖檔四周留白多的（獅鷲）要放大，方形的水王保持原樣才不會被圓框切掉。
 const GATE_ENEMY_APPEARANCES = {
-    fire: { name: '熾焰龍王・焚天', skin: 'asset/battle/gate-boss/nidhogg.webp', alpha: true, face: -100, lift: 88, zoom: 1.18 },
-    water: { name: '冰淵龍姬・霜華', skin: 'asset/battle/gate-boss/water.webp', alpha: true, face: -70, lift: 64, zoom: 1 },
-    wind: { name: '翠嵐龍王・裂空', skin: 'asset/battle/gate-boss/wind.webp', alpha: true, face: -129, lift: 91, zoom: 1.42 },
-    thunder: { name: '玄雷龍皇・震霄', skin: 'asset/battle/gate-boss/thunder.webp', alpha: true, face: -83, lift: 77, zoom: 1 }
+    fire: { name: '赤焰龍・焚原', skin: 'asset/battle/gate-boss/nidhogg.webp', alpha: true, face: -100, lift: 88, zoom: 1.18 },
+    water: { name: '滄溟貝・溺音', skin: 'asset/battle/gate-boss/water.webp', alpha: true, face: -70, lift: 64, zoom: 1 },
+    wind: { name: '金鬣鷲・掠雲', skin: 'asset/battle/gate-boss/wind.webp', alpha: true, face: -129, lift: 91, zoom: 1.42 },
+    thunder: { name: '玄雷機・軋空', skin: 'asset/battle/gate-boss/thunder.webp', alpha: true, face: -83, lift: 77, zoom: 1 }
 };
 let towerBossCursor = 0;
 let enemy = { id: "", name: "", icon: "👹", hp: 40, maxHp: 40, atk: 4, element: "fire", expReward: 30, boss: false,
-    groupSize: 1, battleSkinUrl: "", battleSkinFailed: false, battleSkinAlpha: false, battleSkinFace: -100, battleSkinLift: 88 };
+    groupSize: 1, battleSkinUrl: "", battleSkinFailed: false, battleSkinAlpha: false, battleSkinFace: -100, battleSkinLift: 88, battleSkinRoArt: false };
 const bossHpBufferState = { seq: -1, ratio: 1, lastRatio: 1, delayUntil: 0, lastAt: 0 };
 
 // 名字用台服正式譯名；id 是內部鍵（存檔與 ENEMY_UNIT 都用它），不動
@@ -2831,7 +2901,11 @@ const ENEMY_TABLE = [
     // ↓ 真實解包素材敵人：用 special.gif 呈現，高難度精英怪
     { id: "foe_ark",     name: "阿爾克・影",   icon: "🔥", element: "fire" },
     { id: "foe_stella",  name: "史黛拉・影",   icon: "✨", element: "light" },
-    { id: "foe_theo",    name: "萊特・影",     icon: "🌪️", element: "wind" }
+    { id: "foe_theo",    name: "萊特・影",     icon: "🌪️", element: "wind" },
+    // ↓ 方體惡魔：有 skin 就直接用自家的 RO 解包圖，不再抽波利；roArt＝淺色方正的透明圖，另走一套呈現
+    { id: "chimney_angel_blue", name: "天使藍方體惡魔", icon: "🟦", element: "light", roArt: true, skin: "asset/monster/ro/chimney_angel_blue.png" },
+    { id: "chimney_angel_red",  name: "天使紅方體惡魔", icon: "🟥", element: "light", roArt: true, skin: "asset/monster/ro/chimney_angel_red.png" },
+    { id: "chimney_angel_ice",  name: "冰河天使方體惡魔", icon: "🧊", element: "light", roArt: true, skin: "asset/monster/ro/chimney_angel_blue.png" }
 ];
 
 let stage = 1, kills = 0;
@@ -2879,7 +2953,17 @@ function gainRankExp(amount) {
 // bossWin：各門擊破次數（進存檔，用來在關卡卡上蓋「已擊破」）
 const GATE = { id: null, t0: 0, dmg0: 0 };
 let bossWin = {};
+let gateTokens = Object.fromEntries(BOSS_STAGES.map(g => [g.id, 0]));
+// 每道門各自的最佳用時／最高分（結算的 NEW RECORD 與評級比較基準都看它）
+let gateRecord = Object.fromEntries(BOSS_STAGES.map(g => [g.id, { ms: 0, score: 0 }]));
 let shardTotal = 0;
+let cultivationMaterials = 0;
+let limitedSummonCount = 0;
+let inventoryFilter = "all";
+let shopSection = "gacha";
+let gachaPoolType = "limited";
+let gachaAnimation = null;
+let gachaAnimationTimers = [];
 let tickCounter = 0, battleTimer = null;
 let dmgTotal = 0, combo = 0, comboAt = 0, battleSec = 0;
 // Fever 期間另外記一份連擊，中央的 FEVER 字下面就顯示這個數字
@@ -3014,7 +3098,7 @@ function feverPadTick(now) {
             SFX.flipperHit();
             p.node.remove();
             FEVER_PADS.splice(i, 1);
-            setTimeout(addFeverPad, FEVER_PAD.respawnMs);
+            battleLifecycle.schedule(FEVER_PAD.respawnMs, addFeverPad, () => FEVER.active);
             break;
         }
     }
@@ -3023,6 +3107,7 @@ function feverPadTick(now) {
 const PF = {
     el: null, field: null, vfx: null, bgEl: null, turfEl: null, cut: null, rays: null,
     members: [], foe: null, extraFoes: [], enemyUnits: [], waveResolvedSeq: -1, segs: [], flippers: [],
+    outhole: null,
     last: 0, running: true, ready: false,
     // 暫停：戰鬥畫面唯一的功能開關（照原作，場中不殘留面板）
     paused: false,
@@ -3033,10 +3118,66 @@ const PF = {
     // 現場型技能（冰晶／影蛇力場）與遲緩
     aura: null, slowUntil: 0, mageSlowUntil: 0,
     lastCut: 0, cutTimer: null,
+    climbing: false, climbTimer: null,
     skillQueue: [], skillCastWait: 0,
     // 弱點／BREAK
     weak: null, breakUntil: 0, nextCastAt: 0,
 };
+
+const jobEffects = JobEffects.create({
+    getJob: () => mainAccountJob, isActive: isJobPassiveActive,
+    getStat: jobPassiveStat, getTalent: jobTalentRank, isFever: () => FEVER.active
+});
+const battleLifecycle = BattleLifecycle.create({
+    getState: () => PF, now: () => performance.now(),
+    isIntro: bossEntranceFreezesBattle, isCinematic: () => SKILL_CINEMATIC.active,
+    onResume: ms => {
+        BattleLifecycle.shiftDeadlines(PF, ms);
+        if (GATE.id) GATE.t0 += ms;
+        if (BOSS_ENTRANCE.data?.freezeAt != null) BOSS_ENTRANCE.data.freezeAt += ms;
+        if (SKILL_CINEMATIC.active) {
+            SKILL_CINEMATIC.startedAt += ms; SKILL_CINEMATIC.until += ms;
+        }
+    }
+});
+
+function cancelSkillCinematic() {
+    const c = SKILL_CINEMATIC;
+    if (c.raf) cancelAnimationFrame(c.raf);
+    if (c.hiddenFace) c.hiddenFace.style.visibility = c.faceVisibility;
+    c.specialImage?.remove(); c.canvas?.remove();
+    Object.assign(c, { active: false, onImpact: null, specialImage: null, canvas: null, ctx: null, raf: 0, hiddenFace: null });
+    PF.el?.classList.remove('skill-cinematic-active');
+}
+function resetBattleTransient() {
+    battleLifecycle.invalidate();
+    // 排程會跟著 invalidate 一起作廢，但收尾那顆是 wall-clock 的 setTimeout（它必須活過 invalidate）；
+    // 還有 CSS 的 class 也不會自己掉。兩者都要在這裡掃乾淨，不然下一場就掛著一條黑帶、整場暗暗的。
+    clearTimeout(PF.climbTimer); PF.climbTimer = null;
+    PF.climbing = false;
+    PF.el?.classList.remove('pf-climb', 'pf-climb-roll');
+    cancelSkillCinematic(); hideBossEntrance(); clearWeak(); clearField();
+    PF.holdL = PF.holdR = false;
+    PF.buff = null; PF.skillQueue = []; PF.skillCastWait = 0;
+    PF.burns = []; PF.burn = null; PF.breakUntil = PF.stunUntil = PF.slowUntil = PF.mageSlowUntil = 0;
+    PF.paralyzeReady = PF.gustReady = 0; PF.doomFX = null;
+    clearTimeout(PF.cutTimer); PF.cutTimer = null; PF.lastCut = 0;
+    if (PF.cut) PF.cut.innerHTML = '';
+    FX.clearPops();
+    if (PF.vfx) PF.vfx.innerHTML = '';
+    PF.el?.querySelectorAll('.doom-strike,.doom-top-beam').forEach(n => n.remove());
+    if (FEVER.active) feverEnd();
+    Object.assign(FEVER, { value: 0, maxValue: FEVER_BASE, active: false, left: 0, times: 0 });
+    POWER_FLIP.lockMs = POWER_FLIP.buffMs = POWER_FLIP.buffPct = 0;
+    COLLISION_TRIAL.dashLeft = 0;
+    combo = 0; comboAt = 0; feverCombo = 0;
+    for (const m of PF.members) {
+        clearPowerFlip(m.body); clearArcherPierce(m);
+        if (m.body) m.body._warriorFloatUntil = 0;
+        m.ch._thiefShockReadyAt = 0;
+        m.runDmg = 0;   // 本場輸出榜：每開新的一場都要歸零
+    }
+}
 
 function el(tag, cls) { const n = document.createElement(tag); n.className = cls; return n; }
 
@@ -3136,6 +3277,8 @@ function makeBall(cls, r, kind, id, fallback) {
     const face = el("div", "face");
     ball.appendChild(face);
     node.appendChild(ball);
+    // 淺色方正的 RO 透明圖要關遮罩、改亮度：整波（主體加分隊）都得同一套呈現，所以在這裡掛，不在 spawnFoe 只補主體
+    if (kind === "enemy" && enemy.battleSkinRoArt) ball.classList.add("ro-art");
     // 頭上小血條掛在 .ent 上、.ball 之外：球體那圈放射遮罩會連血條一起淡掉
     let hb = null, hbf = null;
     if (kind) {
@@ -3317,6 +3460,9 @@ function refreshTurf(boss) {
     PF.turfEl.style.backgroundImage = `url("${boss ? TURF.boss : TURF.grass}")`;
 }
 
+// 洞心 y：彈板樞軸在 668、板尖之間那道縫就在其下，700 是截圖量出來的實際落球口
+const OUTHOLE_Y = 700;
+
 function buildField() {
     // 地板先鋪好：這一次還不知道是不是王關，先給草地，spawnFoe() 換王關時再換圖
     refreshTurf(false);
@@ -3344,6 +3490,14 @@ function buildField() {
         PF.flippers.push(flip);
     });
     PF.goldT = -1;
+
+    // 阱洞：兩塊彈板板尖之間那道縫就是落球口，洞擱在那裡當「看得見的懲罰」。
+    // z-index 3 在球（5）與板（6）下面，球才會看起來是掉進洞裡而不是被洞蓋住。
+    PF.outhole = el("div", "outhole");
+    PF.outhole.innerHTML = "<i></i>";
+    PF.outhole.style.left = (W / 2) + "px";
+    PF.outhole.style.top = OUTHOLE_Y + "px";
+    PF.field.appendChild(PF.outhole);
 
     PF.rays = el("div", "rays");
     PF.vfx.appendChild(PF.rays);
@@ -3384,9 +3538,9 @@ function syncTeamField() {
         return true;
     });
     teamIds.forEach((id, i) => {
-        warmSkillSpecial(id);
+        warmSkillReady(id);
         let m = PF.members.find(x => x.ch.id === id);
-        if (!m) { m = { ch: roster[id], idx: i, body: null, fighter: null, down: false, respawnAt: 0, lastDmg: 0 }; PF.members.push(m); }
+        if (!m) { m = { ch: roster[id], idx: i, body: null, fighter: null, down: false, respawnAt: 0, lastDmg: 0, runDmg: 0 }; PF.members.push(m); }
         m.idx = i;
         if (!m.body) attachBall(m);
     });
@@ -3395,14 +3549,14 @@ function syncTeamField() {
     syncPartyFormation(true);
 }
 
-const SKILL_SPECIAL_WARMED = new Set();
-function warmSkillSpecial(id) {
-    if (SKILL_SPECIAL_WARMED.has(id)) return;
+const SKILL_READY_WARMED = new Set();
+function warmSkillReady(id) {
+    if (SKILL_READY_WARMED.has(id)) return;
     const ref = artRef("hero", id);
     if (!ref) return;
     const img = new Image();
-    img.src = `${CDN_BASE}rarity${ref.rarity}/${ref.unit}/special.gif`;
-    SKILL_SPECIAL_WARMED.add(id);
+    img.src = `${CDN_BASE}rarity${ref.rarity}/${ref.unit}/skill_ready.gif`;
+    SKILL_READY_WARMED.add(id);
 }
 
 function aliveMembers() { return PF.members.filter(m => !m.down && m.body); }
@@ -3412,6 +3566,7 @@ function spawnFoe() {
     PF.extraFoes.forEach(e => e.node.remove());
     PF.extraFoes = [];
     PF.enemyUnits = [];
+    battleLifecycle.invalidate();
     PF.foeSeq++;                       // 多段技靠這個序號辨認目標，換敵人就不追打
     PF.stunUntil = 0; PF.burn = null; PF.burns = []; PF.paralyzeReady = 0; PF.gustReady = 0;
     clearField(); PF.slowUntil = 0; PF.mageSlowUntil = 0;
@@ -3733,10 +3888,7 @@ function addCd(m, pct) {
     if (!m || m.down || !m.ch || m.ch.gauge >= 100) return;
     // 自然回能、碰撞與隊友補能共用主帳號蓄能加成。
     pct *= 1 + mainAccountBonus().gauge;
-    if (mainAccountJob === "priest" && isJobPassiveActive()) {
-        // 牧師：FEVER 碰撞蓄能翻倍；平時由 AGI 提升，最多再加 20%。
-        pct *= FEVER.active ? 2 : 1 + Math.min(.20, jobPassiveStat("agi") * .002);
-    }
+    pct *= jobEffects.gaugeMultiplier();
     m.ch.gauge = Math.min(100, m.ch.gauge + pct);
     if (m.ch.gauge >= 100) {
         queueReadySkill(m);
@@ -3800,7 +3952,7 @@ function bumpCombo(n) {
         if (fc) { fc.classList.remove("bump"); void fc.offsetWidth; fc.classList.add("bump"); }
     }
 }
-function comboMult() { return POWER_FLIP.enabled ? 1 : 1 + combo * COMBO_RUSH; }
+function comboMult() { return 1 + Math.min(combo, COMBO_DAMAGE_CAP) * COMBO_RUSH; }
 
 // ==========================================================
 // 系統 B：弱點 / BREAK（王關限定）
@@ -3844,11 +3996,10 @@ function hitWeak(w, m) {
     SFX.weakHit();
     FX.sprite(w.x, w.y, "weak");
     bumpCombo(2);
-    if (mainAccountJob === "mage" && isJobPassiveActive() && PF.weak && enemy.boss) {
+    if (jobEffects.active("mage") && PF.weak && enemy.boss) {
         // 法師被動把 Boss 的讀條向後推，總延長封頂 1.5 秒，避免弱點連擊無限拖延。
         const used = PF.weak.passiveSlowMs || 0;
-        const extra = Math.min(1500 - used, 300 + Math.min(500, jobPassiveStat("int") * 12)
-            + Math.min(250, jobPassiveStat("luk") * 8));
+        const extra = jobEffects.weakDelay(used);
         if (extra > 0) {
             PF.weak.passiveSlowMs = used + extra;
             PF.weak.dur += extra;
@@ -3947,19 +4098,24 @@ function tickDoomCannonFX(now) {
 
 function weakFail() {
     const left = PF.weak.nodes.filter(x => !x.hit).length;
+    const total = PF.weak.nodes.length;
     clearWeak();
-    fireDoomCannon(left);
+    fireDoomCannon(left, total);
 }
 
-function fireDoomCannon(left) {
+function fireDoomCannon(left, total) {
     const now = performance.now();
     PF.nextCastAt = now + 9000;
+    const scale = 1 + 0.3 * (teamIds.length - 1);
+    // 沒破弱點時維持原傷害；弱點破得越多，這次全隊砲擊傷害最多降低一半。
+    const remainingRatio = total > 0 ? Math.max(0, Math.min(1, left / total)) : 1;
+    const damageFactor = 0.5 + 0.5 * remainingRatio;
+    const reductionPct = Math.round((1 - damageFactor) * 100);
     SFX.nuke();
-    log(`☄️ <b style='color:#ff8a95'>施法失敗（弱點殘留 ${left} 個）</b>——${enemy.name} 的毀滅砲落下！`);
+    log(`☄️ <b style='color:#ff8a95'>施法失敗（弱點 ${total - left}/${total}，毀滅砲傷害降低 ${reductionPct}%）</b>——${enemy.name} 的毀滅砲落下！`);
     showDoomCannonImpact();
     startDoomCannonFX(now);
-    const scale = 1 + 0.3 * (teamIds.length - 1);
-    const dmg = Math.max(1, Math.round(enemy.atk * 1.5 * scale));
+    const dmg = Math.max(1, Math.round(enemy.atk * 1.5 * scale * damageFactor));
     aliveMembers().forEach(m => memberStrike(m, dmg, `${enemy.name} 毀滅砲`, enemy.element));
 }
 
@@ -3989,6 +4145,9 @@ function applyDamage(srcCh, dmg, opt) {
     const ef = e.fighter || (e === PF.foe ? enemyF : null);
     const dealt = damageEnemyUnit(e, dmg);
     dmgTotal += dealt;
+    // 每個人都記自己這一場打了多少：異界迴廊結算的隊員輸出榜與 MVP 就看這個欄位
+    const dealtBy = srcCh ? PF.members.find(m => m.ch === srcCh && m.body) : null;
+    if (dealtBy) dealtBy.runDmg = (dealtBy.runDmg || 0) + dealt;
     if (e) {
         const popClass = [opt.cls || (now < PF.breakUntil ? "brk" : ""), opt.critical ? "critical" : ""].filter(Boolean).join(" ");
         FX.pop(e.x, e.y - e.r, fmt(dealt), popClass, opt.popScale);
@@ -4001,8 +4160,7 @@ function applyDamage(srcCh, dmg, opt) {
                 const art = SKILL_ART[type];
                 if (art && now - (srcCh._professionFxAt || 0) > 260) {
                     srcCh._professionFxAt = now;
-                    const member = PF.members.find(m => m.ch === srcCh && m.body);
-                    const rot = member ? Math.atan2(e.y - member.body.y, e.x - member.body.x) * 180 / Math.PI : 0;
+                    const rot = dealtBy ? Math.atan2(e.y - dealtBy.body.y, e.x - dealtBy.body.x) * 180 / Math.PI : 0;
                     FX.art(art, e.x, e.y, CHAR_TABLE[srcCh.id].element, art === "beam" ? 104 : 86,
                         { rot: art === "slash" || art === "beam" ? rot : 0, ms: art === "heal" ? 430 : 360 });
                 }
@@ -4025,8 +4183,7 @@ function checkKill() {
 
 // 暴擊率＝基礎值＋隊長被動，上限 75%；暴擊倍率固定，沒有暴擊傷害乘區
 function critRate(ch, context = "") {
-    const jobCrit = mainAccountJob === "thief" && isJobPassiveActive() && context === "shockwave"
-        ? Math.min(.25, jobPassiveStat("luk") * .0015) : 0;
+    const jobCrit = jobEffects.shockCritical(context);
     return DamageFormulas.criticalRate(CRIT_RATE, leadVal(ch.id, "crit"), mainAccountBonus().crit, jobCrit, 0.75);
 }
 function rollCrit(ch, context = "") { return Math.random() < critRate(ch, context); }
@@ -4048,9 +4205,9 @@ function skillHit(m, mult, opt) {
     o.cls = [base, !base && eMult > 1 ? "weak" : "", crit ? "crit" : ""].filter(Boolean).join(" ");
     o.critical = crit;
     const target = o.target || PF.foe;
-    if (o.beam && mainAccountJob === "archer" && isJobPassiveActive()) {
+    if (o.beam && jobEffects.active("archer")) {
         // 射手 INT 擴大技能光束判定；限制最大加寬，避免把整個戰場都算進去。
-        o.beam = { ...o.beam, width: o.beam.width + Math.min(24, jobPassiveStat("int") * .8) };
+        o.beam = { ...o.beam, width: o.beam.width + jobEffects.beamWidth() };
     }
     const targets = o.beam ? enemyTargetsOnRay(o.beam.x, o.beam.y, o.beam.angle, o.beam.length, o.beam.width)
         : o.areaRadius ? enemyTargetsInRadius(target.x, target.y, o.areaRadius) : [target];
@@ -4065,12 +4222,9 @@ function skillHit(m, mult, opt) {
 
 // 多段技：換了敵人、施放者倒下或目標已死就停手，不會追打到下一隻
 function repeat(m, seq, n, gap, fn, done) {
-    for (let i = 1; i < n; i++) setTimeout(() => {
-        if (PF.foeSeq !== seq || m.down || enemy.hp <= 0) return;
-        fn(i);
-        checkKill();
-    }, gap * i);
-    if (done) setTimeout(() => { if (PF.foeSeq === seq && !m.down && enemy.hp > 0) done(); }, gap * n);
+    const valid = () => PF.foeSeq === seq && !m.down && enemy.hp > 0;
+    for (let i = 1; i < n; i++) battleLifecycle.schedule(gap * i, () => { fn(i); checkKill(); }, valid);
+    if (done) battleLifecycle.schedule(gap * n, done, valid);
 }
 
 function dashTo(m) {
@@ -4161,7 +4315,7 @@ function hitFoe(m, speed, target, hitFlags = {}) {
     const stun = now < PF.stunUntil ? 1.25 : 1;   // 暈眩是敵人狀態，不算傷害乘區
     const crit = rollCrit(m.ch);
     const rush = comboMult();
-    const archerDirect = mainAccountJob === "archer" && isJobPassiveActive() ? Math.min(.30, jobPassiveStat("dex") * .005) : 0;
+    const archerDirect = jobEffects.directBonus();
     const dmg = applyDamage(m.ch, Math.max(1, Math.round(atkOf(m.ch) * mult * stun * rush * (1 + archerDirect) * (crit ? CRIT_DMG : 1))),
         { cls: [mult > 1 ? "weak" : "", crit ? "crit" : ""].filter(Boolean).join(" "), critical: crit,
           popScale: 1 + Math.min(0.7, combo * 0.01), target });
@@ -4176,58 +4330,52 @@ function hitFoe(m, speed, target, hitFlags = {}) {
     checkKill();
 }
 
-function killFoe() {
-    hideBossEntrance();
-    // win 台詞只在 BOSS 倒下時講，一般怪幾秒一隻，每殺都喊會變成雜音
-    const win = !!(enemy && enemy.boss);
-    PF.members.forEach(m => { if (!m.down) { playFighter(m.fighter, "victory"); if (win) SFX.voice(m.ch.id, "win"); } });
-    SFX.kill();
-    if (TRAINING_MODE) {
-        log(`🧪 訓練場：${enemy.name} 擊倒，半秒後重置；不發放獎勵、不記錄進度。`);
-        const seq = PF.foeSeq;
-        setTimeout(() => {
-            if (!TRAINING_MODE || PF.foeSeq !== seq) return;
-            trainingResetBoss();
-        }, 500);
-        return;
+const battleSettlement = BattleSettlement.create({
+    getState: () => ({ enemy, training: TRAINING_MODE, seq: PF.foeSeq, gate: GATE.id,
+        gateDefinition: gateOf(), bossWin, gateRecord, now: performance.now(), startedAt: GATE.t0,
+        damage: dmgTotal, damageStart: GATE.dmg0 }),
+    lifecycle: battleLifecycle,
+    actions: {
+        playVictory() {
+            hideBossEntrance();
+            const win = !!enemy.boss;
+            PF.members.forEach(m => { if (!m.down) { playFighter(m.fighter, 'victory'); if (win) SFX.voice(m.ch.id, 'win'); } });
+            SFX.kill();
+        },
+        trainingNotice() { log(`🧪 訓練場：${enemy.name} 擊倒，半秒後重置；不發放獎勵、不記錄進度。`); },
+        resetTraining: trainingResetBoss, gainRankExp, gateVictory,
+        settleTower() {
+            kills += enemy.groupSize || 1;
+            rollShards();
+            const defeatedDeepBoss = enemy.boss;
+            if (defeatedDeepBoss) floorWins = 0;
+            else floorWins++;
+            const floorCleared = defeatedDeepBoss || floorWins >= NORMAL_FLOOR_WAVES;
+            if (floorCleared) {
+                stage++;
+                floorWins = 0;
+                deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
+                const healPct = 0.25;
+                PF.members.forEach(m => { m.ch.hp = Math.min(hpMax(m.ch), m.ch.hp + Math.ceil(hpMax(m.ch) * healPct)); });
+                log(`🏕️ 通過第 ${stage - 1} 層：全隊回復 ${Math.round(healPct * 100)}% 生命。`);
+            }
+            saveGame();
+            // 打滿一層才捲動；新的一層在黑帶蓋住畫面那一刻才生成，觀眾看到的是「上樓」不是「怪突然換一批」
+            if (!floorCleared || !floorClimb(nextEnemy)) nextEnemy();
+        },
+        applyGateReward(gate, result) { bossWin[gate.id] = result.win; shardTotal += result.shards; gateTokens[gate.id] = (gateTokens[gate.id] || 0) + (result.first ? 5 : 2); },
+        recordGate(id, ms, score) { BattleSettlement.mergeRecord(gateRecord, id, ms, score); },
+        showGateResult: renderGateResult, save: saveGame,
+        publishGateResult(gate, result) {
+            if (GATE_MODE && window.parent !== window) window.parent.postMessage({
+                type: 'wf-gate-result', gate: gate.id, gateName: gate.gate,
+                first: result.first, shards: result.shards, win: result.win,
+                ms: result.ms, score: result.score
+            }, GATE_TARGET);
+        }
     }
-    const expTotal = Math.max(0, enemy.expReward);
-    const survivors = aliveMembers();
-    // 經驗只發給還站著的成員，而且由他們平分；倒下的人拿不到，也不能重複領整份
-    const { share: expShare, extra: expExtra } = RewardFormulas.splitExperience(expTotal, survivors.length);
-    log(expShare <= 0
-        ? `🎉 擊殺 <b>${enemy.name}</b>！`
-        : survivors.length === 1
-            ? `🎉 擊殺 <b>${enemy.name}</b>！經驗 +${expTotal}`
-            : `🎉 擊殺 <b>${enemy.name}</b>！經驗 ${expTotal} 由場上 ${survivors.length} 人平分，各 +${expShare}${expExtra ? `～${expShare + 1}` : ''}`);
-    if (expShare > 0) survivors.forEach((m, i) => addExp(m.ch, expShare + (i < expExtra ? 1 : 0)));
-    gainRankExp(expTotal);
-    // 獨立關卡打完就停在結算面板：不記 kills、不掉寶箱碎片、也不會自己接下一隻怪
-    if (gateOn()) {
-        // 留 0.5 秒讓 BOSS 倒下／勝利動作完整露出，再打開結算面板。
-        const defeatedGate = GATE.id, defeatedSeq = PF.foeSeq;
-        setTimeout(() => {
-            if (GATE.id === defeatedGate && PF.foeSeq === defeatedSeq && enemy.hp <= 0) gateVictory();
-        }, 500);
-        return;
-    }
-    kills += enemy.groupSize || 1;
-    rollShards();
-    const defeatedDeepBoss = enemy.boss;
-    if (defeatedDeepBoss) floorWins = 0;
-    else floorWins++;
-    const floorCleared = defeatedDeepBoss || floorWins >= NORMAL_FLOOR_WAVES;
-    if (floorCleared) {
-        stage++;
-        floorWins = 0;
-        deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
-        const healPct = 0.25;
-        PF.members.forEach(m => { m.ch.hp = Math.min(hpMax(m.ch), m.ch.hp + Math.ceil(hpMax(m.ch) * healPct)); });
-        log(`🏕️ 通過第 ${stage - 1} 層：全隊回復 ${Math.round(healPct * 100)}% 生命。`);
-    }
-    saveGame();
-    nextEnemy();
-}
+});
+function killFoe() { return battleSettlement.resolveWave(); }
 
 function memberStrike(m, dmg, why, sourceElement = null) {
     if (TRAINING_MODE) return; // 訓練場只測輸出，不讓攻擊或毀滅砲影響角色狀態
@@ -4253,57 +4401,59 @@ function downMember(m) {
     m.body = null; m.fighter = null;
     log(`☠️ <b style='color:#ff8a95'>${charName(m.ch.id)}</b> 倒下，6 秒後重新上場。`);
     if (PF.members.every(x => x.down)) {
-        PF.running = false;
+        battleLifecycle.setRunning(false);
         PF.reviveAt = performance.now() + 1700;
         showOver("隊伍全滅");
     }
 }
 
-// ===== 技能插播：左下角斜切卡，圖左字右，圖一律取 skill_ready =====
-function showCut(m) {
-    const d = CHAR_TABLE[m.ch.id], sk = SKILLS[m.ch.id];
-    const run = () => {
-        PF.cut.innerHTML = "";
-        const col = ELEMENTS[d.element].color;
-        const n = el("div", "cut");
-        n.style.setProperty("--cut", col);
-        const art = el("div", "cut-art");
-        const inner = el("div", "cut-img");
-        const shine = el("span", "cut-shine");
-        const chip = el("span", "cut-el");
-        chip.textContent = ELEMENTS[d.element].label;
-        art.append(inner, shine, chip);
-        const txt = el("div", "cut-txt");
-        txt.innerHTML = `<b>${sk.name}</b><i></i><span><em>${d.name}</em>｜${sk.tag}</span>`;
-        n.append(art, txt);
-        PF.cut.appendChild(n);
-        // 左側技能卡固定用勝利姿勢，場上的 special GIF 保留技能動作，避免兩邊同步重複。
-        paintSprite(inner, "cut", m.ch.id, "kachidoki", d.name.slice(0, 1));
-        // 符文烙在彈板軸心，像機械關節上的屬性印記
-        PF.flippers.forEach(f => {
-            const r = el("div", "flip-rune");
-            r.style.setProperty("--cut", col);
-            r.style.left = f.hx + "px";
-            r.style.top = f.hy + "px";
-            r.textContent = ELEMENTS[d.element].label;
-            f.node.appendChild(r);
-            setTimeout(() => r.remove(), 1200);
-        });
-        PF.lastCut = performance.now();
-        setTimeout(() => { n.classList.add("out"); setTimeout(() => n.remove(), 300); }, 1450);
-    };
-    const wait = SKILL_CAST_GAP_MS - (performance.now() - PF.lastCut);
-    if (wait > 0) { clearTimeout(PF.cutTimer); PF.cutTimer = setTimeout(run, wait); }
-    else run();
+// ===== 阱洞（Outhole）=====
+// 球掉進洞裡＝WF 原作的懲罰：全隊扣血（掉球那條判定本來就在了）之外，連擊歸零。
+// 彈板等級是 flipLevel() 即時從 combo 算的，所以清掉 combo 就等於把強力彈射一起打回 Lv0；
+// 但已經飛在場上的 PF 是掛在球身上的另一份狀態，得單獨吐出來，否則會帶著歸零的等級繼續加成。
+function outholeBite() {
+    const n = PF.outhole;
+    if (n) {
+        n.classList.remove("bite"); void n.offsetWidth;   // 重新觸發同一段咬合動畫
+        n.classList.add("bite");
+        setTimeout(() => n.classList.remove("bite"), 420);
+    }
+    FX.sparks(W / 2, OUTHOLE_Y, "#d491ff", 10);
+    FX.bloom(W / 2, OUTHOLE_Y, "#7c2fb8", 96);
+    // 取樣音是加值層，載不到（例如 file:// 被瀏覽器擋）就照樣走合成音，不能變無聲
+    if (!SFX.sample("outhole", .85)) {
+        SFX.noise(.2, .4, 520, 60, 0, { mode: "hp" });
+        SFX.tone(230, 44, .3, "square", .2);
+    }
+    if (TRAINING_MODE) return;    // 訓練場只測輸出，不罰連擊
+    const lost = combo;
+    combo = 0; comboAt = 0; feverCombo = 0;
+    for (const m of PF.members) { clearPowerFlip(m.body); clearArcherPierce(m); }
+    if (lost > 0) {
+        FX.pop(W / 2, OUTHOLE_Y - 44, "COMBO 中斷", "outhole");
+        log(`🕳️ <b style='color:#ff8fc0'>阱洞</b> 吞下球：連擊 <b>${lost}</b> 歸零，強力彈射打回 Lv0。`);
+    } else {
+        log(`🕳️ <b style='color:#ff8fc0'>阱洞</b> 吞下球。`);
+    }
 }
 
-// 五星技能共用像素賽璐璐時停演出；攻擊動畫播放角色自己的 special GIF。
+// ===== 技能插播：左下角斜切卡，圖左字右，圖一律取 skill_ready =====
+function showCut(m) {
+    // 技能名稱改由場上電影演出呈現；移除原左下角插播卡與彈板符文。
+    clearTimeout(PF.cutTimer);
+    if (PF.cut) PF.cut.replaceChildren();
+}
+
+// 角色技能展示統一播放素材站較短的 skill_ready GIF；special 留待日後另做長演出。
 function startSkillCinematic(m, onImpact) {
     const c = SKILL_CINEMATIC;
     if (c.raf) cancelAnimationFrame(c.raf);
     if (c.specialImage) c.specialImage.remove();
     if (c.hiddenFace) { c.hiddenFace.style.visibility = c.faceVisibility; c.hiddenFace = null; }
     c.active = true; c.startedAt = performance.now(); c.caster = m; c.target = PF.foe; c.until = c.startedAt + 1500; c.shaken = false; c.hitBurst = false; c.impactFired = false; c.onImpact = onImpact; c.particles = [];
+    const skill = SKILLS[m.ch.id];
+    c.skillLabel = `${CHAR_TABLE[m.ch.id].name}・${skill.name}`;
+    c.skillInfo = skill.tag;
     if (PF.el) PF.el.classList.add("skill-cinematic-active");
     for (const pop of FX.pops) pop.node.remove();
     FX.pops.length = 0;
@@ -4317,28 +4467,43 @@ function startSkillCinematic(m, onImpact) {
     specialImage.className = "skill-special";
     specialImage.alt = "";
     specialImage.style.opacity = "0";
-    specialImage.onerror = () => {
-        if (!specialImage.dataset.fallback && dir) {
-            specialImage.dataset.fallback = "1";
-            specialImage.src = `${dir}/skill_ready.gif`;
-        } else specialImage.hidden = true;
-    };
-    specialImage.dataset.specialUrl = `${dir}/special.gif`;
+    specialImage.onerror = () => { specialImage.hidden = true; };
+    specialImage.dataset.skillReadyUrl = `${dir}/skill_ready.gif`;
     PF.vfx.appendChild(specialImage);
     c.specialImage = specialImage;
     c.canvas.width = W; c.canvas.height = H;
     const ctx = c.ctx; ctx.imageSmoothingEnabled = false;
-    const start = performance.now();
     const draw = now => {
         if (!c.active || !c.ctx) return;
-        const t = now - start, b = m.body, target = c.target || b;
+        if (PF.paused) { c.raf = requestAnimationFrame(draw); return; }
+        const t = now - c.startedAt, b = m.body, target = c.target || b;
+        // 施法標題與素材位置都使用同一組插值座標；需先計算，避免首次繪製標題時讀到尚未宣告的 x/y。
+        const launch = b || target;
+        const travel = Math.min(1, Math.max(0, (t - 390) / 520));
+        const eased = 1 - Math.pow(1 - travel, 2.4);
+        const x = launch && target ? launch.x + (target.x - launch.x) * eased : W / 2;
+        const y = launch && target ? launch.y + (target.y - launch.y) * eased : H / 2;
         ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, W, H);
+        if (c.skillLabel && t < 1320) {
+            const alpha = Math.min(1, t / 140, (1320 - t) / 180);
+            ctx.save(); ctx.globalAlpha = Math.max(0, alpha);
+            const labelY = Math.min(H - 78, y + 48);
+            ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.font = "bold 18px sans-serif";
+            ctx.lineWidth = 4; ctx.strokeStyle = "rgba(5,12,24,.95)";
+            ctx.strokeText(c.skillLabel, x, labelY);
+            ctx.fillStyle = "#fff1b8"; ctx.fillText(c.skillLabel, x, labelY);
+            ctx.font = "bold 11px sans-serif";
+            ctx.lineWidth = 3; ctx.strokeText(c.skillInfo, x, labelY + 19);
+            ctx.fillStyle = "#ffffff"; ctx.fillText(c.skillInfo, x, labelY + 19);
+            ctx.restore();
+        }
         if (t < 360) {
             // 中央斜帶由左下角技能角色卡取代；留白讓戰場保持可見，等待角色 GIF 起播。
         } else {
             if (c.specialImage && !c.specialImage.dataset.started) {
                 c.specialImage.dataset.started = "1";
-                c.specialImage.src = c.specialImage.dataset.specialUrl;
+                c.specialImage.src = c.specialImage.dataset.skillReadyUrl;
             }
             const flash = Math.floor((t - 360) / 90);
             if (t < 540 && flash % 2 === 0) { ctx.fillStyle = "rgba(210,232,255,.3)"; ctx.fillRect(0, 0, W, H); }
@@ -4350,11 +4515,6 @@ function startSkillCinematic(m, onImpact) {
                     casterFace.style.visibility = "hidden";
                 }
                 // 特效從施放者所在位置衝向目標；隱藏原球上的立繪，避免看起來像多出一個分身。
-                const launch = m.body || target;
-                const travel = Math.min(1, Math.max(0, (t - 390) / 520));
-                const eased = 1 - Math.pow(1 - travel, 2.4);
-                const x = launch.x + (target.x - launch.x) * eased;
-                const y = launch.y + (target.y - launch.y) * eased;
                 const element = CHAR_TABLE[m.ch.id].element;
                 const jobType = CHAR_TABLE[m.ch.id].type;
                 const colors = {
@@ -4388,6 +4548,7 @@ function startSkillCinematic(m, onImpact) {
                         c.impactFired = true;
                         const impact = c.onImpact; c.onImpact = null;
                         if (impact) impact();
+                        if (!c.active || !c.ctx) return;
                     }
                 }
                 const burstT = t - (c.burstAt || 900);
@@ -4572,9 +4733,9 @@ function step(dt, now) {
         const b = m.body;
         if (b._archerPierceUntil && !archerPierceActive(m, now)) clearArcherPierce(m);
         if (archerPierceActive(m, now)) b.ball?.style.setProperty('--pierce-angle', `${Math.atan2(b.vy, b.vx)}rad`);
-        const warriorFloat = mainAccountJob === "warrior" && isJobPassiveActive() && (combo >= 15 || b._warriorFloatUntil > now);
-        const floatPower = warriorFloat ? Math.max(.55, .82 - jobPassiveStat("agi") * .002) : 1;
-        const airDrag = warriorFloat ? Math.min(.9995, PHYS.air + jobPassiveStat("agi") * .00008) : PHYS.air;
+        const warriorFloat = jobEffects.floating(combo, b._warriorFloatUntil, now);
+        const floatPower = warriorFloat ? jobEffects.gravity() : 1;
+        const airDrag = warriorFloat ? jobEffects.airDrag(PHYS.air) : PHYS.air;
         b.vy += PHYS.g * dt * (COLLISION_TRIAL.enabled && b.dashActiveMs > 0 ? .2 : floatPower);
         b.vx *= airDrag; b.vy *= airDrag;
         const sp = Math.hypot(b.vx, b.vy);
@@ -4642,8 +4803,9 @@ function step(dt, now) {
 
     const e = PF.foe;
     const stunned = now < PF.stunUntil;
-    const mageSlowed = mainAccountJob === "mage" && isJobPassiveActive() && now < PF.mageSlowUntil;
-    const enemyDt = dt * (mageSlowed ? .45 : 1);
+    const enemyTimeScale = jobEffects.enemyTimeScale(PF.mageSlowUntil, now);
+    const mageSlowed = enemyTimeScale < 1;
+    const enemyDt = dt * enemyTimeScale;
     e.ball.classList.toggle("stunned", stunned);
     e.ball.classList.toggle("mage-slowed", mageSlowed);
     e.ball.classList.toggle("chilled", !stunned && now < PF.slowUntil);
@@ -4766,7 +4928,7 @@ function setHpBar(b, ratio) {
     b.hb.classList.toggle("low", p <= .3);
 }
 
-// BOSS 戰時把同一條完整血量面板放到場景層，座標隨 BOSS 中心更新；一般敵人則放回 HUD。
+// 一般波次不顯示群體進度條；只在 BOSS 戰把獨立血量面板放到場景層並跟隨 BOSS。
 function syncBossHpPlacement() {
     const bar = $("foe-bar"), field = $("pf-field"), hud = document.querySelector(".pf-hud");
     const weak = $("weak-bar");
@@ -4789,7 +4951,7 @@ function syncBossHpPlacement() {
     } else {
         if (bar.parentElement !== hud) hud.insertBefore(bar, $("boss-down-gauge"));
         if (weak && weak.parentElement !== hud) hud.insertBefore(weak, hud.querySelector(".hud-buff"));
-        bar.style.display = "";
+        bar.style.display = "none";
         bar.style.left = "";
         bar.style.top = "";
     }
@@ -4832,6 +4994,7 @@ function pfLoop(ts) {
     updateBossEntrance(dt * 1000);
     if (PF.paused) return;   // 暫停＝畫面凍住，物理與計時都不走
     if (bossEntranceFreezesBattle()) { render(); return; }
+    battleLifecycle.advance(dt * 1000);
     animTick(ts);            // 圖框型 BOSS 的逐格撥放搭這一次 rAF，不必另開計時器
     if (PF.running && PF.ready) {
         PF.rays.style.opacity = 0;
@@ -4869,25 +5032,33 @@ const STAGE_ZONES = [
     { id: "void",     name: "大和之都", hue: 262,  sat: .72, bright: .28, tint: "rgba(44,14,64,.38)" }
 ];
 
-function applyStageBg(zoneId, bgKey) {
+// 無限波利塔的場布分兩種：一般層是草原競技場，每 BOSS_EVERY 層的王關換到雲中浮島的塔頂。
+// 塔頂才是王該待的地方，而且這一張跟平常差很多，觀眾一看就知道「這層是王關」。
+const TOWER_FIELD_NORMAL = "polita-field-crystal";
+const TOWER_FIELD_BOSS = "polita-sky";
+
+function applyStageBg(zoneId, bgKey, warm) {
     // 獨立關卡直接指定地帶 id；深層流程照樣由 stage 推，兩者共用同一套上色管線。
     // bgKey 是門專屬場地的檔名（gate_fire…）；深層則找 deep。找不到才退回地帶通用底圖，
     // 再沒有就沿用 CSS 那張舊 JPG 加色相——所以丟圖進去就能換掉，不用改程式。
+    // warm＝只把圖拉進 cache、畫面一格都不動。換層起跑時先暖下一層那張，
+    // 真正換圖留到黑帶蓋上來那一刻再叫一次（這時是 cache 命中，同一幀就換完了）。
     const zone = zoneId ? (STAGE_ZONES.find(z => z.id === zoneId) || STAGE_ZONES[0])
         : STAGE_ZONES[Math.floor((Math.max(1, stage) - 1) / ZONE_STAGES) % STAGE_ZONES.length];
-    const key = (bgKey || zone.id) + (bgKey ? "|" + zone.id : "");
+    const field = Math.max(1, stage) % BOSS_EVERY === 0 ? TOWER_FIELD_BOSS : TOWER_FIELD_NORMAL;
+    const key = bgKey ? `${bgKey}|${zone.id}` : `${zone.id}|${field}`;
     if (PF.bgEl.dataset.bg !== key) {
-        PF.bgEl.dataset.bg = key;
+        if (!warm) PF.bgEl.dataset.bg = key;
         // Boss 關卡只在實際戰場優先用波利塔像素風版本；選關卡片仍使用原本 gate_*.webp 預覽圖。
         const names = bgKey
-            ? (bgKey.startsWith("gate_") ? [`${bgKey}_polita_v2`, `${bgKey}_polita`, bgKey, zone.id] : [bgKey, zone.id])
-            : ["polita-field-v2", "deep", "arena", "翡翠浮島遺跡競技場", zone.id];
+            ? (bgKey.startsWith("gate_") ? [`${bgKey}_crystal`, `${bgKey}_polita_v2`, `${bgKey}_polita`, bgKey, zone.id] : [bgKey, zone.id])
+            : [field, "polita-field-v2", "deep", "arena", "翡翠浮島遺跡競技場", zone.id];
         // art＝該檔名算不算「專屬場地原圖」；zone.id 只是通用底，不能關掉色相偏移
         const list = [];
         names.forEach((n, ni) => {
-            const art = bgKey ? ni === 0 : ni < 4;
-            const exts = n.endsWith("_polita") || n.endsWith("_polita_v2") || n === "polita-field-v2" ? ["png"] : ART_EXT;
-            exts.forEach(e => {
+            const art = bgKey ? ni === 0 : ni < 5;
+            // webp 優先、png 當後備：場布全換成 webp 之後體積只剩一成，丟 png 進去照樣吃得到
+            ART_EXT.forEach(e => {
                 list.push({ url: `asset/battle/bg/${n}.${e}`, art }, { url: `assets/bg/${n}.${e}`, art });
             });
         });
@@ -4898,10 +5069,12 @@ function applyStageBg(zoneId, bgKey) {
         let i = 0;
         const tryNext = () => {
             // 圖片是異步載的：開場那輪探測失敗回來時，門的專屬場地可能已經套好了，
-            // 這時舊的探測不准再把畫面清回通用底圖。
-            if (PF.bgEl.dataset.bg !== key) return;
+            // 這時舊的探測不准再把畫面清回通用底圖。（暖圖那輪根本沒寫 dataset，當然也不准清）
+            if (!warm && PF.bgEl.dataset.bg !== key) return;
             if (i >= list.length) {
+                if (warm) return;
                 PF.bgEl.style.backgroundImage = "";
+                PF.bgEl.style.backgroundSize = "";
                 PF.bgEl.dataset.realart = "";
                 PF.el.classList.remove("deep-art");
                 paintStageTint(zone, false);
@@ -4911,8 +5084,10 @@ function applyStageBg(zoneId, bgKey) {
             if (missingSprites.has(url)) { tryNext(); return; }
             const pre = new Image();
             pre.onload = () => {
-                if (PF.bgEl.dataset.bg !== key) return;
+                if (warm || PF.bgEl.dataset.bg !== key) return;
                 PF.bgEl.style.backgroundImage = `url("${url}")`;
+                // 晶洞王關的中央場地視覺稍微收窄，讓 Boss 與隊伍更聚焦；不改原圖比例。
+                PF.bgEl.style.backgroundSize = url.includes("_crystal.") ? "auto 108%" : "";
                 // 真的補到專屬場地圖才關掉色相偏移，否則那張圖的顏色就是設計要的顏色
                 PF.bgEl.dataset.realart = art ? "1" : "";
                 PF.el.classList.toggle("deep-art", art && !bgKey);
@@ -4923,6 +5098,7 @@ function applyStageBg(zoneId, bgKey) {
         };
         tryNext();
     }
+    if (warm) return;   // 暖圖不碰畫面：換色、換上色全都留到真的換層那一刻
     // 異步還沒回來時先用通用上色撐住，畫面不會一片全黑
     if (!PF.bgEl.dataset.realart) paintStageTint(zone, false);
     PF.turfEl.style.setProperty("--turf-hue", (zone.hue * .45).toFixed(0) + "deg");
@@ -4972,6 +5148,7 @@ function spawnEnemy() {
     enemy.battleSkinFailed = false;
     enemy.battleSkinAlpha = false;
     enemy.battleSkinFace = -100; enemy.battleSkinLift = 88;
+    enemy.battleSkinRoArt = false;
     const g = gateOf();
     if (g) {
         const b = BOSS_TABLE.find(x => x.id === g.boss), st = gateStats(g);
@@ -4992,7 +5169,8 @@ function spawnEnemy() {
     const boss = stage % BOSS_EVERY === 0;
     const pool = boss ? TOWER_BOSS_TABLE : ENEMY_TABLE;
     const pick = boss ? pool[towerBossCursor++ % pool.length] : pool[Math.floor(Math.random() * pool.length)];
-    enemy.battleSkinUrl = boss ? pick.skin : '';
+    enemy.battleSkinUrl = pick.skin || '';
+    enemy.battleSkinRoArt = !!pick.roArt;
     const st = foeStats(stage, boss);
     enemy.id = pick.id;
     enemy.name = (boss ? pick.name : pick.name + "·第" + stage + "層");
@@ -5017,10 +5195,11 @@ function enterBossGate(id) {
 }
 
 // ---- 母頁：開窗、暫停主戰場、收回結算 ----
-let gateBattleOpen = false, gatePrevPaused = false;
+let gateBattleOpen = false, gatePrevPaused = false, gateBattleId = null;
+const gateReceipts = new Map();
 function openGateBattle(g, training = false) {
     if (gateBattleOpen) return;
-    gateBattleOpen = true;
+    gateBattleOpen = true; gateBattleId = g.id; gateReceipts.clear();
     gatePrevPaused = PF.paused;
     setPaused(true);                     // 深層全程凍結，門怎麼打都不推主線
     $("gate-veil").classList.add("on");
@@ -5030,7 +5209,7 @@ function openGateBattle(g, training = false) {
 }
 function closeGateBattle() {
     if (!gateBattleOpen) return;
-    gateBattleOpen = false;
+    gateBattleOpen = false; gateBattleId = null; gateReceipts.clear();
     $("gate-veil").classList.remove("on");
     $("gate-frame").src = "about:blank";
     setPaused(gatePrevPaused);
@@ -5047,13 +5226,18 @@ addEventListener("message", ev => {
         // 結晶、擊破次數都由母頁入帳，門的實例自己不存檔
         // 門 id 必須列得出來；獎勵欄位全部夾限，iframe 內被竄改也領不到天價
         const g = BOSS_STAGES.find(s => s.id === d.gate);
-        if (!g) return;
+        if (!g || g.id !== gateBattleId || !BattleSettlement.acceptGateReceipt(gateReceipts, d)) return;
         const shards = Math.max(0, Math.min(9999, Math.floor(+d.shards) || 0));
         const win = Math.max(0, Math.floor(+d.win) || 0);
         const first = !!d.first;
         const gName = (typeof d.gateName === "string" && d.gateName ? d.gateName : g.gate).slice(0, 40);
         bossWin[g.id] = Math.max(bossWin[g.id] || 0, win);
         shardTotal += shards;
+        gateTokens[g.id] = (gateTokens[g.id] || 0) + (first ? 5 : 2);
+        // 最佳紀錄由母頁落地存檔：門的實例不寫 save，訊息欄位一樣全部夾限
+        const ms = Math.max(0, Math.min(86400000, Math.floor(+d.ms) || 0));
+        const score = Math.max(0, Math.min(999999999, Math.floor(+d.score) || 0));
+        BattleSettlement.mergeRecord(gateRecord, g.id, ms, score);
         saveGame();
         paintHome();
         log(first
@@ -5067,6 +5251,7 @@ addEventListener("message", ev => {
 
 // ---- iframe 內：把門直接開在這份實例的戰場上 ----
 function startGateBattle(g) {
+    resetBattleTransient(); battleLifecycle.setRunning(true); PF.reviveAt = 0;
     GATE.id = g.id; GATE.t0 = performance.now(); GATE.dmg0 = dmgTotal;
     hideResult();
     setPaused(false);
@@ -5091,6 +5276,7 @@ function trainingResetBoss() {
     if (!TRAINING_MODE) return;
     const g = gateOf();
     if (!g) return;
+    resetBattleTransient();
     hideResult();
     clearWeak();
     spawnEnemy();
@@ -5123,58 +5309,29 @@ function trainingRefillSkills() {
 
 // 凍住戰鬥用現成的暫停開關，但結算面板不是暫停選單，所以那層不跟著蓋上來
 function setPaused(v) {
-    if (PF.paused !== v) {
-        PF.paused = v;
-        if (!v) PF.last = performance.now();
-    }
-    $("btn-pause").innerHTML = PF.paused ? "▶" : "❚❚";
-    if (v) $("pf-pause").classList.remove("on");
+    battleLifecycle.setPaused(v);
+    const button = $('btn-pause');
+    if (button) button.innerHTML = PF.paused ? '▶' : '❚❚';
+    $('pf-pause')?.classList.remove('on');
 }
 
 // 結算：只發門自己的獎勵，kills／stage／寶箱掉落一律不記這筆帳
-function gateVictory() {
-    const g = gateOf();
-    if (!g) return;
-    bossWin[g.id] = (bossWin[g.id] || 0) + 1;
-    const first = bossWin[g.id] === 1;
-    const shards = first ? g.shards : g.replay;
-    shardTotal += shards;
-    const res = {
-        gate: g.gate, boss: enemy.name, el: g.el, first, shards, win: bossWin[g.id],
-        sec: Math.max(1, Math.round((performance.now() - GATE.t0) / 1000)),
-        dmg: Math.max(0, Math.round(dmgTotal - GATE.dmg0)),
-        hp: enemy.maxHp
-    };
+function gateVictory() { return battleSettlement.resolveGate(); }
+function renderGateResult(res) {
     setPaused(true);
-    $("rs-tag").textContent = first ? "首次擊破" : "再度擊破";
-    $("rs-tag").classList.toggle("re", !first);
-    $("rs-gate").textContent = res.gate;
-    $("rs-boss").textContent = res.boss + "｜" + ELEMENTS[res.el].label + "屬性";
-    $("rs-rows").innerHTML =
-        `<span>王的生命</span><b>${fmt(res.hp)}</b>`
-        + `<span>用時</span><b>${Math.floor(res.sec / 60)}:${String(res.sec % 60).padStart(2, "0")}</b>`
-        + `<span>此關傷害</span><b>${fmt(res.dmg)}</b>`
-        + `<span class="hl">結晶</span><b class="hl">+${res.shards}</b>`
-        + `<span>累計擊破</span><b>${res.win} 次</b>`;
     $("pf-result").classList.add("on");
     syncBossHpPlacement();
-    log(first
-        ? `🏆 <b style='color:#ffce5a'>${res.gate}・首次擊破</b>：結晶 +${res.shards}｜用時 ${res.sec} 秒。`
-        : `⚔️ <b>${res.gate}</b> 再度擊破（累計 ${res.win} 次）：結晶 +${res.shards}。`);
-    saveGame();
-    // 門的實例：把結果交給母頁入帳（自己的存檔寫入已被 saveGame 擋掉）
-    if (GATE_MODE && window.parent !== window) {
-        window.parent.postMessage({
-            type: "wf-gate-result", gate: g.id, gateName: g.gate, first,
-            shards, win: bossWin[g.id]
-        }, GATE_TARGET);
-    }
+    GateSettlement.show(res);
+    log(res.first
+        ? `🏆 <b style='color:#ffce5a'>${res.gate}・首次擊破</b>：結晶 +${res.shards}｜用時 ${res.sec} 秒｜評級 ${res.rating}。`
+        : `⚔️ <b>${res.gate}</b> 再度擊破（累計 ${res.win} 次）：結晶 +${res.shards}｜用時 ${res.sec} 秒｜評級 ${res.rating}。`);
 }
 
-function hideResult() { $("pf-result").classList.remove("on"); syncBossHpPlacement(); }
+function hideResult() { GateSettlement.hide(); $("pf-result").classList.remove("on"); syncBossHpPlacement(); }
 
 // 打完／不想打都要把深層流程還回來：GATE 一清空，spawnEnemy 就回到原本那一層
 function gateExit() {
+    resetBattleTransient();
     // 門的實例沒有「深層」可回：按返回就請母頁關掉這個獨立戰場
     // （直接用 #gate=… 開在分頁裡時 parent 就是自己，走一般退出、照樣回得去深層）
     if (GATE_MODE && window.parent !== window) {
@@ -5195,11 +5352,12 @@ function gateExit() {
 function gateRetry() {
     const g = gateOf();
     if (!g) { gateExit(); return; }
+    resetBattleTransient();
     hideResult();
     $("pf-pause").classList.remove("on");
     setPaused(false);
     GATE.t0 = performance.now(); GATE.dmg0 = dmgTotal;
-    PF.running = true; PF.reviveAt = 0;
+    battleLifecycle.setRunning(true); PF.reviveAt = 0;
     PF.members.forEach(m => {
         m.down = false; m.respawnAt = 0; m.ch.hp = hpMax(m.ch); m.ch.gauge = 0;
         attachBall(m);
@@ -5233,6 +5391,7 @@ function leaveDeepToHome() {
 }
 
 function retryDeepFloor() {
+    resetBattleTransient();
     $("deep-fail").classList.remove("on");
     floorWins = 0;
     deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
@@ -5261,17 +5420,8 @@ function restartFailedDeepAt(target) {
     floorWins = 0;
     deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
     tickCounter = 0;
-    PF.running = true; PF.reviveAt = 0; PF.buff = null;
-    PF.skillQueue = []; PF.skillCastWait = 0;
-    clearTimeout(PF.cutTimer); PF.cutTimer = null; PF.lastCut = 0;
-    if (PF.cut) PF.cut.innerHTML = "";
-    FX.clearPops();
-    if (PF.vfx) PF.vfx.innerHTML = "";
-    if (FEVER.active) feverEnd();
-    Object.assign(FEVER, { value: 0, maxValue: FEVER_BASE, active: false, left: 0, times: 0 });
-    POWER_FLIP.lockMs = POWER_FLIP.buffMs = POWER_FLIP.buffPct = 0;
-    COLLISION_TRIAL.dashLeft = 0;
-    combo = 0; comboAt = 0; feverCombo = 0;
+    resetBattleTransient();
+    battleLifecycle.setRunning(true); PF.reviveAt = 0;
     PF.members.forEach(m => {
         m.down = false; m.respawnAt = 0;
         m.ch.hp = hpMax(m.ch); m.ch.gauge = 0;
@@ -5283,6 +5433,37 @@ function restartFailedDeepAt(target) {
     setPaused(false);
     saveGame();
     log(`↩️ 從第 ${previous} 層退回第 ${stage} 層，全隊恢復，角色養成、資源與天賦保留。`);
+}
+
+// ===== 換層轉場：向上捲動一層 =====
+// 換圖走 battleLifecycle.schedule（暫停時跟著停，不會出現「人都回主頁了、新的一層還在半路生成」）；
+// 收尾卻只能走 setTimeout——因為 swap() 裡面的 spawnFoe() 會 invalidate() 整條佇列，
+// 排同一個 generation 的收尾工作會被自己剛剛喚醒的那層一起作廢，黑帶就永久黏在場上。
+const PF_CLIMB_SWAP_MS = 430, PF_CLIMB_MS = 900;
+function floorClimb(swap) {
+    // 異界迴廊是單場勝負、訓練場不計層——兩者都沒有「上一層」這件事可演
+    if (!PF.el || gateOn() || TRAINING_MODE) return false;
+    PF.climbing = true;
+    PF.el.classList.add('pf-climb', 'pf-climb-roll');
+    // 場布是異步載入的：現在就先暖下一層的圖（只進 cache，畫面不動），等黑帶蓋上來時檔已經在本地。
+    // 不先暖的話，換圖會拖到帶子掀開之後，變成「舊的一層亮著亮著突然跳成新的」。
+    applyStageBg(null, null, true);
+    battleLifecycle.schedule(PF_CLIMB_SWAP_MS, () => {
+        if (!PF.climbing) return;
+        if (PF.el) PF.el.classList.remove('pf-climb-roll');
+        swap();     // 新的一層（連同它那張場布）在這裡生成，stage 也是在這裡進到下一層
+        // 切片得照「新的一層」來推，放在 swap 之後才讀得到新的 stage；擺前面會慢一層。
+        // 王關那張是塔頂，CSS 預設的 center 30% 才是把浮島框在正中間的構圖，別拿切片去推它。
+        if (PF.bgEl) PF.bgEl.style.backgroundPositionY =
+            stage % BOSS_EVERY === 0 ? "" : (22 + (stage % 4) * 12) + "%";
+    }, () => PF.climbing);
+    clearTimeout(PF.climbTimer);
+    PF.climbTimer = setTimeout(() => {
+        PF.climbTimer = null;
+        PF.climbing = false;
+        if (PF.el) PF.el.classList.remove('pf-climb', 'pf-climb-roll');
+    }, PF_CLIMB_MS);
+    return true;
 }
 
 function nextEnemy() {
@@ -5303,7 +5484,7 @@ function battleTick() {
     if (!PF.running) {
         if (performance.now() >= PF.reviveAt) {
             PF.members.forEach(m => { m.ch.hp = hpMax(m.ch); m.ch.gauge = 0; attachBall(m); });
-            PF.running = true; hideOver();
+            battleLifecycle.setRunning(true); hideOver();
             log(`🕊️ <span style='color:#2ed573'>隊伍原地復活，全員重新發球。</span>`);
         }
         updateUI(); return;
@@ -5379,12 +5560,11 @@ function addExp(ch, amount) {
     if (levels) log(`🌟 <b style='color:#f3b942'>${charName(ch.id)} 升級！</b> Lv.${ch.lvl}/${growthCap(ch)}｜攻擊 +${3 * levels}、生命上限 +${20 * levels}`);
 }
 
-// 擊殺掉角色碎片：一隻角色 10 片，湊滿到「角色」頁兌換
-//   未解鎖角色用於兌換，已解鎖角色用於上限解放；光・闇暫時不掉片。
+// 擊殺掉四星角色碎片：達到門檻時立即兌換解鎖；五星不進一般掉落池。
 function rollShards() {
     const crystal = RewardFormulas.crystalDrop(stage);
     shardTotal += crystal;
-    const pool = CHAR_IDS.filter(id => CHAR_TABLE[id].open &&
+    const pool = CHAR_IDS.filter(id => CHAR_TABLE[id].rarity === 4 && CHAR_TABLE[id].open &&
         (roster[id].unlocked ? growthCap(roster[id]) < 100 : roster[id].shards < CHAR_TABLE[id].need));
     if (!pool.length) { log(`💎 結晶 +${crystal}（持有 ${shardTotal}）`); return; }
     const per = RewardFormulas.shardRecipients(enemy.boss); // 一次掉幾位角色的碎片
@@ -5400,32 +5580,38 @@ function rollShards() {
         hit.push(id);
         const ch = roster[id], d = CHAR_TABLE[id];
         ch.shards = Math.min(ch.unlocked ? 999999 : d.need, ch.shards + add);
-        log(ch.unlocked ? `🧩 <b>${d.name}</b> 上限解放碎片 +${add}（持有 ${ch.shards}）` : ch.shards >= d.need
-            ? `🧩 <b style='color:#f3b942'>${d.name}</b> 碎片湊齊 ${ch.shards}/${d.need}——到「角色」頁按兌換就入隊。`
-            : `🧩 <b>${d.name}</b> 碎片 +${add}（${ch.shards}/${d.need}）`);
+        if (!ch.unlocked && ch.shards >= d.need) {
+            exchangeChar(id, { automatic: true });
+        } else {
+            log(ch.unlocked ? `🧩 <b>${d.name}</b> 上限解放碎片 +${add}（持有 ${ch.shards}）`
+                : `🧩 <b>${d.name}</b> 碎片 +${add}（${ch.shards}/${d.need}）`);
+        }
     }
     if (shardTotal >= crystal) log(`💎 結晶 +${crystal}（持有 ${shardTotal}）`);
 }
 
 // 兌換：碎片滿 10 片就把角色收進名冊；有空位就順便上場
-function exchangeChar(id) {
+function exchangeChar(id, options = {}) {
     const ch = roster[id], d = CHAR_TABLE[id];
     if (!ch || ch.unlocked) return;
+    if (d.rarity !== 4) { hmToast("五星角色只能透過轉蛋取得"); return; }
     if (!d.open) { hmToast(`${ELEMENTS[d.element].label}屬性尚未開放`); return; }
     if (ch.shards < d.need) { hmToast(`碎片不足 ${ch.shards}/${d.need}`); return; }
     ch.shards -= d.need;
     ch.unlocked = true;
     if (teamIds.length < TEAM_MAX) { teamIds.push(id); syncTeamField(); spawnEnemy(); spawnFoe(); }
-    log(`🎊 <b style='color:#f3b942'>兌換成功！</b><b>${d.name}</b>（${ELEMENTS[d.element].label}・${TYPE_INFO[d.type].n}）加入名冊${teamIds.indexOf(id) >= 0 ? "，直接上場" : ""}。`);
+    log(options.automatic
+        ? `🎊 <b style='color:#f3b942'>角色解鎖！</b><b>${d.name}</b>（${ELEMENTS[d.element].label}・${TYPE_INFO[d.type].n}）自動加入名冊${teamIds.indexOf(id) >= 0 ? "並上場" : ""}。`
+        : `🎊 <b style='color:#f3b942'>兌換成功！</b><b>${d.name}</b>（${ELEMENTS[d.element].label}・${TYPE_INFO[d.type].n}）加入名冊${teamIds.indexOf(id) >= 0 ? "，直接上場" : ""}。`);
     saveGame(); renderPage(); updateUI();
 }
 
 // ===== 開場選角：提供四屬性與四種職業各一位的代表角色 =====
-const STARTER_IDS = ["doctor_pirate", "holy_mother", "mighty_striker", "wind_spgirl"];
+const STARTER_IDS = ["alk", "bishop_girl", "thunder_dragon", "white_tiger"];
 function openStarterPicker() {
     const box = $("starter");
     if (!box) return;
-    PF.paused = true;                       // 還沒有人上場，先把戰鬥凍住
+    setPaused(true);                       // 還沒有人上場，先把戰鬥凍住
     const cards = STARTER_IDS.filter(id => CHAR_TABLE[id]).map(id => {
         const d = CHAR_TABLE[id], sk = SKILLS[id], ti = TYPE_INFO[d.type];
         return `<div class="s-card" onclick="pickStarter('${id}')">
@@ -5446,7 +5632,7 @@ function openAccountCreator(step = 1) {
     if (accountCreated) return;
     const box = $("account-setup");
     if (!box) return;
-    PF.paused = true;
+    setPaused(true);
     if (step === 1) {
         box.innerHTML = `<div class="s-hd"><div class="t">建立你的冒險者</div><div class="d">先選擇主帳號形象</div></div>
             <div class="account-genders">
@@ -5505,7 +5691,7 @@ function pickStarter(id) {
     starterPicked = true;
     const box = $("starter");
     if (box) { box.classList.remove("on"); box.innerHTML = ""; }
-    PF.paused = true; PF.last = performance.now(); // 選完角色後等玩家進戰場，不在主頁背景偷偷推進
+    setPaused(true); PF.last = performance.now(); // 選完角色後等玩家進戰場，不在主頁背景偷偷推進
     syncTeamField(); spawnEnemy(); spawnFoe(); updateUI(); saveGame();
     log(`🌟 你選了 <b style='color:#f3b942'>${d.name}</b>（${ELEMENTS[d.element].label}・${TYPE_INFO[d.type].n}）作為第一位勇者。`);
     hmToast(`${d.name} 加入隊伍`);
@@ -5856,94 +6042,51 @@ function log(msg) {
     box.scrollTop = box.scrollHeight;
 }
 
-// ===== 存檔 =====
+// ===== 存檔：資料格式與相容轉換集中在 asset/save-system.js =====
+const saveStore = SaveSystem.createStore({ key: SAVE_KEY, getStorage: () => localStorage });
 function saveGame() {
-    if (GATE_MODE) return;   // 門的實例只是借用同一份存檔讀開場狀態，寫入一律交給母頁
+    if (GATE_MODE) return; // 獨立關卡借用母頁的存檔，寫入仍交給母頁。
     try {
-        const r = {};
-        CHAR_IDS.forEach(id => {
-            const c = roster[id];
-            r[id] = { unlocked: c.unlocked, shards: c.shards, lvl: c.lvl, exp: c.exp, nextExp: c.nextExp, baseAtk: c.baseAtk, maxHp: c.maxHp,
-                growthVersion: c.growthVersion, legacyCap: c.legacyCap, breakthrough: c.breakthrough, talents: { ...c.talents } };
-        });
-        localStorage.setItem(SAVE_KEY, JSON.stringify({ v: 6, picked: starterPicked, accountCreated, accountGender, accountName, mainAccountJob, accountStats, accountStatPoints, jobTalentPoints, jobTalentRanks, jobPassiveActive, tutorialSeen, stage, rankLv, rankExp, kills, floorWins, deepTimeLeft, shardTotal, teamIds, unisonMap, titleOn, bossWin, shakeOn: FX.shakeOn, roster: r }));
+        const snapshot = SaveSystem.createSnapshot({
+            picked: starterPicked, accountCreated, accountGender, accountName, mainAccountJob,
+            accountStats, accountStatPoints, jobTalentPoints, jobTalentRanks, jobPassiveActive,
+            tutorialSeen, stage, rankLv, rankExp, kills, floorWins, deepTimeLeft, shardTotal,
+            teamIds, unisonMap, titleOn, bossWin, gateTokens, gateRecord, cultivationMaterials, limitedSummonCount, shakeOn: FX.shakeOn, roster
+        }, CHAR_IDS);
+        const result = saveStore.write(snapshot);
+        if (!result.ok) log(`💾 存檔失敗：${result.error.message}`);
     } catch (err) { log(`💾 存檔失敗：${err.message}`); }
 }
-let saveNote = "";   // loadGame 失敗原因，開場首頁才說得出「為什麼進度重來」
+let saveNote = '';
 function loadGame() {
-    let raw = null;
-    try { raw = localStorage.getItem(SAVE_KEY); } catch (err) { return false; }
-    if (!raw) return false;
+    const result = saveStore.read();
+    if (!result.ok) { saveNote = result.note; return false; }
     try {
-        const p = JSON.parse(raw);
-        if (p.v !== 6) { saveNote = "存檔版本與現行版不合（v" + (p.v || "?") + "），進度重新開始。"; return false; }   // 舊版名冊（9 隻手寫角色）整套作廢，重新選角
-        starterPicked = !!p.picked;
-        accountCreated = p.accountCreated === undefined ? starterPicked : !!p.accountCreated;
-        accountGender = p.accountGender === "female" ? "female" : "male";
-        accountName = typeof p.accountName === "string" ? p.accountName.trim().slice(0, 16) : "";
-        mainAccountJob = ACCOUNT_JOBS[p.mainAccountJob] ? p.mainAccountJob : (ROLE_TO_ACCOUNT_JOB[p.mainAccountJob] || "");
-        jobTalentRanks = normalizeJobTalentRanks(p.jobTalentRanks);
-        jobPassiveActive = !!p.jobPassiveActive;
-        tutorialSeen = p.tutorialSeen === undefined ? true : !!p.tutorialSeen; // 舊玩家不重播新手教學
-        kills = Math.max(0, Math.min(999999, Math.floor(+p.kills) || 0));
-        const sv = Math.floor(+p.stage) || 0;
-        stage = sv > 0 ? Math.min(999999, sv) : 1 + Math.floor(kills / 3);
-        // 舊存檔沒有 RANK 等級：沿用當時顯示的樓層數字，經驗從 0 開始
-        rankLv = Math.max(1, Math.min(MAX_RANK, Math.floor(+p.rankLv) || stage));
-        rankExp = Math.max(0, Math.floor(+p.rankExp) || 0);
-        while (rankLv < MAX_RANK && rankExp >= rankExpNeed(rankLv)) { rankExp -= rankExpNeed(rankLv); rankLv++; }
-        if (rankLv >= MAX_RANK) { rankLv = MAX_RANK; rankExp = 0; }
-        // 天賦點只由 RANK 5、10、15…發放；舊存檔剩餘點數按新規則重算。
-        jobTalentPoints = Math.max(0, Math.floor(rankLv / 5) - jobTalentSpent());
-        floorWins = stage % BOSS_EVERY === 0 ? 0 : Math.max(0, Math.min(NORMAL_FLOOR_WAVES - 1, Math.floor(+p.floorWins) || 0));
-        deepTimeLeft = Math.max(1, Math.min(stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS,
-            Math.floor(+p.deepTimeLeft) || (stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS)));
-        shardTotal = Math.max(0, Math.min(99999999, Math.floor(+p.shardTotal) || 0));
-        CHAR_IDS.forEach(id => {
-            const saved = p.roster && p.roster[id];
-            if (!saved) return;
-            Object.assign(roster[id], saved);
-            if (saved.growthVersion !== 1 && saved.growthVersion !== 2) roster[id].growthVersion = 0;
-            normalizeCharacterGrowth(roster[id]);
-            roster[id].hp = roster[id].maxHp;
-            roster[id].gauge = 0;
+        const restored = SaveSystem.restore(result.data, roster, {
+            characterIds: CHAR_IDS, characters: CHAR_TABLE, jobs: ACCOUNT_JOBS,
+            roleToJob: ROLE_TO_ACCOUNT_JOB, statKeys: ACCOUNT_STATS.map(s => s.key),
+            titleIds: TITLE_TABLE.map(t => t.id), gateIds: BOSS_STAGES.map(g => g.id),
+            maxRank: MAX_RANK, teamMax: TEAM_MAX, bossEvery: BOSS_EVERY,
+            normalFloorWaves: NORMAL_FLOOR_WAVES, bossFloorSeconds: BOSS_FLOOR_SECONDS,
+            normalFloorSeconds: NORMAL_FLOOR_SECONDS, rankExpNeed,
+            normalizeTalentRanks: normalizeJobTalentRanks,
+            talentSpent: ranks => jobTalentSpent(null, ranks), normalizeCharacterGrowth
         });
-        teamIds = (p.teamIds || []).filter(id => roster[id] && roster[id].unlocked).slice(0, TEAM_MAX);
-        if (!teamIds.length) {
-            const first = CHAR_IDS.find(id => roster[id].unlocked);
-            if (first) teamIds = [first];
-        }
-        if (!mainAccountJob) mainAccountJob = ROLE_TO_ACCOUNT_JOB[teamIds[0] && CHAR_TABLE[teamIds[0]].type] || "warrior";
-        if (p.accountStats && typeof p.accountStats === "object") {
-            accountStats = Object.fromEntries(ACCOUNT_STATS.map(s => [s.key, clamp(Math.floor(+p.accountStats[s.key] || 0), 0, 99)]));
-            accountStatPoints = Math.max(0, Math.min(99999, Math.floor(+p.accountStatPoints) || 0));
-        } else {
-            accountStats = { str: 0, agi: 0, vit: 0, int: 0, dex: 0, luk: 0 };
-            accountStatPoints = 6 + Math.max(0, rankLv - 1) * 2;
-        }
-        // 星級名冊改版後舊角色 ID 已移除；保留樓層與資源，重新選五星隊長。
-        if (!teamIds.length) starterPicked = false;
-        // 副手只留「雙方都解鎖、且正主還在場上」的配對
-        unisonMap = {};
-        const savedU = p.unisonMap || {};
-        teamIds.forEach(id => {
-            const u = savedU[id];
-            if (u && roster[u] && roster[u].unlocked && u !== id) unisonMap[id] = u;
-        });
-        titleOn = TITLE_TABLE.some(t => t.id === p.titleOn) ? p.titleOn : "novice";
-        // 異界迴廊的戰績只認列得出來的門；正在打的門不進存檔，重載就回到正常深層流程
-        bossWin = {};
-        const savedWin = p.bossWin || {};
-        BOSS_STAGES.forEach(g => { if (savedWin[g.id] > 0) bossWin[g.id] = savedWin[g.id] | 0; });
-        FX.shakeOn = p.shakeOn !== false;
+        // 所有資料完成轉換才套用，避免失敗時留下半份進度。
+        ({ starterPicked, accountCreated, accountGender, accountName, mainAccountJob,
+            jobTalentRanks, jobPassiveActive, tutorialSeen, kills, stage, rankLv, rankExp,
+            jobTalentPoints, floorWins, deepTimeLeft, shardTotal, roster, teamIds,
+            accountStats, accountStatPoints, unisonMap, titleOn, bossWin, gateTokens, gateRecord,
+            cultivationMaterials, limitedSummonCount } = restored);
+        FX.shakeOn = restored.shakeOn;
         spawnEnemy();
         return true;
-    } catch (err) { saveNote = "存檔解析失敗，進度重新開始。"; return false; }
+    } catch (err) { saveNote = SaveSystem.parseFailure; return false; }
 }
 function resetSave() {
     if (battleTimer) clearInterval(battleTimer);
-    PF.running = false;
-    try { localStorage.removeItem(SAVE_KEY); } catch (err) { /* 無儲存空間時忽略 */ }
+    battleLifecycle.setRunning(false);
+    saveStore.remove();
     location.reload();
 }
 
@@ -5966,43 +6109,49 @@ let homeTabOn = "home", homeSig = "", toastTimer = 0;
 
 function renderTabs() {
     const html = HOME_TABS.map(t =>
-        `<button class="tb${t.k === homeTabOn ? " on" : ""}" aria-label="${t.t}" title="${t.t}" onclick="pickHomeTab('${t.k}')"><span class="ic">${t.ic}</span><span class="tb-label">${t.t}</span></button>`
+        `<button class="tb${t.k === (homeTabOn === "items" ? "menu" : homeTabOn) ? " on" : ""}" aria-label="${t.t}" title="${t.t}" onclick="pickHomeTab('${t.k}')"><span class="ic">${t.ic}</span><span class="tb-label">${t.t}</span></button>`
     ).join("");
     $("hm-tabs").innerHTML = html;
     $("pg-tabs").innerHTML = html;
     $("team-tabs").innerHTML = html;
 }
 
-function pickHomeTab(k) {
-    if (k === "home") { showScreen("home"); return; }
-    if (k === "team") { homeTabOn = "team"; showScreen("team"); return; }
-    if (PAGES[k]) { homeTabOn = k; showScreen("page"); return; }
-    homeTabOn = "home";
-    showScreen("home");
-}
-
-// 四頁共用一個 430×760 的手機框，一次只顯示一頁；戰鬥在背景照跑，不受切頁影響
-const SCREENS = { home: "home", page: "page", battle: "pf-frame", team: "team" };
-function showScreen(which) {
-    const pane = SCREENS[which] || "home";
-    Object.values(SCREENS).forEach(id => { $(id).style.display = id === pane ? "" : "none"; });
-    if (which === "home") { homeTabOn = "home"; homeSig = ""; paintHome(); }
-    else if (which === "page") renderPage();
-    else if (which === "team") homeTabOn = "team";
-    else if (which === "battle") PF.last = performance.now();
-    if (window.homeParty) { homeParty.setActive(which === "home"); if (which === "home") homeParty.sync(accountGender, teamIds); }
-    renderTabs();
-}
-
-// 戰場沒有分頁列（會蓋住彈板），所以從暫停選單回主頁；戰鬥繼續在背景跑
-function backHome() {
-    if (PF.paused) togglePause();
-    showScreen("home");
-}
+const SCREENS = { home: 'home', page: 'page', battle: 'pf-frame', team: 'team' };
+const uiRouter = UIRouter.create({
+    screens: SCREENS, getElement: $, getPages: () => PAGES,
+    setTab: tab => { homeTabOn = tab; },
+    paintHome: () => { homeSig = ''; paintHome(); }, renderPage, renderTabs,
+    onBattle: () => { PF.last = performance.now(); },
+    onHomeParty: active => {
+        if (window.homeParty) { homeParty.setActive(active); if (active) homeParty.sync(accountGender, teamIds); }
+    },
+    onLeave: () => { dexHide(); PF.holdL = PF.holdR = false; },
+    closeOverlays: () => {
+        for (const id of ['account-stats', 'pf-pause', 'pf-tutorial']) $(id)?.classList.remove('on');
+        dexHide();
+    },
+    closeEmbeddedGate: () => {
+        if (GATE_MODE && window.parent !== window) {
+            window.parent.postMessage({ type: 'wf-gate-close' }, GATE_TARGET); return true;
+        }
+        if (gateBattleOpen) closeGateBattle();
+        return false;
+    },
+    leaveGateContext: leaveGateContextForTower,
+    resume: () => {
+        const settled = $('pf-result')?.classList.contains('on') || $('deep-fail')?.classList.contains('on');
+        if (PF.paused && !settled && accountCreated && starterPicked) setPaused(false);
+    }
+});
+function pickHomeTab(k) { uiRouter.select(k); }
+function showScreen(which) { uiRouter.show(which); }
+function backHome() { uiRouter.home(); }
 
 // 從單獨開啟的訓練場／異界關卡返回主頁後，清乾淨門模式；避免下一次「出發冒險」仍沿用訓練 Boss。
 function leaveGateContextForTower() {
     if (!GATE_MODE && !TRAINING_MODE && !GATE.id) return false;
+    resetBattleTransient(); hideResult();
+    battleLifecycle.setRunning(true); PF.reviveAt = 0;
     GATE_MODE = null;
     TRAINING_MODE = false;
     GATE.id = null;
@@ -6026,12 +6175,13 @@ function enterBattle() {
         openBattleTutorial();
         return;
     }
+    if (!$("pf-result").classList.contains("on") && !$("deep-fail").classList.contains("on")) setPaused(false);
     SFX.voiceWarmTeam();
     SFX.voice(teamIds[0], "battle_start");
 }
 
 function openBattleTutorial() {
-    PF.paused = true;
+    setPaused(true);
     PF.holdL = PF.holdR = false;
     $("pf-pause").classList.remove("on");
     $("pf-tutorial").classList.add("on");
@@ -6041,7 +6191,7 @@ function openBattleTutorial() {
 function replayBattleTutorial() {
     if (GATE_MODE) return;
     showScreen("battle");
-    PF.paused = true;
+    setPaused(true);
     openBattleTutorial();
 }
 
@@ -6050,7 +6200,7 @@ function finishBattleTutorial() {
     if (!tutorial || !tutorial.classList.contains("on")) return;
     tutorial.classList.remove("on");
     tutorialSeen = true;
-    PF.paused = false;
+    setPaused(false);
     PF.last = performance.now();
     saveGame();
     SFX.voiceWarmTeam();
@@ -6118,13 +6268,12 @@ function paintHome() {
 // ==========================================================
 // 分頁：角色／商店／圖鑑／頭銜／選單
 // ==========================================================
-const PAGES = { chars: "角色", boss: "BOSS戰", shop: "商店", book: "圖鑑", title: "頭銜", talents: "天賦", menu: "選單" };
+const PAGES = { chars: "角色", boss: "BOSS戰", shop: "商店", book: "圖鑑", title: "頭銜", talents: "天賦", menu: "選單", items: "通貨統計" };
 
-let charDirectoryPage = 0;
 let charDirectoryElement = "all";
 let charDirectoryOwnership = "all";
+let charDirectorySummonCategory = "all";
 let charDirectoryQuery = "";
-const CHAR_DIRECTORY_PAGE_SIZE = 12;
 
 // 圖鑑卡片載入動態圖失敗時改試中立圖；兩種素材都不存在才從名冊隱藏。
 const CHAR_NO_SPRITE = new Set();
@@ -6137,10 +6286,12 @@ const unitFace = (unit, r, state, txt) =>
     `<img src="${CDN_BASE}rarity${r}/${unit}/${state}.gif" alt="${txt}" onerror="if(!this.dataset.neutralFallback){this.dataset.neutralFallback='1';this.src='${CDN_BASE}rarity${r}/${unit}/neutral.gif'}else{charDirectoryMissingSprite('${unit}',this)}">`;
 function renderPage() {
     const body = $("pg-body");
-    $("pg-title").textContent = PAGES[homeTabOn] || "主頁";
+    $("pg-title").textContent = homeTabOn === "shop"
+        ? (shopSection === "exchange" ? "兌換商店" : "轉蛋商店")
+        : (PAGES[homeTabOn] || "主頁");
     $("pg-res").textContent = shardTotal;
     body.scrollTop = 0;
-    const fn = { chars: pageChars, boss: pageBoss, shop: pageShop, book: pageBook, title: pageTitles, talents: pageJobTalents, menu: pageMenu }[homeTabOn] || pageChars;
+    const fn = { chars: pageChars, boss: pageBoss, shop: pageShop, book: pageBook, title: pageTitles, talents: pageJobTalents, menu: pageMenu, items: pageItems }[homeTabOn] || pageChars;
     body.innerHTML = fn();
     body.classList.toggle("char-directory-page", homeTabOn === "chars" && !growthFor);
     body.classList.toggle("job-talent-page", homeTabOn === "talents");
@@ -6157,62 +6308,358 @@ function pageChars() {
             && (charDirectoryOwnership === "all"
                 || (charDirectoryOwnership === "owned" && roster[id].unlocked)
                 || (charDirectoryOwnership === "unowned" && !roster[id].unlocked))
+            && (charDirectorySummonCategory === "all" || d.summonCategory === charDirectorySummonCategory)
             && (!query || `${d.name} ${d.title} ${TYPE_INFO[d.type].n}`.toLocaleLowerCase().includes(query));
     });
-    const pages = Math.max(1, Math.ceil(ids.length / CHAR_DIRECTORY_PAGE_SIZE));
-    charDirectoryPage = Math.max(0, Math.min(charDirectoryPage, pages - 1));
-    const visible = ids.slice(charDirectoryPage * CHAR_DIRECTORY_PAGE_SIZE, (charDirectoryPage + 1) * CHAR_DIRECTORY_PAGE_SIZE);
     const unlocked = ids.filter(id => roster[id].unlocked).length;
     const elementOptions = `<option value="all" ${charDirectoryElement === "all" ? "selected" : ""}>全部屬性</option>`
         + OPEN_EL.map(key => `<option value="${key}" ${charDirectoryElement === key ? "selected" : ""}>${ELEMENTS[key].label}</option>`).join("");
     const ownershipOptions = `<option value="all" ${charDirectoryOwnership === "all" ? "selected" : ""}>全部角色</option><option value="owned" ${charDirectoryOwnership === "owned" ? "selected" : ""}>已持有角色</option><option value="unowned" ${charDirectoryOwnership === "unowned" ? "selected" : ""}>未持有角色</option>`;
+    const summonOptions = `<option value="all" ${charDirectorySummonCategory === "all" ? "selected" : ""}>全部獎池</option><option value="permanent" ${charDirectorySummonCategory === "permanent" ? "selected" : ""}>常駐</option><option value="limited" ${charDirectorySummonCategory === "limited" ? "selected" : ""}>限定</option>`;
     return `<div class="char-directory">
         <div class="char-directory-head"><div><b>角色名冊</b><small>已持有 ${unlocked} 位</small></div><span>${ids.length} 位符合條件</span></div>
-        <div class="char-directory-tools"><div class="char-directory-search"><input id="char-directory-query" type="search" value="${charDirectoryQuery.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;")}" placeholder="搜尋角色名稱" onkeydown="if(event.key==='Enter'){applyCharDirectorySearch()}"><button type="button" onclick="applyCharDirectorySearch()">搜尋</button></div><div class="char-directory-filters"><select aria-label="依屬性篩選" onchange="setCharDirectoryElement(this.value)">${elementOptions}</select><select aria-label="依持有狀態篩選" onchange="setCharDirectoryOwnership(this.value)">${ownershipOptions}</select></div></div>
-        ${charSkillHoverHTML()}<div class="char-directory-grid">${visible.map(charRow).join("") || `<div class="char-directory-empty">沒有符合條件的角色</div>`}</div>
-        <nav class="char-directory-pages" aria-label="角色頁碼"><button type="button" onclick="changeCharDirectoryPage(-1)" ${charDirectoryPage <= 0 ? "disabled" : ""}>‹ 上一頁</button><span>第 ${charDirectoryPage + 1} ／ ${pages} 頁</span><button type="button" onclick="changeCharDirectoryPage(1)" ${charDirectoryPage >= pages - 1 ? "disabled" : ""}>下一頁 ›</button></nav>
+        <div class="char-directory-tools"><div class="char-directory-search"><input id="char-directory-query" type="search" value="${charDirectoryQuery.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;")}" placeholder="搜尋角色名稱" onkeydown="if(event.key==='Enter'){applyCharDirectorySearch()}"><button type="button" onclick="applyCharDirectorySearch()">搜尋</button></div><div class="char-directory-filters"><select aria-label="依屬性篩選" onchange="setCharDirectoryElement(this.value)">${elementOptions}</select><select aria-label="依持有狀態篩選" onchange="setCharDirectoryOwnership(this.value)">${ownershipOptions}</select><select aria-label="依獎池分類篩選" onchange="setCharDirectorySummonCategory(this.value)">${summonOptions}</select></div></div>
+        ${charSkillHoverHTML()}<div class="char-directory-grid">${ids.map(charRow).join("") || `<div class="char-directory-empty">沒有符合條件的角色</div>`}</div>
     </div>`;
 }
 
 function applyCharDirectorySearch() {
     charDirectoryQuery = $("char-directory-query")?.value || "";
-    charDirectoryPage = 0;
     renderPage();
 }
-function setCharDirectoryElement(element) { charDirectoryElement = element; charDirectoryPage = 0; renderPage(); }
-function setCharDirectoryOwnership(ownership) { charDirectoryOwnership = ownership; charDirectoryPage = 0; renderPage(); }
-function changeCharDirectoryPage(delta) { charDirectoryPage += delta; renderPage(); }
+function setCharDirectoryElement(element) { charDirectoryElement = element; renderPage(); }
+function setCharDirectoryOwnership(ownership) { charDirectoryOwnership = ownership; renderPage(); }
+function setCharDirectorySummonCategory(category) { charDirectorySummonCategory = category; renderPage(); }
 
 function charRow(id) {
     const d = CHAR_TABLE[id], ch = roster[id];
     if (!ch.unlocked) {
-        const ready = ch.shards >= d.need;
-        return `<article class="pgc char-card locked" data-character="${id}" aria-label="${d.name}角色資料" onmouseenter="charSkillHover('${id}',event)" onmousemove="charSkillHover('${id}',event)" onmouseleave="dexHide()" onclick="if(!event.target.closest('button'))charSkillHover('${id}',event)" onfocus="charSkillHover('${id}',event)" onblur="dexHide()"><div class="char-card-art">${unitFace(d.unit, d.rarity, "walk_front", d.name.slice(0, 1))}</div>
-            <div class="char-card-info"><div class="nm">${d.name}</div><div class="char-card-tags"><span class="tag2" style="background:${EL_COLOR[d.element]}">${ELEMENTS[d.element].label}</span><span class="tag2">${TYPE_INFO[d.type].n}</span></div>
-            <div class="sub">碎片 ${ch.shards}/${d.need}</div><div class="bar"><i style="width:${Math.min(100, ch.shards / d.need * 100).toFixed(0)}%"></i></div></div>
-            ${ready ? `<button class="mini-btn gold char-card-action" onclick="exchangeChar('${id}')">兌換</button>` : ""}</article>`;
+        return `<article class="pgc char-card locked" data-character="${id}" aria-label="${d.name}角色資料" onmouseenter="charSkillHover('${id}',event)" onmousemove="charSkillHover('${id}',event)" onmouseleave="dexHide()" onclick="charSkillHover('${id}',event)" onfocus="charSkillHover('${id}',event)" onblur="dexHide()"><div class="char-card-art">${unitFace(d.unit, d.rarity, "walk_front", d.name.slice(0, 1))}</div>
+            <img class="card-element-icon" src="asset/ui/element-${d.element}.svg" alt="${ELEMENTS[d.element].label}屬性" title="${ELEMENTS[d.element].label}屬性"><div class="char-card-info"><div class="nm">${d.name}</div><div class="char-card-tags"><span class="tag2">${TYPE_INFO[d.type].n}</span><span class="summon-tag ${d.summonCategory}">${d.summonCategory === "limited" ? "限定" : "常駐"}</span></div>
+            <div class="sub">碎片 ${ch.shards}/${d.need}</div><div class="bar"><i style="width:${Math.min(100, ch.shards / d.need * 100).toFixed(0)}%"></i></div></div></article>`;
     }
-    return `<article class="pgc char-card cultivable" data-character="${id}" role="button" tabindex="0" aria-label="培養${d.name}" title="點擊進入角色培養" onmouseenter="charSkillHover('${id}',event)" onmousemove="charSkillHover('${id}',event)" onmouseleave="dexHide()" onclick="openGrowth('${id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGrowth('${id}')}" onfocus="charSkillHover('${id}',event)" onblur="dexHide()"><div class="char-card-art">${unitFace(d.unit, d.rarity, "walk_front", d.name.slice(0, 1))}</div>
-        <div class="char-card-info"><div class="nm">${d.name}</div><div class="char-card-tags"><span class="tag2" style="background:${EL_COLOR[d.element]}">${ELEMENTS[d.element].label}</span><span class="tag2">${TYPE_INFO[d.type].n}</span></div>
-        <div class="sub">Lv.${ch.lvl}/${growthCap(ch)}　${teamIds.indexOf(id) >= 0 ? '<b class="char-field-tag">出戰中</b>' : ""}</div><div class="char-card-stat">攻 ${atkOf(ch)}　HP ${hpMax(ch)}</div></div></article>`;
+    return `<article class="pgc char-card cultivable" data-character="${id}" role="button" tabindex="0" aria-label="${d.name}角色資料" title="點擊角色卡查看資料" onmouseenter="charSkillHover('${id}',event)" onmousemove="charSkillHover('${id}',event)" onmouseleave="dexHide()" onclick="openGrowth('${id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGrowth('${id}')}" onfocus="charSkillHover('${id}',event)" onblur="dexHide()"><div class="char-card-art">${unitFace(d.unit, d.rarity, "walk_front", d.name.slice(0, 1))}</div>
+        <img class="card-element-icon" src="asset/ui/element-${d.element}.svg" alt="${ELEMENTS[d.element].label}屬性" title="${ELEMENTS[d.element].label}屬性"><div class="char-card-info"><div class="nm">${d.name}</div><div class="char-card-tags"><span class="tag2">${TYPE_INFO[d.type].n}</span><span class="summon-tag ${d.summonCategory}">${d.summonCategory === "limited" ? "限定" : "常駐"}</span></div>
+        ${breakthroughStarsMarkup(ch, true)}<div class="sub">Lv.${ch.lvl}/${growthCap(ch)}　${teamIds.indexOf(id) >= 0 ? '<b class="char-field-tag">出戰中</b>' : ""}</div><div class="char-card-stat">攻 ${atkOf(ch)}　HP ${hpMax(ch)}</div></div></article>`;
 }
 // ---- BOSS戰：四道異界迴廊（各自一個獨立戰場）----
 function pageBoss() {
     return renderGateBrowser();
 }
 
-function pageShop() {
-    return `<div class="pg-sec">商店</div><div class="pg-empty">商品暫時下架，之後再開放。</div>`;
+function openShopSection(section = "gacha") {
+    shopSection = section === "exchange" ? "exchange" : "gacha";
+    pickHomeTab("shop");
 }
 
-// ---- 圖鑑：五星角色 ----
+function pageShop() {
+    const tabs = `<div class="gacha-shop-tabs" role="tablist" aria-label="商店分類"><button role="tab" aria-selected="${shopSection === "gacha"}" class="${shopSection === "gacha" ? "active" : ""}" onclick="setShopSection('gacha')">轉蛋招募</button><button role="tab" aria-selected="${shopSection === "exchange"}" class="${shopSection === "exchange" ? "active" : ""}" onclick="setShopSection('exchange')">徽記兌換</button></div>`;
+    return `${tabs}${shopSection === "exchange" ? pageExchangeShop() : pageGachaShop()}`;
+}
+
+function setShopSection(section) {
+    shopSection = section === "exchange" ? "exchange" : "gacha";
+    renderPage();
+}
+
+const SUMMON_SINGLE_COST = 50;
+const SUMMON_TEN_COST = 450;
+const SUMMON_LIMITED_PITY = 120;
+const SUMMON_LIMITED_SOFT_PITY_START = 90;
+const SUMMON_LIMITED_SOFT_PITY_STEP = 0.005; // 第 91 抽起，每抽增加 0.5 個百分點
+const SUMMON_FRAGMENT_REWARD = 3;
+const SUMMON_DUPLICATE_FRAGMENTS = 10;
+const SUMMON_PERMANENT_RATE = 0.01;
+const SUMMON_FOUR_STAR_CHARACTER_RATE = 0.08;
+const SUMMON_FIVE_STAR_FRAGMENT_RATE = 0.45;
+const SUMMON_FOUR_STAR_FRAGMENT_RATE = 0.25;
+// 兩個池各自精選火、水、雷、風五星各一位；其他五星仍在圖鑑中，但不參與新轉蛋。
+const SUMMON_FEATURED_PERMANENT_IDS = new Set(["fire_dragon", "brown_fighter", "fox_oracle", "wind_spgirl"]);
+const SUMMON_FEATURED_LIMITED_IDS = new Set(["heavenly_one", "lightbullet_wiz_ny20", "samurai_xm19", "kokkoro"]);
+const SUMMON_PERMANENT_IDS = Object.keys(CHAR_TABLE).filter(id => SUMMON_FEATURED_PERMANENT_IDS.has(id) && CHAR_TABLE[id].rarity === 5 && CHAR_TABLE[id].summonCategory === "permanent");
+const SUMMON_LIMITED_IDS = Object.keys(CHAR_TABLE).filter(id => SUMMON_FEATURED_LIMITED_IDS.has(id) && CHAR_TABLE[id].rarity === 5 && CHAR_TABLE[id].summonCategory === "limited");
+const SUMMON_FOUR_STAR_IDS = Object.keys(CHAR_TABLE).filter(id => CHAR_TABLE[id].rarity === 4 && CHAR_TABLE[id].open);
+
+function setGachaPool(pool) {
+    if (gachaAnimation?.busy) return;
+    gachaPoolType = pool === "permanent" ? "permanent" : "limited";
+    renderPage();
+}
+
+function randomPoolCharacter(ids) {
+    return ids[Math.floor(Math.random() * ids.length)];
+}
+
+function limitedRateForPull(pullCount) {
+    const extraPulls = Math.max(0, pullCount - SUMMON_LIMITED_SOFT_PITY_START);
+    return Math.min(1, 0.001 + extraPulls * SUMMON_LIMITED_SOFT_PITY_STEP);
+}
+
+function rollSummonPrize(pool) {
+    if (pool === "limited") {
+        const nextPity = limitedSummonCount + 1;
+        if (nextPity >= SUMMON_LIMITED_PITY) {
+            limitedSummonCount = 0;
+            return { kind: "character", id: randomPoolCharacter(SUMMON_LIMITED_IDS), limitedPity: true };
+        }
+        limitedSummonCount = nextPity;
+        const roll = Math.random();
+        const limitedRate = limitedRateForPull(nextPity);
+        if (roll < limitedRate) {
+            limitedSummonCount = 0;
+            return { kind: "character", id: randomPoolCharacter(SUMMON_LIMITED_IDS), limitedPity: false };
+        }
+        if (roll < limitedRate + SUMMON_PERMANENT_RATE) return { kind: "character", id: randomPoolCharacter(SUMMON_PERMANENT_IDS) };
+        if (roll < limitedRate + SUMMON_PERMANENT_RATE + SUMMON_FOUR_STAR_CHARACTER_RATE) return { kind: "character", id: randomPoolCharacter(SUMMON_FOUR_STAR_IDS) };
+        if (roll < limitedRate + SUMMON_PERMANENT_RATE + SUMMON_FOUR_STAR_CHARACTER_RATE + SUMMON_FIVE_STAR_FRAGMENT_RATE) return { kind: "fragments", id: randomPoolCharacter([...SUMMON_LIMITED_IDS, ...SUMMON_PERMANENT_IDS]) };
+        if (roll < limitedRate + SUMMON_PERMANENT_RATE + SUMMON_FOUR_STAR_CHARACTER_RATE + SUMMON_FIVE_STAR_FRAGMENT_RATE + SUMMON_FOUR_STAR_FRAGMENT_RATE) return { kind: "fragments", id: randomPoolCharacter(SUMMON_FOUR_STAR_IDS) };
+        return { kind: "material", amount: 1 };
+    }
+    const roll = Math.random();
+    if (roll < SUMMON_PERMANENT_RATE) return { kind: "character", id: randomPoolCharacter(SUMMON_PERMANENT_IDS) };
+    if (roll < SUMMON_PERMANENT_RATE + SUMMON_FOUR_STAR_CHARACTER_RATE) return { kind: "character", id: randomPoolCharacter(SUMMON_FOUR_STAR_IDS) };
+    if (roll < SUMMON_PERMANENT_RATE + SUMMON_FOUR_STAR_CHARACTER_RATE + SUMMON_FIVE_STAR_FRAGMENT_RATE) return { kind: "fragments", id: randomPoolCharacter(SUMMON_PERMANENT_IDS) };
+    if (roll < SUMMON_PERMANENT_RATE + SUMMON_FOUR_STAR_CHARACTER_RATE + SUMMON_FIVE_STAR_FRAGMENT_RATE + SUMMON_FOUR_STAR_FRAGMENT_RATE) return { kind: "fragments", id: randomPoolCharacter(SUMMON_FOUR_STAR_IDS) };
+    return { kind: "material", amount: 1 };
+}
+
+function summonUnlock(id) {
+    const ch = roster[id], d = CHAR_TABLE[id];
+    if (!ch || !d) return false;
+    if (ch.unlocked) {
+        if (growthCap(ch) >= 100) {
+            cultivationMaterials++;
+            return "material";
+        }
+        ch.shards = Math.min(999999, ch.shards + SUMMON_DUPLICATE_FRAGMENTS);
+        return "duplicate";
+    }
+    ch.unlocked = true;
+    if (teamIds.length < TEAM_MAX) {
+        teamIds.push(id);
+        syncTeamField();
+    }
+    return "new";
+}
+
+function grantSummonPrize(prize) {
+    if (prize.kind === "character") {
+        const duplicate = summonUnlock(prize.id);
+        const d = CHAR_TABLE[prize.id];
+        prize.name = d.name;
+        prize.element = d.element;
+        prize.role = TYPE_INFO[d.type].n;
+        if (duplicate === "new") prize.note = "新角色加入名冊";
+        else if (duplicate === "duplicate") { prize.kind = "duplicate"; prize.amount = SUMMON_DUPLICATE_FRAGMENTS; prize.note = `已持有，轉為角色碎片 ×${prize.amount}`; }
+        else { prize.kind = "material"; prize.amount = 1; prize.note = "角色已培養至上限，轉為培養素材 ×1"; }
+        if (prize.limitedPity) prize.note = `限定保底取得｜${prize.note}`;
+        return prize;
+    }
+    if (prize.kind === "fragments") {
+        const d = CHAR_TABLE[prize.id], ch = roster[prize.id];
+        prize.name = d.name;
+        prize.element = d.element;
+        if (ch.unlocked && growthCap(ch) >= 100) {
+            cultivationMaterials++;
+            prize.kind = "material"; prize.amount = 1;
+            prize.note = `${d.name}已培養至上限，角色碎片轉為培養素材 ×1`;
+            return prize;
+        }
+        ch.shards = Math.min(ch.unlocked ? 999999 : d.need + SUMMON_FRAGMENT_REWARD, ch.shards + SUMMON_FRAGMENT_REWARD);
+        if (!ch.unlocked && ch.shards >= d.need) {
+            ch.shards -= d.need;
+            ch.unlocked = true;
+            prize.note = `${d.name}碎片累積滿額，自動解鎖`;
+            if (teamIds.length < TEAM_MAX) { teamIds.push(prize.id); syncTeamField(); }
+        } else {
+            prize.note = `${d.name}角色碎片 +${SUMMON_FRAGMENT_REWARD}（${ch.shards}/${ch.unlocked ? "培養" : d.need}）`;
+        }
+        prize.amount = SUMMON_FRAGMENT_REWARD;
+        return prize;
+    }
+    cultivationMaterials += prize.amount || 1;
+    prize.note = `粗糙的神之金屬 ×${prize.amount || 1}`;
+    return prize;
+}
+
+function performSummon(count) {
+    if (gachaAnimation?.busy) return;
+    const amount = count === 10 ? 10 : 1;
+    const cost = amount === 10 ? SUMMON_TEN_COST : SUMMON_SINGLE_COST;
+    if (shardTotal < cost) { hmToast(`結晶不足，需要 ${cost}，目前持有 ${shardTotal}`); return; }
+
+    shardTotal -= cost;
+    const prizes = Array.from({ length: amount }, () => grantSummonPrize(rollSummonPrize(gachaPoolType)));
+    const limitedHit = prizes.some(p => p.id && CHAR_TABLE[p.id]?.rarity === 5 && CHAR_TABLE[p.id]?.summonCategory === "limited");
+    for (const prize of prizes) {
+        if (prize.kind === "character") log(`🎉 轉蛋大獎：${prize.name}（${ELEMENTS[prize.element].label}・${prize.role}）${prize.note.includes("保底") ? "｜限定保底" : ""}`);
+        else if (prize.kind === "duplicate") log(`🧩 轉蛋獲得 ${prize.name}碎片 ×${prize.amount}。`);
+        else if (prize.kind === "fragments") log(`🧩 轉蛋獲得 ${prize.note}。`);
+        else log(`🧪 轉蛋獲得培養素材 ×${prize.amount || 1}。`);
+    }
+    if (gachaPoolType === "limited" && !limitedHit) log(`🎟️ 限定保底進度 ${limitedSummonCount}/${SUMMON_LIMITED_PITY}。`);
+    saveGame();
+    updateUI();
+    gachaAnimationTimers.forEach(clearTimeout);
+    gachaAnimationTimers = [];
+    gachaAnimation = {
+        busy: true, revealed: false, count: amount, cost, pool: gachaPoolType, prizes,
+        gold: prizes.some(p => p.kind === "character" || p.kind === "duplicate"),
+        limited: prizes.some(p => p.id && CHAR_TABLE[p.id]?.rarity === 5 && CHAR_TABLE[p.id]?.summonCategory === "limited")
+    };
+    renderPage();
+    gachaAnimationTimers.push(setTimeout(() => {
+        if (!gachaAnimation) return;
+        gachaAnimation.revealed = true;
+        renderPage();
+    }, 1650));
+    gachaAnimationTimers.push(setTimeout(() => {
+        if (!gachaAnimation) return;
+        gachaAnimation.busy = false;
+        renderPage();
+        gachaAnimationTimers = [];
+    }, 2550));
+}
+
+function skipSummonAnimation() {
+    if (!gachaAnimation?.busy) return;
+    gachaAnimationTimers.forEach(clearTimeout);
+    gachaAnimationTimers = [];
+    gachaAnimation.revealed = true;
+    gachaAnimation.busy = false;
+    renderPage();
+}
+
+function closeSummonPopup() {
+    gachaAnimationTimers.forEach(clearTimeout);
+    gachaAnimationTimers = [];
+    gachaAnimation = null;
+    renderPage();
+}
+
+function summonPrizeMarkup(prize) {
+    const hero = prize.id && CHAR_TABLE[prize.id];
+    const art = hero ? unitFace(hero.unit, hero.rarity, "walk_front", hero.name.slice(0, 1)) : `<span>${prize.kind === "material" ? "⚒" : "✦"}</span>`;
+    const prizeRarity = prize.id && CHAR_TABLE[prize.id]?.rarity;
+    const kindLabel = prize.kind === "character" ? `${prizeRarity === 4 ? "四星" : "五星"}完整角色` : prize.kind === "duplicate" ? "重複轉碎片" : prize.kind === "fragments" ? `${prizeRarity === 4 ? "四星" : "五星"}角色碎片` : "培養素材";
+    const grand = prize.id && prizeRarity === 5 && CHAR_TABLE[prize.id]?.summonCategory === "limited";
+    return `<article class="summon-result-card ${grand ? "grand" : ""}"><div class="summon-result-art">${art}</div><div class="summon-result-kind">${kindLabel}</div><b>${prize.name || "培養素材"}</b><small>${prize.note || ""}</small></article>`;
+}
+
+function pageGachaShop() {
+    const limited = gachaPoolType === "limited";
+    // 限定池除了基礎限定機率，也會依保底進度逐步提高；將本抽實際機率直接顯示給玩家。
+    const eligible = limited ? SUMMON_LIMITED_IDS : SUMMON_PERMANENT_IDS;
+    const shown = eligible.slice(0, 6);
+    const animation = gachaAnimation;
+    const nextPityPull = limitedSummonCount + 1;
+    const pityGuaranteesNext = limited && nextPityPull >= SUMMON_LIMITED_PITY;
+    const currentLimitedRate = limited ? (pityGuaranteesNext ? 1 : limitedRateForPull(nextPityPull)) : 0;
+    const currentPermanentRate = limited ? (pityGuaranteesNext ? 0 : SUMMON_PERMANENT_RATE) : SUMMON_PERMANENT_RATE;
+    const currentFourStarCharacterRate = pityGuaranteesNext ? 0 : SUMMON_FOUR_STAR_CHARACTER_RATE;
+    const currentFiveStarFragmentRate = pityGuaranteesNext ? 0 : SUMMON_FIVE_STAR_FRAGMENT_RATE;
+    const currentFourStarFragmentRate = pityGuaranteesNext ? 0 : SUMMON_FOUR_STAR_FRAGMENT_RATE;
+    const currentMaterialRate = Math.max(0, 1 - currentLimitedRate - currentPermanentRate - currentFourStarCharacterRate - currentFiveStarFragmentRate - currentFourStarFragmentRate);
+    const percentText = value => `${(value * 100).toFixed(1).replace(/\.0$/u, "")}%`;
+    const rates = limited
+        ? `<div><b>限定五星完整角色</b><span>本抽 ${percentText(currentLimitedRate)}${pityGuaranteesNext ? "｜保底" : nextPityPull <= SUMMON_LIMITED_SOFT_PITY_START ? "｜基礎" : "｜軟保底"}</span></div><div><b>常駐五星完整角色</b><span>${percentText(currentPermanentRate)}</span></div><div><b>四星完整角色</b><span>${percentText(currentFourStarCharacterRate)}</span></div><div><b>五星角色碎片</b><span>${percentText(currentFiveStarFragmentRate)}｜每次 +${SUMMON_FRAGMENT_REWARD}</span></div><div><b>四星角色碎片</b><span>${percentText(currentFourStarFragmentRate)}｜每次 +${SUMMON_FRAGMENT_REWARD}</span></div><div><b>培養素材</b><span>${percentText(currentMaterialRate)}｜每次 ×1</span></div>`
+        : `<div><b>常駐五星完整角色</b><span>${percentText(currentPermanentRate)}</span></div><div><b>四星完整角色</b><span>${percentText(currentFourStarCharacterRate)}</span></div><div><b>五星角色碎片</b><span>${percentText(currentFiveStarFragmentRate)}｜每次 +${SUMMON_FRAGMENT_REWARD}</span></div><div><b>四星角色碎片</b><span>${percentText(currentFourStarFragmentRate)}｜每次 +${SUMMON_FRAGMENT_REWARD}</span></div><div><b>培養素材</b><span>${percentText(currentMaterialRate)}｜每次 ×1</span></div>`;
+    const summonActions = `<div class="summon-actions"><button class="mini-btn" ${shardTotal<SUMMON_SINGLE_COST||animation?.busy?"disabled":""} onclick="performSummon(1)"><b>單次招募</b><small>消耗 ${SUMMON_SINGLE_COST} 結晶</small></button><button class="mini-btn gold" ${shardTotal<SUMMON_TEN_COST||animation?.busy?"disabled":""} onclick="performSummon(10)"><b>十次招募</b><small>消耗 ${SUMMON_TEN_COST} 結晶</small></button></div>`;
+    const lineup = shown.map(id => { const d = CHAR_TABLE[id]; return `<div class="summon-lineup-face" title="${d.name}">${unitFace(d.unit,d.rarity,"walk_front",d.name.slice(0,1))}</div>`; }).join("");
+    const animationMarkup = animation ? `<div class="summon-overlay" onclick="if(event.target===this)closeSummonPopup()"><section class="summon-animation ${animation.revealed ? "revealed" : ""} ${animation.gold ? "gold-hit" : ""} ${animation.limited ? "limited-hit" : ""}" aria-live="polite"><button type="button" class="summon-close" aria-label="關閉招募結果" onclick="closeSummonPopup()">×</button><div class="summon-stage"><span class="summon-pin pin-a"></span><span class="summon-pin pin-b"></span><span class="summon-pin pin-c"></span><div class="summon-bumper"><i></i></div><div class="summon-marble"></div><span class="summon-hit-ring"></span><b class="summon-stage-caption">${animation.pool === "limited" ? "限定招募" : "常駐招募"}</b></div>${animation.busy && !animation.revealed ? `<button type="button" class="summon-skip" onclick="skipSummonAnimation()">立即揭曉 ›</button>` : ""}<div class="summon-results-grid ${animation.count === 1 ? "single" : ""}">${animation.revealed ? animation.prizes.map(summonPrizeMarkup).join("") : `<div class="summon-reveal-hint">彈珠彈跳中…</div>`}</div></section></div>` : "";
+    return `<section class="gacha-shop"><header class="summon-head"><div><small>四屬精選五星招募</small><h2>${limited ? "限定五星角色池" : "常駐五星角色池"}</h2><p>${limited ? `限定精選火、水、雷、風各 1 位；限定基礎機率 0.1%，另有常駐五星 1.0%。` : `常駐精選火、水、雷、風各 1 位；完整角色機率 1.0%。`}</p></div><div class="summon-currency"><span>💎</span><b>${shardTotal}</b><small>結晶</small></div></header>
+        <p class="summon-acquisition-note">五星角色只能透過轉蛋取得。四星角色可抽完整角色，也能從轉蛋或一般戰鬥收集碎片；集滿 10 片自動兌換，異界商店也可兌換四星碎片。</p>
+        ${summonActions}
+        <div class="summon-pool-select"><button class="pool-limited ${limited ? "active" : ""}" onclick="setGachaPool('limited')">限定五星</button><button class="pool-permanent ${!limited ? "active" : ""}" onclick="setGachaPool('permanent')">常駐五星</button></div>
+        <div class="summon-banner ${limited ? "pool-limited" : "pool-permanent"}"><div class="summon-banner-copy"><span class="summon-banner-kicker">${limited ? "LIMITED 5★ RECRUIT" : "PERMANENT 5★ RECRUIT"}</span><b>${limited ? "四屬限定精選" : "四屬常駐精選"}</b><small>${limited ? `火、水、雷、風各一位｜限定本抽 ${percentText(currentLimitedRate)}，常駐五星 1.0%` : "火、水、雷、風各一位｜完整角色機率 1.0%"}</small></div><div class="summon-lineup">${lineup}${eligible.length > shown.length ? `<span>+${eligible.length-shown.length}</span>` : ""}</div></div>
+        <div class="summon-pity"><span>限定保底進度</span><b>${limitedSummonCount} / ${SUMMON_LIMITED_PITY}</b><div class="summon-pity-track"><i style="width:${Math.min(100,limitedSummonCount/SUMMON_LIMITED_PITY*100)}%"></i></div><div class="summon-pity-rule"><b>${limited ? "限定池保底規則" : "保底進度保留"}</b>${limited ? `<span>基礎機率 0.1% → 第 91 抽起每抽增加 0.5 個百分點 → 第 ${SUMMON_LIMITED_PITY} 抽必得限定五星。</span><span>抽到限定五星後歸零；抽到常駐五星不重置。切換常駐池不會消耗限定保底進度。</span>` : `<span>目前限定保底 ${limitedSummonCount} / ${SUMMON_LIMITED_PITY}。只有在限定池抽數會累積進度，抽中限定五星後歸零。</span>`}</div></div>
+        <div class="summon-rates"><h3>獎項機率</h3>${rates}<small>四星完整角色重複時轉成 10 片；五星完整角色重複時也轉成 10 片。角色碎片滿 10 片會自動解鎖。</small></div>
+        </section>${animationMarkup}`;
+}
+
+function pageExchangeShop() {
+    return `<div class="pg-sec">異界迴廊兌換所</div><p class="shop-intro">首次擊破獲得 5 枚徽記，重複擊破獲得 2 枚。徽記依屬性分開使用；角色碎片沿用角色像素圖示。</p>${BOSS_STAGES.map(g => {
+        const token = gateTokens[g.id] || 0;
+        const rows = OPEN_CHAR_IDS.filter(id => CHAR_TABLE[id].rarity === 4 && CHAR_TABLE[id].element === g.el && (roster[id].unlocked ? growthCap(roster[id]) < 100 : true)).slice(0, 8);
+        return `<section class="shop-gate"><h3 class="shop-gate-head"><img class="shop-element-icon" src="asset/ui/element-${g.el}.svg" alt="${ELEMENTS[g.el].label}屬性">${ELEMENTS[g.el].label}屬性兌換<span class="shop-token"><img class="shop-element-icon" src="asset/ui/element-${g.el}.svg" alt="">${token} 枚</span></h3><div class="shop-products">${rows.map(id => {
+            const d=CHAR_TABLE[id], ch=roster[id], cost=3, action=ch.unlocked ? '培養碎片' : '角色碎片';
+            return `<article class="shop-product"><div class="shop-product-art">${unitFace(d.unit,d.rarity,'walk_front',d.name.slice(0,1))}</div><div class="shop-product-info"><div class="shop-product-name">${d.name}</div><div class="shop-product-desc">${action} ×1</div></div><button class="mini-btn gold" ${token<cost?'disabled':''} onclick="buyGateItem('${g.id}','${id}')">${cost} 枚兌換</button></article>`;
+        }).join('')}</div><div class="shop-material"><article class="shop-product"><div class="shop-product-art"><img class="shop-item-icon" src="https://db.irowiki.org/image/item/756.png" alt="粗糙的神之金屬" loading="lazy" referrerpolicy="no-referrer"></div><div class="shop-product-info"><div class="shop-product-name">粗糙的神之金屬</div><div class="shop-product-desc">RO 道具｜角色經驗 +100；無可培養角色時轉星粒 +5</div></div><button class="mini-btn" ${token<2?'disabled':''} onclick="buyGateMaterial('${g.id}')">2 枚兌換</button></article></div></section>`;
+    }).join('')}`;
+}
+
+// 道具頁只統計目前遊戲真正會用到的資源，不額外做格子容量或裝備欄。
+function setInventoryFilter(filter) {
+    inventoryFilter = ["all", "shards", "materials", "tokens"].includes(filter) ? filter : "all";
+    renderPage();
+}
+function inventoryRow(icon, name, desc, count, action = "") {
+    return `<article class="inventory-row${action ? " has-action" : ""}"><div class="inventory-row-art">${icon}</div><div><div class="inventory-row-name">${name}</div><div class="inventory-row-desc">${desc}</div></div><div class="inventory-count">×${count}</div>${action}</article>`;
+}
+function pageItems() {
+    const filters = [["all", "全部"], ["shards", "角色碎片"], ["materials", "培養素材"], ["tokens", "徽記"]];
+    const filterBar = `<div class="inventory-filters">${filters.map(([key, label]) => `<button class="mini-btn ${inventoryFilter === key ? "gold" : ""}" onclick="setInventoryFilter('${key}')">${label}</button>`).join("")}</div>`;
+    const fragments = OPEN_CHAR_IDS.filter(id => (roster[id]?.shards || 0) > 0)
+        .sort((a,b) => (roster[b].shards - roster[a].shards) || CHAR_TABLE[a].name.localeCompare(CHAR_TABLE[b].name, "zh-Hant"));
+    const tokenTotal = BOSS_STAGES.reduce((sum, gate) => sum + (gateTokens[gate.id] || 0), 0);
+    const showAll = inventoryFilter === "all";
+    let rows = "";
+    if (showAll || inventoryFilter === "materials") {
+        rows += `<div class="pg-sec">培養素材</div>${inventoryRow('<img src="https://db.irowiki.org/image/item/756.png" alt="">', "粗糙的神之金屬", "使用後讓隊伍中一名角色獲得 100 經驗", cultivationMaterials, cultivationMaterials > 0 ? '<button class="mini-btn inventory-action" onclick="useCultivationMaterial()">使用</button>' : "")}`;
+    }
+    if (showAll || inventoryFilter === "tokens") {
+        rows += `<div class="pg-sec">共通資源</div>${inventoryRow("💎", "結晶", "戰鬥掉落與系統獎勵", shardTotal)}`;
+        rows += `<div class="pg-sec">屬性徽記</div>` + BOSS_STAGES.map(g => inventoryRow(`<img src="asset/ui/element-${g.el}.svg" alt="">`, `${ELEMENTS[g.el].label}徽記`, "異界迴廊兌換所使用", gateTokens[g.id] || 0)).join("");
+    }
+    if (showAll || inventoryFilter === "shards") {
+        rows += `<div class="pg-sec">角色碎片 <span class="rsec-n">${fragments.length} 種</span></div>`;
+        rows += fragments.length ? fragments.map(id => {
+            const d = CHAR_TABLE[id], ch = roster[id];
+            return inventoryRow(unitFace(d.unit,d.rarity,"walk_front",d.name), `${d.name}碎片`, ch.unlocked ? `上限解放進度｜${growthCap(ch)}/100` : `解鎖進度｜${ch.shards}/${d.need}`, ch.shards);
+        }).join("") : `<div class="pg-empty">目前沒有角色碎片</div>`;
+    }
+    const currentTotal = cultivationMaterials + shardTotal + tokenTotal + fragments.reduce((sum,id) => sum + roster[id].shards, 0);
+    return `<div class="pg-sec">通貨統計</div><div class="inventory-summary"><div class="inventory-total"><b>${currentTotal}</b><span>資源總數</span></div><div class="inventory-total"><b>${cultivationMaterials}</b><span>培養素材</span></div><div class="inventory-total"><b>${fragments.reduce((sum,id) => sum + roster[id].shards,0)}</b><span>角色碎片</span></div></div>${filterBar}${rows}`;
+}
+
+function useCultivationMaterial() {
+    if (cultivationMaterials < 1) return;
+    const member = teamIds.map(id => roster[id]).find(ch => ch && growthCap(ch) < 100);
+    cultivationMaterials--;
+    if (member) {
+        addExp(member, 100);
+        log("🧪 使用粗糙的神之金屬，隊伍角色獲得經驗 +100。");
+    } else {
+        shardTotal += 5;
+        log("🧪 隊伍角色皆達培養上限，粗糙的神之金屬轉為結晶 +5。");
+    }
+    saveGame(); renderPage(); updateUI();
+}
+
+function buyGateItem(gateId, id) {
+    const g=BOSS_STAGES.find(x=>x.id===gateId), d=CHAR_TABLE[id], ch=roster[id], cost=3;
+    if(!g||!d||d.rarity!==4||d.element!==g.el||!ch||gateTokens[gateId]<cost) return;
+    if(ch.unlocked ? growthCap(ch)>=100 : false) return;
+    gateTokens[gateId]-=cost;
+    if(ch.unlocked) ch.shards+=1;
+    else { ch.shards=Math.min(d.need,ch.shards+1); if(ch.shards>=d.need) exchangeChar(id,{automatic:true}); }
+    log(`🛒 ${d.name} 碎片 ×1 已兌換。`); saveGame(); renderPage(); updateUI();
+}
+function buyGateMaterial(gateId) {
+    if((gateTokens[gateId]||0)<2) return;
+    gateTokens[gateId]-=2;
+    cultivationMaterials++;
+    log('🛒 粗糙的神之金屬 +1 已存入道具。'); saveGame(); renderPage(); updateUI();
+}
+
+// ---- 圖鑑：四屬四星與五星角色 ----
 const DEX_ROLE = { Sword: "劍士", Fist: "格鬥", Bow: "射擊", Support: "輔助", Special: "特殊" };
 const DEX_ROLES = Object.keys(DEX_ROLE);
 const EL_KEYS = OPEN_EL;
 const DEX_HERO = {}; CHAR_IDS.forEach(id => { DEX_HERO[CHAR_TABLE[id].unit] = id; });
 let dexF = { a: "", t: "", q: "" };
 let dexSelected = "";
-const DEX_ON = DEX.filter(c => c[1] === 5 && OPEN_ELEMENTS.has(c[2]) && (c[7] || DEX_HERO[c[0]]));
+const DEX_ON = DEX.filter(c => (c[1] === 4 || c[1] === 5) && OPEN_ELEMENTS.has(c[2]) && (c[7] || DEX_HERO[c[0]]));
 const esc = s => String(s).replace(/"/g, "&quot;");
 const dexFace = (dev, r, txt) => `<img loading="lazy" src="${CDN_BASE}rarity${r}/${dev}/walk_front.gif" alt="${txt}" onerror="if(this.dataset.f){this.parentNode.textContent='${txt}'}else{this.dataset.f=1;this.src='${CDN_BASE}rarity${r}/${dev}/neutral.gif'}">`;
 const dexDisplayName = name => String(name).replace(/\s*[（(].*$/u, "").trim();
@@ -6224,7 +6671,8 @@ function dexCell(c) {
     const hid = DEX_HERO[c[0]], ch = hid ? roster[hid] : null, own = ch && ch.unlocked;
     const displayName = dexDisplayName(c[3]);
     const note = [c[0], c[1] + "★", ELEMENTS[c[2]].label + "屬性", DEX_ROLE[c[5]] + "形態", c[3] + "・" + c[4], own ? "已解鎖 Lv." + ch.lvl : ""].filter(Boolean).join("｜");
-    return `<div class="dex-cell${hid ? " hero" : ""}${own ? " own" : ""}${dexSelected === c[0] ? " selected" : ""}" data-character="${c[0]}" aria-label="${esc(note)}" role="button" tabindex="0" aria-pressed="${dexSelected === c[0]}" onmouseenter="dexHover('${c[0]}',event)" onmousemove="dexHover('${c[0]}',event)" onmouseleave="dexHide()" onclick="dexSelect('${c[0]}',event)" onfocus="dexHover('${c[0]}',event)" onblur="dexHide()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();dexSelect('${c[0]}',event)}"><div class="art">${dexFace(c[0], c[1], displayName.slice(0, 1))}</div><span class="elb2 element-badge ${ELEMENTS[c[2]].cls}" role="img" aria-label="${ELEMENTS[c[2]].label}屬性" title="${ELEMENTS[c[2]].label}屬性">${ELEMENTS[c[2]].label}</span><div class="n">${displayName}</div><div class="t">${c[4]}</div><div class="rl">${DEX_ROLE[c[5]]}${own ? "・已解鎖" : hid ? "・我方" : ""}</div></div>`;
+    const poolLabel = summonCategory(c[0]) === "limited" ? "限定" : "常駐";
+    return `<div class="dex-cell summon-${summonCategory(c[0])}${hid ? " hero" : ""}${own ? " own" : ""}${dexSelected === c[0] ? " selected" : ""}" data-character="${c[0]}" aria-label="${esc(note)}" role="button" tabindex="0" aria-pressed="${dexSelected === c[0]}" onmouseenter="dexHover('${c[0]}',event)" onmousemove="dexHover('${c[0]}',event)" onmouseleave="dexHide()" onclick="dexSelect('${c[0]}',event)" onfocus="dexHover('${c[0]}',event)" onblur="dexHide()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();dexSelect('${c[0]}',event)}"><div class="art">${dexFace(c[0], c[1], displayName.slice(0, 1))}</div><img class="card-element-icon" src="asset/ui/element-${c[2]}.svg" alt="${ELEMENTS[c[2]].label}屬性" title="${ELEMENTS[c[2]].label}屬性"><div class="n">${displayName}</div><div class="t">${c[4]}</div><div class="rl">${poolLabel}・${DEX_ROLE[c[5]]}${own ? "・已解鎖" : hid ? "・我方" : ""}</div></div>`;
 }
 function dexDetailHTML(id) {
     const c = DEX_ON.find(row => row[0] === id);
@@ -6383,6 +6831,7 @@ function pageMenu() {
             · <b>隊長帶隊</b>：隊長在前、隊員跟隨；隊長倒下時由存活隊員暫時領隊<br>
             · <b>自動衝刺</b>：角色下落、低速或偏離目標時，自動朝上方敵人或弱點衝刺<br>
             · <b>強力彈射</b>：9／15／39 連擊後，彈板擊球時自動發動 Lv1／2／3<br>
+            · <b>阱洞</b>：兩塊彈板中間那個洞，球掉進去全隊扣血、連擊歸零，強力彈射一起打回 Lv0<br>
             · 撞怪累積技能能量，滿了會<b>自動施放</b>；FEVER 滿格後球速 ×2 並持續 10 秒<br>
             · 王關讀條時撞掉所有<b>弱點</b>即可打出 BREAK；<b>P</b> 或 <b>❚❚</b> 可暫停
         </div>
@@ -6399,7 +6848,7 @@ function pageMenu() {
             <b>美術素材</b> © Cygames, Inc. / Citail — World Flipper 公開素材，僅供學習交流用途<br>
             <b>煙霧特效</b> BDragon1727（Free Smoke Fx Pixel 2）<br>
             <b>打擊／衝刺特效</b> IceMaan（FREE PIXEL VFX ESSENTIALS）<br>
-            <b>強力彈射與職業被動特效</b> pixelfx（MIT，© Patch / Hugo Duprez）<br>
+            <b>強力彈射、職業被動與阱洞特效</b> pixelfx（MIT，© Patch / Hugo Duprez）<br>
             <b>音效</b> Kenney（CC0，Digital SFX Set）；artisticdude／OpenGameArt（CC0，Battle Sound Effects）<br>
             <b>點陣傷害數字</b> Riclmbr（CC0）
         </div>`;
@@ -6411,21 +6860,13 @@ function bindInput() {
     addEventListener("pointerdown", () => SFX.unlock(), true);
     addEventListener("keydown", () => SFX.unlock(), true);
     addEventListener("keydown", e => {
-        if (e.code === "Escape" || e.key === "Escape") {
-            e.preventDefault();
-            PF.holdL = PF.holdR = false;
-            if (GATE_MODE && window.parent !== window) {
-                window.parent.postMessage({ type: "wf-gate-close" }, GATE_TARGET);
-                return;
-            }
-            if (GATE_MODE || TRAINING_MODE || GATE.id) leaveGateContextForTower();
-            backHome();
-            return;
+        if (e.code === 'Escape' || e.key === 'Escape') {
+            e.preventDefault(); PF.holdL = PF.holdR = false; backHome(); return;
         }
+        if (e.code === "KeyP") { togglePause(); e.preventDefault(); return; }
         if (PF.paused) return;
         if (e.code === "ArrowLeft") { PF.holdL = true; PF.lastManual = performance.now(); e.preventDefault(); }
         else if (e.code === "ArrowRight") { PF.holdR = true; PF.lastManual = performance.now(); e.preventDefault(); }
-        else if (e.code === "KeyP") { togglePause(); e.preventDefault(); }
     });
     addEventListener("keyup", e => {
         if (e.code === "ArrowLeft") PF.holdL = false;

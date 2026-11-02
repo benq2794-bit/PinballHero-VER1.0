@@ -20,10 +20,17 @@ function setup(type, combo = 39) {
         deepElementMultiplier: () => 1, checkKill: noop, updateUI: noop, saveGame: noop,
         $: () => null, aliveMembers: () => [member], addCd: (m, n) => { m.ch.gauge += n; },
         FX: Object.fromEntries(['pop', 'art', 'bloom', 'laser'].map(k => [k, noop])),
-        SFX: Object.fromEntries(['impact', 'critical', 'hit'].map(k => [k, noop])) };
+        SFX: Object.fromEntries(['impact', 'critical', 'hit', 'powerFlip'].map(k => [k, noop])) };
     ctx.applyDamage = (who, damage, opt) => { hits.push({ who, damage, target: opt.target }); ctx.enemy.hp -= damage; ctx.combo += opt.combo || 0; };
     ctx.flipLevel = () => [9, 15, 39].filter(n => ctx.combo >= n).length;
+    ctx.window = ctx; ctx.mainAccountJob = 'warrior';
+    ctx.performance = { now: () => 0 }; ctx.elementMultiplier = () => 1;
+    ctx.mainAccountBonus = () => ({ powerFlipDamage: 0 });
+    ctx.showPowerFlipVFX = noop; ctx.showPassiveFX = noop;
     vm.createContext(ctx);
+    vm.runInContext(fs.readFileSync(path.join(root, 'asset/job-effects.js'), 'utf8'), ctx);
+    ctx.jobEffects = ctx.JobEffects.create({ getJob: () => ctx.mainAccountJob, isActive: () => false,
+        getStat: () => 1, getTalent: () => 0, isFever: () => false });
     vm.runInContext(fs.readFileSync(path.join(root, "asset/enemy-wave.js"), "utf8") + source + ';this.mode=POWER_FLIP;', ctx);
     return { ctx, member, body, hits };
 }
@@ -64,7 +71,7 @@ for (const type of ['knight', 'fighter', 'ranger', 'special', 'supporter']) {
 {
     const { ctx: c, body: b, hits } = setup('ranger');
     c.PF.foe.x = 20; c.launchPowerFlip(b); c.updatePowerFlip(16);
-    assert.equal(hits.length, 0, 'beam respects aim');
+    assert.equal(hits.length, 1, 'beam aims at the nearest living target');
 }
 {
     const { ctx: c, body: b, hits } = setup('special');
@@ -94,7 +101,7 @@ for (const block of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new 
 assert.match(html, /if \(swingingUp\)[\s\S]*launchPowerFlip\(b\)/);
 assert.match(html, /powerFlipContact\(m, target\)/);
 assert.match(html, /updatePowerFlip\(dt \* 1000\)/);
-assert.match(html, /POWER_FLIP.enabled \? 1 : 1 \+ combo/);
+assert.match(html, /POWER_FLIP.enabled \? POWER_FLIP\.buffPct : 0/);
 assert.ok(!html.includes('pp-power-flip') && !html.includes('togglePowerFlip'), 'no manual PF switch');
 assert.ok(!html.includes('p.powerFlipOn'), 'old disabled preference cannot turn off automatic PF');
 console.log('PASS: 5 classes × 3 levels; launch threshold, direction, cooldown, aim, pause, expiry, wave changes, independent targets, legacy mode, skill independence and syntax.');

@@ -592,18 +592,18 @@
 #app-frame .pg select option { background:#f5f7fa !important; color:#263238 !important; }
 
 /* Role roster: compact paged grid keeps the full catalogue in a single viewport. */
-#pg-body.char-directory-page { overflow:hidden !important; padding:8px 8px 5px !important; }
-.char-directory { height:100%; min-height:0; display:flex; flex-direction:column; gap:7px; color:#263238; }
+#pg-body.char-directory-page { overflow-x:hidden !important; overflow-y:auto !important; padding:8px 8px 5px !important; }
+.char-directory { min-height:100%; display:flex; flex-direction:column; gap:7px; color:#263238; }
 .char-directory-head { flex:none; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:3px 2px; }
 .char-directory-head > div { display:flex; align-items:baseline; gap:8px; min-width:0; }
 .char-directory-head b { color:#17394a; font-size:15px; font-weight:900; }
 .char-directory-head small,.char-directory-head > span { color:#50636d; font-size:10px; font-weight:700; }
 .char-directory-tools { flex:none; display:flex; flex-direction:column; gap:5px; }
 .char-directory-search { display:grid; grid-template-columns:minmax(0,1fr) 48px; gap:5px; }
-.char-directory-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
+.char-directory-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
 .char-directory-tools input,.char-directory-tools select { min-width:0; height:31px; padding:4px 7px; border:1px solid #8fb1c2 !important; border-radius:4px; background:#fff !important; color:#263238 !important; font-family:inherit; font-size:10px; font-weight:600; }
 .char-directory-tools button { min-width:0; padding:3px 5px; border:1px solid #6fa9c4 !important; border-radius:4px; background:linear-gradient(#fff,#e3f0f5) !important; color:#244858 !important; font-family:inherit; font-size:10px; font-weight:800; }
-.char-directory-grid { min-height:0; flex:1; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr)); gap:6px; }
+.char-directory-grid { min-height:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:108px; gap:6px; }
 .char-directory-grid .char-card { position:relative; min-width:0; min-height:0; margin:0; padding:5px 4px 4px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:2px; overflow:hidden;
     border:1px solid #a8c2ce !important; border-radius:5px; background:linear-gradient(160deg,#fff,#eef3f5) !important; box-shadow:0 1px 3px rgba(38,69,83,.14) !important; }
 .char-directory-grid .char-card.locked { opacity:.78; }
@@ -613,23 +613,23 @@
 .char-directory-grid .char-card .nm { display:block; overflow:hidden; color:#1c3542 !important; font-size:10px; line-height:1.2; font-weight:900; text-overflow:ellipsis; white-space:nowrap; }
 .char-card-tags { min-height:15px; display:flex; align-items:center; justify-content:center; gap:2px; overflow:hidden; }
 .char-directory-grid .char-card .tag2 { flex:none; padding:1px 3px; border-radius:3px; color:#fff !important; font-size:7px; line-height:1.25; font-weight:800; }
+.char-directory-grid .char-card .summon-tag { flex:none; padding:1px 3px; border:1px solid #8599a2; border-radius:3px; color:#344a54; background:linear-gradient(#f7fafb,#dfe8eb); font-size:7px; line-height:1.25; font-weight:800; }
+.char-directory-grid .char-card .summon-tag.limited { border-color:#c19b43; color:#684c0b; background:linear-gradient(#fff1bf,#f2d778); }
+.dex-cell.summon-limited .rl { color:#79570d; background:#fff0bb; border-color:#c49b3b; }
+.dex-cell.summon-permanent .rl { color:#344a54; background:#e5edf0; border-color:#9aafb8; }
 .char-directory-grid .char-card .sub { margin-top:2px; overflow:hidden; color:#465b65 !important; font-size:8px; line-height:1.2; white-space:nowrap; text-overflow:ellipsis; }
 .char-card-stat,.char-card-skill { overflow:hidden; color:#354b56; font-size:8px; line-height:1.2; white-space:nowrap; text-overflow:ellipsis; }
 .char-card-skill { color:#51656f; }
 .char-field-tag { color:#087ead; }
-.char-card-action { min-height:21px; margin-top:auto; padding:2px 6px !important; font-size:8px !important; line-height:1.1; }
 .char-directory-grid .char-card .bar { width:92%; height:4px; margin-top:3px; }
 .char-directory-empty { grid-column:1/-1; display:grid; place-items:center; color:#455a64; font-size:12px; }
-.char-directory-pages { flex:none; height:32px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.char-directory-pages span { color:#344b56; font-size:10px; font-weight:800; }
-.char-directory-pages button { min-width:82px; min-height:28px; border:1px solid #85adc0 !important; border-radius:4px; background:linear-gradient(#fff,#e5eef2) !important; color:#274957 !important; font-family:inherit; font-size:9px; font-weight:700; }
-.char-directory-pages button:disabled { opacity:.42 !important; }
 @media(max-height:700px) {
     .char-directory { gap:4px; }
     .char-directory-tools input,.char-directory-tools select { height:27px; }
     .char-directory-grid { gap:4px; }
     .char-card-art { width:36px; height:37px; }
     .char-directory-grid .char-card { padding:3px; }
+    .char-directory-grid { grid-auto-rows:100px; }
 }
 
 /* Stronger contrast for character growth and gate browser labels on light surfaces. */
@@ -983,3 +983,501 @@
 /* 已持有角色卡整張可點擊進入培養。 */
 #app-frame .char-directory-grid .char-card.cultivable { cursor:pointer; }
 #app-frame .char-directory-grid .char-card.cultivable:focus-visible { outline:2px solid #e9bb4d; outline-offset:1px; }
+
+/* 角色名冊與圖鑑共用同一套右上角屬性徽記。 */
+#app-frame .char-directory-grid .char-card,
+#app-frame .dex-cell { position:relative !important; }
+#app-frame .char-directory-grid .char-card .card-element-icon,
+#app-frame .dex-cell .card-element-icon {
+    position:absolute !important;
+    z-index:2;
+    top:4px !important;
+    right:4px !important;
+    display:block !important;
+    width:18px !important;
+    height:18px !important;
+    object-fit:contain;
+    image-rendering:pixelated;
+    filter:drop-shadow(0 1px 1px rgba(15,24,28,.5));
+}
+#app-frame .char-directory-grid .char-card .char-card-tags { padding-right:19px; }
+
+/* 通貨統計摘要使用足夠明亮的文字，避免深色底上讀不清。 */
+#app-frame #pg-body .inventory-summary .inventory-total b {
+    color:#fff0ad !important;
+    opacity:1 !important;
+    text-shadow:0 1px 2px #111 !important;
+}
+#app-frame #pg-body .inventory-summary .inventory-total span {
+    color:#f0f4f5 !important;
+    opacity:1 !important;
+    font-size:10px !important;
+    font-weight:700 !important;
+    text-shadow:0 1px 2px #111 !important;
+}
+
+/* 通貨統計與兌換商店內層沿用外層的銀白金屬卡片語彙。 */
+#app-frame #pg-body .inventory-total,
+#app-frame #pg-body .inventory-row,
+#app-frame #pg-body .shop-gate,
+#app-frame #pg-body .shop-product {
+    border-color:#a9b8bf !important;
+    background:linear-gradient(160deg,#ffffff 0%,#edf1f3 54%,#d8dfe2 100%) !important;
+    color:#263039 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -2px 0 rgba(78,91,98,.12),0 2px 5px rgba(28,42,49,.2) !important;
+}
+#app-frame #pg-body .inventory-total b { color:#7a5710 !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame #pg-body .inventory-total span,
+#app-frame #pg-body .inventory-row-name,
+#app-frame #pg-body .shop-product-name,
+#app-frame #pg-body .shop-gate-head { color:#263039 !important; text-shadow:0 1px 0 rgba(255,255,255,.8) !important; }
+#app-frame #pg-body .inventory-row-desc,
+#app-frame #pg-body .shop-product-desc,
+#app-frame #pg-body .shop-intro { color:#4c5b63 !important; text-shadow:none !important; }
+#app-frame #pg-body .inventory-count { color:#76530d !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame #pg-body .inventory-row-art,
+#app-frame #pg-body .shop-product-art {
+    border-color:#a5b3ba !important;
+    background:linear-gradient(145deg,#f9fbfb,#dce3e6) !important;
+    box-shadow:inset 0 1px 0 #fff !important;
+}
+#app-frame #pg-body .shop-token {
+    border-color:#a9b8bf !important;
+    background:linear-gradient(160deg,#fff,#dce2e5) !important;
+    color:#76530d !important;
+    text-shadow:0 1px 0 #fff !important;
+}
+#app-frame #pg-body .shop-material { border-top-color:#aab7bd !important; }
+
+/* 天賦頁同樣使用銀白金屬面板、清楚的深色文字與既有金色主要操作。 */
+#app-frame #pg-body.job-talent-page .jt-shell.jt-embedded {
+    --jt-primary:#8c989e !important;
+    --jt-secondary:#d7ad4b !important;
+    --jt-base:#e6ebed !important;
+    color:#263039 !important;
+    background:linear-gradient(160deg,#ffffff 0%,#eef2f4 48%,#dbe1e4 100%) !important;
+    border:1px solid #a9b8bf !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 5px rgba(28,42,49,.2) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded :is(.jt-header small,.jt-header h2,.jt-point b,.jt-point small,.jt-active-note,.jt-branch-name,.jt-detail-title b,.jt-detail p,.jt-footnote,.jt-root small,.jt-node small) {
+    color:#344149 !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.85) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-point,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail {
+    border-color:#a9b8bf !important;
+    background:linear-gradient(160deg,#ffffff,#e1e7e9) !important;
+    color:#263039 !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(28,42,49,.16) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-point b,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-title b { color:#263039 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-reset,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle {
+    border:1px solid #9aa8ae !important;
+    border-radius:5px !important;
+    background:linear-gradient(160deg,#ffffff 0%,#e9eef0 52%,#d2dade 100%) !important;
+    color:#263039 !important;
+    text-shadow:0 1px 0 #fff !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(28,42,49,.2) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab.active {
+    border-color:#9d7d36 !important;
+    background:linear-gradient(180deg,#fff3c6,#e9c96f 56%,#c9a74f) !important;
+    color:#382f1d !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy b,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy small,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button small,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle small { color:#43515a !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-icon,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button > span:first-child,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle > span:first-child {
+    border-color:#a0adb3 !important;
+    background:linear-gradient(145deg,#f8fafb,#c9d2d6) !important;
+    color:#344149 !important;
+    text-shadow:none !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas {
+    border-color:#a9b8bf !important;
+    background:linear-gradient(rgba(241,245,246,.83),rgba(225,231,233,.89)),url("ui/job-talents/shrine-background.png") center 52% / cover no-repeat !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas::before,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas::after { opacity:.08 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-mist { background:radial-gradient(ellipse at 50% 84%,rgba(255,255,255,.35),transparent 58%) !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-forest-floor { border-color:rgba(104,118,124,.25) !important;opacity:.14 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-trunk,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-branch { stroke:#7b888e !important;opacity:.35 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-link { stroke:#66747a !important;opacity:.35 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-link.lit { stroke:#bd9137 !important;opacity:.85 !important;filter:none !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-root-orb { fill:#fff !important;stroke:#9d7d36 !important;filter:none !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-root { border-color:#aa8a43 !important;background:radial-gradient(circle at 35% 30%,#fff,#d9dee0 78%) !important;box-shadow:inset 0 0 0 3px #aeb8bc,0 2px 5px rgba(28,42,49,.24) !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-root span { color:#4b5960 !important;text-shadow:none !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.available,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.learned,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.maxed {
+    --node-color:#87949a !important;
+    border:2px solid #8e9ba1 !important;
+    background:radial-gradient(circle at 35% 25%,#ffffff,#cbd3d7 78%) !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 0 #89959a,0 3px 5px rgba(28,42,49,.24) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.available { border-color:#bc9139 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.selected { outline:2px solid #d4af58 !important;outline-offset:2px; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.locked { opacity:.82 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node i { background:#56636a !important;color:#fff !important;border-color:#f4f6f6 !important;text-shadow:none !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-learn {
+    border-color:#b28b39 !important;
+    background:linear-gradient(180deg,#fff0a4 0%,#f2c54e 55%,#d3972e 100%) !important;
+    color:#38240e !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-learn small { color:#493b1d !important; }
+
+/* 編成頁隊長與隊友卡片：修正淺金屬底上的暗字。 */
+#app-frame #team :is(.fm-slot-kicker,.fm-captain-name,.fm-captain-sub,.fm-mini-stat,.fm-captain-skill,.fm-member-name,.fm-member small,.fm-roster-state,.fm-roster-section,.fm-roster-section .rsec-n) {
+    color:#263039 !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.8) !important;
+}
+#app-frame #team .fm-captain-name .element-badge { color:#fff !important;text-shadow:0 1px 1px rgba(0,0,0,.65) !important; }
+#app-frame #team .fm-member-actions button { color:#263039 !important;text-shadow:0 1px 0 #fff !important; }
+#app-frame #team .fm-roster-card .nm { color:#263039 !important; }
+#app-frame #team .fm-roster-card .sub { color:#43545d !important; }
+
+/* 天賦樹視覺聚焦：背景安靜，節點狀態一眼可辨。 */
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas {
+    background:linear-gradient(rgba(241,245,246,.94),rgba(225,231,233,.96)),url("ui/job-talents/shrine-background.png") center 52% / cover no-repeat !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas::before,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas::after,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-forest-floor { display:none !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-link { stroke:#8d989d !important;stroke-width:.65 !important;opacity:.24 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-link.lit { stroke:#bb8b29 !important;stroke-width:1.35 !important;opacity:.9 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node {
+    width:48px !important;
+    height:48px !important;
+    border-width:2px !important;
+    border-color:#8d999f !important;
+    background:linear-gradient(155deg,#ffffff 0%,#e5eaec 52%,#cbd3d7 100%) !important;
+    box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(71,83,89,.12),0 3px 0 #88949a,0 4px 7px rgba(31,44,50,.2) !important;
+    opacity:1 !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node .jt-icon { width:25px !important;height:25px !important;filter:grayscale(1) contrast(1.18) brightness(.58) !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node small {
+    top:49px !important;
+    max-width:82px !important;
+    padding:1px 4px !important;
+    border:1px solid rgba(144,156,162,.72) !important;
+    border-radius:3px !important;
+    background:rgba(248,250,250,.94) !important;
+    color:#26343b !important;
+    font-size:8px !important;
+    font-weight:800 !important;
+    line-height:1.25 !important;
+    text-shadow:none !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.available {
+    border-color:#b78320 !important;
+    background:linear-gradient(155deg,#fffdf5 0%,#fff0c2 54%,#e9cb7e 100%) !important;
+    box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(130,91,20,.16),0 0 0 2px rgba(199,153,54,.2),0 3px 0 #a17b31,0 5px 9px rgba(83,63,22,.25) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.available .jt-icon { filter:grayscale(.55) contrast(1.2) brightness(.62) !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.learned {
+    border-color:#78868d !important;
+    background:linear-gradient(155deg,#87949a 0%,#59666d 100%) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.56),inset 0 -2px 0 rgba(28,37,41,.2),0 3px 0 #59656b,0 4px 7px rgba(31,44,50,.22) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.learned .jt-icon,
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.maxed .jt-icon { filter:grayscale(1) brightness(2.15) contrast(.75) !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.maxed {
+    border-color:#a78337 !important;
+    background:linear-gradient(155deg,#fff2bf 0%,#e7c96f 57%,#c4a34e 100%) !important;
+    box-shadow:inset 0 1px 0 #fff8dd,inset 0 -2px 0 rgba(109,78,20,.15),0 3px 0 #9b7930,0 4px 8px rgba(31,44,50,.22) !important;
+}
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.maxed .jt-icon { filter:grayscale(1) contrast(1.1) brightness(.52) !important; }
+
+/* 轉蛋商店：沿用灰白金屬介面，保留金色招募主按鈕。 */
+#app-frame #pg-body .gacha-shop-tabs { display:flex; gap:8px; margin:0 0 12px; padding:6px; border:1px solid #87939a; border-radius:8px; background:linear-gradient(#dfe5e8,#aeb8bd); box-shadow:inset 0 1px #fff,0 2px 5px #0005; }
+#app-frame #pg-body .gacha-shop-tabs button,
+#app-frame #pg-body .summon-pool-select button { flex:1; min-height:34px; border:1px solid #68767e; border-radius:6px; color:#26323a; background:linear-gradient(#f9fbfc,#cbd4d9); font-weight:800; text-shadow:0 1px #fff; box-shadow:inset 0 1px #fff,0 2px 0 #7b878d; }
+#app-frame #pg-body .gacha-shop-tabs button.active,
+#app-frame #pg-body .summon-pool-select button.active { border-color:#a77b23; color:#4e3810; background:linear-gradient(#fff3c8,#dfb64e); box-shadow:inset 0 1px #fff8de,0 2px 0 #96712a; }
+#app-frame #pg-body .gacha-shop { display:grid; gap:12px; padding:12px; border:1px solid #849198; border-radius:9px; color:#edf1f3; background:linear-gradient(155deg,#343c42,#1a2025 68%,#11171b); box-shadow:inset 0 1px #ffffff24,0 4px 10px #0006; }
+#app-frame #pg-body .summon-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px; border:1px solid #89969d; border-radius:7px; background:linear-gradient(150deg,#4b555b,#252d32); }
+#app-frame #pg-body .summon-head h2 { margin:2px 0 4px; color:#fff; font-size:20px; }
+#app-frame #pg-body .summon-head p,#app-frame #pg-body .summon-head small { margin:0; color:#e0e5e8; font-size:12px; }
+#app-frame #pg-body .summon-head>div:first-child>small { color:#f1cb70; font-weight:800; letter-spacing:.08em; }
+#app-frame #pg-body .summon-acquisition-note { margin:7px 1px 0; padding:7px 9px; border-left:3px solid #c99a38; border-radius:3px; background:linear-gradient(90deg,#e7edf0,#f8fafb); color:#26343b; font-size:11px; font-weight:700; line-height:1.5; }
+#app-frame #pg-body .summon-currency { display:grid; grid-template-columns:auto auto; align-items:center; gap:0 5px; min-width:82px; padding:8px; border:1px solid #929da3; border-radius:7px; color:#fff; background:linear-gradient(#252d32,#11171b); text-align:center; }
+#app-frame #pg-body .summon-currency span { grid-row:span 2; font-size:20px; }
+#app-frame #pg-body .summon-currency b { font-size:16px; }
+#app-frame #pg-body .summon-currency small { grid-column:2; color:#cbd3d7; }
+#app-frame #pg-body .summon-pool-select { display:flex; gap:8px; }
+#app-frame #pg-body .summon-banner { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:104px; padding:12px; border:1px solid #a0a9ae; border-radius:8px; background:linear-gradient(115deg,#59646a,#2b3338 55%,#737d82); box-shadow:inset 0 1px #fff5,0 3px 7px #0006; }
+#app-frame #pg-body .summon-banner-copy { display:grid; gap:5px; }
+#app-frame #pg-body .summon-banner-kicker { color:#ffe08a; font-size:10px; font-weight:900; letter-spacing:.12em; }
+#app-frame #pg-body .summon-banner-copy b { color:#fff; font-size:18px; text-shadow:0 1px 2px #000; }
+#app-frame #pg-body .summon-banner-copy small { color:#edf1f2; }
+#app-frame #pg-body .summon-lineup { display:flex; align-items:center; gap:3px; }
+#app-frame #pg-body .summon-lineup-face { display:grid; place-items:center; width:36px; height:42px; overflow:hidden; border:1px solid #bcc5c9; border-radius:5px; background:linear-gradient(#dbe1e4,#7e898f); }
+#app-frame #pg-body .summon-lineup-face img { width:32px; height:38px; object-fit:contain; image-rendering:pixelated; }
+#app-frame #pg-body .summon-lineup>span { color:#fff; font-weight:800; white-space:nowrap; }
+#app-frame #pg-body .summon-pity,#app-frame #pg-body .summon-rates { padding:10px; border:1px solid #87939a; border-radius:7px; color:#f2f4f5; background:linear-gradient(#384147,#20272c); }
+#app-frame #pg-body .summon-pity { display:grid; grid-template-columns:1fr auto; gap:5px 8px; }
+#app-frame #pg-body .summon-pity>span { font-weight:800; }
+#app-frame #pg-body .summon-pity>b { color:#ffe08a; }
+#app-frame #pg-body .summon-pity-track { grid-column:1/-1; height:9px; overflow:hidden; border:1px solid #7e898f; border-radius:8px; background:#151a1e; }
+#app-frame #pg-body .summon-pity-track i { display:block; height:100%; border-radius:inherit; background:linear-gradient(#fff2bb,#d7a737); box-shadow:0 0 6px #f2bd4877; }
+#app-frame #pg-body .summon-pity-rule { grid-column:1/-1; display:grid; gap:4px; padding:8px 9px; border:1px solid #77868e; border-radius:5px; background:linear-gradient(#e7ecef,#cbd4d9); color:#243039; font-size:11px; line-height:1.5; }
+#app-frame #pg-body .summon-pity-rule b { color:#5c4314; font-size:12px; }
+#app-frame #pg-body .summon-pity-rule span { display:block; }
+#app-frame #pg-body .summon-rates h3 { margin:0 0 6px; color:#fff; }
+#app-frame #pg-body .summon-rates>div { display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-bottom:1px solid #ffffff20; font-size:12px; }
+#app-frame #pg-body .summon-rates>div b { color:#ffe08a; }
+#app-frame #pg-body .summon-rates>div span { color:#f1f3f4; text-align:right; }
+#app-frame #pg-body .summon-rates>small { display:block; margin-top:7px; color:#d3dade; }
+#app-frame #pg-body .summon-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+#app-frame #pg-body .summon-actions button { display:grid; gap:3px; min-height:48px; place-content:center; }
+#app-frame #pg-body .summon-actions button b { font-size:14px; }
+#app-frame #pg-body .summon-actions button small { font-size:11px; }
+#app-frame #pg-body .summon-actions button.gold { border-color:#987128 !important; color:#3b2a0a !important; background:linear-gradient(#fff0b4,#d8a733) !important; text-shadow:0 1px #fff8d9 !important; }
+#app-frame #pg-body .summon-animation { position:relative; padding:10px; border:1px solid #89969d; border-radius:8px; background:linear-gradient(#222a2f,#101519); }
+#app-frame #pg-body .summon-stage { position:relative; display:grid; place-items:center; height:120px; overflow:hidden; border:1px solid #75828a; border-radius:6px; background:radial-gradient(ellipse at 50% 88%,#909ba055,transparent 55%),linear-gradient(#182127,#252e34); }
+#app-frame #pg-body .summon-stage:before { content:""; position:absolute; inset:0; opacity:.16; background:repeating-linear-gradient(0deg,transparent 0 13px,#fff 14px,#fff 15px); }
+#app-frame #pg-body .summon-bumper { position:absolute; bottom:22px; width:110px; height:12px; border:2px solid #d8dfe2; border-radius:10px 10px 4px 4px; background:linear-gradient(#f4f6f7,#87939a); box-shadow:0 3px 0 #555f64,0 0 12px #d7e0e577; }
+#app-frame #pg-body .summon-bumper i { position:absolute; top:2px; left:12px; right:12px; height:2px; background:#fff; }
+#app-frame #pg-body .summon-marble { position:absolute; z-index:2; top:14px; left:calc(50% - 11px); width:22px; height:22px; border:2px solid #fff; border-radius:50%; background:radial-gradient(circle at 32% 28%,#fff 0 12%,#bdeaff 20%,#3b98c8 53%,#205270 78%); box-shadow:0 0 10px #a6e7ff, inset -3px -4px 5px #183340; animation:summon-flight 1.15s cubic-bezier(.45,.02,.74,.45) both; }
+#app-frame #pg-body .summon-animation.gold-hit .summon-marble { animation-name:summon-flight-gold; }
+#app-frame #pg-body .summon-animation.revealed .summon-marble { display:none; }
+#app-frame #pg-body .summon-hit-ring { position:absolute; left:50%; bottom:26px; width:20px; height:10px; border:2px solid #e8eef0; border-radius:50%; opacity:0; transform:translateX(-50%); }
+#app-frame #pg-body .summon-animation.gold-hit .summon-hit-ring { border-color:#ffe27c; box-shadow:0 0 10px #ffd44c; }
+#app-frame #pg-body .summon-animation:not(.revealed) .summon-hit-ring { animation:summon-impact .5s 1s ease-out both; }
+#app-frame #pg-body .summon-stage-caption { position:absolute; top:8px; color:#e7ecef; font-size:12px; text-shadow:0 1px 3px #000; }
+#app-frame #pg-body .summon-skip { display:block; margin:8px auto; padding:5px 12px; border:1px solid #9ba6ac; border-radius:5px; color:#283239; background:linear-gradient(#f5f7f8,#c4cdd1); font-weight:800; }
+#app-frame #pg-body .summon-results-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; margin-top:8px; }
+#app-frame #pg-body .summon-results-grid.single { grid-template-columns:minmax(0,1fr); max-width:180px; margin-right:auto; margin-left:auto; }
+#app-frame #pg-body .summon-result-card { display:grid; justify-items:center; gap:3px; min-width:0; padding:6px 3px; border:1px solid #8e9aa0; border-radius:6px; color:#26323a; background:linear-gradient(#edf1f2,#b9c3c8); text-align:center; }
+#app-frame #pg-body .summon-result-card.grand { border-color:#c29b3d; background:linear-gradient(#fff1be,#d8bd77); box-shadow:0 0 8px #e3bd5a66; }
+#app-frame #pg-body .summon-result-art { display:grid; place-items:center; width:38px; height:42px; overflow:hidden; border:1px solid #7c898f; border-radius:4px; background:linear-gradient(#56636a,#252d32); }
+#app-frame #pg-body .summon-result-art img { width:36px; height:40px; object-fit:contain; image-rendering:pixelated; }
+#app-frame #pg-body .summon-result-kind { color:#71551c; font-size:10px; font-weight:900; }
+#app-frame #pg-body .summon-result-card>b { overflow-wrap:anywhere; font-size:11px; }
+#app-frame #pg-body .summon-result-card>small { color:#3e4b51; font-size:9px; line-height:1.25; }
+#app-frame #pg-body .summon-reveal-hint { grid-column:1/-1; padding:8px; color:#e8edef; text-align:center; }
+@keyframes summon-flight { 0%{transform:translateY(-2px) scale(1);filter:none} 68%{transform:translateY(65px) scale(1);filter:none} 82%{transform:translateY(91px) scale(1.15,.78);filter:brightness(1.8)} 100%{transform:translateY(67px) scale(.75);filter:brightness(2.5)} }
+@keyframes summon-flight-gold { 0%{transform:translateY(-2px) scale(1);filter:none} 68%{transform:translateY(65px) scale(1);filter:none} 82%{transform:translateY(91px) scale(1.15,.78);filter:brightness(2.8) sepia(1) saturate(3)} 100%{transform:translateY(67px) scale(.75);filter:brightness(3) sepia(1) saturate(4)} }
+@keyframes summon-impact { 0%{opacity:.9;transform:translateX(-50%) scale(.4)} 100%{opacity:0;transform:translateX(-50%) scale(5,2.5)} }
+@media(max-width:380px) { #app-frame #pg-body .summon-lineup-face:nth-of-type(n+5){display:none} #app-frame #pg-body .summon-results-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
+/* 轉蛋商店提亮版：內容區改成淺銀金屬，文字用深灰提高閱讀對比。 */
+#app-frame #pg-body .gacha-shop {
+    border-color:#8f9ba1 !important;
+    color:#263238 !important;
+    background:linear-gradient(155deg,#f5f7f8 0%,#d9dfe2 48%,#c2cbd0 100%) !important;
+    box-shadow:inset 0 1px #fff,0 4px 10px #0004 !important;
+}
+#app-frame #pg-body .summon-head,
+#app-frame #pg-body .summon-pity,
+#app-frame #pg-body .summon-rates {
+    border-color:#9aa5aa !important;
+    color:#263238 !important;
+    background:linear-gradient(160deg,#f8fafb,#dce2e5) !important;
+    box-shadow:inset 0 1px #fff,0 2px 4px #0002 !important;
+}
+#app-frame #pg-body .summon-head h2,
+#app-frame #pg-body .summon-rates h3 { color:#18232a !important; text-shadow:0 1px #fff !important; }
+#app-frame #pg-body .summon-head p,
+#app-frame #pg-body .summon-head small,
+#app-frame #pg-body .summon-pity small,
+#app-frame #pg-body .summon-rates>small { color:#3e4a50 !important; }
+#app-frame #pg-body .summon-head>div:first-child>small,
+#app-frame #pg-body .summon-pity>b,
+#app-frame #pg-body .summon-rates>div b { color:#765514 !important; }
+#app-frame #pg-body .summon-currency { color:#263238 !important; border-color:#9ba6ab !important; background:linear-gradient(#f9fbfc,#d5dce0) !important; }
+#app-frame #pg-body .summon-currency small { color:#4a565c !important; }
+#app-frame #pg-body .summon-banner {
+    border-color:#8b979d !important;
+    background:linear-gradient(115deg,#d9e0e3 0%,#aeb9bf 55%,#e7ebed 100%) !important;
+    box-shadow:inset 0 1px #fff,0 3px 7px #0003 !important;
+}
+#app-frame #pg-body .summon-banner-copy b { color:#202b31 !important; text-shadow:0 1px #fff !important; }
+#app-frame #pg-body .summon-banner-copy small,
+#app-frame #pg-body .summon-lineup>span { color:#344149 !important; text-shadow:0 1px #fff !important; }
+#app-frame #pg-body .summon-banner-kicker { color:#725317 !important; }
+#app-frame #pg-body .summon-pity-track { background:#626e74 !important; }
+#app-frame #pg-body .summon-rates>div { border-bottom-color:#68757b55 !important; }
+#app-frame #pg-body .summon-rates>div span { color:#263238 !important; }
+#app-frame #pg-body .summon-stage { border-color:#89959a !important; background:radial-gradient(ellipse at 50% 88%,#fff9,transparent 55%),linear-gradient(#dfe5e8,#aeb9bf) !important; }
+#app-frame #pg-body .summon-stage:before { opacity:.12 !important; background:repeating-linear-gradient(0deg,transparent 0 13px,#344149 14px,#344149 15px) !important; }
+#app-frame #pg-body .summon-stage-caption { color:#263238 !important; text-shadow:0 1px #fff !important; }
+#app-frame #pg-body .summon-animation { border-color:#9aa5aa !important; background:linear-gradient(#edf1f3,#cbd3d7) !important; }
+#app-frame #pg-body .summon-reveal-hint { color:#263238 !important; }
+#app-frame #pg-body .summon-pool-select button.pool-limited.active {
+    border-color:#a77b23 !important;
+    color:#563d0e !important;
+    background:linear-gradient(#fff1b8,#dfb648) !important;
+    box-shadow:inset 0 1px #fff8dc,0 2px 0 #96712a,0 0 7px #d9ad4b55 !important;
+}
+#app-frame #pg-body .summon-pool-select button.pool-permanent.active {
+    border-color:#5e8497 !important;
+    color:#183746 !important;
+    background:linear-gradient(#e8f7fc,#a9cbd8) !important;
+    box-shadow:inset 0 1px #fff,0 2px 0 #6f929f,0 0 7px #78b5ce55 !important;
+}
+#app-frame #pg-body .summon-banner.pool-limited { border-left:4px solid #c99a38 !important; }
+#app-frame #pg-body .summon-banner.pool-permanent { border-left:4px solid #6d9eb2 !important; }
+#app-frame #pg-body .summon-banner.pool-permanent .summon-banner-kicker { color:#315d70 !important; }
+#app-frame #pg-body .summon-overlay {
+    position:fixed !important;
+    inset:0 !important;
+    z-index:10050 !important;
+    display:grid !important;
+    place-items:center !important;
+    background:rgba(6,12,17,.48) !important;
+    backdrop-filter:blur(2px);
+}
+#app-frame #pg-body .summon-overlay .summon-animation {
+    position:relative !important;
+    left:auto !important;
+    top:auto !important;
+    margin:auto !important;
+    width:min(480px,calc(100vw - 24px)) !important;
+    max-height:calc(100vh - 24px) !important;
+    overflow:auto !important;
+    padding:14px !important;
+    border:2px solid #8d9a9f !important;
+    border-radius:10px !important;
+    box-shadow:inset 0 1px #fff,0 12px 36px #0009 !important;
+}
+#app-frame #pg-body .summon-overlay .summon-close {
+    position:absolute;
+    z-index:5;
+    top:7px;
+    right:7px;
+    width:30px;
+    height:30px;
+    padding:0;
+    border:1px solid #77858b;
+    border-radius:50%;
+    color:#27333a;
+    background:linear-gradient(#fff,#c8d0d4);
+    font-size:22px;
+    font-weight:900;
+    line-height:26px;
+}
+#app-frame #pg-body .summon-overlay .summon-stage { height:138px !important; }
+#app-frame #pg-body .summon-overlay .summon-results-grid { padding-bottom:2px; }
+#app-frame #pg-body .summon-stage { overflow:hidden; }
+#app-frame #pg-body .summon-stage:after {
+    content:"";
+    position:absolute;
+    left:12%; right:12%; bottom:16px;
+    height:16px;
+    border-top:2px solid #e9f2f4;
+    border-radius:50%;
+    opacity:.7;
+    filter:drop-shadow(0 0 4px #fff);
+}
+#app-frame #pg-body .summon-pin {
+    position:absolute;
+    z-index:1;
+    width:13px; height:13px;
+    border:2px solid #f8fcff;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff 0 15%,#b9eaff 25%,#5b9ab3 70%,#465c67 100%);
+    box-shadow:inset 0 -2px 2px #26353c,0 2px 0 #66767e,0 0 7px #dff7ff88;
+}
+#app-frame #pg-body .summon-pin:after { content:"";position:absolute;inset:3px;border-radius:50%;background:#fff;box-shadow:0 0 5px #fff; }
+#app-frame #pg-body .summon-pin.pin-a { left:25%; top:37%; }
+#app-frame #pg-body .summon-pin.pin-b { left:67%; top:49%; }
+#app-frame #pg-body .summon-pin.pin-c { left:39%; top:69%; }
+#app-frame #pg-body .summon-marble {
+    animation:summon-pinball 1.6s cubic-bezier(.34,.02,.61,.99) both !important;
+    offset-path:none;
+}
+#app-frame #pg-body .summon-animation.gold-hit .summon-marble { animation-name:summon-pinball-gold !important; }
+#app-frame #pg-body .summon-animation.limited-hit .summon-marble { box-shadow:0 0 14px #ffe99a,0 0 26px #ffc94d,inset -3px -4px 5px #4a3517; }
+#app-frame #pg-body .summon-animation:not(.revealed) .summon-pin { animation:summon-pin-pulse .36s ease-out both; }
+#app-frame #pg-body .summon-animation:not(.revealed) .pin-a { animation-delay:.28s; }
+#app-frame #pg-body .summon-animation:not(.revealed) .pin-b { animation-delay:.62s; }
+#app-frame #pg-body .summon-animation:not(.revealed) .pin-c { animation-delay:.98s; }
+#app-frame #pg-body .summon-animation:not(.revealed) .summon-hit-ring { animation:summon-impact .55s 1.42s ease-out both; }
+@keyframes summon-pinball {
+    0%{transform:translate(0,-3px) rotate(0) scale(1);filter:none}
+    18%{transform:translate(-48px,24px) rotate(110deg) scale(1);filter:brightness(1.15)}
+    34%{transform:translate(42px,42px) rotate(240deg) scale(1);filter:brightness(1.2)}
+    51%{transform:translate(-34px,63px) rotate(390deg) scale(1);filter:brightness(1.15)}
+    66%{transform:translate(45px,77px) rotate(520deg) scale(1);filter:brightness(1.25)}
+    79%{transform:translate(-10px,72px) rotate(650deg) scale(1);filter:brightness(1.35)}
+    88%{transform:translate(0,80px) rotate(760deg) scale(1.35,.72);filter:brightness(2.1)}
+    100%{transform:translate(0,60px) rotate(900deg) scale(.82);filter:brightness(2.5)}
+}
+@keyframes summon-pinball-gold {
+    0%{transform:translate(0,-3px) rotate(0) scale(1);filter:none}
+    18%{transform:translate(-48px,24px) rotate(110deg) scale(1);filter:brightness(1.25)}
+    34%{transform:translate(42px,42px) rotate(240deg) scale(1);filter:brightness(1.35)}
+    51%{transform:translate(-34px,63px) rotate(390deg) scale(1);filter:brightness(1.35)}
+    66%{transform:translate(45px,77px) rotate(520deg) scale(1);filter:brightness(1.5)}
+    79%{transform:translate(-10px,72px) rotate(650deg) scale(1);filter:brightness(1.7) sepia(.35)}
+    88%{transform:translate(0,80px) rotate(760deg) scale(1.45,.7);filter:brightness(2.8) sepia(1) saturate(3)}
+    100%{transform:translate(0,60px) rotate(900deg) scale(.88);filter:brightness(3) sepia(1) saturate(4)}
+}
+@keyframes summon-pin-pulse { 0%{transform:scale(.75);filter:brightness(1)} 55%{transform:scale(1.55);filter:brightness(2)} 100%{transform:scale(1);filter:brightness(1)} }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.locked { opacity:.67 !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.selected { outline:2px solid #8b6924 !important;outline-offset:3px !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-root { z-index:3;width:40px !important;height:40px !important;border-width:2px !important; }
+#app-frame #pg-body.job-talent-page .jt-embedded .jt-root span { font-size:20px !important;font-weight:900 !important; }
+
+/* 角色上限解放星級：四次一般解放 + 一格未開放超限解放。 */
+#app-frame #pg-body .growth-stars {
+    display:flex; align-items:center; gap:5px; min-height:24px; margin:7px 0;
+    color:#e9eef0; font-size:15px; font-weight:800; letter-spacing:.04em;
+}
+#app-frame #pg-body .growth-stars-label { margin-right:3px; color:#d6e0e4; font-size:12px; font-weight:700; }
+#app-frame #pg-body .growth-star { color:#748188; font-size:21px; line-height:1; text-shadow:0 1px 1px #000; }
+#app-frame #pg-body .growth-star.earned {
+    color:#fff08a;
+    -webkit-text-stroke:.65px #fffbe0;
+    text-shadow:0 -1px #fffde2,0 1px #ffdb55,1px 2px #e4a824,2px 3px #9a5c0b,0 0 5px #fff07c,0 0 11px #ffd437;
+    filter:drop-shadow(0 2px 1px #30200a);
+}
+#app-frame #pg-body .growth-overlimit-label { margin-left:4px; color:#c1cbd0; font-size:10px; font-weight:700; white-space:nowrap; }
+#app-frame #pg-body .growth-overlimit-label b { color:#7e8a90; font-size:12px; text-shadow:0 1px #303a3f; }
+#app-frame #pg-body .growth-stars.compact { gap:2px; min-height:17px; margin:3px 0; }
+#app-frame #pg-body .growth-stars.compact .growth-stars-label { margin-right:2px; font-size:10px; }
+#app-frame #pg-body .growth-stars.compact .growth-star { font-size:15px; }
+#app-frame #pg-body .growth-stars.compact .growth-overlimit-label { margin-left:2px; font-size:8px; }
+#app-frame #pg-body .growth-stars.compact .growth-overlimit-label b { font-size:10px; }
+#app-frame #pg-body .growth-breakthrough-display { border-color:#87969d; }
+#app-frame #pg-body .growth-breakthrough-display { display:flex; align-items:center; gap:12px; }
+#app-frame #pg-body .growth-cultivate-btn { display:block; width:100%; margin-top:8px; white-space:normal; line-height:1.35; }
+#app-frame #pg-body .growth-path .growth-talent-plus {
+    display:inline-grid !important; place-items:center !important; flex:none !important;
+    width:30px !important; height:30px !important; min-width:30px !important; padding:0 !important;
+    border:0 !important; border-radius:50% !important; background-color:transparent !important;
+    background-image:url("ui/sao-utils/button-normal.png") !important; background-repeat:no-repeat !important;
+    background-position:center !important; background-size:100% 100% !important;
+    color:#26384a !important; font-size:19px !important; font-weight:900 !important; line-height:1 !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.75) !important; box-shadow:none !important; cursor:pointer;
+    transition:transform .08s ease,filter .1s linear !important;
+}
+#app-frame #pg-body .growth-path .growth-talent-plus:hover:not(:disabled) { background-image:url("ui/sao-utils/button-hover.png") !important; filter:brightness(1.05) !important; }
+#app-frame #pg-body .growth-path .growth-talent-plus:active:not(:disabled) { background-image:url("ui/sao-utils/button-press.png") !important; transform:scale(.95) !important; }
+#app-frame #pg-body .growth-path .growth-talent-plus:disabled { opacity:.42 !important; filter:grayscale(.85) !important; cursor:not-allowed !important; }
+#app-frame #pg-body .growth-path .growth-talent-plus:focus-visible { outline:2px solid #ffe28a !important; outline-offset:2px !important; }
+#app-frame #pg-body .growth-break-target {
+    flex:0 0 58px; width:58px; height:58px; display:grid; place-items:center; overflow:hidden;
+    border:1px solid #9daeb5; border-radius:6px;
+    background:radial-gradient(circle,#74858c 0,#34434a 58%,#1c292f 100%);
+    box-shadow:inset 0 1px #ffffff55,0 2px 4px #0007;
+}
+#app-frame #pg-body .growth-break-target img,
+#app-frame #pg-body .growth-break-target .sprite-placeholder { width:50px; height:50px; object-fit:contain; image-rendering:pixelated; }
+#app-frame #pg-body .growth-break-copy { min-width:0; flex:1; }
+#app-frame #pg-body .growth-break-copy .growth-stars { margin:4px 0; }
+@media(max-width:380px) {
+    #app-frame #pg-body .growth-breakthrough-display { gap:7px; }
+    #app-frame #pg-body .growth-break-target { flex-basis:48px; width:48px; height:48px; }
+    #app-frame #pg-body .growth-break-target img,
+    #app-frame #pg-body .growth-break-target .sprite-placeholder { width:42px; height:42px; }
+}
