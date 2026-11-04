@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>彈珠勇者</title>
+    <title>彈射之境</title>
     <style>
         * { box-sizing: border-box; }
         html.ui-booting .layout { visibility: hidden; }
@@ -1947,15 +1947,15 @@
 </head>
 <body>
 
-<section class="login-screen" id="login-screen" aria-label="彈珠勇者登入" hidden>
+<section class="login-screen" id="login-screen" aria-label="彈射之境登入" hidden>
     <div class="login-backdrop" aria-hidden="true"><span class="login-backdrop-fill"></span><span class="login-backdrop-art"></span><span class="login-backdrop-shade"></span></div>
     <div class="login-shell">
         <button class="login-settings-btn" type="button" onclick="openLoginSettings()" aria-label="開啟登入設定">⚙ 設定</button>
-        <img class="login-title-art" src="asset/login/title-art.jpeg" alt="彈珠勇者：與巴風特的無限連擊">
-        <div class="login-announcement"><span class="badge">!</span><div><b>冒險公告</b><span>歡迎回到彈珠勇者。登入後可將冒險進度同步至雲端，也能繼續以訪客模式遊玩。</span></div></div>
+        <img class="login-title-art" src="asset/login/title-art.jpeg" alt="彈射之境：與巴風特的無限連擊">
+        <div class="login-announcement"><span class="badge">!</span><div><b>冒險公告</b><span>歡迎來到彈射之境。建立帳號後設定遊戲名稱，即可開始冒險並同步雲端進度。</span></div></div>
         <section class="login-card" id="login-card">
-            <h1 id="login-heading">歡迎回來</h1>
-            <p class="login-caption" id="login-caption">登入後即可繼續本機保存的冒險進度</p>
+            <h1 id="login-heading">建立遊戲帳號</h1>
+            <p class="login-caption" id="login-caption">第 1 步｜建立帳號後，接著設定遊戲名稱，再進入主頁。</p>
             <div class="login-tabs" role="tablist" aria-label="登入或建立帳號">
                 <button type="button" class="login-tab active" id="login-mode-tab" onclick="setLoginMode('login')" role="tab" aria-selected="true">登入</button>
                 <button type="button" class="login-tab" id="signup-mode-tab" onclick="setLoginMode('signup')" role="tab" aria-selected="false">建立帳號</button>
@@ -1963,7 +1963,6 @@
             <button class="login-google" type="button" onclick="signInWithGoogleAccount()">G　使用 Google 帳號</button>
             <div class="login-divider">或使用電子郵件</div>
             <form class="login-form" id="account-form" onsubmit="submitAccountForm(event)">
-                <label id="account-name-wrap" hidden>冒險者名稱<input id="account-name-input" name="displayName" maxlength="18" autocomplete="nickname" placeholder="輸入遊戲名稱"></label>
                 <label>電子郵件<input id="account-email-input" name="email" type="email" autocomplete="email" required placeholder="name@example.com"></label>
                 <label>密碼<input id="account-password-input" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="至少 8 個字元"></label>
                 <label id="account-confirm-wrap" hidden>確認密碼<input id="account-confirm-input" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" placeholder="再次輸入密碼"></label>
@@ -1973,11 +1972,11 @@
             <p class="login-status" id="login-status" role="status" aria-live="polite"></p>
         </section>
         <section class="login-card account-name-step" id="account-name-step" hidden aria-labelledby="account-name-heading">
-            <h1 id="account-name-heading">設定主帳號名稱</h1>
-            <p class="login-caption">這個名稱會顯示在主頁與排行榜。</p>
+            <h1 id="account-name-heading">設定遊戲帳號名稱</h1>
+            <p class="login-caption">第 2 步｜這個名稱會顯示在主頁與排行榜。</p>
             <form class="login-form" onsubmit="submitMainAccountName(event)">
                 <label for="main-account-name-input">主帳號名稱<input id="main-account-name-input" name="mainAccountName" type="text" maxlength="16" autocomplete="nickname" required placeholder="輸入 1～16 個字"></label>
-                <button class="login-submit" type="submit">完成並進入遊戲</button>
+                <button class="login-submit" type="submit">完成並進入主頁</button>
             </form>
             <button class="login-guest" type="button" onclick="backToLoginCard()">返回登入畫面</button>
             <p class="login-status" id="account-name-status" role="status" aria-live="polite"></p>
@@ -3148,7 +3147,11 @@ async function activateCloudSession(session, { boot = false } = {}) {
     cloudUser = session.user;
     try {
         localStorage.setItem('wf_login_session', 'cloud');
+        localStorage.setItem('wf_has_account', '1');
         localStorage.removeItem('wf_login_requested');
+        if (!String(cloudUser.user_metadata?.account_name || '').trim()) {
+            localStorage.setItem('wf_account_name_required', '1');
+        }
     } catch (_) {}
     try {
         const remote = await SupabaseCloud.readSave(cloudUser.id);
@@ -3161,14 +3164,15 @@ async function activateCloudSession(session, { boot = false } = {}) {
                 return true;
             }
         } else {
-            const metadataName = String(cloudUser.user_metadata?.account_name || cloudUser.user_metadata?.name || '').trim().slice(0, 16);
+            const metadataName = String(cloudUser.user_metadata?.account_name || '').trim().slice(0, 16);
             if (!accountName && metadataName) { accountName = metadataName; accountCreated = true; saveGame(); }
             const local = saveStore.read();
             if (local.ok) await SupabaseCloud.writeSave(cloudUser.id, local.data);
             else saveGame();
         }
         const screen = $('login-screen');
-        if (accountName) {
+        const nameSetupRequired = localStorage.getItem('wf_account_name_required') === '1';
+        if (accountName && !nameSetupRequired) {
             if (screen) screen.hidden = true;
             $('account-name-step').hidden = true;
             $('login-card').hidden = false;
@@ -3220,16 +3224,20 @@ function initLoginScreen() {
     const needsAccountName = !String(accountName || "").trim();
     screen.hidden = guestSession && !loginRequested && !needsAccountName;
     if (!screen.hidden && guestSession && !loginRequested && needsAccountName) showAccountNameStep();
+    if (!guestSession && !loginRequested) {
+        const hasAccount = localStorage.getItem('wf_has_account') === '1'
+            || localStorage.getItem('wf_login_session') === 'cloud'
+            || localStorage.getItem('wf_account_name_required') === '1';
+        setLoginMode(hasAccount ? 'login' : 'signup');
+    }
     const range = $("login-volume-range");
     if (range) { range.value = Math.round(SFX.masterVolume * 100); $("login-volume-value").textContent = range.value + "%"; }
 }
 function setLoginMode(mode) {
     const signup = mode === "signup";
-    $("login-heading").textContent = signup ? "建立冒險者帳號" : "歡迎回來";
-    $("login-caption").textContent = signup ? "建立帳號後可跨裝置保存冒險進度。" : "登入後即可同步雲端冒險進度";
+    $("login-heading").textContent = signup ? "建立遊戲帳號" : "歡迎回來";
+    $("login-caption").textContent = signup ? "第 1 步｜建立帳號後，接著設定遊戲名稱，再進入主頁。" : "登入後即可同步雲端冒險進度";
     $("login-submit-btn").textContent = signup ? "建立帳號" : "登入遊戲";
-    $("account-name-wrap").hidden = !signup;
-    $("account-name-input").required = signup;
     $("account-confirm-wrap").hidden = !signup;
     $("account-confirm-input").required = signup;
     $("account-password-input").autocomplete = signup ? "new-password" : "current-password";
@@ -3251,20 +3259,31 @@ function backToLoginCard() {
     $("account-name-step").hidden = true;
     $("login-card").hidden = false;
 }
-function submitMainAccountName(event) {
+async function submitMainAccountName(event) {
     event.preventDefault();
     const input = $("main-account-name-input");
     const name = String(input?.value || "").trim().slice(0, 16);
     if (!name) { $("account-name-status").textContent = "請輸入主帳號名稱。"; input?.focus(); return; }
-    accountName = name;
-    accountCreated = true;
-    homeSig = "";
-    saveGame();
-    $("login-screen").hidden = true;
-    $("account-name-step").hidden = true;
-    $("login-card").hidden = false;
-    SFX.unlock();
-    updateUI();
+    const submit = event.submitter || $("account-name-step").querySelector('button[type="submit"]');
+    if (submit) submit.disabled = true;
+    try {
+        if (cloudUser && window.SupabaseCloud?.available) await SupabaseCloud.updateAccountName(name);
+        accountName = name;
+        accountCreated = true;
+        homeSig = "";
+        localStorage.removeItem('wf_account_name_required');
+        saveGame();
+        if (cloudUser && cloudSaveReady) await SupabaseCloud.flushSave(cloudUser.id);
+        $("login-screen").hidden = true;
+        $("account-name-step").hidden = true;
+        $("login-card").hidden = false;
+        SFX.unlock();
+        updateUI();
+    } catch (error) {
+        $("account-name-status").textContent = error.message || "名稱儲存失敗，請稍後再試。";
+    } finally {
+        if (submit) submit.disabled = false;
+    }
 }
 async function submitAccountForm(event) {
     event.preventDefault();
@@ -3272,23 +3291,24 @@ async function submitAccountForm(event) {
     const isSignup = !$('account-confirm-wrap').hidden;
     const email = $('account-email-input').value.trim();
     const password = $('account-password-input').value;
-    const name = String($('account-name-input').value || '').trim().slice(0, 16);
     if (isSignup && password !== $('account-confirm-input').value) { showLoginStatus('兩次輸入的密碼不一致，請再確認。'); return; }
     const submit = $('login-submit-btn');
     submit.disabled = true;
     showLoginStatus(isSignup ? '正在建立帳號…' : '正在登入…');
     try {
         if (isSignup) {
-            const data = await SupabaseCloud.signUp(email, password, name);
+            const data = await SupabaseCloud.signUp(email, password);
+            localStorage.setItem('wf_has_account', '1');
+            localStorage.setItem('wf_account_name_required', '1');
             if (data.session) {
-                accountName = name; accountCreated = true; saveGame();
                 await activateCloudSession(data.session);
-                if (cloudSaveReady) await SupabaseCloud.flushSave(data.user.id);
             } else {
-                showLoginStatus('帳號已建立。請到電子郵件收取驗證連結，驗證後再登入。');
+                setLoginMode('login');
+                showLoginStatus('帳號已建立。請先驗證電子郵件，再登入設定遊戲名稱並進入主頁。');
             }
         } else {
             const data = await SupabaseCloud.signIn(email, password);
+            localStorage.setItem('wf_has_account', '1');
             await activateCloudSession(data.session);
         }
     } catch (error) {
@@ -3307,6 +3327,7 @@ async function continueAsGuest() {
         }
         cloudUser = null; cloudSaveReady = false;
         localStorage.setItem('wf_login_session', 'guest');
+        localStorage.removeItem('wf_account_name_required');
         localStorage.removeItem('wf_login_requested');
     } catch (error) { showLoginStatus(error.message || '登出失敗，請稍後重試。'); return; }
     SFX.unlock();
@@ -8708,7 +8729,7 @@ function pageMenu() {
         <div class="pg-sec">戰績</div>
         <div class="pgc"><div class="st">無限波利塔 <b>${stage}</b>｜擊殺 <b>${kills}</b>｜總傷害 <b>${fmt(dmgTotal)}</b></div>
             <div class="sub" style="margin-top:5px">持有虹彩石 <b>${shardTotal}</b>｜展示稱號 <b>${titleName()}</b></div></div>
-        <div class="pg-empty">彈珠勇者・直式彈珠台<br>角色圖鑑</div>
+        <div class="pg-empty">彈射之境・直式彈珠台<br>角色圖鑑</div>
         <div class="pg-sec">授權</div>
         <div class="pg-credit">
             <b>美術素材</b> © Cygames, Inc. / Citail — World Flipper 公開素材，僅供學習交流用途<br>
@@ -8762,7 +8783,7 @@ if (resumed) saveGame(); // 將舊版「尚未完成開場引導」存檔平滑�
 if (!resumed) {
     stage = 1; spawnEnemy();
     if (!saveNote) saveGame();   // 球要到 PF.field 取得後才建（下方 syncTeamField），這裡提前建球會整段啟動崩掉
-    log(`🌅 <b>彈珠勇者</b>：無限波利塔 1，${enemy.name} 出現。`);
+    log(`🌅 <b>彈射之境</b>：無限波利塔 1，${enemy.name} 出現。`);
     log(`🧩 擊殺怪物掉<b style='color:#2ed573'>角色碎片</b>，一隻 10 片，湊滿就能兌換。`);
 } else {
     log(`📖 讀取存檔：深層 ${stage}｜擊殺 ${kills}｜上場 ${teamIds.length} 人`);

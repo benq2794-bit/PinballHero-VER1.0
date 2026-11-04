@@ -40,10 +40,15 @@ window.SupabaseCloud = (() => {
             if (error) throw error;
             return data.session;
         },
-        async signUp(email, password, accountName) {
+        async signUp(email, password) {
             const { data, error } = await requireClient().auth.signUp({
-                email, password, options: { data: { account_name: accountName }, emailRedirectTo: location.origin + location.pathname }
+                email, password, options: { emailRedirectTo: location.origin + location.pathname }
             });
+            if (error) throw error;
+            return data;
+        },
+        async updateAccountName(accountName) {
+            const { data, error } = await requireClient().auth.updateUser({ data: { account_name: accountName } });
             if (error) throw error;
             return data;
         },
