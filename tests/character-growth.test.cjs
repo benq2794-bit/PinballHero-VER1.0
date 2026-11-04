@@ -7,20 +7,21 @@ const ctx = { bossEntranceFreezesBattle: () => false, roster: {}, shardTotal: 10
     rankLv: 100,
     $: () => null, renderPage: noop, updateUI: noop, saveGame: noop, atkOf: ch => ch.baseAtk,
     hpMax: ch => Math.round(ch.maxHp * (1 + .04 * (ch.talents?.survival || 0))),
-    CHAR_TABLE: { hero: { name: '測試角色' } }, homeTabOn: 'chars', pickerFor: null };
+    CHAR_TABLE: { hero: { name: '測試角色' } }, homeTabOn: 'chars', pickerFor: null, unitFace: () => '',
+    addEventListener: noop, document: { addEventListener: noop, querySelector: () => null, hidden: false } };
 ctx.window = ctx;
-ctx.mainAccountJob = 'warrior'; ctx.TRAINING_MODE = false;
+ctx.TRAINING_MODE = false;
 ctx.mainAccountBonus = () => ({ skillDamage: 0, hp: 0 });
 ctx.elementMultiplier = () => 1;
 vm.createContext(ctx);
-for (const file of ['asset/damage-formulas.js', 'asset/reward-formulas.js', 'asset/combat-rules.js', 'asset/skill-system.js']) {
+for (const file of ['asset/game-data.js', 'asset/damage-formulas.js', 'asset/reward-formulas.js', 'asset/combat-rules.js', 'asset/skill-system.js']) {
     vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), ctx);
 }
 vm.runInContext(fs.readFileSync(path.join(root, 'asset/enemy-wave.js'), 'utf8'), ctx);
-vm.runInContext(fs.readFileSync(path.join(root, 'asset/job-effects.js'), 'utf8'), ctx);
-    ctx.jobEffects = ctx.JobEffects.create({ getJob: () => ctx.mainAccountJob, isActive: () => false,
-        getStat: () => 1, getTalent: () => 0, isFever: () => false });
-    vm.runInContext(src + ';this.setGrowthView=id=>{growthFor=id;};', ctx);
+vm.runInContext(fs.readFileSync(path.join(root, 'asset/type-effects.js'), 'utf8'), ctx);
+ctx.typeEffects = ctx.TypeEffects.create({ isActive: () => false,
+    getStat: () => 1, getTalent: () => 0, isFever: () => false });
+vm.runInContext(src + ';this.setGrowthView=id=>{growthFor=id;};', ctx);
 function make(overrides = {}) {
     return { id: 'hero', unlocked: true, lvl: 1, exp: 0, nextExp: 100, baseAtk: 12, maxHp: 150, hp: 150,
         shards: 0, growthVersion: 1, legacyCap: 30, breakthrough: 0, talents: { skill: 0, pf: 0, survival: 0 }, ...overrides };
@@ -67,17 +68,22 @@ function make(overrides = {}) {
 }
 {
     const ch = make(); ctx.roster.hero = ch; ctx.shardTotal = 1000;
-    ctx.upgradeTalent('hero', 'skill'); assert.equal(ch.talents.skill, 1); assert.equal(ctx.shardTotal, 980);
-    ctx.upgradeTalent('hero', 'pf'); assert.equal(ch.talents.pf, 1); assert.equal(ctx.shardTotal, 960);
+    // 天賦只花等級累積的天賦點，碎片留给上限解放，所以下面每一步 shardTotal 都不該動。
+    ctx.upgradeTalent('hero', 'skill'); assert.equal(ch.talents.skill, 1); assert.equal(ctx.shardTotal, 1000);
+    ctx.upgradeTalent('hero', 'pf'); assert.equal(ch.talents.pf, 1); assert.equal(ctx.shardTotal, 1000);
     ctx.upgradeTalent('hero', 'survival'); assert.equal(ch.talents.survival, 0, 'level-one budget is 2 points');
     ctx.resetTalents('hero'); assert.equal(ctx.shardTotal, 1000); assert.equal(ctx.talentUsed(ch), 0);
-    ctx.shardTotal = 0; ctx.upgradeTalent('hero', 'skill'); assert.equal(ch.talents.skill, 0);
-    ctx.shardTotal = 10000; ch.lvl = 60;
+    ctx.shardTotal = 0; ctx.upgradeTalent('hero', 'skill');
+    assert.equal(ch.talents.skill, 1, '碎片歸零照樣能點天賦');
+    ctx.resetTalents('hero');
+    ctx.shardTotal = 1000; ch.lvl = 60;
     for (let i = 0; i < 10; i++) ctx.upgradeTalent('hero', 'skill');
-    assert.equal(ch.talents.skill, 8, 'per-path cap');
+    assert.equal(ch.talents.skill, 10, '單條天賦不再有階級上限');
     for (let i = 0; i < 10; i++) ctx.upgradeTalent('hero', 'pf');
-    assert.equal(ctx.talentUsed(ch), 12, 'total talent cap');
-    ctx.resetTalents('hero'); assert.equal(ctx.shardTotal, 10000, 'full and exact refund');
+    assert.equal(ctx.talentUsed(ch), 14, '唯一上限是 2 + 等級/5 的天賦點預算');
+    assert.equal(ch.talents.pf, 4);
+    ctx.resetTalents('hero'); assert.equal(ctx.shardTotal, 1000, '重配只返還天賦點，不動碎片');
+    assert.equal(ctx.talentUsed(ch), 0);
     ch.hp = 75;
     for (let i = 0; i < 10; i++) { ctx.upgradeTalent('hero', 'survival'); ctx.resetTalents('hero'); }
     assert.ok(ch.hp <= 75, 'respec cannot farm healing');
@@ -95,24 +101,34 @@ function make(overrides = {}) {
 // Run the actual fragment drop function with deterministic randomness.
 const rollStart = html.indexOf('function rollShards()');
 const exchangeStart = html.indexOf('function exchangeChar(', rollStart);
-const exchangeEnd = html.indexOf('// ===== 開場選角', exchangeStart);
-const drops = html.slice(rollStart, html.indexOf('// 兌換：碎片滿', rollStart)) + html.slice(exchangeStart, exchangeEnd);
-ctx.CHAR_IDS = ['hero', 'locked']; ctx.CHAR_TABLE = {
+const exchangeEnd = html.indexOf('// ===== 開場隊伍', exchangeStart);
+const drops = html.slice(rollStart, html.indexOf('// 兌換：碎片滿', rollStart)) + html.slice(exchangeStart, exchangeEnd) +
+    // 兌換改由「實戰那一隊」的空位接手，把那段配隊邏輯一起拉進沙箱。
+    html.slice(html.indexOf('// 新角色只補進'), html.indexOf('// 開場或讀檔後把四隊對齊'));
+ctx.CHAR_IDS = ['locked']; ctx.CHAR_TABLE = {
     hero: { open: true, rarity: 4, need: 10, name: '已解鎖', element: 'fire', type: 'test' },
     locked: { open: true, rarity: 4, need: 10, name: '未解鎖', element: 'fire', type: 'test' }
 };
 ctx.ELEMENTS = { fire: { label: '火' } }; ctx.TYPE_INFO = { test: { n: '測試職業' } };
 ctx.roster = { hero: make({ shards: 9 }), locked: make({ id: 'locked', unlocked: false, shards: 9 }) };
 ctx.teamIds = ['hero']; ctx.TEAM_MAX = 3; ctx.syncTeamField = noop; ctx.spawnEnemy = noop; ctx.spawnFoe = noop;
-ctx.unisonMap = {}; ctx.enemy = { boss: false }; ctx.stage = 1;
+ctx.squads = [['hero'], [], [], []]; ctx.squadOn = 0; ctx.squadView = 0; ctx.editIds = ['hero'];
+ctx.unisonMap = {}; ctx.cultivationMaterials = 0; ctx.highGradeExperienceCrystals = 0; ctx.showTowerLoot = noop;
+// BOSS 層三種掉落全開；碎片分給「快滿 10 片」的未解鎖角色。
+ctx.enemy = { boss: true }; ctx.stage = 201;
 ctx.Math = Object.create(Math); ctx.Math.random = () => 0;
 vm.runInContext(drops, ctx); ctx.rollShards();
-assert.equal(ctx.roster.hero.shards, 10);
 assert.equal(ctx.roster.locked.unlocked, true, 'reaching the fragment requirement auto-unlocks the character');
 assert.equal(ctx.roster.locked.shards, 0, 'automatic unlock consumes the required fragments');
 assert.ok(ctx.teamIds.includes('locked'), 'an automatically unlocked character joins an empty team slot');
-ctx.rollShards(); assert.equal(ctx.roster.hero.shards, 11, 'unlocked fragments exceed unlock cost');
-assert.equal(ctx.roster.locked.shards, 1, 'unlocked characters continue receiving growth fragments');
+assert.ok(ctx.squads[0].includes('locked'), '自動上場只補進實戰那一隊（配隊1）');
+ctx.rollShards(); assert.equal(ctx.roster.locked.shards, 1, 'unlocked characters continue receiving growth fragments');
+assert.equal(ctx.roster.hero.shards, 9, '沒被抽中的角色不會跟著長碎片');
+// 非 BOSS 層只發經驗水晶，不掉碎片。
+ctx.enemy = { boss: false };
+ctx.rollShards();
+assert.equal(ctx.cultivationMaterials, 2, '201 層以上普通怪的經驗水晶下限是 2');
+assert.equal(ctx.roster.locked.shards, 1, '普通層不掉碎片');
 // Exercise the game's actual combat entry points, not just the talent counters.
 {
     const ch = make({ lvl: 60, talents: { skill: 2, pf: 0, survival: 8 } });
@@ -135,7 +151,7 @@ assert.equal(ctx.roster.locked.shards, 1, 'unlocked characters continue receivin
     let healPct = 0;
     ctx.applyHeal = (m, pct) => { healPct = pct; return 1; };
     ctx.skillCasts = ctx.SkillSystem.createRuntime({
-        skillHit: ctx.skillHit, dashTo: noop, repeat: noop, talentRank: ctx.talentRank,
+        skillHit: ctx.skillHit, skillVfx: noop, dashTo: noop, repeat: noop, talentRank: ctx.talentRank,
         applyHeal: ctx.applyHeal, cutCd: noop, aliveMembers: () => [member],
         getEnemy: () => ctx.enemy, getPartyState: () => ctx.PF,
         pop: noop, now: () => 0

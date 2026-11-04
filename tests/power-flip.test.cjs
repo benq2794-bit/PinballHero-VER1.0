@@ -23,13 +23,14 @@ function setup(type, combo = 39) {
         SFX: Object.fromEntries(['impact', 'critical', 'hit', 'powerFlip'].map(k => [k, noop])) };
     ctx.applyDamage = (who, damage, opt) => { hits.push({ who, damage, target: opt.target }); ctx.enemy.hp -= damage; ctx.combo += opt.combo || 0; };
     ctx.flipLevel = () => [9, 15, 39].filter(n => ctx.combo >= n).length;
-    ctx.window = ctx; ctx.mainAccountJob = 'warrior';
+    ctx.window = ctx;
+    vm.createContext(ctx);
+    vm.runInContext(fs.readFileSync(path.join(root, 'asset/game-data.js'), 'utf8'), ctx);
     ctx.performance = { now: () => 0 }; ctx.elementMultiplier = () => 1;
     ctx.mainAccountBonus = () => ({ powerFlipDamage: 0 });
     ctx.showPowerFlipVFX = noop; ctx.showPassiveFX = noop;
-    vm.createContext(ctx);
-    vm.runInContext(fs.readFileSync(path.join(root, 'asset/job-effects.js'), 'utf8'), ctx);
-    ctx.jobEffects = ctx.JobEffects.create({ getJob: () => ctx.mainAccountJob, isActive: () => false,
+    vm.runInContext(fs.readFileSync(path.join(root, 'asset/type-effects.js'), 'utf8'), ctx);
+    ctx.typeEffects = ctx.TypeEffects.create({ isActive: () => false,
         getStat: () => 1, getTalent: () => 0, isFever: () => false });
     vm.runInContext(fs.readFileSync(path.join(root, "asset/enemy-wave.js"), "utf8") + source + ';this.mode=POWER_FLIP;', ctx);
     return { ctx, member, body, hits };
@@ -100,7 +101,7 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 for (const block of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new Function(block[1]);
 assert.match(html, /if \(swingingUp\)[\s\S]*launchPowerFlip\(b\)/);
 assert.match(html, /powerFlipContact\(m, target\)/);
-assert.match(html, /updatePowerFlip\(dt \* 1000\)/);
+assert.match(html, /updatePowerFlip\(simDelta\)/);
 assert.match(html, /POWER_FLIP.enabled \? POWER_FLIP\.buffPct : 0/);
 assert.ok(!html.includes('pp-power-flip') && !html.includes('togglePowerFlip'), 'no manual PF switch');
 assert.ok(!html.includes('p.powerFlipOn'), 'old disabled preference cannot turn off automatic PF');

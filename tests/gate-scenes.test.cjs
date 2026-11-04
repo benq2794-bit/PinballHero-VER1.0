@@ -2,13 +2,21 @@ const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:a
 const root = path.resolve(__dirname, '..'), html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 let gateId = null, renders = 0;
 const ctx = { stage: 10, enemy: {}, homeTabOn: 'boss', renderPage: () => renders++, bossWin: { fire: 2 },
+    window: {},
     ELEMENTS: { fire: { label: '火', color: '#f00' }, water: { label: '水', color: '#00f' }, wind: { label: '風', color: '#0f0' }, thunder: { label: '雷', color: '#ff0' } },
     gateStats: () => ({ hp: 1000, atk: 20 }), foeStats: () => ({ hp: 100, atk: 5 }), fmt: String,
+    syncStamina: () => ({ value: 60, max: 60 }), StaminaSystem: { GATE_COST: 8 },
     BOSS_EVERY: 10, ENEMY_TABLE: [{ id: 'ordinary', name: '普通怪', icon: '●', element: 'fire' }],
     gateOf: () => ctx.gates.find(g => g.id === gateId) };
 vm.createContext(ctx);
-vm.runInContext(html.match(/const BOSS_TABLE = (\[[\s\S]*?\]);/)[0] + html.match(/const BOSS_STAGES = (\[[\s\S]*?\]);/)[0] +
-    html.slice(html.indexOf('const TOWER_BOSS_TABLE ='), html.indexOf('let enemy = {')) + ';this.gates=BOSS_STAGES;this.towerBossCount=TOWER_BOSS_TABLE.length;', ctx);
+vm.runInContext(fs.readFileSync(path.join(root, 'asset/game-data.js'), 'utf8'), ctx);
+vm.runInContext(`GAME_DATA = window.GAME_DATA;
+    BOSS_TABLE = GAME_DATA.bosses;
+    BOSS_STAGES = GAME_DATA.encounters.gates;
+    BOSS_EVERY = GAME_DATA.combatRules.tower.bossEvery;
+    ENEMY_TABLE = [{ id: 'ordinary', name: '普通怪', icon: '●', element: 'fire' }];
+    ${html.slice(html.indexOf('const TOWER_BOSS_TABLE ='), html.indexOf('let enemy = {'))}
+    this.gates = BOSS_STAGES; this.towerBossCount = TOWER_BOSS_TABLE.length;`, ctx);
 vm.runInContext(html.slice(html.indexOf('function spawnEnemy()'), html.indexOf('// 主頁異界迴廊：')), ctx);
 const towerIds = [];
 for (let i = 0; i < ctx.towerBossCount; i++) { ctx.spawnEnemy(); towerIds.push(ctx.enemy.id); assert.ok(ctx.enemy.battleSkinUrl.includes('/ro/')); }

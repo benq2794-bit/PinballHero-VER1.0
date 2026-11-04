@@ -96,7 +96,7 @@ new Function(source);
 for (const block of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new Function(block[1]);
 assert.match(html, /if \(!COLLISION_TRIAL.enabled \|\| n.canDamage\) \{/);
 assert.match(html, /if \(!COLLISION_TRIAL.enabled \|\| contact.canDamage\) hitFoe/);
-assert.match(html, /updateCollisionTrial\(dt \* 1000\)/);
+assert.match(html, /updateCollisionTrial\(simDelta\)/);
 assert.ok(!html.includes('pp-collision-trial') && !html.includes('toggleCollisionTrial'), 'no manual collision/auto-dash switch');
 assert.ok(!html.includes('p.collisionTrialOn'), 'old disabled preference cannot turn off automatic dash');
 assert.ok(!html.includes('btn-air-dash') && !html.includes('e.code === "KeyD"'), 'manual dash button and shortcut removed');
