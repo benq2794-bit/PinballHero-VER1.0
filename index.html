@@ -1336,9 +1336,6 @@
         .account-stats .as-name-row { display:flex; align-items:center; gap:7px; min-width:0; }
         .account-stats .as-identity b { display:block; min-width:0; overflow:hidden; color:#202b32; font-size:15px; font-weight:900; text-overflow:ellipsis; white-space:nowrap; }
         .account-stats .as-identity small { display:block; margin-top:4px; overflow:hidden; color:#52616a; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
-        .account-stats .as-rank { display:flex; align-items:baseline; gap:4px; padding:5px 7px; color:#27333b; border:1px solid #9aa6ad; background:linear-gradient(#f7f9fa,#d8dfe3); box-shadow:inset 0 1px 0 #fff; white-space:nowrap; }
-        .account-stats .as-rank small { color:#5b6870; font-size:8px; font-weight:800; letter-spacing:.06em; }
-        .account-stats .as-rank b { color:#202b32; font-size:15px; font-variant-numeric:tabular-nums; }
         .account-stats .as-close { position:absolute; right:0; top:0; align-self:auto; padding:0; color:#34414a; background:linear-gradient(#fbfcfc,#dce2e5); border:1px solid #a6b0b6; border-radius:50%; font-size:14px; font-weight:900; }
         .account-stats .as-summary { display:flex; justify-content:space-between; gap:5px; margin:6px 0; padding:7px 8px; color:#d5dce2; background:#101d2a; border:1px solid #354b60; font-size:11px; }
         .account-stats .as-summary strong { color:#ffe27c; }
@@ -8677,7 +8674,7 @@ function openAccountStats() {
         <div class="as-head">
             <button type="button" class="as-portrait title-portrait title-frame-${t.tier} avatar-edit-trigger" onclick="openAvatarPicker()" aria-label="更換主帳號頭像">${accountAvatarImageHTML()}<i>✎</i></button>
             <div class="as-identity"><div class="as-name-row"><b>${safeName}</b></div><small>展示稱號：${t.n}</small></div>
-            <span class="as-rank"><small>RANK</small><b>${rankLv}</b></span><button class="as-close" onclick="closeAccountStats()" aria-label="關閉">×</button>
+            <button class="as-close" onclick="closeAccountStats()" aria-label="關閉">×</button>
         </div>
         <div class="title-account-equipped"><span>目前展示</span><b class="hm-current-title" data-cat="${t.category}" data-tier="${t.tier}">${t.n}</b><strong>頭像框階級 ${t.tier}｜稱號加成已計入永久總和</strong></div>
         <section class="as-derived"><h3>主帳號加成｜全隊套用</h3><div class="as-derived-grid">${derived}</div></section>
