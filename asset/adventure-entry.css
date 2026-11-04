@@ -1,0 +1,183 @@
+#app-frame #adventure {
+    background:linear-gradient(180deg,#f7fafb 0%,#e8edef 64%,#dce4e7 100%) !important;
+}
+#app-frame #adventure .pg-head {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:0 10px;
+    background:linear-gradient(#fff,#e4eaec) !important;
+    border-bottom:1px solid #a5b3b9 !important;
+}
+#app-frame #adventure .pg-head .bk {
+    min-width:66px;
+    border:1px solid #8da0a7 !important;
+    border-radius:7px !important;
+    color:#263840 !important;
+    background:linear-gradient(#fff,#d9e2e5) !important;
+    font-weight:800;
+}
+#app-frame #adventure .pg-head .tt {
+    flex:1;
+    color:#26363d !important;
+    font-size:17px;
+    letter-spacing:.04em;
+}
+#app-frame #adventure .adventure-resources {
+    display:flex;
+    gap:5px;
+    align-items:center;
+}
+#app-frame #adventure .adventure-resources span {
+    padding:5px 7px;
+    border:1px solid #a2b0b5;
+    border-radius:7px;
+    background:linear-gradient(#fff,#e7edef);
+    color:#47616b;
+    font-size:10px;
+    font-weight:800;
+    white-space:nowrap;
+}
+#app-frame #adventure .adventure-resources b { color:#2f718d; }
+#app-frame #adventure .adventure-body {
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+    padding:10px 11px 14px;
+    overflow-y:auto;
+}
+#app-frame #adventure .adventure-mode-card {
+    padding:10px;
+    border:1px solid #9eacb1;
+    border-radius:11px;
+    background:linear-gradient(155deg,#fff 0%,#f0f4f5 58%,#e1e8ea 100%);
+    box-shadow:inset 0 1px #fff,0 2px 4px rgba(35,50,57,.15);
+}
+#app-frame #adventure .boss-mode-card { border-top:3px solid #6e9caf; }
+#app-frame #adventure .tower-mode-card { border-top:3px solid #87989e; }
+#app-frame #adventure .rogue-mode-card { border-top:3px solid #c59a39; }
+#app-frame #adventure .adventure-mode-heading {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+}
+#app-frame #adventure .adventure-mode-icon {
+    display:grid;
+    place-items:center;
+    width:42px;
+    height:42px;
+    flex:none;
+    border:2px solid #7f939b;
+    border-radius:4px;
+    background:#f2f7f8;
+}
+#app-frame #adventure .adventure-mode-icon img {
+    display:block;
+    width:32px;
+    height:32px;
+    image-rendering:pixelated;
+}
+#app-frame #adventure .rogue-mode-card .adventure-mode-icon {
+    border-color:#b48a2d;
+    background:#fff8e2;
+}
+#app-frame #adventure .rogue-mode-card .adventure-mode-icon img {
+    filter:saturate(.62) brightness(1.04);
+}
+#app-frame #adventure .adventure-mode-heading > div { min-width:0; flex:1; }
+#app-frame #adventure .adventure-mode-heading h2 {
+    margin:0;
+    color:#273940 !important;
+    font-size:15px;
+    line-height:1.2;
+    font-weight:900;
+}
+#app-frame #adventure .adventure-mode-tag {
+    padding:4px 6px;
+    border:1px solid #afbdc2;
+    border-radius:6px;
+    background:#f9fbfb;
+    color:#4b5d64;
+    font-size:9px;
+    font-weight:800;
+    white-space:nowrap;
+}
+#app-frame #adventure .rogue-mode-card .adventure-mode-tag {
+    border-color:#c9a54f;
+    color:#755819;
+    background:#fff9e8;
+}
+#app-frame #adventure .adventure-mode-desc {
+    margin:7px 1px 5px;
+    color:#35474e !important;
+    font-size:11px;
+    line-height:1.4;
+}
+#app-frame #adventure .adventure-mode-meta {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:6px;
+    margin:0 1px 7px;
+    color:#5c6b71;
+    font-size:9px;
+}
+#app-frame #adventure .adventure-mode-meta b {
+    color:#3c606d;
+    font-size:10px;
+    white-space:nowrap;
+}
+#app-frame #adventure .adventure-mode-action {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    width:100%;
+    min-height:34px;
+    border:1px solid #77939e;
+    border-radius:7px;
+    color:#263a42;
+    background:linear-gradient(#fff,#d9e4e8);
+    box-shadow:inset 0 1px #fff,0 2px 0 #a2b0b5;
+    font-family:inherit;
+    font-size:12px;
+    font-weight:900;
+    cursor:pointer;
+}
+#app-frame #adventure .adventure-mode-action:hover:not(:disabled) {
+    background:linear-gradient(#fff,#cbdde3);
+    border-color:#557f8f;
+}
+#app-frame #adventure .adventure-mode-action:focus-visible {
+    outline:3px solid #3d89a5;
+    outline-offset:2px;
+}
+#app-frame #adventure .rogue-mode-card .adventure-mode-action:disabled {
+    border-color:#a9b2b5;
+    color:#657177;
+    background:linear-gradient(#e5e9ea,#cfd7da);
+    box-shadow:inset 0 1px #f7f8f8,0 2px 0 #aab4b7;
+    cursor:not-allowed;
+}
+#app-frame #adventure .adventure-mode-status {
+    margin:6px 1px 0;
+    color:#5a666b !important;
+    font-size:9px;
+    text-align:center;
+}
+@media (max-height:720px) {
+    #app-frame #adventure .adventure-body { gap:7px; padding-top:7px; }
+    #app-frame #adventure .adventure-mode-card { padding:8px; }
+    #app-frame #adventure .adventure-mode-desc { margin:6px 1px 4px; }
+    #app-frame #adventure .adventure-mode-meta { margin-bottom:6px; }
+}
+@media (max-width:360px) {
+    #app-frame #adventure .pg-head { gap:5px; padding:0 7px; }
+    #app-frame #adventure .pg-head .bk { min-width:58px; padding:5px 7px; }
+    #app-frame #adventure .pg-head .tt { font-size:15px; }
+    #app-frame #adventure .adventure-resources { gap:3px; }
+    #app-frame #adventure .adventure-resources span { padding:4px 5px; font-size:9px; }
+    #app-frame #adventure .adventure-mode-tag { padding:3px 4px; font-size:8px; }
+    #app-frame #adventure .adventure-mode-desc { font-size:10px; }
+}

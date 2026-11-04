@@ -1,0 +1,51 @@
+#pg-body .character-exchange { display:grid; gap:10px; color:#eef4f7; }
+#pg-body .exchange-hero { display:flex; align-items:center; gap:11px; padding:13px; border:1px solid #8fa2ac; border-radius:10px; background:linear-gradient(145deg,#f8fbfc,#dce5e8); color:#263842; box-shadow:0 3px 9px rgba(10,20,28,.16),inset 0 1px #fff; }
+#pg-body .exchange-mark { display:grid; place-items:center; width:44px; height:44px; flex:none; border:1px solid #8da4ae; border-radius:10px; background:linear-gradient(#fff,#d4e0e4); color:#32677c; font-size:28px; font-weight:900; box-shadow:inset 0 1px #fff,0 2px 4px #18242b35; }
+#pg-body .exchange-hero small { color:#548091; font-size:8px; font-weight:900; letter-spacing:1.2px; }
+#pg-body .exchange-hero h2 { margin:2px 0 3px; color:#263d47; font-size:17px; letter-spacing:.06em; text-shadow:none; }
+#pg-body .exchange-hero p { margin:0; color:#5c7079; font-size:10px; }
+#pg-body .exchange-currency { display:grid; grid-template-columns:34px minmax(0,1fr) auto; align-items:center; gap:8px; min-height:57px; padding:8px 10px; border:1px solid #8799a1; border-radius:8px; background:linear-gradient(#eef3f5,#d5dfe3); color:#30434b; box-shadow:inset 0 1px #fff,0 2px 5px #10182022; }
+#pg-body .exchange-currency-icon { display:grid; place-items:center; width:31px; height:31px; border:1px solid #a8b7bc; border-radius:7px; background:linear-gradient(#fff,#e3eaed); color:#c49737; font-size:21px; font-weight:900; }
+#pg-body .exchange-currency span:nth-child(2) b { display:block; color:#263d47; font-size:11px; }
+#pg-body .exchange-currency span:nth-child(2) small { display:block; margin-top:2px; color:#667982; font-size:9px; }
+#pg-body .exchange-currency > strong { color:#64777f; font-size:15px; }
+#pg-body .exchange-section-title { display:flex; justify-content:space-between; align-items:center; padding:2px 1px 0; color:#eaf0f2; }
+#pg-body .exchange-section-title b { font-size:12px; }
+#pg-body .exchange-section-title span { color:#bac7cc; font-size:9px; }
+#pg-body .exchange-filters { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
+#pg-body .exchange-filters button { min-height:29px; border:1px solid #899ba3; border-radius:6px; background:linear-gradient(#f8fbfc,#d8e2e5); color:#425861; font:700 10px Arial,'Microsoft JhengHei',sans-serif; opacity:.72; }
+#pg-body .exchange-filters button.active { border-color:#9f813d; background:linear-gradient(#fff1c1,#e8c86c); color:#4f3c16; opacity:1; }
+#pg-body .exchange-empty { display:grid; justify-items:center; align-content:center; min-height:245px; padding:18px; border:1px dashed #8ea1aa; border-radius:10px; background:radial-gradient(ellipse at 50% 32%,rgba(255,255,255,.12),transparent 54%),linear-gradient(155deg,rgba(43,59,68,.92),rgba(19,29,37,.97)); text-align:center; }
+#pg-body .exchange-empty-art { display:flex; align-items:center; justify-content:center; gap:11px; width:116px; height:80px; margin-bottom:12px; border:1px solid #70838b; border-radius:12px; background:linear-gradient(145deg,#253640,#17232c); box-shadow:inset 0 1px rgba(255,255,255,.1),0 5px 12px rgba(0,0,0,.22); }
+#pg-body .exchange-empty-art i { color:#86b4c2; font-size:13px; font-style:normal; }
+#pg-body .exchange-empty-art b { display:grid; place-items:center; width:42px; height:42px; border:2px solid #d8e3e6; border-radius:50%; background:linear-gradient(#f8fbfc,#cbd8dc); color:#426776; font-size:27px; box-shadow:0 0 0 4px rgba(193,212,218,.15); }
+#pg-body .exchange-empty > strong { color:#f4f7f8; font-size:13px; }
+#pg-body .exchange-empty > p { max-width:265px; margin:6px 0 0; color:#c1cdd2; font-size:10px; line-height:1.6; }
+
+/* 常駐五星交換卡片與篩選控制 */
+#pg-body .exchange-tools { display:grid; grid-template-columns:minmax(0,1fr) 112px; gap:7px; }
+#pg-body .exchange-tools input,
+#pg-body .exchange-tools select { width:100%; min-width:0; height:36px; padding:0 9px; border:1px solid #82969f; border-radius:6px; background:linear-gradient(#fff,#e4ebee); color:#263842; font:600 11px Arial,'Microsoft JhengHei',sans-serif; }
+#pg-body .exchange-tools input::placeholder { color:#687b83; }
+#pg-body .exchange-character-list { display:grid; gap:7px; }
+#pg-body .exchange-character-card { display:grid; grid-template-columns:62px minmax(0,1fr); align-items:center; gap:9px; min-width:0; padding:8px; border:1px solid #8799a1; border-radius:8px; background:linear-gradient(145deg,#f8fbfc,#dbe4e7); color:#263842; box-shadow:inset 0 1px #fff,0 2px 5px #10182020; }
+#pg-body .exchange-character-art { position:relative; display:grid; place-items:center; width:58px; height:62px; overflow:hidden; border:1px solid #758993; border-radius:6px; background:linear-gradient(#263b48,#10202b); }
+#pg-body .exchange-character-art > img:first-child { width:52px; height:58px; object-fit:contain; image-rendering:pixelated; }
+#pg-body .exchange-character-art > img:last-child { position:absolute; top:2px; right:2px; width:17px; height:17px; object-fit:contain; image-rendering:pixelated; }
+#pg-body .exchange-character-info { display:grid; gap:3px; min-width:0; }
+#pg-body .exchange-character-title { display:flex; justify-content:space-between; align-items:center; gap:6px; }
+#pg-body .exchange-character-title b { overflow:hidden; color:#243944; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+#pg-body .exchange-character-title span { flex:none; color:#bc8c27; font-size:9px; letter-spacing:1px; }
+#pg-body .exchange-character-info > small { overflow:hidden; color:#5b7079; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }
+#pg-body .exchange-character-stats { color:#445961; font-size:9px; }
+#pg-body .exchange-buy { display:flex; justify-content:center; align-items:center; gap:5px; min-height:29px; margin-top:2px; border:1px solid #9d7622; border-radius:5px; background:linear-gradient(#fff0b7,#dfb34b); color:#49350d; font:800 10px Arial,'Microsoft JhengHei',sans-serif; box-shadow:inset 0 1px #fff8de,0 2px 0 #92702d; }
+#pg-body .exchange-buy img { width:17px; height:17px; object-fit:contain; image-rendering:pixelated; }
+#pg-body .exchange-buy:disabled { border-color:#9ba5aa; background:linear-gradient(#e5eaec,#c6d0d4); color:#53646b; box-shadow:inset 0 1px #fff; }
+#pg-body .exchange-buy.already { justify-self:stretch; }
+#pg-body .exchange-character-card.owned { opacity:.8; }
+@media (max-width:380px) {
+  #pg-body .exchange-character-card { grid-template-columns:52px minmax(0,1fr); gap:7px; padding:6px; }
+  #pg-body .exchange-character-art { width:49px; height:56px; }
+  #pg-body .exchange-character-art > img:first-child { width:45px; height:52px; }
+  #pg-body .exchange-tools { grid-template-columns:minmax(0,1fr) 96px; }
+}

@@ -11,36 +11,53 @@
     --ui-gold:#f2bd48;
 }
 
-/* 共用卡片與面板 */
-#app-frame .panel,
+/* 共用卡片與面板 */#app-frame .panel,
+
 #app-frame .pgc,
+
 #app-frame .bsg,
-#app-frame .starter .s-card,
+
+
 #app-frame #team .fm-panel,
+
 #app-frame #team .fm-unit,
+
 #app-frame #team .rcard,
+
 #app-frame #team .fm-roster-card,
+
 #app-frame .slot,
+
 #app-frame .pp-box,
+
 #app-frame .dex-cell,
+
 #app-frame .eq-cell,
+
 #app-frame .hm-status-card,
+
 #app-frame .hm-rank,
+
 #app-frame .hm-energy-card,
+
 #app-frame .hm-chip,
+
 #app-frame .gate-challenge-card,
+
 #app-frame .battle-log-panel,
+
 #app-frame .pg-head,
+
 #app-frame .account-stats .as-panel,
-#app-frame .job-talent-screen .jt-shell,
-#app-frame .job-talent-screen .jt-point,
-#app-frame .job-talent-screen .jt-passive,
-#app-frame .job-talent-screen .jt-detail,
-#app-frame .job-talent-screen .jt-canvas,
+
 #app-frame .account-stats .as-stat,
+
 #app-frame .account-stats .as-summary,
+
 #app-frame .account-stats .as-derived,
+
 #app-frame .account-stats .as-available,
+
 .gate-veil .gate-top {
     border-color:var(--ui-metal-line) !important;
     background:linear-gradient(155deg,#3b434a 0%,#292f35 42%,#1b2024 100%) !important;
@@ -93,6 +110,31 @@
 #app-frame .mini-btn:hover,
 #app-frame .pg .mi:hover,
 .gate-veil button:hover { border-color:#e0e4e7 !important; filter:brightness(1.08) !important; }
+#app-frame .pp-box { width:min(340px,calc(100% - 28px)); max-height:calc(100% - 24px); overflow-y:auto; }
+#app-frame .pp-boosts { padding:9px; border:1px solid #aeb8be; border-radius:9px; background:linear-gradient(150deg,#353d43,#252c31); }
+#app-frame .pp-boosts-head { display:flex; justify-content:space-between; align-items:center; margin:0 0 8px; color:#fff; font-size:12px; }
+#app-frame .pp-boosts-head span { display:flex; align-items:center; gap:5px; color:#fff; font-size:11px; font-weight:800; }
+#app-frame .pp-boosts-head span img { width:18px; height:18px; object-fit:contain; image-rendering:auto; }
+#app-frame .pp-boost-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+#app-frame .pp-box button.pp-boost { min-width:0; min-height:62px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:5px; padding:8px; border:1px solid #b7c1c7 !important; border-bottom:3px solid #7e8b92 !important; border-radius:7px; background:linear-gradient(180deg,#fff,#dce5e9) !important; color:#17232b !important; text-shadow:none !important; text-align:left; box-shadow:inset 0 1px 0 #fff,0 2px 0 #161b1e !important; }
+#app-frame .pp-boost b { display:block; color:#15232c !important; font-size:11px; font-weight:900; line-height:1.3; white-space:nowrap; }
+#app-frame .pp-boost b i { color:#a86b12; font-style:normal; }
+#app-frame .pp-boost small { width:100%; display:flex; justify-content:space-between; gap:3px; color:#344852 !important; font-size:9px; font-weight:700; line-height:1.2; }
+#app-frame .pp-boost small strong { color:#754a08 !important; font-size:9px; white-space:nowrap; }
+#app-frame .pp-boost small span { color:#344852 !important; white-space:nowrap; }
+#app-frame .pp-boost em { color:#17653a !important; font-size:9px; font-weight:800; font-style:normal; line-height:1.2; }
+#app-frame .pp-box button.pp-boost.active { border-color:#7dbb8c !important; border-bottom-color:#508260 !important; background:linear-gradient(180deg,#e9ffed,#c1e5c9) !important; color:#173b22 !important; }
+#app-frame .pp-boost.active b,#app-frame .pp-boost.active small,#app-frame .pp-boost.active small span { color:#173b22 !important; }
+#app-frame .pp-boost-confirm { position:absolute; inset:0; z-index:20; display:flex; align-items:center; justify-content:center; padding:14px; background:rgba(0,0,0,.62); }
+#app-frame .pp-boost-confirm[hidden] { display:none; }
+#app-frame .pp-boost-confirm-card { width:min(270px,100%); padding:14px; border:1px solid #c2ccd1; border-radius:10px; background:linear-gradient(155deg,#424b51,#252c31); color:#f2f5f7; box-shadow:0 8px 24px #000a; text-align:center; }
+#app-frame .pp-boost-confirm-card>b { color:#ffe08a; font-size:13px; }
+#app-frame .pp-boost-confirm-card p { margin:9px 0 12px; color:#edf1f3; font-size:11px; line-height:1.6; }
+#app-frame .pp-boost-confirm-actions { display:grid; grid-template-columns:1fr 1fr 1fr; align-items:center; gap:8px; }
+#app-frame .pp-box .pp-boost-confirm-actions button { width:100%; text-align:center; padding:7px 4px; }
+#app-frame .pp-box .pp-boost-confirm-actions button.confirm-buy { grid-column:2; }
+#app-frame .pp-box .pp-boost-confirm-actions button:not(.confirm-buy) { grid-column:3; }
+#app-frame .pp-box .pp-boost-confirm-actions button.confirm-buy { border-color:#ffe4a0 !important; background:linear-gradient(180deg,#fff0a4 0%,#f6c34e 53%,#d58a29 100%) !important; color:#38240e !important; text-shadow:0 1px 0 rgba(255,255,255,.55) !important; }
 #app-frame button:disabled { filter:grayscale(.7) brightness(.8) !important; opacity:.62; }
 #app-frame button.on,
 #app-frame button.active,
@@ -214,16 +256,10 @@
 #app-frame .pf-hud .mchip { border-color:#a0aab1 !important; background:linear-gradient(180deg,#555f66,#272e33) !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 4px rgba(0,0,0,.5) !important; }
 #app-frame .pf-hud .hud-pill b { color:#f0f2f4 !important; text-shadow:0 1px 2px #000 !important; }
 #app-frame .gate-top .gn,
-#app-frame .hm-job-badge,
 #app-frame .hm-rank-badge,
 #app-frame .hm-account-bonus { border-color:#a0aab1 !important; background:linear-gradient(#5b656c,#30373d) !important; color:#f0f2f4 !important; }
 
-/* 編成頁卡片與屬性面板 */
-#app-frame #team .fm-slot,
-#app-frame #team .fm-summary,
-#app-frame #team .fm-captain-art,
-#app-frame #team .fm-member-art,
-#app-frame #team .fm-roster-card,
+/* 編成頁屬性面板（編成卡本身改由檔案末尾的淺色編成總pass 負責，這裡不再壓暗色） */
 #app-frame .pg input,
 #app-frame .pg select,
 #app-frame .pg textarea,
@@ -231,33 +267,12 @@
 #app-frame select,
 #app-frame textarea { border-color:#89949b !important; background:linear-gradient(150deg,#424a50,#22282d) !important; color:#eff1f3 !important; }
 #app-frame .account-stats .as-portrait,
-#app-frame .account-stats .as-job-fixed { border-color:#aab3b9 !important; background:linear-gradient(#535d64,#30373c) !important; color:#f1f3f5 !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.4) !important; }
 #app-frame .account-stats .as-stat,
 #app-frame .account-stats .as-summary,
 #app-frame .account-stats .as-derived,
 #app-frame .account-stats .as-available { border-color:#89939a !important; background:linear-gradient(150deg,#3b4349,#23292e) !important; color:#e9edef !important; }
 
-/* 職業天賦與其他選擇介面不再有藍色節點光暈 */
-#app-frame .job-talent-screen .jt-shell { --jt-primary:#b8c1c7 !important; --jt-secondary:#edf0f2 !important; --jt-base:#242a2f !important;
-    background:linear-gradient(180deg,rgba(33,38,42,.97),rgba(12,15,18,.98)) !important; border-color:#89939a !important; box-shadow:inset 0 0 0 2px rgba(0,0,0,.6),0 2px 7px rgba(0,0,0,.45) !important; }
-#app-frame .job-talent-screen .jt-header,
-#app-frame .job-talent-screen .jt-passive,
-#app-frame .job-talent-screen .jt-detail,
-#app-frame .job-talent-screen .jt-canvas,
-#app-frame .job-talent-screen .jt-point,
-#app-frame .job-talent-screen .jt-active-note { border-color:#77828a !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 2px 5px rgba(0,0,0,.35) !important; }
-#app-frame .job-talent-screen .jt-job-tab,
-#app-frame .job-talent-screen .jt-job-tab.active,
-#app-frame .job-talent-screen .jt-detail-actions button { border-color:#9ca6ad !important; background:linear-gradient(#606a71,#30373d) !important; color:#f1f3f5 !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 4px rgba(0,0,0,.4) !important; }
-#app-frame .job-talent-screen .jt-node,
-#app-frame .job-talent-screen .jt-node.available,
-#app-frame .job-talent-screen .jt-node.learned,
-#app-frame .job-talent-screen .jt-node.maxed { --node-color:#c2c9ce !important; border-color:#a6afb5 !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 2px 4px rgba(0,0,0,.45) !important; }
-#app-frame .job-talent-screen .jt-node.selected { outline-color:#edf0f2 !important; }
-#app-frame .job-talent-screen .jt-tree-svg .jt-link.lit { stroke:#cbd1d5 !important; filter:none !important; }
-#app-frame .job-talent-screen .jt-root-orb { fill:#e3e7ea !important; stroke:#a0a9af !important; filter:none !important; }
-#app-frame .job-talent-screen .jt-root { border-color:#e3e7ea !important; box-shadow:inset 0 0 0 3px #262d32 !important; }
-#app-frame .job-talent-screen .jt-icon { filter:grayscale(1) !important; }
+/* 資訊列數值與其他選擇介面不再有藍色節點光暈 */
 #app-frame .mi .v,
 #app-frame .mi .v.off { color:#e0e4e7 !important; text-shadow:0 1px 2px #000 !important; }
 #app-frame .pp-box #pp-home { text-align:center !important; }
@@ -269,9 +284,8 @@
 
 .battle-log-empty { position:absolute; z-index:1; left:10px; right:10px; bottom:8px; height:55px; display:grid; place-items:center;
     color:#c0c7cc; font-size:10px; text-shadow:0 1px 2px #000; pointer-events:none; }
-.battle-log-empty[hidden] { display:none !important; }
+.battle-log-empty[hidden] { display:none !important; }@media (prefers-reduced-motion: reduce) { #app-frame button,.gate-veil button { transition:none !important; } }
 
-@media (prefers-reduced-motion: reduce) { #app-frame button,.gate-veil button { transition:none !important; } }
 
 /* World Flipper inspired pearl-metal UI pass: keep art/gameplay colors untouched. */
 :root {
@@ -285,78 +299,104 @@
     --ui-metal-muted:#56636b;
 }
 
-/* Shared windows and cards use a clean silver face instead of muddy charcoal/blue. */
-#app-frame .panel,
+/* Shared windows and cards use a clean silver face instead of muddy charcoal/blue. */#app-frame .panel,
+
 #app-frame .pgc,
+
 #app-frame .bsg,
-#app-frame .starter .s-card,
+
+
 #app-frame #team .fm-panel,
+
 #app-frame #team .fm-unit,
+
 #app-frame #team .rcard,
+
 #app-frame #team .fm-roster-card,
+
 #app-frame .slot,
+
 #app-frame .pp-box,
+
 #app-frame .dex-cell,
+
 #app-frame .eq-cell,
+
 #app-frame .hm-status-card,
+
 #app-frame .hm-rank,
+
 #app-frame .hm-energy-card,
+
 #app-frame .hm-chip,
+
 #app-frame .gate-challenge-card,
+
 #app-frame .battle-log-panel,
+
 #app-frame .pg-head,
+
 #app-frame .account-stats .as-panel,
-#app-frame .job-talent-screen .jt-point,
-#app-frame .job-talent-screen .jt-detail,
+
 #app-frame .account-stats .as-stat,
+
 #app-frame .account-stats .as-summary,
+
 #app-frame .account-stats .as-derived,
+
 #app-frame .account-stats .as-available {
     border-color:#aab3b8 !important;
     background:linear-gradient(155deg,#f4f6f6 0%,#dce1e3 48%,#c5cdd1 100%) !important;
     color:#263039 !important;
     box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(75,87,94,.16),0 3px 6px rgba(0,0,0,.32) !important;
-}
-#app-frame .pg,
-#app-frame .job-talent-screen .jt-shell { background:linear-gradient(180deg,#e7ebed,#cbd2d5 72%,#bbc4c8) !important; }
-#app-frame .pg-head,
-#app-frame .job-talent-screen .jt-header { background:linear-gradient(180deg,#f8f9f9,#d8dee1) !important; border-bottom-color:#98a4aa !important; }
-#app-frame .pg-sec,
+}#app-frame .pg { background:linear-gradient(180deg,#e7ebed,#cbd2d5 72%,#bbc4c8) !important; }#app-frame .pg-head { background:linear-gradient(180deg,#f8f9f9,#d8dee1) !important; border-bottom-color:#98a4aa !important; }#app-frame .pg-sec,
 #app-frame .pg h2,
 #app-frame .pg h3,
 #app-frame .pp-t,
-#app-frame .battle-log-head h2,
-#app-frame .job-talent-screen .jt-header h2 { color:#27323a !important; text-shadow:0 1px 0 #fff !important; }
-#app-frame .pg .sub,
+#app-frame .battle-log-head h2 { color:#27323a !important; text-shadow:0 1px 0 #fff !important; }#app-frame .pg .sub,
 #app-frame .pg .st,
 #app-frame .pg .cap,
 #app-frame .hint,
-#app-frame .pg-empty,
-#app-frame .job-talent-screen .jt-active-note,
-#app-frame .job-talent-screen .jt-footnote { color:#4f5c64 !important; }
+#app-frame .pg-empty { color:#4f5c64 !important; }
 
-/* Standard controls, filters and tabs share the same pale metal finish. */
-#app-frame button:not(.gold):not(.hm-go):not(.go),
+/* Standard controls, filters and tabs share the same pale metal finish. */#app-frame button:not(.gold):not(.hm-go):not(.go),
+
 #app-frame .btn,
+
 #app-frame .btn-ghost,
+
 #app-frame .mini-btn:not(.gold),
+
 #app-frame .pg .mi,
+
 #app-frame .dex-tab button,
+
 #app-frame .dex-bar .clr,
+
 #app-frame .slot .out,
+
 #app-frame .gate-top .gx,
+
 #app-frame .pg-head .bk,
+
 #app-frame .tower-tree-header .tt-reset,
+
 #app-frame .tower-tree-detail .mini-btn:not(.gold),
+
 #app-frame .pf-hud .hud-sq,
+
 #app-frame .pf-hud .mchip,
+
 #app-frame .pt-start,
+
 #app-frame #team .fm-cap-btn,
+
 #app-frame #team .fm-out,
+
 #app-frame .hm-tabs .tb,
+
 #app-frame .hm-dock-tabs > *,
-#app-frame .job-talent-screen .jt-job-tab,
-#app-frame .job-talent-screen .jt-detail-actions button,
+
 .gate-veil button:not(.gold) {
     border-color:#a6b0b5 !important;
     background:linear-gradient(180deg,#f7f8f8 0%,#dce1e3 48%,#c2cacf 100%) !important;
@@ -423,23 +463,12 @@
 /* 結晶數量只留在主頁資源列，其他分頁標題列不再重複顯示。 */
 #page .pg-head .rs { display:none !important; }
 
-/* Talent tree receives neutral silver connectors and nodes, not job-colored blue lighting. */
-#app-frame .job-talent-screen .jt-node,
-#app-frame .job-talent-screen .jt-node.available,
-#app-frame .job-talent-screen .jt-node.learned,
-#app-frame .job-talent-screen .jt-node.maxed { --node-color:#8a969c !important; border-color:#89969d !important; background:radial-gradient(circle at 35% 25%,#f4f6f6,#bac4c9 78%) !important; }
-#app-frame .job-talent-screen .jt-node .jt-icon { filter:grayscale(1) brightness(.55) !important; }
-#app-frame .job-talent-screen .jt-node small,
-#app-frame .job-talent-screen .jt-root small,
-#app-frame .job-talent-screen .jt-detail p,
-#app-frame .job-talent-screen .jt-branch-name { color:#344149 !important; text-shadow:0 1px 0 #fff !important; }
-#app-frame .job-talent-screen .jt-canvas { background:linear-gradient(180deg,#dbe1e3,#bbc5ca) !important; }
+/* 高亮銀色底上的文字統一改深色，避免沿用舊版白字造成低對比。 */#app-frame .pg :is(h1,h2,h3,p,span,b,strong,small,label,li,em),
 
-/* 高亮銀色底上的文字統一改深色，避免沿用舊版白字造成低對比。 */
-#app-frame .pg :is(h1,h2,h3,p,span,b,strong,small,label,li,em),
 #app-frame #team :is(h1,h2,h3,p,span,b,strong,small,label,li,em),
+
 #app-frame .account-stats :is(h1,h2,h3,p,span,b,strong,small,label,li,em),
-#app-frame .job-talent-screen :is(h1,h2,h3,p,span,b,strong,small,label,li,em),
+
 .gate-veil :is(h1,h2,h3,p,span,b,strong,small,label,li,em) {
     color:#263039 !important;
     text-shadow:0 1px 0 rgba(255,255,255,.62) !important;
@@ -465,23 +494,14 @@
     --ui-metal-highlight:#ffffff;
     --ui-metal-text:#263238;
     --ui-metal-muted:#586a73;
-}
-#app-frame .pg,
-#app-frame .job-talent-screen .jt-shell { background:linear-gradient(180deg,#f8fafb 0%,#edf2f5 60%,#e2e9ed 100%) !important; }
-#app-frame .pg-head,
-#app-frame .job-talent-screen .jt-header { background:linear-gradient(180deg,#ffffff,#edf3f6) !important; border-color:#9bb7c6 !important; }
-#app-frame .pg-head .tt,
+}#app-frame .pg { background:linear-gradient(180deg,#f8fafb 0%,#edf2f5 60%,#e2e9ed 100%) !important; }#app-frame .pg-head { background:linear-gradient(180deg,#ffffff,#edf3f6) !important; border-color:#9bb7c6 !important; }#app-frame .pg-head .tt,
 #app-frame .pg-sec,
 #app-frame .pg h2,
 #app-frame .pg h3,
 #app-frame .pp-t,
-#app-frame .battle-log-head h2,
-#app-frame .job-talent-screen .jt-header h2 { color:#263238 !important; }
-
-#app-frame .panel,
+#app-frame .battle-log-head h2 { color:#263238 !important; }#app-frame .panel,
 #app-frame .pgc,
 #app-frame .bsg,
-#app-frame .starter .s-card,
 #app-frame #team .fm-panel,
 #app-frame #team .fm-unit,
 #app-frame #team .rcard,
@@ -497,8 +517,6 @@
 #app-frame .gate-challenge-card,
 #app-frame .battle-log-panel,
 #app-frame .account-stats .as-panel,
-#app-frame .job-talent-screen .jt-point,
-#app-frame .job-talent-screen .jt-detail,
 #app-frame .account-stats .as-stat,
 #app-frame .account-stats .as-summary,
 #app-frame .account-stats .as-derived,
@@ -507,9 +525,7 @@
     background:linear-gradient(160deg,#ffffff 0%,#f5f7fa 58%,#e8eef1 100%) !important;
     color:#263238 !important;
     box-shadow:inset 0 1px 0 #fff,0 2px 5px rgba(48,77,91,.16) !important;
-}
-
-#app-frame button:not(.gold):not(.hm-go):not(.go),
+}#app-frame button:not(.gold):not(.hm-go):not(.go),
 #app-frame .btn,
 #app-frame .btn-ghost,
 #app-frame .mini-btn:not(.gold),
@@ -528,23 +544,19 @@
 #app-frame #team .fm-out,
 #app-frame .hm-tabs .tb,
 #app-frame .hm-dock-tabs > *,
-#app-frame .job-talent-screen .jt-job-tab,
-#app-frame .job-talent-screen .jt-detail-actions button,
 .gate-veil button:not(.gold) {
     border-color:#7daec6 !important;
     background:linear-gradient(180deg,#ffffff 0%,#edf4f7 54%,#dce8ed 100%) !important;
     color:#263238 !important;
     text-shadow:0 1px 0 #fff !important;
     box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(37,87,111,.16) !important;
-}
-#app-frame button.on,
+}#app-frame button.on,
 #app-frame button.active,
 #app-frame button.selected,
 #app-frame .rcard.onfield,
 #app-frame .fm-roster-card.onfield,
 #app-frame .dex-tab button.on,
-#app-frame .hm-dock-tabs .hm-action.active,
-#app-frame .job-talent-screen .jt-job-tab.active {
+#app-frame .hm-dock-tabs .hm-action.active {
     border-color:#159bd1 !important;
     background:linear-gradient(180deg,#dff7ff,#9ee5f7) !important;
     color:#17394a !important;
@@ -576,16 +588,6 @@
 #app-frame .hm-energy-card small,
 #app-frame .hm-account-bonus { color:#263238 !important; text-shadow:0 1px 0 #fff !important; }
 
-#app-frame .job-talent-screen .jt-canvas { background:linear-gradient(180deg,#edf5f8,#d9e8ee) !important; border-color:#96bacb !important; }
-#app-frame .job-talent-screen .jt-node,
-#app-frame .job-talent-screen .jt-node.available,
-#app-frame .job-talent-screen .jt-node.learned,
-#app-frame .job-talent-screen .jt-node.maxed { --node-color:#168fc0 !important; border-color:#6eabc3 !important; background:radial-gradient(circle at 35% 25%,#fff,#d8e9ef 78%) !important; }
-#app-frame .job-talent-screen .jt-node.available { border-color:#08a5dc !important; box-shadow:0 0 0 2px rgba(0,160,233,.16),0 2px 5px rgba(36,90,111,.2) !important; }
-#app-frame .job-talent-screen .jt-tree-svg .jt-link.lit { stroke:#00a0e9 !important; filter:none !important; }
-#app-frame .job-talent-screen .jt-root-orb { fill:#fff !important; stroke:#00a0e9 !important; filter:none !important; }
-#app-frame .job-talent-screen .jt-node .jt-icon { filter:none !important; }
-
 #app-frame select,
 #app-frame .pg select,
 #app-frame select option,
@@ -603,15 +605,15 @@
 .char-directory-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
 .char-directory-tools input,.char-directory-tools select { min-width:0; height:31px; padding:4px 7px; border:1px solid #8fb1c2 !important; border-radius:4px; background:#fff !important; color:#263238 !important; font-family:inherit; font-size:10px; font-weight:600; }
 .char-directory-tools button { min-width:0; padding:3px 5px; border:1px solid #6fa9c4 !important; border-radius:4px; background:linear-gradient(#fff,#e3f0f5) !important; color:#244858 !important; font-family:inherit; font-size:10px; font-weight:800; }
-.char-directory-grid { min-height:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:108px; gap:6px; }
-.char-directory-grid .char-card { position:relative; min-width:0; min-height:0; margin:0; padding:5px 4px 4px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:2px; overflow:hidden;
+.char-directory-grid { min-height:0; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); grid-auto-rows:max-content; gap:5px; }
+.char-directory-grid .char-card { position:relative; min-width:0; min-height:0; margin:0; padding:2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:1px; overflow:hidden;
     border:1px solid #a8c2ce !important; border-radius:5px; background:linear-gradient(160deg,#fff,#eef3f5) !important; box-shadow:0 1px 3px rgba(38,69,83,.14) !important; }
 .char-directory-grid .char-card.locked { opacity:.78; }
-.char-card-art { width:43px; height:45px; flex:none; display:grid; place-items:center; overflow:hidden; border:1px solid #c3d5dd; border-radius:4px; background:#e9f1f4; }
+.char-card-art { width:30px; height:30px; flex:none; display:grid; place-items:center; overflow:hidden; border:1px solid #c3d5dd; border-radius:4px; background:#e9f1f4; }
 .char-card-art img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
 .char-card-info { width:100%; min-width:0; text-align:center; }
 .char-directory-grid .char-card .nm { display:block; overflow:hidden; color:#1c3542 !important; font-size:10px; line-height:1.2; font-weight:900; text-overflow:ellipsis; white-space:nowrap; }
-.char-card-tags { min-height:15px; display:flex; align-items:center; justify-content:center; gap:2px; overflow:hidden; }
+.char-card-tags { min-height:13px; display:flex; align-items:center; justify-content:center; gap:2px; overflow:hidden; }
 .char-directory-grid .char-card .tag2 { flex:none; padding:1px 3px; border-radius:3px; color:#fff !important; font-size:7px; line-height:1.25; font-weight:800; }
 .char-directory-grid .char-card .summon-tag { flex:none; padding:1px 3px; border:1px solid #8599a2; border-radius:3px; color:#344a54; background:linear-gradient(#f7fafb,#dfe8eb); font-size:7px; line-height:1.25; font-weight:800; }
 .char-directory-grid .char-card .summon-tag.limited { border-color:#c19b43; color:#684c0b; background:linear-gradient(#fff1bf,#f2d778); }
@@ -622,15 +624,15 @@
 .char-card-skill { color:#51656f; }
 .char-field-tag { color:#087ead; }
 .char-directory-grid .char-card .bar { width:92%; height:4px; margin-top:3px; }
-.char-directory-empty { grid-column:1/-1; display:grid; place-items:center; color:#455a64; font-size:12px; }
-@media(max-height:700px) {
+.char-directory-empty { grid-column:1/-1; display:grid; place-items:center; color:#455a64; font-size:12px; }@media(max-height:700px) {
     .char-directory { gap:4px; }
     .char-directory-tools input,.char-directory-tools select { height:27px; }
     .char-directory-grid { gap:4px; }
-    .char-card-art { width:36px; height:37px; }
-    .char-directory-grid .char-card { padding:3px; }
-    .char-directory-grid { grid-auto-rows:100px; }
+    .char-card-art { width:30px; height:30px; }
+    .char-directory-grid .char-card { padding:2px; }
+    .char-directory-grid { grid-auto-rows:max-content; }
 }
+
 
 /* Stronger contrast for character growth and gate browser labels on light surfaces. */
 #app-frame .pg .pgc .nm,
@@ -675,12 +677,10 @@
     --ui-copy-secondary:#43545d;
     --ui-copy-muted:#586a73;
     --ui-copy-heading:#17394a;
-}
-#app-frame .pg-body,
+}#app-frame .pg-body,
 #app-frame .pg-body :is(p,span,b,strong,small,label,li,em,dt,dd),
 #app-frame #team :is(p,span,b,strong,small,label,li,em,dt,dd),
-#app-frame .account-stats :is(p,span,b,strong,small,label,li,em,dt,dd),
-#app-frame .job-talent-screen :is(p,span,b,strong,small,label,li,em,dt,dd) {
+#app-frame .account-stats :is(p,span,b,strong,small,label,li,em,dt,dd) {
     text-shadow:none !important;
 }
 #app-frame .pg-body { color:var(--ui-copy) !important; }
@@ -792,12 +792,12 @@
     background:linear-gradient(180deg,transparent 58%,rgba(211,220,224,.10) 72%,rgba(211,220,224,.48) 100%) !important;
 }
 #app-frame .pg-body { bottom:66px !important; }
-#app-frame .hm-nav { bottom:66px !important; }
-@media (max-height:620px) {
+#app-frame .hm-nav { bottom:66px !important; }@media (max-height:620px) {
     #app-frame .hm-tabs { height:60px !important; }
     #app-frame .hm-tabs .tb { height:48px !important; }
     #app-frame .pg-body,#app-frame .hm-nav { bottom:60px !important; }
 }
+
 
 /* Polita-inspired pixel-metal nav: single-face buttons with crisp, stepped edges and custom icons. */
 #app-frame .hm-tabs .tb {
@@ -873,113 +873,6 @@
     box-shadow:inset 0 2px 3px rgba(31,40,45,.18),0 1px 0 #59646a !important;
 }
 
-/* 職業天賦頁：林間祭壇底圖、清晰淺色字與圖示卡片按鈕。 */
-#app-frame #pg-body.job-talent-page .jt-shell.jt-embedded {
-    --jt-primary:#c8d8c5 !important;
-    --jt-secondary:#f4f5e9 !important;
-    --jt-base:#172522 !important;
-    color:#f4f6ef !important;
-    font-family:"Noto Sans TC","Microsoft JhengHei UI","Microsoft JhengHei",sans-serif !important;
-    background:linear-gradient(180deg,rgba(8,18,19,.78),rgba(12,23,21,.88)),url("ui/job-talents/shrine-background.png") center 46% / cover no-repeat !important;
-    border-color:#aabbb4 !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded :is(.jt-header small,.jt-header h2,.jt-point b,.jt-point small,.jt-active-note,.jt-branch-name,.jt-detail-title b,.jt-detail p,.jt-footnote,.jt-root small,.jt-node small) {
-    color:#f0f4ed !important;
-    text-shadow:0 1px 2px #07110f !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-point {
-    background:rgba(14,25,24,.9) !important;
-    border-color:#aabbb4 !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tabs { gap:5px !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab {
-    min-height:43px !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:flex-start !important;
-    gap:4px !important;
-    padding:4px 3px !important;
-    border:1px solid #9caeaa !important;
-    border-radius:4px !important;
-    color:#f1f4ee !important;
-    background:linear-gradient(180deg,rgba(83,101,96,.96),rgba(35,49,47,.98)) !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.46),0 2px 0 rgba(0,0,0,.42) !important;
-    text-shadow:0 1px 2px #101817 !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-icon {
-    width:21px !important;
-    height:21px !important;
-    flex:none !important;
-    display:grid !important;
-    place-items:center !important;
-    border:1px solid rgba(232,239,228,.72) !important;
-    border-radius:3px !important;
-    background:linear-gradient(145deg,#8c9b92,#47564f) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-icon .jt-icon { width:15px !important;height:15px !important;filter:none !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy { min-width:0;display:flex;flex-direction:column;align-items:flex-start;line-height:1.15; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy b { color:#fff !important;font-size:9px !important;white-space:nowrap; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy small { color:#d5dfd7 !important;font-size:7px !important;white-space:nowrap; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab.active {
-    border-color:#ecebdc !important;
-    color:#fff !important;
-    background:linear-gradient(180deg,#8d9b92,#53625a) !important;
-    box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(241,239,219,.4),0 2px 0 rgba(0,0,0,.46) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab.equipped:not(.active)::after { margin-left:auto !important;color:#f2d57c !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas {
-    border-color:#aabbb4 !important;
-    background:linear-gradient(180deg,rgba(8,19,19,.60),rgba(10,21,19,.78)),url("ui/job-talents/shrine-background.png") center 52% / cover no-repeat !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-mist { background:linear-gradient(180deg,rgba(8,17,16,.12),rgba(8,17,16,.36)) !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail {
-    border-color:#aabbb4 !important;
-    background:linear-gradient(145deg,rgba(35,48,44,.96),rgba(15,25,24,.97)) !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 0 rgba(0,0,0,.35) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-title b { color:#fff4c9 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions { gap:7px !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle {
-    min-height:40px !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:flex-start !important;
-    gap:7px !important;
-    padding:5px 8px !important;
-    border:1px solid #c0cbc5 !important;
-    border-radius:4px !important;
-    color:#f5f5ee !important;
-    background:linear-gradient(180deg,#65736c,#39463f) !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.48),0 2px 0 rgba(0,0,0,.4) !important;
-    font-family:"Noto Sans TC","Microsoft JhengHei UI","Microsoft JhengHei",sans-serif !important;
-    font-size:10px !important;
-    font-weight:700 !important;
-    text-shadow:0 1px 2px #101612 !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button > span:first-child,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle > span:first-child {
-    width:22px;height:22px;flex:none;display:grid;place-items:center;border:1px solid rgba(255,255,255,.55);border-radius:3px;background:rgba(18,29,25,.38);font-size:15px;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button > span:last-child,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle > span:last-child { display:flex;flex-direction:column;gap:2px;line-height:1.12; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button small,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle small { color:#e1e7e1 !important;font-size:8px !important;font-weight:400 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-reset { flex:0 0 39% !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-learn {
-    flex:1 !important;border-color:#b9974b !important;color:#34290f !important;
-    background:linear-gradient(180deg,#fff0b1,#dfbd67 58%,#b78c3e) !important;
-    text-shadow:0 1px 0 rgba(255,255,255,.65) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-learn small { color:#493b1d !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button:disabled { filter:grayscale(.35);opacity:.72 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle { display:inline-flex !important;min-height:30px !important;vertical-align:middle; }
-@media(max-width:390px) {
-    #app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab { gap:2px !important;padding:3px 2px !important; }
-    #app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-icon { width:18px !important;height:18px !important; }
-    #app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy b { font-size:8px !important; }
-}
-
 /* 已持有角色卡整張可點擊進入培養。 */
 #app-frame .char-directory-grid .char-card.cultivable { cursor:pointer; }
 #app-frame .char-directory-grid .char-card.cultivable:focus-visible { outline:2px solid #e9bb4d; outline-offset:1px; }
@@ -1018,190 +911,39 @@
 
 /* 通貨統計與兌換商店內層沿用外層的銀白金屬卡片語彙。 */
 #app-frame #pg-body .inventory-total,
-#app-frame #pg-body .inventory-row,
-#app-frame #pg-body .shop-gate,
-#app-frame #pg-body .shop-product {
+#app-frame #pg-body .inventory-row {
     border-color:#a9b8bf !important;
     background:linear-gradient(160deg,#ffffff 0%,#edf1f3 54%,#d8dfe2 100%) !important;
     color:#263039 !important;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -2px 0 rgba(78,91,98,.12),0 2px 5px rgba(28,42,49,.2) !important;
 }
-#app-frame #pg-body .inventory-total b { color:#7a5710 !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame #pg-body .inventory-total {
+    border-color:#3c4852 !important;
+    background:linear-gradient(145deg,#11151a,#050709) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.05),0 2px 5px rgba(0,0,0,.28) !important;
+}
+#app-frame #pg-body .inventory-total b { color:#ffe17a !important; text-shadow:0 1px 2px #000 !important; }
 #app-frame #pg-body .inventory-total span,
-#app-frame #pg-body .inventory-row-name,
-#app-frame #pg-body .shop-product-name,
-#app-frame #pg-body .shop-gate-head { color:#263039 !important; text-shadow:0 1px 0 rgba(255,255,255,.8) !important; }
+#app-frame #pg-body .inventory-row-name { color:#263039 !important; text-shadow:0 1px 0 rgba(255,255,255,.8) !important; }
+#app-frame #pg-body .inventory-total span { color:#f4f6f7 !important; text-shadow:0 1px 2px #000 !important; }
 #app-frame #pg-body .inventory-row-desc,
-#app-frame #pg-body .shop-product-desc,
-#app-frame #pg-body .shop-intro { color:#4c5b63 !important; text-shadow:none !important; }
+#app-frame #pg-body .inventory-row-desc { color:#4c5b63 !important; text-shadow:none !important; }
 #app-frame #pg-body .inventory-count { color:#76530d !important; text-shadow:0 1px 0 #fff !important; }
-#app-frame #pg-body .inventory-row-art,
-#app-frame #pg-body .shop-product-art {
+#app-frame #pg-body .inventory-row-art {
     border-color:#a5b3ba !important;
     background:linear-gradient(145deg,#f9fbfb,#dce3e6) !important;
     box-shadow:inset 0 1px 0 #fff !important;
 }
-#app-frame #pg-body .shop-token {
-    border-color:#a9b8bf !important;
-    background:linear-gradient(160deg,#fff,#dce2e5) !important;
-    color:#76530d !important;
-    text-shadow:0 1px 0 #fff !important;
-}
-#app-frame #pg-body .shop-material { border-top-color:#aab7bd !important; }
 
 /* 天賦頁同樣使用銀白金屬面板、清楚的深色文字與既有金色主要操作。 */
-#app-frame #pg-body.job-talent-page .jt-shell.jt-embedded {
-    --jt-primary:#8c989e !important;
-    --jt-secondary:#d7ad4b !important;
-    --jt-base:#e6ebed !important;
-    color:#263039 !important;
-    background:linear-gradient(160deg,#ffffff 0%,#eef2f4 48%,#dbe1e4 100%) !important;
-    border:1px solid #a9b8bf !important;
-    box-shadow:inset 0 1px 0 #fff,0 2px 5px rgba(28,42,49,.2) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded :is(.jt-header small,.jt-header h2,.jt-point b,.jt-point small,.jt-active-note,.jt-branch-name,.jt-detail-title b,.jt-detail p,.jt-footnote,.jt-root small,.jt-node small) {
-    color:#344149 !important;
-    text-shadow:0 1px 0 rgba(255,255,255,.85) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-point,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail {
-    border-color:#a9b8bf !important;
-    background:linear-gradient(160deg,#ffffff,#e1e7e9) !important;
-    color:#263039 !important;
-    box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(28,42,49,.16) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-point b,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-title b { color:#263039 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-reset,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle {
-    border:1px solid #9aa8ae !important;
-    border-radius:5px !important;
-    background:linear-gradient(160deg,#ffffff 0%,#e9eef0 52%,#d2dade 100%) !important;
-    color:#263039 !important;
-    text-shadow:0 1px 0 #fff !important;
-    box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(28,42,49,.2) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-job-tab.active {
-    border-color:#9d7d36 !important;
-    background:linear-gradient(180deg,#fff3c6,#e9c96f 56%,#c9a74f) !important;
-    color:#382f1d !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy b,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-copy small,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button small,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle small { color:#43515a !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tab-icon,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions button > span:first-child,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-passive-toggle > span:first-child {
-    border-color:#a0adb3 !important;
-    background:linear-gradient(145deg,#f8fafb,#c9d2d6) !important;
-    color:#344149 !important;
-    text-shadow:none !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas {
-    border-color:#a9b8bf !important;
-    background:linear-gradient(rgba(241,245,246,.83),rgba(225,231,233,.89)),url("ui/job-talents/shrine-background.png") center 52% / cover no-repeat !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas::before,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas::after { opacity:.08 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-mist { background:radial-gradient(ellipse at 50% 84%,rgba(255,255,255,.35),transparent 58%) !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-forest-floor { border-color:rgba(104,118,124,.25) !important;opacity:.14 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-trunk,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-branch { stroke:#7b888e !important;opacity:.35 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-link { stroke:#66747a !important;opacity:.35 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-link.lit { stroke:#bd9137 !important;opacity:.85 !important;filter:none !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-root-orb { fill:#fff !important;stroke:#9d7d36 !important;filter:none !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-root { border-color:#aa8a43 !important;background:radial-gradient(circle at 35% 30%,#fff,#d9dee0 78%) !important;box-shadow:inset 0 0 0 3px #aeb8bc,0 2px 5px rgba(28,42,49,.24) !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-root span { color:#4b5960 !important;text-shadow:none !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.available,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.learned,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.maxed {
-    --node-color:#87949a !important;
-    border:2px solid #8e9ba1 !important;
-    background:radial-gradient(circle at 35% 25%,#ffffff,#cbd3d7 78%) !important;
-    box-shadow:inset 0 1px 0 #fff,0 2px 0 #89959a,0 3px 5px rgba(28,42,49,.24) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.available { border-color:#bc9139 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.selected { outline:2px solid #d4af58 !important;outline-offset:2px; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.locked { opacity:.82 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node i { background:#56636a !important;color:#fff !important;border-color:#f4f6f6 !important;text-shadow:none !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-learn {
-    border-color:#b28b39 !important;
-    background:linear-gradient(180deg,#fff0a4 0%,#f2c54e 55%,#d3972e 100%) !important;
-    color:#38240e !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-detail-actions .jt-learn small { color:#493b1d !important; }
 
-/* 編成頁隊長與隊友卡片：修正淺金屬底上的暗字。 */
-#app-frame #team :is(.fm-slot-kicker,.fm-captain-name,.fm-captain-sub,.fm-mini-stat,.fm-captain-skill,.fm-member-name,.fm-member small,.fm-roster-state,.fm-roster-section,.fm-roster-section .rsec-n) {
-    color:#263039 !important;
-    text-shadow:0 1px 0 rgba(255,255,255,.8) !important;
-}
+/* 屬性徽章在淺底上仍要撐住白字（其餘編成文字由檔案末尾的淺色編成總pass 負責）。 */
 #app-frame #team .fm-captain-name .element-badge { color:#fff !important;text-shadow:0 1px 1px rgba(0,0,0,.65) !important; }
-#app-frame #team .fm-member-actions button { color:#263039 !important;text-shadow:0 1px 0 #fff !important; }
-#app-frame #team .fm-roster-card .nm { color:#263039 !important; }
-#app-frame #team .fm-roster-card .sub { color:#43545d !important; }
+#app-frame #team .fm-roster-section .element-badge { color:#fff !important;text-shadow:0 1px 1px rgba(0,0,0,.65) !important; }
 
 /* 天賦樹視覺聚焦：背景安靜，節點狀態一眼可辨。 */
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas {
-    background:linear-gradient(rgba(241,245,246,.94),rgba(225,231,233,.96)),url("ui/job-talents/shrine-background.png") center 52% / cover no-repeat !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas::before,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-canvas::after,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-forest-floor { display:none !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-link { stroke:#8d989d !important;stroke-width:.65 !important;opacity:.24 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-tree-svg .jt-link.lit { stroke:#bb8b29 !important;stroke-width:1.35 !important;opacity:.9 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node {
-    width:48px !important;
-    height:48px !important;
-    border-width:2px !important;
-    border-color:#8d999f !important;
-    background:linear-gradient(155deg,#ffffff 0%,#e5eaec 52%,#cbd3d7 100%) !important;
-    box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(71,83,89,.12),0 3px 0 #88949a,0 4px 7px rgba(31,44,50,.2) !important;
-    opacity:1 !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node .jt-icon { width:25px !important;height:25px !important;filter:grayscale(1) contrast(1.18) brightness(.58) !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node small {
-    top:49px !important;
-    max-width:82px !important;
-    padding:1px 4px !important;
-    border:1px solid rgba(144,156,162,.72) !important;
-    border-radius:3px !important;
-    background:rgba(248,250,250,.94) !important;
-    color:#26343b !important;
-    font-size:8px !important;
-    font-weight:800 !important;
-    line-height:1.25 !important;
-    text-shadow:none !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.available {
-    border-color:#b78320 !important;
-    background:linear-gradient(155deg,#fffdf5 0%,#fff0c2 54%,#e9cb7e 100%) !important;
-    box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(130,91,20,.16),0 0 0 2px rgba(199,153,54,.2),0 3px 0 #a17b31,0 5px 9px rgba(83,63,22,.25) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.available .jt-icon { filter:grayscale(.55) contrast(1.2) brightness(.62) !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.learned {
-    border-color:#78868d !important;
-    background:linear-gradient(155deg,#87949a 0%,#59666d 100%) !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.56),inset 0 -2px 0 rgba(28,37,41,.2),0 3px 0 #59656b,0 4px 7px rgba(31,44,50,.22) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.learned .jt-icon,
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.maxed .jt-icon { filter:grayscale(1) brightness(2.15) contrast(.75) !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.maxed {
-    border-color:#a78337 !important;
-    background:linear-gradient(155deg,#fff2bf 0%,#e7c96f 57%,#c4a34e 100%) !important;
-    box-shadow:inset 0 1px 0 #fff8dd,inset 0 -2px 0 rgba(109,78,20,.15),0 3px 0 #9b7930,0 4px 8px rgba(31,44,50,.22) !important;
-}
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.maxed .jt-icon { filter:grayscale(1) contrast(1.1) brightness(.52) !important; }
 
 /* 轉蛋商店：沿用灰白金屬介面，保留金色招募主按鈕。 */
-#app-frame #pg-body .gacha-shop-tabs { display:flex; gap:8px; margin:0 0 12px; padding:6px; border:1px solid #87939a; border-radius:8px; background:linear-gradient(#dfe5e8,#aeb8bd); box-shadow:inset 0 1px #fff,0 2px 5px #0005; }
-#app-frame #pg-body .gacha-shop-tabs button,
-#app-frame #pg-body .summon-pool-select button { flex:1; min-height:34px; border:1px solid #68767e; border-radius:6px; color:#26323a; background:linear-gradient(#f9fbfc,#cbd4d9); font-weight:800; text-shadow:0 1px #fff; box-shadow:inset 0 1px #fff,0 2px 0 #7b878d; }
-#app-frame #pg-body .gacha-shop-tabs button.active,
-#app-frame #pg-body .summon-pool-select button.active { border-color:#a77b23; color:#4e3810; background:linear-gradient(#fff3c8,#dfb64e); box-shadow:inset 0 1px #fff8de,0 2px 0 #96712a; }
 #app-frame #pg-body .gacha-shop { display:grid; gap:12px; padding:12px; border:1px solid #849198; border-radius:9px; color:#edf1f3; background:linear-gradient(155deg,#343c42,#1a2025 68%,#11171b); box-shadow:inset 0 1px #ffffff24,0 4px 10px #0006; }
 #app-frame #pg-body .summon-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px; border:1px solid #89969d; border-radius:7px; background:linear-gradient(150deg,#4b555b,#252d32); }
 #app-frame #pg-body .summon-head h2 { margin:2px 0 4px; color:#fff; font-size:20px; }
@@ -1210,9 +952,9 @@
 #app-frame #pg-body .summon-acquisition-note { margin:7px 1px 0; padding:7px 9px; border-left:3px solid #c99a38; border-radius:3px; background:linear-gradient(90deg,#e7edf0,#f8fafb); color:#26343b; font-size:11px; font-weight:700; line-height:1.5; }
 #app-frame #pg-body .summon-currency { display:grid; grid-template-columns:auto auto; align-items:center; gap:0 5px; min-width:82px; padding:8px; border:1px solid #929da3; border-radius:7px; color:#fff; background:linear-gradient(#252d32,#11171b); text-align:center; }
 #app-frame #pg-body .summon-currency span { grid-row:span 2; font-size:20px; }
+#app-frame #pg-body .summon-currency > img { grid-row:span 2; width:24px; height:24px; object-fit:contain; image-rendering:auto; }
 #app-frame #pg-body .summon-currency b { font-size:16px; }
 #app-frame #pg-body .summon-currency small { grid-column:2; color:#cbd3d7; }
-#app-frame #pg-body .summon-pool-select { display:flex; gap:8px; }
 #app-frame #pg-body .summon-banner { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:104px; padding:12px; border:1px solid #a0a9ae; border-radius:8px; background:linear-gradient(115deg,#59646a,#2b3338 55%,#737d82); box-shadow:inset 0 1px #fff5,0 3px 7px #0006; }
 #app-frame #pg-body .summon-banner-copy { display:grid; gap:5px; }
 #app-frame #pg-body .summon-banner-kicker { color:#ffe08a; font-size:10px; font-weight:900; letter-spacing:.12em; }
@@ -1221,6 +963,8 @@
 #app-frame #pg-body .summon-lineup { display:flex; align-items:center; gap:3px; }
 #app-frame #pg-body .summon-lineup-face { display:grid; place-items:center; width:36px; height:42px; overflow:hidden; border:1px solid #bcc5c9; border-radius:5px; background:linear-gradient(#dbe1e4,#7e898f); }
 #app-frame #pg-body .summon-lineup-face img { width:32px; height:38px; object-fit:contain; image-rendering:pixelated; }
+#app-frame #pg-body .summon-lineup-face { cursor:help; }
+#app-frame #pg-body .summon-lineup-face.summon-selected { border-color:#e0b64f !important; box-shadow:0 0 0 2px rgba(239,201,106,.65),0 2px 5px #0005 !important; }
 #app-frame #pg-body .summon-lineup>span { color:#fff; font-weight:800; white-space:nowrap; }
 #app-frame #pg-body .summon-pity,#app-frame #pg-body .summon-rates { padding:10px; border:1px solid #87939a; border-radius:7px; color:#f2f4f5; background:linear-gradient(#384147,#20272c); }
 #app-frame #pg-body .summon-pity { display:grid; grid-template-columns:1fr auto; gap:5px 8px; }
@@ -1266,8 +1010,8 @@
 #app-frame #pg-body .summon-reveal-hint { grid-column:1/-1; padding:8px; color:#e8edef; text-align:center; }
 @keyframes summon-flight { 0%{transform:translateY(-2px) scale(1);filter:none} 68%{transform:translateY(65px) scale(1);filter:none} 82%{transform:translateY(91px) scale(1.15,.78);filter:brightness(1.8)} 100%{transform:translateY(67px) scale(.75);filter:brightness(2.5)} }
 @keyframes summon-flight-gold { 0%{transform:translateY(-2px) scale(1);filter:none} 68%{transform:translateY(65px) scale(1);filter:none} 82%{transform:translateY(91px) scale(1.15,.78);filter:brightness(2.8) sepia(1) saturate(3)} 100%{transform:translateY(67px) scale(.75);filter:brightness(3) sepia(1) saturate(4)} }
-@keyframes summon-impact { 0%{opacity:.9;transform:translateX(-50%) scale(.4)} 100%{opacity:0;transform:translateX(-50%) scale(5,2.5)} }
-@media(max-width:380px) { #app-frame #pg-body .summon-lineup-face:nth-of-type(n+5){display:none} #app-frame #pg-body .summon-results-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@keyframes summon-impact { 0%{opacity:.9;transform:translateX(-50%) scale(.4)} 100%{opacity:0;transform:translateX(-50%) scale(5,2.5)} }@media(max-width:380px) { #app-frame #pg-body .summon-lineup-face:nth-of-type(n+5){display:none} #app-frame #pg-body .summon-results-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
 
 /* 轉蛋商店提亮版：內容區改成淺銀金屬，文字用深灰提高閱讀對比。 */
 #app-frame #pg-body .gacha-shop {
@@ -1312,21 +1056,63 @@
 #app-frame #pg-body .summon-stage-caption { color:#263238 !important; text-shadow:0 1px #fff !important; }
 #app-frame #pg-body .summon-animation { border-color:#9aa5aa !important; background:linear-gradient(#edf1f3,#cbd3d7) !important; }
 #app-frame #pg-body .summon-reveal-hint { color:#263238 !important; }
-#app-frame #pg-body .summon-pool-select button.pool-limited.active {
-    border-color:#a77b23 !important;
-    color:#563d0e !important;
-    background:linear-gradient(#fff1b8,#dfb648) !important;
-    box-shadow:inset 0 1px #fff8dc,0 2px 0 #96712a,0 0 7px #d9ad4b55 !important;
-}
-#app-frame #pg-body .summon-pool-select button.pool-permanent.active {
-    border-color:#5e8497 !important;
-    color:#183746 !important;
-    background:linear-gradient(#e8f7fc,#a9cbd8) !important;
-    box-shadow:inset 0 1px #fff,0 2px 0 #6f929f,0 0 7px #78b5ce55 !important;
-}
 #app-frame #pg-body .summon-banner.pool-limited { border-left:4px solid #c99a38 !important; }
-#app-frame #pg-body .summon-banner.pool-permanent { border-left:4px solid #6d9eb2 !important; }
-#app-frame #pg-body .summon-banner.pool-permanent .summon-banner-kicker { color:#315d70 !important; }
+#app-frame #pg-body .summon-banner.pool-limited {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    gap:9px !important;
+    padding:11px !important;
+}
+#app-frame #pg-body .summon-banner-main {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    min-width:0;
+}
+#app-frame #pg-body .summon-banner-copy { min-width:0; }
+#app-frame #pg-body .summon-banner-copy small { font-weight:700; }
+#app-frame #pg-body .summon-lineup { flex:none; gap:4px !important; }
+#app-frame #pg-body .summon-week-meta {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    min-width:0;
+    padding:7px 9px;
+    border:1px solid #bd851e;
+    border-radius:6px;
+    background:linear-gradient(110deg,#fff1bf,#f1cc70 55%,#ffe6a0);
+    box-shadow:inset 0 1px #fff9,0 2px 4px #62451035;
+}
+#app-frame #pg-body .summon-week-range {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:4px 7px;
+    min-width:0;
+    color:#58400f;
+    font-size:10px;
+    font-weight:800;
+}
+#app-frame #pg-body .summon-week-range b { color:#382707; font-size:12px; white-space:nowrap; }
+#app-frame #pg-body .summon-week-countdown {
+    display:grid;
+    justify-items:end;
+    flex:none;
+    padding-left:8px;
+    border-left:1px solid #956b2655;
+}
+#app-frame #pg-body .summon-week-countdown small { color:#64480e !important; font-size:9px; font-weight:800; }
+#app-frame #pg-body .summon-week-countdown b { color:#7b291c; font-size:14px; line-height:1.2; white-space:nowrap; text-shadow:0 1px #fff8; }
+@media(max-width:380px) {
+    #app-frame #pg-body .summon-banner-main { align-items:flex-start; }
+    #app-frame #pg-body .summon-banner-copy b { font-size:16px; }
+    #app-frame #pg-body .summon-lineup-face { width:32px; height:38px; }
+    #app-frame #pg-body .summon-lineup-face img { width:29px; height:34px; }
+    #app-frame #pg-body .summon-week-meta { padding:7px; }
+    #app-frame #pg-body .summon-week-countdown b { font-size:12px; }
+}
 #app-frame #pg-body .summon-overlay {
     position:fixed !important;
     inset:0 !important;
@@ -1423,61 +1209,384 @@
     100%{transform:translate(0,60px) rotate(900deg) scale(.88);filter:brightness(3) sepia(1) saturate(4)}
 }
 @keyframes summon-pin-pulse { 0%{transform:scale(.75);filter:brightness(1)} 55%{transform:scale(1.55);filter:brightness(2)} 100%{transform:scale(1);filter:brightness(1)} }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.locked { opacity:.67 !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-node.selected { outline:2px solid #8b6924 !important;outline-offset:3px !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-root { z-index:3;width:40px !important;height:40px !important;border-width:2px !important; }
-#app-frame #pg-body.job-talent-page .jt-embedded .jt-root span { font-size:20px !important;font-weight:900 !important; }
 
-/* 角色上限解放星級：四次一般解放 + 一格未開放超限解放。 */
+/* 上限解放星級：只排星數、置中，不再標「解放／超限解放」。 */
 #app-frame #pg-body .growth-stars {
-    display:flex; align-items:center; gap:5px; min-height:24px; margin:7px 0;
+    display:flex; align-items:center; justify-content:center; gap:5px; min-height:24px; margin:7px 0;
     color:#e9eef0; font-size:15px; font-weight:800; letter-spacing:.04em;
 }
-#app-frame #pg-body .growth-stars-label { margin-right:3px; color:#d6e0e4; font-size:12px; font-weight:700; }
-#app-frame #pg-body .growth-star { color:#748188; font-size:21px; line-height:1; text-shadow:0 1px 1px #000; }
+#app-frame #pg-body .growth-star { font-size:21px; line-height:1; }
+/* 全站那條 span 深字 !important 會把金星壓成深藍，這裡要連 !important 一起搶回來 */
 #app-frame #pg-body .growth-star.earned {
-    color:#fff08a;
-    -webkit-text-stroke:.65px #fffbe0;
-    text-shadow:0 -1px #fffde2,0 1px #ffdb55,1px 2px #e4a824,2px 3px #9a5c0b,0 0 5px #fff07c,0 0 11px #ffd437;
-    filter:drop-shadow(0 2px 1px #30200a);
+    color:#fff08a !important;
+    -webkit-text-stroke:.65px #fffbe0 !important;
+    text-shadow:0 -1px #fffde2,0 1px #ffdb55,1px 2px #e4a824,2px 3px #9a5c0b,0 0 5px #fff07c,0 0 11px #ffd437 !important;
+    filter:drop-shadow(0 2px 1px #30200a) !important;
 }
-#app-frame #pg-body .growth-overlimit-label { margin-left:4px; color:#c1cbd0; font-size:10px; font-weight:700; white-space:nowrap; }
-#app-frame #pg-body .growth-overlimit-label b { color:#7e8a90; font-size:12px; text-shadow:0 1px #303a3f; }
-#app-frame #pg-body .growth-stars.compact { gap:2px; min-height:17px; margin:3px 0; }
-#app-frame #pg-body .growth-stars.compact .growth-stars-label { margin-right:2px; font-size:10px; }
-#app-frame #pg-body .growth-stars.compact .growth-star { font-size:15px; }
-#app-frame #pg-body .growth-stars.compact .growth-overlimit-label { margin-left:2px; font-size:8px; }
-#app-frame #pg-body .growth-stars.compact .growth-overlimit-label b { font-size:10px; }
-#app-frame #pg-body .growth-breakthrough-display { border-color:#87969d; }
-#app-frame #pg-body .growth-breakthrough-display { display:flex; align-items:center; gap:12px; }
-#app-frame #pg-body .growth-cultivate-btn { display:block; width:100%; margin-top:8px; white-space:normal; line-height:1.35; }
-#app-frame #pg-body .growth-path .growth-talent-plus {
-    display:inline-grid !important; place-items:center !important; flex:none !important;
-    width:30px !important; height:30px !important; min-width:30px !important; padding:0 !important;
-    border:0 !important; border-radius:50% !important; background-color:transparent !important;
-    background-image:url("ui/sao-utils/button-normal.png") !important; background-repeat:no-repeat !important;
-    background-position:center !important; background-size:100% 100% !important;
-    color:#26384a !important; font-size:19px !important; font-weight:900 !important; line-height:1 !important;
-    text-shadow:0 1px 0 rgba(255,255,255,.75) !important; box-shadow:none !important; cursor:pointer;
-    transition:transform .08s ease,filter .1s linear !important;
+#app-frame #pg-body .growth-stars.compact { gap:2px; min-height:15px; margin:2px 0; }
+#app-frame #pg-body .growth-stars.compact .growth-star { font-size:14px; }
+
+
+/* ============================================================
+   編成頁（出戰隊伍）淺色總pass
+   跟主介面同一套：銀白面板、天藍細框、深石板字、金色重點。
+   放最後是为了蓋掉 pixel-rpg-ui.css 的深藍編成皮與 team-formation.css 的 navy。
+   ============================================================ */
+
+/* 標題列與人數牌 */
+#app-frame #team .fm-head small { color:#586a73 !important; text-shadow:none !important; }
+#app-frame #team .fm-head b { color:#17394a !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame #team .fm-count {
+    color:#38240e !important;
+    background:linear-gradient(180deg,#fff0a4 0%,#f6c34e 53%,#d58a29 100%) !important;
+    border-color:#ffe4a0 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,230,.8),0 2px 4px rgba(48,77,91,.24) !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.55) !important;
 }
-#app-frame #pg-body .growth-path .growth-talent-plus:hover:not(:disabled) { background-image:url("ui/sao-utils/button-hover.png") !important; filter:brightness(1.05) !important; }
-#app-frame #pg-body .growth-path .growth-talent-plus:active:not(:disabled) { background-image:url("ui/sao-utils/button-press.png") !important; transform:scale(.95) !important; }
-#app-frame #pg-body .growth-path .growth-talent-plus:disabled { opacity:.42 !important; filter:grayscale(.85) !important; cursor:not-allowed !important; }
-#app-frame #pg-body .growth-path .growth-talent-plus:focus-visible { outline:2px solid #ffe28a !important; outline-offset:2px !important; }
-#app-frame #pg-body .growth-break-target {
-    flex:0 0 58px; width:58px; height:58px; display:grid; place-items:center; overflow:hidden;
-    border:1px solid #9daeb5; border-radius:6px;
-    background:radial-gradient(circle,#74858c 0,#34434a 58%,#1c292f 100%);
-    box-shadow:inset 0 1px #ffffff55,0 2px 4px #0007;
+
+/* 角色槽：銀白面板＋天藍細框 */
+#app-frame #team .fm-slot {
+    border-color:#a9c1ce !important;
+    background:linear-gradient(160deg,#ffffff 0%,#f5f7fa 58%,#e8eef1 100%) !important;
+    color:#263238 !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 5px rgba(48,77,91,.16) !important;
 }
-#app-frame #pg-body .growth-break-target img,
-#app-frame #pg-body .growth-break-target .sprite-placeholder { width:50px; height:50px; object-fit:contain; image-rendering:pixelated; }
-#app-frame #pg-body .growth-break-copy { min-width:0; flex:1; }
-#app-frame #pg-body .growth-break-copy .growth-stars { margin:4px 0; }
-@media(max-width:380px) {
-    #app-frame #pg-body .growth-breakthrough-display { gap:7px; }
-    #app-frame #pg-body .growth-break-target { flex-basis:48px; width:48px; height:48px; }
-    #app-frame #pg-body .growth-break-target img,
-    #app-frame #pg-body .growth-break-target .sprite-placeholder { width:42px; height:42px; }
+#app-frame #team .fm-slot:hover { border-color:#7daec6 !important; }
+#app-frame #team .fm-slot-empty {
+    border-color:#8eafc1 !important;
+    background:linear-gradient(160deg,#f7fafb,#e6eef2) !important;
+    color:#43545d !important;
 }
+#app-frame #team .fm-slot-empty:hover {
+    border-color:#159bd1 !important;
+    background:linear-gradient(160deg,#ffffff,#dff7ff) !important;
+    color:#17394a !important;
+}
+#app-frame #team .fm-slot-empty small { color:#586a73 !important; }
+#app-frame #team .fm-slot-empty:hover small { color:#1f6d94 !important; }
+#app-frame #team .fm-slot-plus { color:#d58a29 !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame #team .fm-slot-empty:hover .fm-slot-plus { color:#b3781c !important; }
+
+/* 隊長槽：識別靠金色左條與金框，底色仍是淺色 */
+#app-frame #team .fm-captain {
+    border-color:#e0b64f !important;
+    background:linear-gradient(150deg,#fffdf2 0%,#f8f4e5 55%,#ebe5d1 100%) !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 5px rgba(96,74,20,.2) !important;
+}
+#app-frame #team .fm-captain::before { background:linear-gradient(180deg,#fff0a4,#d58a29) !important; }
+
+/* 立繪板依屬性變色：底色走 --slot-el，上面壓一层半透白把它變成粉彩，點陣角色才不會被吃掉。 */
+#app-frame #team .fm-captain-art,
+#app-frame #team .fm-member-art,
+#app-frame #team .fm-roster-card .sp {
+    border-color:var(--slot-el,#8eafc1) !important;
+    background-color:var(--slot-el,#eef4f7) !important;
+    background-image:linear-gradient(165deg,rgba(255,255,255,.93) 0%,rgba(255,255,255,.74) 48%,rgba(255,255,255,.6) 100%) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 -2px 0 rgba(71,83,89,.12) !important;
+}
+
+/* 槽內文字 */
+#app-frame #team .fm-slot-kicker { color:#8a5a12 !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame #team .fm-captain-name { color:#17394a !important; }
+#app-frame #team .fm-captain-sub,
+#app-frame #team .fm-mini-stat { color:#586a73 !important; }
+#app-frame #team .fm-mini-stat b { color:#17394a !important; }
+#app-frame #team .fm-captain-unison { color:#1f6d94 !important; }
+
+/* HP／技能能量槽 */
+#app-frame #team .fm-mini-gauge { color:#43545d !important; }
+#app-frame #team .fm-mini-gauge > i {
+    border-color:#a9c1ce !important;
+    background-color:#e6edf1 !important;
+    background-image:none !important;
+    box-shadow:inset 0 1px 2px rgba(48,77,91,.28) !important;
+}
+#app-frame #team .fm-mini-gauge > i b { background:linear-gradient(90deg,#e0525c,#f5b04e) !important; }
+#app-frame #team .fm-mini-gauge > i.energy b { background:linear-gradient(90deg,#2f9fd0,#7fe3f5) !important; }
+#app-frame #team .fm-mini-gauge small { color:#263238 !important; }
+
+/* 隊友卡與下場／隊長按鈕 */
+#app-frame #team .fm-member-name { color:#17394a !important; }
+#app-frame #team .fm-member > small { color:#586a73 !important; }
+#app-frame #team .fm-member-actions button {
+    border:1px solid #7daec6 !important;
+    border-bottom:2px solid #5d8ba6 !important;
+    background:linear-gradient(180deg,#ffffff 0%,#edf4f7 54%,#dce8ed 100%) !important;
+    color:#263238 !important;
+    text-shadow:0 1px 0 #fff !important;
+    box-shadow:none !important;
+}
+#app-frame #team .fm-member-actions button:hover {
+    border-color:#159bd1 !important;
+    background:linear-gradient(180deg,#ffffff,#dff7ff) !important;
+    color:#17394a !important;
+}
+
+/* 戰力小結與隊長特性 */
+#app-frame #team .fm-summary {
+    border-color:#a9c1ce !important;
+    background:linear-gradient(160deg,#ffffff,#eef3f6) !important;
+    color:#43545d !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(48,77,91,.14) !important;
+}
+#app-frame #team .fm-summary b { color:#8a5a12 !important; }
+#app-frame #team .fm-lead {
+    border-color:#a9c1ce !important;
+    background:linear-gradient(160deg,#ffffff 0%,#f5f7fa 58%,#e8eef1 100%) !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 5px rgba(48,77,91,.16) !important;
+}
+#app-frame #team .fm-lead > span {
+    color:#38240e !important;
+    background:linear-gradient(180deg,#fff0a4,#f6c34e 55%,#e0a23a) !important;
+    border-color:#ffe4a0 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,230,.8) !important;
+}
+#app-frame #team .fm-lead p { color:#263238 !important; }
+
+/* 下方角色名冊 */
+#app-frame #team .fm-roster-panel h2 { color:#17394a !important; }
+#app-frame #team .fm-roster-panel h2 .hint { color:#586a73 !important; }
+#app-frame #team .roster-filterbar {
+    display:grid; grid-template-columns:minmax(68px,.85fr) minmax(72px,.9fr) minmax(96px,1.65fr) auto;
+    gap:5px; align-items:center; margin:0 0 8px;
+}
+#app-frame #team .roster-filterbar select,
+#app-frame #team .roster-filterbar input {
+    box-sizing:border-box; width:100%; min-width:0; height:32px; padding:0 7px;
+    border:1px solid #9eb7c3; border-radius:5px;
+    background:linear-gradient(180deg,#fff 0%,#eef3f6 100%); color:#203b49;
+    font-family:inherit; font-size:11px; font-weight:600;
+    box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(28,60,76,.12);
+}
+#app-frame #team .roster-filterbar input::placeholder { color:#71838b; opacity:1; }
+#app-frame #team .roster-filterbar .roster-filter-clear {
+    min-width:40px; height:32px; padding:0 8px; border:1px solid #9eb7c3 !important;
+    border-radius:5px !important; background:linear-gradient(180deg,#fff 0%,#e7edf0 100%) !important;
+    color:#244555 !important; text-shadow:none !important; font-size:11px; font-weight:700;
+    box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(28,60,76,.12) !important;
+}
+#app-frame #team .roster-filterbar .roster-filter-clear:hover { background:#e2f2f8 !important; border-color:#76a9bd !important; }
+#app-frame #team .roster-filter-count { margin:-3px 2px 6px; color:#586a73; font-size:10px; text-align:right; }
+#app-frame #team .roster-filter-empty { grid-column:1/-1; padding:16px 8px; text-align:center; color:#586a73; font-size:12px; }
+#app-frame #team .fm-roster-card {
+    border-color:#a9c1ce !important;
+    background:linear-gradient(160deg,#ffffff 0%,#f5f7fa 58%,#e8eef1 100%) !important;
+    color:#263238 !important;
+    box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(48,77,91,.14) !important;
+}
+#app-frame #team .fm-roster-card:hover { border-color:#7daec6 !important; }
+#app-frame #team .fm-roster-card > b { color:#17394a !important; }
+#app-frame #team .fm-roster-card > small { color:#586a73 !important; }
+#app-frame #team .fm-roster-card.onfield {
+    border-color:#159bd1 !important;
+    background:linear-gradient(180deg,#dff7ff,#9ee5f7) !important;
+    color:#17394a !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 2px 4px rgba(21,110,148,.24) !important;
+}
+#app-frame #team .fm-roster-state { color:#1b7f5a !important; }
+#app-frame #team .fm-roster-card:not(.onfield) .fm-roster-state { color:#586a73 !important; }
+#app-frame #team .fm-roster-section { color:#17394a !important; }
+#app-frame #team .fm-roster-section .rsec-n { color:#586a73 !important; }
+
+/* 主頁頂部帳號條 B 版：平白浮動卡（去漸層、去厚框）、EXP 條全寬當卡底、
+   屬性加成搬到頭像角、體力直接把回復倒數攤在卡面上，只有結晶掛 ＋（去花結晶的招募頁）。 */
+#app-frame .hm-profile-card {
+    display:grid !important; grid-template-columns:auto minmax(0,1fr) !important;
+    align-items:center !important; gap:9px !important; min-height:76px !important;
+    padding:7px 10px 8px !important; box-sizing:border-box;
+    background:#fff !important;
+    border:0 !important; border-bottom:2px solid #dce4ea !important;
+    border-radius:0 0 10px 10px !important;
+    box-shadow:0 3px 10px rgba(23,57,74,.14) !important;
+}
+#app-frame .hm-avatar-wrap { position:relative; }
+#app-frame .hm-profile-card .hm-avatar { width:52px !important; height:60px !important; }
+/* 稱號階級靠外圈那 2px 的顏色分辨，所以只把厚黑底邊換成淡影，階級不能跟著消失。 */
+#app-frame .hm-avatar.account-avatar .home-avatar-frame {
+    border-width:1px !important; border-radius:8px !important; background:#edf1f5 !important;
+    box-shadow:0 0 0 2px rgba(198,146,57,.3),0 2px 6px rgba(23,57,74,.16) !important;
+}
+#app-frame .hm-avatar.account-avatar.title-frame-2 .home-avatar-frame { box-shadow:0 0 0 2px #4c8393,0 2px 6px rgba(23,57,74,.16) !important; }
+#app-frame .hm-avatar.account-avatar.title-frame-3 .home-avatar-frame { box-shadow:0 0 0 2px #a98232,0 2px 6px rgba(23,57,74,.16) !important; }
+#app-frame .hm-avatar.account-avatar.title-frame-4 .home-avatar-frame { box-shadow:0 0 0 2px #c69239,0 0 8px rgba(202,161,76,.55),0 2px 6px rgba(23,57,74,.16) !important; }
+#app-frame .hm-account-bonus {
+    position:absolute; right:-4px; bottom:-3px; padding:1px 4px; border-radius:3px;
+    background:linear-gradient(180deg,#ffe9a8,#e7b84f) !important; border:1px solid #a98232 !important;
+    color:#4a3212 !important; text-shadow:none !important; box-shadow:0 1px 2px rgba(23,57,74,.22) !important;
+    font-size:7px; font-weight:900; line-height:1.35; white-space:nowrap; pointer-events:none;
+}
+#app-frame .hm-profile-info { min-width:0 !important; display:flex !important; flex-direction:column !important; gap:4px !important; }
+#app-frame .hm-profile-title { min-width:0; gap:6px; justify-content:flex-start !important; }
+#app-frame .hm-profile-title > b { flex:1; color:#2a323d !important; text-shadow:0 1px 0 #fff !important; }
+#app-frame .hm-rank-badge {
+    padding:2px 6px !important; border:1px solid #a98232 !important; border-radius:4px !important;
+    background:linear-gradient(180deg,#fff3c2,#e7b84f) !important; color:#4a3212 !important;
+    box-shadow:none !important; text-shadow:none !important;
+}
+#app-frame .hm-rank-badge i { color:#8a5b12 !important; }
+#app-frame .hm-resource-row { display:flex; align-items:stretch; gap:5px; min-width:0; }
+#app-frame .hm-resource-chip {
+    display:inline-flex; align-items:center; gap:4px; min-width:0; padding:2px 7px;
+    border:0 !important; border-radius:5px; background:#edf1f5 !important;
+    color:#2a323d !important; font-size:9px; font-weight:800; line-height:1.25;
+    box-shadow:none !important; text-shadow:none !important; white-space:nowrap;
+}
+/* 兩顆 chip 等寬撐滿整列（右側原本空 109px）；chip 內最後一個元素（回復倒數／＋）釘到右緣。 */
+#app-frame .hm-resource-chip { flex:1 1 0 !important; }
+#app-frame .hm-resource-chip > :last-child { margin-left:auto !important; }
+#app-frame .hm-resource-chip.stamina { cursor:pointer; }
+#app-frame .hm-resource-chip .hm-resource-icon { font-size:11px; line-height:1; }
+#app-frame .hm-resource-chip.stamina .hm-resource-icon { color:#e0a020 !important; }
+#app-frame .hm-resource-chip.crystal .hm-resource-icon { color:#0e86be !important; }
+#app-frame .hm-resource-chip.crystal .hm-resource-icon.crystal-art { display:block; width:19px; height:19px; object-fit:contain; image-rendering:auto; filter:drop-shadow(0 1px 1px #26343a66); }
+#app-frame .adventure-crystal-icon { width:18px; height:18px; vertical-align:middle; object-fit:contain; image-rendering:auto; }
+#app-frame #pg-body .exchange-currency-icon { display:block; width:31px; height:31px; padding:2px; object-fit:contain; image-rendering:auto; border:0; border-radius:0; background:none; }
+#app-frame #pg-body .exchange-buy img { flex:none; image-rendering:auto; }
+#app-frame #pg-body .inventory-row-art img[src$="/crystal.png"] { width:30px; height:30px; object-fit:contain; image-rendering:auto; }
+#app-frame .hm-resource-chip b { color:#17394a !important; font-size:10px; }
+#app-frame .hm-resource-chip i { color:#6b7c88; font-style:normal; }
+#app-frame .hm-regen { font-size:7px; font-weight:700; color:#6b7c88 !important; }
+/* ＋ 那顆是 button，會被前面那條全域按鈕銀白皮（#app-frame button:not(.gold)…，權重 1,3,1）蓋掉，
+   所以這裡掛兩個 id 把背景／邊框／陰影要回來。 */
+#app-frame #hm-energy-card .hm-plus {
+    appearance:none; -webkit-appearance:none; flex:none; width:15px; height:15px; padding:0;
+    border:1px solid #a9bbc4 !important; border-radius:4px !important; background:#fff !important;
+    color:#0e86be !important; text-shadow:none !important; box-shadow:none !important;
+    font-family:inherit; font-size:10px; font-weight:900; line-height:1; cursor:pointer;
+}
+#app-frame .hm-exp-label {
+    display:flex !important; align-items:center !important; justify-content:flex-start !important;
+    gap:6px !important; color:#6b7c88 !important;
+}
+#app-frame .hm-exp-label > span { font-size:8px; }
+#app-frame .hm-exp-label b { color:#0e86be !important; font-size:10px; text-shadow:none !important; flex:none; }
+#app-frame .hm-energy-track {
+    flex:1 1 auto !important; width:auto !important; min-width:0; height:7px !important;
+    background:#e0e5ec !important; border:0 !important; border-radius:3px !important; box-shadow:none !important;
+}
+#app-frame .hm-energy-track i { background:linear-gradient(90deg,#54dcf6,#00a3e0) !important; border-radius:3px !important; }
+@media (max-width:380px) {
+    #app-frame .hm-resource-chip { padding:2px 5px; font-size:8px; }
+    #app-frame .hm-profile-card .hm-avatar { width:46px !important; height:54px !important; }
+}
+
+/* 轉蛋頁防炸寬：那張 1254×1254 的經驗水晶原圖曾把 .gacha-shop 那條 auto 軌道撐到 1323px，
+   整頁每一塊跟著變寬、右側元件跑出畫面外。軌道收死後，任何元件太寬只會撐破自己那一格。 */
+#app-frame #pg-body .gacha-shop { grid-template-columns:minmax(0,1fr) !important; }
+#app-frame #pg-body .summon-rates>div { min-width:0; }
+
+/* ---- 戰鬥頂部 HUD ＝ B 版（淺色面板＋彈射世界那三個讀值）----
+   上面那段 12 個選擇器共用的淺色 pass 帶了 !important，HUD 的皮必須加在它之後、同權重才蓋得過。
+   面板沿用主頁／編成的淺色，只搬三件事：① 扣血拖尾 ② 待放金框（原本被那條 pass 壓死）③ 百分比改深字＋白光暈。
+   頭像不要圓框：5px 圓角方框＋屬性色（--chip-el 由 buildHudTeam 掛在 chip 上）。 */
+#app-frame .pf-hud .mchip {
+    background:#fff !important; border:1px solid #8fb2c6 !important; border-radius:4px !important;
+    box-shadow:0 1px 3px rgba(23,57,74,.24) !important; padding:3px 4px 3px 29px !important;
+}
+#app-frame .pf-hud .mchip .pf-face {
+    width:24px !important; height:24px !important; border:2px solid var(--chip-el,#7daec6) !important;
+    border-radius:5px !important; background:#eaf2f7 !important; box-shadow:0 0 0 1px #fff !important;
+}
+#app-frame .pf-hud .mchip .elb {
+    left:17px !important; top:calc(50% + 6px) !important; border:1px solid #fff !important;
+    border-radius:2px !important; background:#17394a !important;
+}
+#app-frame .pf-hud .mchip .hp-row .gauge-bar {
+    height:13px !important; background:#dce5ec !important; border:1px solid #93a9b6 !important; border-radius:3px !important;
+    box-shadow:inset 0 1px 1px rgba(23,57,74,.16) !important;
+}
+#app-frame .pf-hud .mchip .hp-lag { position:absolute; left:0; top:0; bottom:0; z-index:0; background:#f3b9b9; }
+#app-frame .pf-hud .mchip .gauge-fill { position:relative; z-index:1; }
+#app-frame .pf-hud .mchip .hp-row .gauge-bar .hp-green { background:linear-gradient(180deg,#7ee78f,#2fcf6a 60%,#22a857) !important; }
+#app-frame .pf-hud .mchip .cd-row .gauge-bar { height:5px !important; background:#dce5ec !important; border:1px solid #93a9b6 !important; }
+#app-frame .pf-hud .mchip .cd-row .gauge-bar .skill-fill { background:linear-gradient(90deg,#54dcf6,#0e86be) !important; }
+#app-frame .pf-hud .mchip .hp-pct {
+    color:#17394a !important; font-size:9px !important; z-index:3 !important;
+    text-shadow:0 0 2px #fff,1px 0 #fff,-1px 0 #fff,0 1px #fff,0 -1px #fff !important;
+}
+#app-frame .pf-hud .mchip .mc-cd { color:#41606f !important; font-size:8px !important; }
+#app-frame .pf-hud .mchip.ready {
+    border-color:#e7b84f !important;
+    box-shadow:0 0 0 1px #ffe9a8,0 0 8px rgba(231,184,79,.6),0 1px 3px rgba(23,57,74,.24) !important;
+}
+#app-frame .pf-hud .mchip.ready .pf-face { border-color:#c69239 !important; }
+#app-frame .pf-hud .mchip.ready .mc-cd { color:#8a5b12 !important; }
+#app-frame .pf-hud .mchip.down { opacity:.5 !important; filter:grayscale(.9) !important; }
+#app-frame .pf-hud .hud-pill.zone {
+    background:rgba(23,57,74,.88) !important; border:1px solid rgba(255,255,255,.55) !important; border-radius:4px !important;
+    box-shadow:0 1px 3px rgba(6,20,30,.35) !important; color:#dceef7 !important; font-size:8px !important; letter-spacing:1.5px !important;
+}
+#app-frame .pf-hud .hud-pill.zone b { color:#ffd86b !important; font-size:13px !important; text-shadow:0 1px 1px rgba(0,0,0,.5) !important; }
+#app-frame .pf-hud .hud-sq { width:30px !important; height:30px !important; }
+
+/* ==== 稱號面板（點頭像開的 #account-stats）B 版：雙欄稱號卡＋精簡說明（2026-11-04）====
+   修兩件事：① 篩選鈕選中態原本被上面那條全域按鈕皮（1,3,1＋!important）蓋到跟未選中算出同一組樣式；
+   ② 清單上方原本堆五段說明共 289px，把 20 條稱號擠到面板要捲 948px。 */
+#app-frame .account-stats .as-panel.title-account-panel { overflow:hidden !important; gap:6px !important; padding:8px !important; }
+#app-frame .account-stats .as-panel > * { flex:none !important; }
+#app-frame .account-stats .as-head { min-height:0 !important; padding:0 32px 6px 0 !important; border-bottom:1px solid #c3d2da !important; }
+#app-frame .account-stats .title-account-panel > .title-account-equipped { display:flex !important; flex-wrap:wrap; align-items:baseline; gap:2px 7px; padding:5px 8px !important; border:1px solid #cdb26d !important; border-radius:5px !important; background:linear-gradient(135deg,#fffaee,#f5ead0) !important; box-shadow:inset 0 1px 0 #fff !important; }
+#app-frame .account-stats .title-account-equipped > span { color:#6f5c2b !important; font-size:9px !important; font-weight:800 !important; letter-spacing:.04em; }
+#app-frame .account-stats .title-account-equipped > b { font-size:13px !important; }
+#app-frame .account-stats .title-account-equipped > strong { flex-basis:100%; color:#7a6837 !important; font-size:9px !important; font-weight:700 !important; line-height:1.35; }
+#app-frame .account-stats .as-derived { padding:5px 8px !important; border-radius:5px !important; margin:0 !important; }
+#app-frame .account-stats .as-derived h3 { margin:0 0 3px !important; font-size:10px !important; color:#3f5560 !important; }
+#app-frame .account-stats .as-derived-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:1px 9px !important; }
+#app-frame .account-stats .as-derived-grid span { font-size:9px !important; white-space:nowrap; gap:3px !important; }
+#app-frame .account-stats .as-derived-grid b { font-size:9.5px !important; }
+#app-frame .account-stats .title-list-heading { font-size:11px !important; padding:0 1px !important; }
+/* 篩選列：選中那顆真的看得見（金底＋深金框），未選中保持淺銀 */
+#app-frame .account-stats .title-filter-groups { display:flex !important; flex-direction:column; gap:5px; margin:0 !important; }
+#app-frame .account-stats .title-filters { flex-wrap:nowrap !important; overflow-x:auto !important; scrollbar-width:none; min-width:0; }
+#app-frame .account-stats .title-status-filters { border-top:0 !important; padding-top:0 !important; }
+#app-frame .account-stats .title-filter-groups button.title-filter { flex:none !important; padding:4px 10px !important; border:1px solid #b3c4cf !important; border-radius:4px !important; font-size:10px !important; font-weight:700 !important; background:linear-gradient(#ffffff,#e6ecf0) !important; color:#4a5c66 !important; box-shadow:inset 0 -1px 0 rgba(80,100,110,.18) !important; }
+#app-frame .account-stats .title-filter-groups button.title-filter.active { color:#4a3608 !important; background:linear-gradient(#ffe9a6,#e0b64f) !important; border-color:#a8802c !important; box-shadow:inset 0 1px 0 #fff8dc,0 0 0 1px rgba(168,128,44,.5) !important; }
+/* 稱號清單：只有這塊會捲，雙欄一屏看完 20 條；達成條件改由 title 提示（滑鼠停留） */
+#app-frame .account-stats .as-panel .title-entry-list { flex:1 1 auto !important; min-height:0 !important; overflow:auto !important; display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:5px !important; }
+#app-frame .account-stats .as-panel .title-entry-list .title-empty { grid-column:1/-1; }
+#app-frame .account-stats .as-panel .title-entry-list button.title-entry { display:flex !important; align-items:center; gap:6px !important; padding:5px 6px !important; border:1px solid #c2d2da !important; border-top:3px solid #aab8c0 !important; border-radius:5px !important; background:linear-gradient(180deg,#ffffff,#f1f5f7) !important; box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(48,77,91,.12) !important; }
+#app-frame .account-stats .as-panel .title-entry-list button.title-entry.tier-2 { border-top-color:#4c90a8 !important; }
+#app-frame .account-stats .as-panel .title-entry-list button.title-entry.tier-3,#app-frame .account-stats .as-panel .title-entry-list button.title-entry.tier-4 { border-top-color:#c19a3c !important; }
+#app-frame .account-stats .as-panel .title-entry-list button.title-entry.equipped { border-color:#c9a85f !important; background:linear-gradient(180deg,#fffaf0,#f7edd6) !important; box-shadow:inset 0 0 0 1px #d8bd76,0 1px 2px rgba(120,90,20,.2) !important; }
+#app-frame .account-stats .as-panel .title-entry-list button.title-entry:disabled { opacity:.5 !important; border-top-color:#c6cdd1 !important; background:linear-gradient(180deg,#f2f4f5,#e6eaec) !important; }
+#app-frame .account-stats .as-panel .title-entry-frame { width:26px !important; height:26px !important; border-width:2px !important; border-radius:4px !important; }
+#app-frame .account-stats .as-panel .title-entry-frame i { font-size:12px !important; }
+#app-frame .account-stats .as-panel .title-entry-copy { gap:1px !important; min-width:0; }
+#app-frame .account-stats .as-panel .title-entry-copy b { font-size:10.5px !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#app-frame .account-stats .as-panel .title-entry-copy em { font-size:8.5px !important; color:#8a6d1f !important; }
+#app-frame .account-stats .as-panel .title-entry.equipped .title-entry-copy em { color:#8a5b12 !important; }
+#app-frame .account-stats .as-panel .title-entry-state { display:block !important; padding:1px 4px !important; border-radius:2px !important; font-size:8px !important; font-weight:800 !important; line-height:1.3; color:#2f6b83 !important; background:#e3f0f5 !important; }
+#app-frame .account-stats .as-panel .title-entry.equipped .title-entry-state { color:#4a3608 !important; background:#f3e0a6 !important; }
+#app-frame .account-stats .as-panel .title-entry:disabled .title-entry-state { color:#6d7a80 !important; background:#e9ecee !important; }
+
+/* ==== 稱號展示框定案：框型三「徽章頭」＋四階四色＋跟在帳號名稱後（2026-11-04）====
+   圖章形依 category（冒險／戰鬥／成長／蒐集），框色依 tier（1 銀／2 天藍／3 金／4 紫）；兩側細線固定短寬，不撐列寬。 */
+#app-frame .hm-title-line { display:flex; align-items:center; flex:none; min-width:0; }
+#app-frame .hm-title-line::before,
+#app-frame .hm-title-line::after { content:""; flex:none; width:14px; height:1px; margin:0 4px; background:linear-gradient(90deg,rgba(150,170,182,0),rgba(150,170,182,.85)); }
+#app-frame .hm-title-line::after { background:linear-gradient(270deg,rgba(150,170,182,0),rgba(150,170,182,.85)); }
+/* 稱號與名稱同列：名稱不撐滿、空間不夠時名稱自己截字，稱號框永不縮 */
+#app-frame .hm-profile-title { align-items:center; }
+#app-frame .hm-profile-title > b { flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+#app-frame .hm-current-title {
+    position:relative; display:inline-flex; align-items:center; justify-content:center; flex:none;
+    padding:2px 9px 2px 2px; border:1px solid var(--tb); border-radius:3px;
+    background:linear-gradient(180deg,var(--tf1),var(--tf2));
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.85),0 0 0 2px var(--tg);
+    color:var(--tc); font-size:11px; font-weight:900; letter-spacing:.4px; line-height:1.3; white-space:nowrap;
+}
+#app-frame .hm-current-title::before {
+    content:""; width:14px; height:14px; margin-right:6px; display:grid; place-items:center;
+    font-size:9px; color:#fff; background:linear-gradient(180deg,var(--tb),var(--tc));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
+}
+#app-frame .hm-current-title[data-cat="冒險"]::before { content:"◈"; border-radius:50%; }
+#app-frame .hm-current-title[data-cat="戰鬥"]::before { content:"⚔"; clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); }
+#app-frame .hm-current-title[data-cat="成長"]::before { content:"▲"; clip-path:polygon(50% 0,100% 34%,82% 100%,18% 100%,0 34%); }
+#app-frame .hm-current-title[data-cat="蒐集"]::before { content:"✦"; border-radius:3px; }
+#app-frame .hm-current-title[data-tier="1"] { --tc:#5a6a74; --tb:#a9b8c1; --tf1:#f5f8fa; --tf2:#e4ebef; --tg:rgba(146,167,180,.5); }
+#app-frame .hm-current-title[data-tier="2"] { --tc:#2f6b83; --tb:#7fb2c6; --tf1:#f2f9fb; --tf2:#dbeaf1; --tg:rgba(76,144,168,.5); }
+#app-frame .hm-current-title[data-tier="3"] { --tc:#8a6212; --tb:#d3b268; --tf1:#fffaf0; --tf2:#f6e9c8; --tg:rgba(193,154,60,.55); }
+#app-frame .hm-current-title[data-tier="4"] { --tc:#6a3f92; --tb:#b48fd8; --tf1:#fdf7ff; --tf2:#efe1fa; --tg:rgba(150,105,196,.55); }
+/* 稱號面板「目前展示」那一列：同一顆框，置中；權重要壓過 #app-frame .account-stats :is(...) 的全域深藍字色 */
+#app-frame .account-stats .as-panel .title-account-equipped > b.hm-current-title { margin:0 auto; font-size:12.5px !important; color:var(--tc) !important; text-shadow:none !important; }

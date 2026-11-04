@@ -1,36 +1,57 @@
-const GROWTH_PATHS = {
-    skill: { name: '技能', icon: '✦', desc: '每階技能傷害 +6%、技能治療量 +2%' },
-    pf: { name: '強力彈射', icon: '⚡', desc: '每階 PF 傷害與應援攻擊加成效果 +8%' },
-    survival: { name: '生存', icon: '🛡', desc: '每階最大生命 +4%、受到傷害 -1%' }
-};
+const GROWTH_CONFIG = GAME_DATA.progression.characterGrowth;
+const GROWTH_PATHS = GROWTH_CONFIG.paths;
+const GROWTH_ELEMENTS = GAME_DATA.elements.definitions;
+// 圓台素材以屬性分檔，立繪背後的底盤顏色就跟著角色屬性走。
+const GROWTH_DAIS_EL = ['fire', 'water', 'thunder', 'wind', 'light', 'dark'];
 let growthFor = null;
 let growthViewSignature = '';
 const growthInt = (n, min, max) => Math.max(min, Math.min(max, Math.floor(Number(n) || 0)));
-const GROWTH_BASE_CAP = 80;
-const GROWTH_MAX_CAP = 100;
-const GROWTH_CAP_STEP = 5;
+const GROWTH_BASE_CAP = GROWTH_CONFIG.baseCap;
+const GROWTH_MAX_CAP = GROWTH_CONFIG.maxCap;
+const GROWTH_CAP_STEP = GROWTH_CONFIG.capStep;
 // 上限解放 4 階：每階需要的最高 RANK（推過的最高樓層）與碎片
-const GROWTH_BREAK_RANKS = [40, 60, 80, 100];
-const GROWTH_BREAK_SHARDS = [20, 30, 40, 50];
-function growthExpNeed(level) { const n = Math.max(0, level - 1); return 100 + 45 * n + 15 * n * n; }
+const GROWTH_BREAK_RANKS = GROWTH_CONFIG.breakthroughRanks;
+const GROWTH_BREAK_SHARDS = GROWTH_CONFIG.breakthroughShards;
+function growthExpNeed(level) { const n = Math.max(0, level - 1); return GROWTH_CONFIG.exp.base + GROWTH_CONFIG.exp.linear * n + GROWTH_CONFIG.exp.quadratic * n * n; }
+function growthStatGain(ch, key) { return GROWTH_CONFIG.levelGains[key] * (CHAR_TABLE[ch && ch.id]?.powerScale || 1); }
+function growthGainText(value) { return Number.isInteger(value) ? String(value) : Number(value).toFixed(1); }
 function growthRank() { return Math.max(1, Math.floor(Number(rankLv) || 1)); }
 function breakthroughStage(ch) { return growthInt(ch && ch.breakthrough, 0, GROWTH_BREAK_RANKS.length); }
-// 前四顆星代表已完成的上限解放；第五格先展示為未開放的超限解放。
-function breakthroughStarsMarkup(ch, compact = false) {
+// 星數就是上限解放次數，解放／超限解放的字樣不再顯示；未解放時整列不出現。
+function earnedStarsMarkup(stage) { return '<span class="growth-star earned" aria-hidden="true">★</span>'.repeat(stage); }
+function breakthroughStarsMarkup(ch) {
     const stage = breakthroughStage(ch);
-    const stars = Array.from({ length: 4 }, (_, i) => `<span class="growth-star${i < stage ? ' earned' : ''}" aria-hidden="true">★</span>`).join('');
-    return `<div class="growth-stars${compact ? ' compact' : ''}" aria-label="上限解放 ${stage}/4 星；超限解放星未開放" title="上限解放 ${stage}/4　・　超限解放星（未開放）"><span class="growth-stars-label">解放</span>${stars}<span class="growth-overlimit-label">／超限解放 <b aria-hidden="true">★</b>（未開放）</span></div>`;
+    if (!stage) return '';
+    return `<div class="growth-stars compact" aria-label="上限解放 ${stage} 星" title="上限解放 ${stage}／${GROWTH_BREAK_RANKS.length} 星">${earnedStarsMarkup(stage)}</div>`;
+}
+// 立繪頭頂的星級：置中浮在角色上方。
+function growthHeadStarsMarkup(stage) {
+    if (!stage) return '';
+    return `<div class="growth-head-stars" aria-label="上限解放 ${stage} 星">${earnedStarsMarkup(stage)}</div>`;
 }
 function growthCap(ch) { return Math.max(ch.lvl > GROWTH_MAX_CAP ? ch.lvl : 0, Math.min(GROWTH_MAX_CAP, GROWTH_BASE_CAP + breakthroughStage(ch) * GROWTH_CAP_STEP)); }
 function talentRank(ch, key) { return growthInt(ch && ch.talents && ch.talents[key], 0, 999999); }
 // 天賦點由等級與上限解放累積；不再設總點數或單條天賦階級上限。
-function talentBudget(ch) { return 2 + Math.floor(ch.lvl / 5) + breakthroughStage(ch); }
+function talentBudget(ch) { return GROWTH_CONFIG.talent.basePoints + Math.floor(ch.lvl / GROWTH_CONFIG.talent.pointsPerLevels) + breakthroughStage(ch); }
 function talentUsed(ch) { return Object.keys(GROWTH_PATHS).reduce((n, k) => n + talentRank(ch, k), 0); }
 function breakthroughRankNeed(ch) { return GROWTH_BREAK_RANKS[breakthroughStage(ch)]; }
 function breakthroughCost(ch) { return GROWTH_BREAK_SHARDS[breakthroughStage(ch)]; }
 
 function normalizeCharacterGrowth(ch) {
     ch.lvl = growthInt(ch.lvl, 1, 999999);
+    if (ch.rarityScaleVersion !== 2) {
+        const character = CHAR_TABLE[ch.id];
+        const scale = character?.powerScale || 1;
+        // v1 存檔已套用舊倍率（常駐 1.20、限定 1.40）；轉成新倍率時只補倍率差，避免重複放大。
+        const previousScale = ch.rarityScaleVersion === 1
+            ? (character?.rarity === 5 ? (character.summonCategory === 'limited' ? 1.40 : 1.20) : 1)
+            : 1;
+        const adjustment = scale / previousScale;
+        ch.baseAtk = Math.round((Number(ch.baseAtk) || character?.atk || 1) * adjustment);
+        ch.maxHp = Math.round((Number(ch.maxHp) || character?.hp || 1) * adjustment);
+        ch.hp = Math.round((Number(ch.hp) || ch.maxHp) * adjustment);
+        ch.rarityScaleVersion = 2;
+    }
     const oldNeed = Math.max(1, Number(ch.nextExp) || 100);
     const oldExp = Math.max(0, Number(ch.exp) || 0);
     if (ch.growthVersion === 2) {
@@ -66,7 +87,9 @@ function gainGrowthExp(ch, amount) {
     let levels = 0;
     while (ch.lvl < growthCap(ch) && ch.exp >= ch.nextExp) {
         ch.exp -= ch.nextExp;
-        ch.lvl++; ch.baseAtk += 3; ch.maxHp += 20;
+        ch.lvl++;
+        ch.baseAtk += growthStatGain(ch, 'atk');
+        ch.maxHp += growthStatGain(ch, 'hp');
         ch.nextExp = growthExpNeed(ch.lvl);
         if (ch.hp > 0) ch.hp = hpMax(ch);
         levels++;
@@ -121,6 +144,26 @@ function cultivateGrowthChar(id, event) {
         ringColor:'#a8ff83', textColor:'#caffad',
         title:levels ? `培養成功　Lv.${oldLevel} → ${ch.lvl}` : '培養成功',
         subtitle:'角色經驗 +100'
+    });
+}
+
+function cultivateGrowthCharWithHighCrystal(id, event) {
+    const ch = roster[id];
+    if (!ch || !ch.unlocked || highGradeExperienceCrystals < 1) return;
+    if (ch.lvl >= growthCap(ch)) { hmToast('角色已達目前等級上限，請先上限解放'); return; }
+    const sourceRect = event && event.currentTarget && event.currentTarget.getBoundingClientRect();
+    const targetEl = typeof document !== 'undefined' ? document.querySelector('#pg-body .growth-break-target') : null;
+    const targetRect = targetEl && targetEl.getBoundingClientRect();
+    const oldLevel = ch.lvl;
+    highGradeExperienceCrystals--;
+    const levels = gainGrowthExp(ch, 1000);
+    log(`💎 ${charName(id)} 使用高階經驗水晶，角色經驗 +1,000${levels ? `，升級 ${levels} 級` : ''}。`);
+    refreshGrowthAfterPurchase();
+    if (sourceRect && targetRect) playGrowthEffect(sourceRect, targetRect, {
+        colors:['#fff0ff','#e2b8ff','#a66eff','#d8c7ff','#ffffff'],
+        ringColor:'#d8b5ff', textColor:'#edcaff',
+        title:levels ? `強化成功　Lv.${oldLevel} → ${ch.lvl}` : '高階培養成功',
+        subtitle:'角色經驗 +1,000'
     });
 }
 
@@ -215,24 +258,39 @@ function renderGrowthPage() {
     const rank = growthRank(), maxed = cap >= GROWTH_MAX_CAP, rankOk = maxed || rank >= need;
     const capped = ch.lvl >= cap;
     const materials = typeof cultivationMaterials === 'number' ? cultivationMaterials : 0;
-    return `<button class="mini-btn gray" onclick="closeGrowth()">‹ 返回角色</button>
-        <div class="pg-sec">${d.name}・角色培養</div>
-        <div class="pgc growth-breakthrough-display"><div class="growth-break-target" id="growth-break-target">${unitFace(d.unit, d.rarity, 'walk_front', d.name.slice(0, 1))}</div><div class="growth-break-copy"><div class="nm">上限解放星級</div>${breakthroughStarsMarkup(ch)}<div class="sub">每次上限解放增加一星；完成四次後為四星。超限解放五星目前尚未開放。</div></div></div>
-        <div class="pgc"><div class="nm">升級　Lv.${ch.lvl} / ${cap}</div>
-            <div class="st">攻擊 <b>${atkOf(ch)}</b>｜最大生命 <b>${hpMax(ch)}</b></div>
-            <div class="bar"><i style="width:${Math.min(100, ch.exp / ch.nextExp * 100)}%"></i></div>
-            <div class="sub">${capped ? (maxed ? '已達最高等級' : '已達等級上限，上限解放後可繼續升級') : `經驗 ${Math.floor(ch.exp)} / ${ch.nextExp}`}</div>
-            <div class="sub">使用培養道具取得角色經驗；每級攻擊 +3、生命 +20。</div>
-            <button class="mini-btn gold growth-cultivate-btn" ${!materials || capped ? 'disabled' : ''} onclick="cultivateGrowthChar('${ch.id}',event)">道具培養｜神之金屬 ×1　角色經驗 +100（持有 ${materials}）</button></div>
-        <div class="pgc"><div class="nm">上限解放　${breakStage} / ${GROWTH_BREAK_RANKS.length}</div>
-            <div class="st">持有 <b>${ch.shards}</b> 片｜目前上限 <b>${cap}</b>｜目前 RANK <b>${rank}</b></div>
-            <div class="sub">${maxed ? `等級上限已解放到 ${GROWTH_MAX_CAP}。` : `解放後上限 ${cap} → ${Math.min(GROWTH_MAX_CAP, cap + GROWTH_CAP_STEP)}；需要 RANK ${need} ＋ ${cost} 片碎片。`}</div>
-            <div class="sub">RANK 靠打怪經驗升級、不會倒退；不必等滿級即可解放。</div>
-            <button class="mini-btn gold" ${maxed || !rankOk || ch.shards < cost ? 'disabled' : ''} onclick="breakthroughChar('${ch.id}',event)">${maxed ? '上限已達 100' : !rankOk ? `需要 RANK ${need}` : `上限解放 · ${cost} 片`}</button></div>
-        <div class="pgc"><div class="nm">角色天賦　${used} / ${budget} 點</div>
-            <div class="sub">每次上限解放獲得 1 點（目前解放取得 ${breakStage} 點）；角色升級也會增加天賦點。點擊「＋」配置，天賦點與各天賦階級暫無上限；PF 以隊長天賦為準。</div>
-            ${Object.entries(GROWTH_PATHS).map(([key, p]) => { const rank = talentRank(ch, key); return `<div class="growth-path"><div><b>${p.icon} ${p.name}　${rank}</b><div class="sub">${p.desc}</div></div>
+    const highMaterials = typeof highGradeExperienceCrystals === 'number' ? highGradeExperienceCrystals : 0;
+    // 圓台與徽章都取自角色自己的屬性，沒有對應素材時退回風屬性的圓台。
+    const el = GROWTH_DAIS_EL.includes(d.element) ? d.element : 'wind', elInfo = GROWTH_ELEMENTS[el];
+    const skill = talentRank(ch, 'skill'), pf = talentRank(ch, 'pf'), survival = talentRank(ch, 'survival');
+    return `<div class="growth-who">
+        <button class="mini-btn gray growth-back" onclick="closeGrowth()">‹ 返回角色</button></div>
+    <div class="growth-stage">
+        <div class="growth-halo"></div>
+        <img class="growth-dais" src="asset/ui/growth-dais/${el}.png" alt="${elInfo.label}屬性圓台">
+        <div class="growth-ring"></div>
+        <div class="growth-break-target">${unitFace(d.unit, d.rarity, 'walk_front', d.name.slice(0, 1))}</div>${growthHeadStarsMarkup(breakStage)}
+        <div class="growth-head-id"><span class="growth-name">${d.name}</span><span class="element-badge ${elInfo.cls}" aria-label="${d.name}是${elInfo.label}屬性" title="${elInfo.label}屬性">${elInfo.label}</span></div></div>
+    <div class="growth-sheet">
+        <div class="growth-break-row">
+            <div class="growth-break-left">${breakthroughStarsMarkup(ch)}</div>
+            <div class="growth-break-meta" aria-label="上限解放 ${breakStage}/${GROWTH_BREAK_RANKS.length} 星">碎片 <i>${ch.shards}</i>｜RANK <i>${rank}</i>｜上限 <i>${maxed ? cap : `${cap}→${Math.min(GROWTH_MAX_CAP, cap + GROWTH_CAP_STEP)}`}</i></div></div>
+        <div class="growth-band">
+            <div><small>LV</small><b>${ch.lvl}<u>/${cap}</u></b></div>
+            <div><small>HP</small><b>${hpMax(ch)}</b></div>
+            <div><small>攻擊</small><b>${atkOf(ch)}</b></div>
+            <div><small>解放</small><b>${breakStage}<u>/${GROWTH_BREAK_RANKS.length}</u></b></div>
+            <div><small>天賦點</small><b>${used}<u>/${budget}</u></b></div></div>
+        <div class="growth-exp">
+            <div class="growth-exp-head"><b>${capped ? (maxed ? '已達最高等級' : '已達等級上限，請先上限解放') : `經驗 ${Math.floor(ch.exp)} / ${ch.nextExp}`}</b><span>每級 攻擊 +${growthGainText(growthStatGain(ch, 'atk'))}｜生命 +${growthGainText(growthStatGain(ch, 'hp'))}</span></div>
+            <div class="growth-track"><i class="growth-fill${capped ? ' full' : ''}" style="width:${Math.min(100, ch.exp / ch.nextExp * 100)}%"></i></div></div>
+        <div class="growth-acts">
+            <button class="growth-act gold" ${!materials || capped ? 'disabled' : ''} onclick="cultivateGrowthChar('${ch.id}',event)"><b>經驗水晶強化</b><small>${capped ? '需先上限解放' : `+100 經驗｜持有 ${materials}`}</small></button>
+            <button class="growth-act high-crystal" ${!highMaterials || capped ? 'disabled' : ''} onclick="cultivateGrowthCharWithHighCrystal('${ch.id}',event)"><b>高階水晶強化</b><small>${capped ? '需先上限解放' : `+1,000 經驗｜持有 ${highMaterials}`}</small></button>
+            <button class="growth-act breakthrough" ${maxed || !rankOk || ch.shards < cost ? 'disabled' : ''} onclick="breakthroughChar('${ch.id}',event)"><b>上限解放</b><small>${maxed ? `已達 ${GROWTH_MAX_CAP}` : !rankOk ? `需 RANK ${need}` : `解放 · ${cost} 片`}</small></button></div>
+        <div class="growth-talents">
+            <div class="growth-sec"><div class="growth-sec-title"><b>角色天賦</b><span>${used} / ${budget} 點</span></div>
+                <button class="growth-reset" ${used ? '' : 'disabled'} onclick="resetTalents('${ch.id}')">重置 · 返還 ${used} 點</button></div>
+            ${Object.entries(GROWTH_PATHS).map(([key, p]) => { const rank = talentRank(ch, key); return `<div class="growth-path"><div><b>${p.icon} ${p.name}<u>${rank}</u></b><div class="sub">${p.desc}</div></div>
                 <button class="growth-talent-plus" aria-label="${p.name}天賦加一點" title="消耗 1 點天賦點" ${used >= budget ? 'disabled' : ''} onclick="upgradeTalent('${ch.id}','${key}')">＋</button></div>`; }).join('')}
-            <div class="sub">目前效果：技能傷害 +${talentRank(ch, 'skill') * 6}%／治療 +${talentRank(ch, 'skill') * 2}%、PF 效果 +${talentRank(ch, 'pf') * 8}%、生命 +${talentRank(ch, 'survival') * 4}%／減傷 ${talentRank(ch, 'survival')}%。</div>
-            <button class="mini-btn gray" ${used ? '' : 'disabled'} onclick="resetTalents('${ch.id}')">重置天賦配置 · 返還 ${used} 點</button></div>`;
+            <div class="growth-eff">目前：技能傷害 +${skill * 6}%／治療 +${skill * 2}%・PF 效果 +${pf * 8}%・生命 +${survival * 4}%／減傷 ${survival}%。天賦點隨等級與上限解放增加，PF 以隊長天賦為準。</div></div></div>`;
 }

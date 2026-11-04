@@ -1,51 +1,72 @@
 // 技能機制與角色技能目錄。透過傳入的戰鬥介面運作，集中管理五職業與角色覆寫。
 window.SkillSystem = Object.freeze({
-    createRuntime({ skillHit, dashTo, repeat, talentRank, applyHeal, cutCd, aliveMembers,
-        getEnemy, getPartyState, pop, now }) {
+    createRuntime({ skillHit, skillVfx, dashTo, repeat, talentRank, applyHeal, cutCd, aliveMembers,
+        getEnemy, getPartyState, pop, now, actions }) {
+        const tune = actions || {};
+        const knight = tune.knight || {}, fighter = tune.fighter || {}, ranger = tune.ranger || {};
+        const supporter = tune.supporter || {}, special = tune.special || {}, alchemist = tune.alchemist || {};
         const byRole = {
             knight(m, seq) {
-                skillHit(m, 2.2, { cls: "crit", combo: 2 });
+                skillVfx(m, "knight");
+                skillHit(m, knight.openingDamage ?? 2.2, { cls: "crit", combo: 2 });
                 if (getEnemy().hp > 0) {
                     dashTo(m);
+                    skillVfx(m, "knight", { caster: true, dash: true });
                     // 突進後追加一次確定的範圍斬擊，不再依賴球體是否剛好撞中敵人。
-                    repeat(m, seq, 2, 180, () => {
+                    repeat(m, seq, knight.followups ?? 2, knight.followupGapMs ?? 180, () => {
                         const target = getPartyState().foe;
                         if (!target) return;
-                        skillHit(m, 1.0, { combo: 1, areaRadius: 110 });
+                        skillVfx(m, "knight", { target });
+                        skillHit(m, knight.followupDamage ?? 1, { combo: 1, areaRadius: knight.areaRadius ?? 110 });
                     });
                 }
             },
             fighter(m, seq) {
-                skillHit(m, 0.8, { combo: 1 });
-                repeat(m, seq, 4, 100, () => {
-                    skillHit(m, 0.8, { combo: 1 });
+                skillVfx(m, "fighter");
+                skillHit(m, fighter.hitDamage ?? .8, { combo: 1 });
+                repeat(m, seq, fighter.hits ?? 4, fighter.hitGapMs ?? 100, () => {
+                    skillVfx(m, "fighter");
+                    skillHit(m, fighter.hitDamage ?? .8, { combo: 1 });
                 });
             },
             ranger(m, seq) {
-                const b = m.body, e = getPartyState().foe;
-                const beam = b && e ? { x: b.x, y: b.y, angle: Math.atan2(e.y - b.y, e.x - b.x), length: 640, width: 18 } : null;
-                skillHit(m, 1.9, { cls: "crit", combo: 2, beam });
-                repeat(m, seq, 3, 90, () => skillHit(m, 0.75, { combo: 1 }));
+                const makeBeam = () => {
+                    const b = m.body, e = getPartyState().foe;
+                    return b && e ? { x: b.x, y: b.y, angle: Math.atan2(e.y - b.y, e.x - b.x), length: ranger.beamLength ?? 640, width: ranger.beamWidth ?? 18 } : null;
+                };
+                const beam = makeBeam();
+                skillVfx(m, "ranger", { beam });
+                skillHit(m, ranger.openingDamage ?? 1.9, { cls: "crit", combo: 2, beam });
+                repeat(m, seq, ranger.followups ?? 3, ranger.followupGapMs ?? 90, () => {
+                    skillVfx(m, "ranger", { beam: makeBeam() });
+                    skillHit(m, ranger.followupDamage ?? .75, { combo: 1 });
+                });
             },
             supporter(m) {
-                const healPct = .10 * (1 + .02 * talentRank(m.ch, 'skill'));
-                getPartyState().buff = { atk: Math.round(m.ch.baseAtk * 0.3), until: now() + 6000 };
+                const healPct = (supporter.healBase ?? .10) * (1 + (supporter.healTalentPerRank ?? .02) * talentRank(m.ch, 'skill'));
+                getPartyState().buff = { atk: Math.round(m.ch.baseAtk * (supporter.attackBuff ?? .30)), until: now() + (supporter.buffDurationMs ?? 6000) };
+                skillVfx(m, "supporter", { team: true });
                 for (const x of getPartyState().members) {
                     if (x.down || !x.body || x.ch.hp <= 0) continue;
                     if (applyHeal(x, healPct)) pop(x.body.x, x.body.y - 30, `+${(healPct * 100).toFixed(1)}%`, "heal");
-                    if (x !== m) cutCd(x, 3);
+                    if (x !== m) cutCd(x, supporter.allyChargeSeconds ?? 3);
                 }
             },
             special(m) {
-                skillHit(m, 2.8, { cls: "crit", combo: 3, areaRadius: 155 });
-                for (const x of aliveMembers()) if (x !== m) cutCd(x, 2);
+                skillVfx(m, "special");
+                skillHit(m, special.damage ?? 2.8, { cls: "crit", combo: 3, areaRadius: special.areaRadius ?? 155 });
+                for (const x of aliveMembers()) if (x !== m) cutCd(x, special.allyChargeSeconds ?? 2);
             }
         };
         const byUnit = {
             alchemist(m, seq) {
-                skillHit(m, 1.5, { cls: "crit", combo: 2, areaRadius: 155 });
-                repeat(m, seq, 2, 260, () => skillHit(m, 1.3, { combo: 1, areaRadius: 170, popScale: 1.4 }));
-                for (const x of aliveMembers()) if (x !== m) cutCd(x, 2);
+                skillVfx(m, "special");
+                skillHit(m, alchemist.damage ?? 1.5, { cls: "crit", combo: 2, areaRadius: alchemist.areaRadius ?? 155 });
+                repeat(m, seq, alchemist.followups ?? 2, alchemist.followupGapMs ?? 260, () => {
+                    skillVfx(m, "special");
+                    skillHit(m, alchemist.followupDamage ?? 1.3, { combo: 1, areaRadius: alchemist.followupRadius ?? 170, popScale: alchemist.popScale ?? 1.4 });
+                });
+                for (const x of aliveMembers()) if (x !== m) cutCd(x, alchemist.allyChargeSeconds ?? 2);
             }
         };
         return { byRole, byUnit };

@@ -1,6 +1,6 @@
 // Experimental Power Flip layer. Skills retain their own energy and cast queue.
 const POWER_FLIP = { enabled: true, lockMs: 0, buffMs: 0, buffPct: 0 };
-const POWER_FLIP_NAMES = { knight: '旋刃', fighter: '連拳', ranger: '貫光', special: '爆裂', supporter: '應援' };
+const POWER_FLIP_NAMES = GAME_DATA.skills.powerFlipNames;
 
 function clearPowerFlip(b) {
     if (!b) return;
@@ -15,23 +15,23 @@ function launchPowerFlip(b) {
     const source = roster[teamIds[0]];
     if (!member || !source) return;
     clearPowerFlip(b);
-    clearArcherPierce(member);
+    clearRangerPierce(member);
     const type = CHAR_TABLE[source.id].type;
-    // 戰士在 15 Combo 以上發動 PF 時短暫浮游；仍會照常碰撞與反彈。
-    if (jobEffects.active('warrior') && combo >= 15) {
-        b._warriorFloatUntil = performance.now() + 1500;
+    // 劍士在 15 Combo 以上發動 PF 時短暫浮游；仍會照常碰撞與反彈。
+    if (typeEffects.active('knight') && combo >= 15) {
+        b._knightFloatUntil = performance.now() + 1500;
         showPassiveFX('wind', b.x, b.y + 8, { follow: b, dy: 8, ms: 1500, behind: true });
     }
-    const archerPierce = jobEffects.active('archer') && type === 'ranger';
-    b.powerFlip = { type, lv, source, seq: PF.foeSeq, left: 1800, archerPierce,
+    const rangerPierce = typeEffects.active('ranger') && type === 'ranger';
+    b.powerFlip = { type, lv, source, seq: PF.foeSeq, left: 1800, rangerPierce,
         pending: true, contacted: false, hits: 0, hitWait: 0, contactTarget: null };
-    if (archerPierce) {
-        b._archerPierceActive = true;
-        b._archerPierceUntil = performance.now() + 1800;
-        b._archerPierceSeq = PF.foeSeq;
-        b._archerPierceHitUnits = new Set();
+    if (rangerPierce) {
+        b._rangerPierceActive = true;
+        b._rangerPierceUntil = performance.now() + 1800;
+        b._rangerPierceSeq = PF.foeSeq;
+        b._rangerPierceHitUnits = new Set();
         b.ball?.classList.add('pf-piercing');
-        FX.sprite(b.x, b.y, 'dash', Math.atan2(b.vy, b.vx), b);
+        showPassiveFX('pierce', b.x, b.y, { follow: b, ms: 1800, rotateWithBody: true, rot: Math.atan2(b.vy, b.vx) });
     }
     combo = 0; comboAt = 0;
     POWER_FLIP.lockMs = 300;
@@ -44,23 +44,25 @@ function powerFlipTargets() {
 function powerFlipOwner(state) {
     return PF.members.find(m => m.ch === state.source && !m.down) || null;
 }
-function archerPierceActive(member, now = performance.now()) {
+function rangerPierceActive(member, now = performance.now()) {
     const b = member && member.body;
-    if (!b || !jobEffects.active('archer')
-        || !b._archerPierceActive
-        || b._archerPierceSeq !== PF.foeSeq || now >= (b._archerPierceUntil || 0)) return false;
+    const passivePierce = typeEffects.active('ranger') && b?._rangerPierceActive;
+    const feverProc = FEVER.active && b?._feverPierceActive;
+    if (!b || (!passivePierce && !feverProc)
+        || b._rangerPierceSeq !== PF.foeSeq || now >= (b._rangerPierceUntil || 0)) return false;
     return true;
 }
-function clearArcherPierce(member) {
+function clearRangerPierce(member) {
     const b = member && member.body;
     if (!b) return;
-    b._archerPierceUntil = 0;
-    b._archerPierceActive = false;
-    b._archerPierceSeq = -1;
-    b._archerPierceHitUnits = null;
+    b._rangerPierceUntil = 0;
+    b._rangerPierceActive = false;
+    b._rangerPierceSeq = -1;
+    b._rangerPierceHitUnits = null;
+    b._feverPierceActive = false;
     b.ball?.classList.remove('pf-piercing');
 }
-function archerPierceOverlap(ball, target, isBoss = false) {
+function rangerPierceOverlap(ball, target, isBoss = false) {
     if (isBoss) {
         const qx = Math.max(target.x - 70, Math.min(target.x + 70, ball.x));
         const qy = Math.max(target.y - 45, Math.min(target.y + 45, ball.y));
@@ -68,36 +70,36 @@ function archerPierceOverlap(ball, target, isBoss = false) {
     }
     return Math.hypot(ball.x - target.x, ball.y - target.y) < ball.r + target.r;
 }
-function archerPierceHit(member, target, speed, isBoss = false) {
+function rangerPierceHit(member, target, speed, isBoss = false) {
     const b = member.body;
-    if (!enemyUnitAlive(target) || !archerPierceActive(member) || !archerPierceOverlap(b, target, isBoss)) return false;
-    if (!b._archerPierceHitUnits) b._archerPierceHitUnits = new Set();
-    if (b._archerPierceHitUnits.has(target)) return false;
-    b._archerPierceHitUnits.add(target);
+    if (!enemyUnitAlive(target) || !rangerPierceActive(member) || !rangerPierceOverlap(b, target, isBoss)) return false;
+    if (!b._rangerPierceHitUnits) b._rangerPierceHitUnits = new Set();
+    if (b._rangerPierceHitUnits.has(target)) return false;
+    b._rangerPierceHitUnits.add(target);
     hitFoe(member, speed, target, { piercing: true });
     if (isBoss && enemyUnitAlive(target)) bossHitImpact(target);
     return true;
 }
-// 盜賊被動：碰撞後短暫冷卻，再對附近敵人補一段範圍衝擊；不做 hit-stop，避免看起來卡頓。
-function triggerThiefShockwave(ch, target) {
-    if (!jobEffects.active('thief') || !ch || !target || !enemyUnitAlive(target)) return false;
+// 格鬥被動：碰撞後短暫冷卻，再對附近敵人補一段範圍衝擊；不做 hit-stop，避免看起來卡頓。
+function triggerFighterShockwave(ch, target) {
+    if (!typeEffects.active('fighter') || !ch || !target || !enemyUnitAlive(target)) return false;
     const now = performance.now();
-    if (now < (ch._thiefShockReadyAt || 0)) return false;
-    ch._thiefShockReadyAt = now + 550;
-    const radius = jobEffects.shockRadius();
+    if (now < (ch._fighterShockReadyAt || 0)) return false;
+    ch._fighterShockReadyAt = now + 550;
+    const radius = typeEffects.shockRadius();
     powerFlipWeakCircle(target.x, target.y, radius, { seq: PF.foeSeq, source: ch });
     // 被動專屬的衝擊環：半徑跟實際判定同步，不再借用爆裂型的爆炸。
     showPassiveFX('shock', target.x, target.y, { scale: radius / 90 });
     for (const splash of powerFlipTargets()) {
         if (splash === target || Math.hypot(splash.x - target.x, splash.y - target.y) > radius + splash.r) continue;
         const shockCrit = rollCrit(ch, 'shockwave');
-        const shock = Math.max(1, Math.round(atkOf(ch) * jobEffects.shockMultiplier()
+        const shock = Math.max(1, Math.round(atkOf(ch) * typeEffects.shockMultiplier()
             * (shockCrit ? CRIT_DMG : 1)));
         applyDamage(ch, shock, { target: splash, critical: shockCrit, cls: 'pf-damage', pf: true });
     }
     return true;
 }
-// PF 專屬弱點判定：只有職業攻擊範圍實際覆蓋到的弱點才會破。
+// PF 專屬弱點判定：只有攻擊型態範圍實際覆蓋到的弱點才會破。
 function powerFlipWeakCircle(x, y, radius, state) {
     if (!PF.weak || PF.weak.seq !== state.seq) return 0;
     const owner = powerFlipOwner(state);
@@ -137,19 +139,19 @@ function powerFlipDamage(state, target, mult) {
         showPowerFlipVFX(state.type, target.x, target.y, angle, state.lv);
     }
     const crit = rollCrit(ch);
-    const archerPierce = jobEffects.pfBonus(state.type);
-    const damage = Math.max(1, Math.round(atkOf(ch) * mult * (1 + mainAccountBonus().powerFlipDamage + archerPierce) * (1 + .08 * talentRank(ch, 'pf')) *
+    const rangePierce = typeEffects.pfBonus(state.type);
+    const damage = Math.max(1, Math.round(atkOf(ch) * mult * (1 + mainAccountBonus().powerFlipDamage + rangePierce) * (1 + .08 * talentRank(ch, 'pf')) *
         elementMultiplier(CHAR_TABLE[ch.id].element, enemy.element) * (crit ? CRIT_DMG : 1)));
     const dealt = applyDamage(ch, damage, { target, critical: crit, cls: 'pf-damage', combo: 1, pf: true });
-    if (jobEffects.active('warrior') && dealt > 0) {
+    if (typeEffects.active('knight') && dealt > 0) {
         const owner = powerFlipOwner(state);
         if (owner && owner.ch.hp > 0) {
-            const heal = jobEffects.lifeSteal(dealt, hpMax(owner.ch));
+            const heal = typeEffects.lifeSteal(dealt, hpMax(owner.ch));
             if (heal > 0) owner.ch.hp = Math.min(hpMax(owner.ch), owner.ch.hp + heal);
         }
     }
-    if (state.type === 'fighter' && mainAccountJob === 'thief') triggerThiefShockwave(ch, target);
-    if (crit) SFX.critical(); else SFX.hit(1);
+    if (state.type === 'fighter' && typeEffects.active('fighter')) triggerFighterShockwave(ch, target);
+    if (!crit) SFX.hit(1);
 }
 function powerFlipContact(m, target) {
     const state = m.body && m.body.powerFlip;
@@ -178,9 +180,9 @@ function updatePowerFlip(dtMs) {
     for (const m of PF.members) {
         const b = m.body, state = b && b.powerFlip;
         if (!state) continue;
-        if (m.down || state.seq !== PF.foeSeq || enemy.hp <= 0) { clearPowerFlip(b); clearArcherPierce(m); continue; }
+        if (m.down || state.seq !== PF.foeSeq || enemy.hp <= 0) { clearPowerFlip(b); clearRangerPierce(m); continue; }
         state.left -= dtMs; state.hitWait -= dtMs;
-        if (state.left <= 0) { clearPowerFlip(b); clearArcherPierce(m); continue; }
+        if (state.left <= 0) { clearPowerFlip(b); clearRangerPierce(m); continue; }
         if (state.pending) {
             state.pending = false;
             if (state.type === 'supporter') {
@@ -201,7 +203,7 @@ function updatePowerFlip(dtMs) {
                 const angle = aim ? Math.atan2(aim.t.y - b.y, aim.t.x - b.x) : Math.atan2(b.vy, b.vx);
                 const ux = Math.cos(angle), uy = Math.sin(angle);
                 const width = 12 + state.lv * 8
-                    + jobEffects.beamWidth(true);
+                    + typeEffects.beamWidth(true);
                 // 射擊型：從球指向目標以長條光束掃過弱點。
                 showPowerFlipVFX('ranger', b.x, b.y, angle, state.lv, 1, 760);
                 powerFlipWeakRay(b.x, b.y, ux, uy, 760, width, state);
@@ -212,7 +214,7 @@ function updatePowerFlip(dtMs) {
                   .sort((a, z) => a.along - z.along);
                 for (const hit of hits) {
                     // 同一敵人已被光束命中時，不再由穿透球體重複計算一次 PF 傷害。
-                    if (state.archerPierce && b._archerPierceHitUnits) b._archerPierceHitUnits.add(hit.t);
+                    if (state.rangerPierce && b._rangerPierceHitUnits) b._rangerPierceHitUnits.add(hit.t);
                     powerFlipDamage(state, hit.t, [0, 2.0, 3.2, 4.6][state.lv]);
                 }
                 clearPowerFlip(b);

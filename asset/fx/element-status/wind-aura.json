@@ -1,0 +1,65 @@
+{
+ "name": "wind_aura_loop",
+ "element": "wind",
+ "type": "aura_loop",
+ "frameWidth": 48,
+ "frameHeight": 48,
+ "frameCount": 16,
+ "durationsMs": [
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80
+ ],
+ "totalMs": 1280,
+ "loop": true,
+ "pivot": {
+  "x": 24,
+  "y": 34
+ },
+ "hitFrame": null,
+ "sheet": "wind_aura_loop_sheet.png",
+ "frames": [
+  "frames/wind_aura_loop_00.png",
+  "frames/wind_aura_loop_01.png",
+  "frames/wind_aura_loop_02.png",
+  "frames/wind_aura_loop_03.png",
+  "frames/wind_aura_loop_04.png",
+  "frames/wind_aura_loop_05.png",
+  "frames/wind_aura_loop_06.png",
+  "frames/wind_aura_loop_07.png",
+  "frames/wind_aura_loop_08.png",
+  "frames/wind_aura_loop_09.png",
+  "frames/wind_aura_loop_10.png",
+  "frames/wind_aura_loop_11.png",
+  "frames/wind_aura_loop_12.png",
+  "frames/wind_aura_loop_13.png",
+  "frames/wind_aura_loop_14.png",
+  "frames/wind_aura_loop_15.png"
+ ],
+ "layers": {
+  "behind": "layers/wind_aura_loop_behind_sheet.png",
+  "front": "layers/wind_aura_loop_front_sheet.png"
+ },
+ "lightMasks": {
+  "inner": "light/wind_aura_loop_light_inner_sheet.png",
+  "middle": "light/wind_aura_loop_light_middle_sheet.png",
+  "outer": "light/wind_aura_loop_light_outer_sheet.png"
+ },
+ "godot": "wind_aura_loop.tres",
+ "aseprite": "wind_aura_loop.aseprite.json",
+ "author": "NogitsuneGurl",
+ "madeWith": "The Pixel Loom"
+}

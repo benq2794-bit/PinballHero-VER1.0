@@ -1,0 +1,65 @@
+/* ============================================================
+   wf-ui-text.css —《彈射世界》式 UI 系統字
+   選單／對話框／按鈕用；戰鬥傷害跳字（.dmg-pop）不套。
+
+   黑邊一律用 em，所以字放大多少倍，邊就跟着放大多少倍，
+   不會在大字上變成細線、也不會在小字上糊成一坨。
+
+   挂在哪裡：stroke／paint-order／font 在 Chromium 會繼承到子節點，
+   所以只挂容器（.pf-over、.pp-box、#pg-body…），裡面的文字自動跟隨。
+
+   填色預設是 currentColor，也就是「不動既有配色，只加邊」。
+   要強制換色才設 --wf-fill（例：.highlight 的亮黃）。
+   淺色面板若要深色字，把 --wf-stroke-w 壓到 .04em 以下，
+   否則黑邊會和填色融成一坨、只讓字變粗。
+   ============================================================ */
+
+.wf-ui-text {
+    /* 極粗黑體；Noto 沒載到時退回系統繁中黑體，由瀏覽器合成粗體 */
+    font-family: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", "Heiti TC", sans-serif;
+    font-weight: 900;
+
+    /* 灰階抗鋸齒：不帶彩色子像素 fringe，細筆畫才不會看起來發毛 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+
+    --wf-stroke: #000000;
+    --wf-stroke-w: .085em;
+
+    /* 填色刻意不在這裡宣告：掛在容器上時，元素自己寫死的 color 會被蓋掉
+       （實測 .pf-over 的 #ff8a95 会变成繼承的 #e3e3e6）。要換色交給 .highlight
+       或各場自己的 color。 */
+    letter-spacing: .02em;
+    /* 外框會往外長 0.085em，行高要預留，否則在 flex／button 裡上下會被切 */
+    line-height: 1.5;
+
+    /* 不支援 paint-order 的引擎：8 向零模糊 text-shadow 疊出硬邊。
+       對角線乘 .7071，八個方向的邊厚才不會比上下左右薄。 */
+    text-shadow:
+        var(--wf-stroke-w) 0 0 var(--wf-stroke),
+        calc(var(--wf-stroke-w) * -1) 0 0 var(--wf-stroke),
+        0 var(--wf-stroke-w) 0 var(--wf-stroke),
+        0 calc(var(--wf-stroke-w) * -1) 0 var(--wf-stroke),
+        calc(var(--wf-stroke-w) * .7071) calc(var(--wf-stroke-w) * .7071) 0 var(--wf-stroke),
+        calc(var(--wf-stroke-w) * -.7071) calc(var(--wf-stroke-w) * .7071) 0 var(--wf-stroke),
+        calc(var(--wf-stroke-w) * .7071) calc(var(--wf-stroke-w) * -.7071) 0 var(--wf-stroke),
+        calc(var(--wf-stroke-w) * -.7071) calc(var(--wf-stroke-w) * -.7071) 0 var(--wf-stroke);
+}
+
+/* 支援時改用真正的「描邊在下、填色在上」，並把 shadow 關掉：
+   shadow 疊出來的邊是階梯狀的，paint-order 的邊是一整條連續曲線。 */
+@supports (paint-order: stroke fill) {
+    .wf-ui-text {
+        -webkit-text-stroke: var(--wf-stroke-w) var(--wf-stroke);
+        paint-order: stroke fill;
+        text-shadow: none;
+    }
+}
+
+/* 亮黃強調版：這是唯一會覆寫填色的版本，黑邊／字重／抗鋸齒全部沿用 */
+.wf-ui-text.highlight {
+    --wf-fill: #ffd83a;
+    color: var(--wf-fill);
+}

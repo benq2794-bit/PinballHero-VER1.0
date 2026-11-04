@@ -95,16 +95,16 @@
 @keyframes scRecordBlink { 0%,49% { opacity: 1; } 50%,100% { opacity: .22; } }
 
 /* 評級印章：砸在戰績面板右上，落拍由 JS 同步震動畫面 */
-.sc-stamp { position: absolute; right: 2px; top: 40px; width: 74px; height: 74px; display: none;
-    align-items: center; justify-content: center; border-radius: 10px;
-    border: 3px solid rgba(255,238,190,.9); color: #fff4cf; background: rgba(190,42,52,.24);
-    box-shadow: 0 0 20px rgba(255,190,90,.4), inset 0 0 18px rgba(0,0,0,.45); }
+.sc-stamp { position: absolute; right: 8px; top: 7px; width: 48px; height: 42px; display: none;
+    align-items: center; justify-content: center; border-radius: 8px;
+    border: 2px solid rgba(255,238,190,.9); color: #fff4cf; background: rgba(190,42,52,.24);
+    box-shadow: 0 0 12px rgba(255,190,90,.3), inset 0 0 10px rgba(0,0,0,.3); }
 .sc-stamp.on { display: flex; animation: scStampSlam .34s cubic-bezier(.16,.9,.2,1.2) both; }
 @keyframes scStampSlam { 0% { opacity: 0; transform: scale(2.5) rotate(-26deg); filter: brightness(2.4); }
     58% { opacity: 1; } 74% { transform: scale(.88) rotate(-7deg); } 100% { opacity: 1; transform: scale(1) rotate(-8deg); filter: none; } }
-.sc-stamp i { font-style: normal; font-size: 34px; font-weight: 900; letter-spacing: 1px; line-height: 1;
+.sc-stamp i { font-style: normal; font-size: 24px; font-weight: 900; letter-spacing: 0; line-height: 1;
     text-shadow: 0 2px 0 rgba(0,0,0,.5); }
-.sc-stamp small { position: absolute; bottom: 6px; left: 0; right: 0; font-size: 8px; letter-spacing: 2px; color: #ffe6b0; }
+.sc-stamp small { position: absolute; bottom: 3px; left: 0; right: 0; font-size: 6px; letter-spacing: 1px; color: #ffe6b0; }
 
 /* ---- 底部網格戰利品 ---- */
 .sc-loot { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; perspective: 620px; }
@@ -144,3 +144,58 @@
     .sc-cell.rare.burst::after, .sc-stamp.on, .sc-record.on, .sc-score.lock,
     .sc-fig.pop .sc-fig-tag.mvp, .sc-skip, .sc-band .sc-spark { animation: none !important; }
 }
+
+/* ===== 黑底金屬結算面板 =====
+   这一段是整層換色，不是補洞：淺色版那條白字陰影（0 1px 0 #fff）擱在暗底上會變成髒邊，
+   所以每一條 text-shadow 都要一起換回暗色或光暈，不能只改 background。 */
+#pf-result { background: rgba(2,3,6,.62); backdrop-filter: blur(8px) saturate(.9);
+    -webkit-backdrop-filter: blur(8px) saturate(.9); }
+#pf-result::after { display:none; }
+.sc { padding: 10px; border:1px solid #46565f; border-radius:14px;
+    background:linear-gradient(165deg,#1b232a 0%,#0e141a 58%,#070a0d 100%);
+    box-shadow:0 12px 32px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.14); color:#e9eefb; }
+.sc-band { border:1px solid #4d5e68; border-radius:9px;
+    background:linear-gradient(180deg,#242e35 0%,#141b21 52%,#0a0e13 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.16), inset 0 -2px 0 rgba(0,0,0,.55),0 2px 6px rgba(0,0,0,.45); }
+.sc-band b { background:linear-gradient(180deg,#fff6cf 4%,#ffd257 42%,#f39c1c 76%,#ffe9a8 100%);
+    -webkit-background-clip:text; background-clip:text;
+    filter:drop-shadow(0 2px 0 rgba(0,0,0,.75)) drop-shadow(0 0 12px rgba(255,190,70,.5)); }
+.sc-band i.replay { color:#9fb2d0; text-shadow:0 1px 3px #000; }
+.sc-band .sc-spark { background:#fff2b8; box-shadow:0 0 6px rgba(255,214,110,.95); }
+.sc-label { color:#ffce5a; text-shadow:0 2px 5px rgba(0,0,0,.85); }
+.sc-sub { color:#93a6c6; text-shadow:none; }
+.sc-team,.sc-stats,.sc-cell { border:1px solid #3d4c55; border-radius:9px;
+    background:linear-gradient(150deg,#161d23,#0a0f14);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 16px rgba(0,0,0,.6),0 2px 5px rgba(0,0,0,.4); }
+.sc-cap,.sc-k { color:#8fa2c0; text-shadow:none; }
+/* 單位圖是黑底 GIF，底板也保持近黑，才不會在暗面板上變成一塊亮斑 */
+.sc-fig .sc-fig-art { border-color:#3b4750; background:#0b0d15; box-shadow:0 1px 3px rgba(0,0,0,.5); }
+.sc-fig-nm { color:#b9c7de; }
+.sc-fig-dmg { color:#ffe08a; text-shadow:0 1px 2px #000; }
+.sc-fig.down .sc-fig-nm { color:#7d8798; }
+.sc-fig.down .sc-fig-dmg { color:#9aa4b4; }
+.sc-stats { border-color:rgba(255,206,90,.42); }
+.sc-time { color:#9dff6a; text-shadow:0 0 12px rgba(120,255,90,.35),0 2px 0 rgba(0,0,0,.7); }
+.sc-score { color:#ffd45a; text-shadow:0 0 12px rgba(255,190,70,.4),0 2px 0 rgba(0,0,0,.7); }
+.sc-detail { color:#9db0cc; }
+.sc-detail b { color:#e6eefc; }
+.sc-record { color:#ff3b52; text-shadow:0 0 10px rgba(255,60,90,.7),0 2px 0 rgba(0,0,0,.7); }
+.sc-stamp { top:7px; right:8px; width:48px; height:42px; border-color:#5c6d76; color:#e9eefb;
+    background:linear-gradient(145deg,#242e35,#101619);
+    flex-direction:column; gap:0; overflow:hidden;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 3px 9px rgba(0,0,0,.5); }
+.sc-stamp::before { content:""; position:absolute; inset:4px; border:1px solid #4a5b64; border-radius:4px;
+    background:linear-gradient(180deg,#1c242a,#070b0e 70%,#131a1f);
+    box-shadow:inset 0 1px 5px rgba(0,0,0,.9),0 1px 0 rgba(255,255,255,.08); }
+.sc-stamp i { position:relative; z-index:1; display:block; font-size:23px; line-height:.95;
+    color:#f1c96b; -webkit-text-stroke:.35px #fff1bc;
+    text-shadow:0 1px 0 #fff1bb,0 2px 0 #c88d2b,0 3px 0 #8d5a19,0 4px 0 #52350e,0 5px 3px rgba(0,0,0,.8); }
+.sc-stamp small { position:relative; z-index:1; inset:auto; display:block; margin-top:2px; font-size:6px;
+    line-height:1; letter-spacing:1px; color:#ffe6b0; text-shadow:0 1px 2px #000; }
+.sc-cell .ic { filter:drop-shadow(0 2px 3px rgba(0,0,0,.8)); }
+.sc-cell .v { color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.8); }
+.sc-cell .t { color:#93a6c6; }
+/* 稀有格走暗琥珀＋金邊；亮金底在黑色面板上會變成整顆燈泡，翻牌時搶走視線 */
+.sc-cell.rare { border-color:rgba(255,208,96,.72); background:linear-gradient(145deg,#2a2011,#150d05); }
+.sc-cell.rare .v { color:#ffd257; }
+.sc-skip { color:#7a8ba6; }

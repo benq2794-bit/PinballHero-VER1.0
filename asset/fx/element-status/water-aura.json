@@ -1,0 +1,65 @@
+{
+ "name": "water_aura_loop",
+ "element": "water",
+ "type": "aura_loop",
+ "frameWidth": 48,
+ "frameHeight": 48,
+ "frameCount": 16,
+ "durationsMs": [
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80,
+  80
+ ],
+ "totalMs": 1280,
+ "loop": true,
+ "pivot": {
+  "x": 24,
+  "y": 34
+ },
+ "hitFrame": null,
+ "sheet": "water_aura_loop_sheet.png",
+ "frames": [
+  "frames/water_aura_loop_00.png",
+  "frames/water_aura_loop_01.png",
+  "frames/water_aura_loop_02.png",
+  "frames/water_aura_loop_03.png",
+  "frames/water_aura_loop_04.png",
+  "frames/water_aura_loop_05.png",
+  "frames/water_aura_loop_06.png",
+  "frames/water_aura_loop_07.png",
+  "frames/water_aura_loop_08.png",
+  "frames/water_aura_loop_09.png",
+  "frames/water_aura_loop_10.png",
+  "frames/water_aura_loop_11.png",
+  "frames/water_aura_loop_12.png",
+  "frames/water_aura_loop_13.png",
+  "frames/water_aura_loop_14.png",
+  "frames/water_aura_loop_15.png"
+ ],
+ "layers": {
+  "behind": "layers/water_aura_loop_behind_sheet.png",
+  "front": "layers/water_aura_loop_front_sheet.png"
+ },
+ "lightMasks": {
+  "inner": "light/water_aura_loop_light_inner_sheet.png",
+  "middle": "light/water_aura_loop_light_middle_sheet.png",
+  "outer": "light/water_aura_loop_light_outer_sheet.png"
+ },
+ "godot": "water_aura_loop.tres",
+ "aseprite": "water_aura_loop.aseprite.json",
+ "author": "NogitsuneGurl",
+ "madeWith": "The Pixel Loom"
+}

@@ -12,6 +12,7 @@
             this.scene.src = "asset/home/party-stage-bg.png";
             this.backgroundOffset = 0;
             this.floorOffset = 0;
+            this.decorClock = 0;
             // 固定星點，讓角色展示區接續主頁宇宙海報，不使用會捲動的地景。
             this.stars = Array.from({ length:18 }, (_, i) => ({
                 x:(i * 71 + 29) % width, y:10 + ((i * 43 + 17) % 132), r:i % 5 === 0 ? 1.5 : .8,
@@ -23,6 +24,88 @@
             const travel = speed * dt / 1000;
             this.backgroundOffset += travel * .18;
             this.floorOffset += travel;
+            this.decorClock += dt;
+        }
+        drawSceneDecor(ctx, width, layer) {
+            const sx = width / W, period = W * sx;
+            const offset = ((this.floorOffset * sx) % period + period) % period;
+            const first = Math.floor(offset / period) - 1;
+            const last = Math.ceil((offset + width) / period) + 1;
+            const pulse = .82 + Math.sin(this.decorClock * .0022) * .08;
+            for (let tile = first; tile <= last; tile++) {
+                const x = tile * period - offset;
+                ctx.save();
+                if (Math.abs(tile % 2) === 1) { ctx.translate(x + period, 0); ctx.scale(-1, 1); }
+                else ctx.translate(x, 0);
+                ctx.scale(sx, 1);
+
+                // 小型石造噴水池放在遠景步道中央；冷藍水光與原場景星光同色系。
+                const drawFountain = () => {
+                    const cx = W / 2, baseY = 146;
+                    const glow = ctx.createRadialGradient(cx, baseY - 3, 1, cx, baseY - 3, 38);
+                    glow.addColorStop(0, `rgba(91,190,244,${pulse * .2})`);
+                    glow.addColorStop(1, "rgba(54,127,190,0)");
+                    ctx.fillStyle = glow; ctx.beginPath(); ctx.ellipse(cx, baseY - 3, 38, 13, 0, 0, Math.PI * 2); ctx.fill();
+
+                    ctx.lineCap = "round";
+                    ctx.strokeStyle = "rgba(126,211,248,.55)"; ctx.lineWidth = 1;
+                    ctx.beginPath(); ctx.moveTo(cx - 3, baseY - 13); ctx.quadraticCurveTo(cx - 13, baseY - 30, cx - 8, baseY - 36); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(cx + 3, baseY - 13); ctx.quadraticCurveTo(cx + 13, baseY - 30, cx + 8, baseY - 36); ctx.stroke();
+                    ctx.fillStyle = "rgba(176,235,255,.8)";
+                    ctx.fillRect(cx - 9, baseY - 37, 2, 3); ctx.fillRect(cx + 7, baseY - 34, 2, 3);
+
+                    ctx.fillStyle = "rgba(4,12,25,.5)";
+                    ctx.beginPath(); ctx.ellipse(cx, baseY, 28, 5, 0, 0, Math.PI * 2); ctx.fill();
+                    const stone = ctx.createLinearGradient(cx, baseY - 18, cx, baseY - 2);
+                    stone.addColorStop(0, "#5c7f9c"); stone.addColorStop(.48, "#2e4d6d"); stone.addColorStop(1, "#192e49");
+                    ctx.fillStyle = stone;
+                    ctx.beginPath(); ctx.moveTo(cx - 19, baseY - 15); ctx.lineTo(cx - 15, baseY - 5);
+                    ctx.quadraticCurveTo(cx, baseY - 1, cx + 15, baseY - 5); ctx.lineTo(cx + 19, baseY - 15); ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = "#729bb5"; ctx.beginPath(); ctx.ellipse(cx, baseY - 15, 20, 4, 0, 0, Math.PI * 2); ctx.fill();
+                    ctx.strokeStyle = "rgba(161,224,246,.7)"; ctx.lineWidth = 1;
+                    ctx.beginPath(); ctx.ellipse(cx, baseY - 15, 15, 2.2, 0, 0, Math.PI * 2); ctx.stroke();
+                    ctx.fillStyle = "#294865"; ctx.fillRect(cx - 3, baseY - 23, 6, 8);
+                    ctx.fillStyle = "#88b7cf"; ctx.beginPath(); ctx.ellipse(cx, baseY - 24, 10, 3, 0, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = "#385b79"; ctx.fillRect(cx - 8, baseY - 27, 16, 3);
+                    ctx.fillStyle = `rgba(167,235,255,${pulse})`;
+                    ctx.beginPath(); ctx.arc(cx, baseY - 31, 2, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = "rgba(160,225,250,.5)";
+                    ctx.fillRect(cx - 22, baseY - 5, 44, 1); ctx.fillRect(cx - 15, baseY - 2, 30, 1);
+                };
+                if (layer === "far") {
+                    drawFountain();
+                }
+
+                // 路燈與長椅跟地面使用相同捲動量，角色經過時會自然走到它們前面。
+                const drawLamp = (lx) => {
+                    const pole = ctx.createLinearGradient(lx - 2, 0, lx + 2, 0);
+                    pole.addColorStop(0, "#182d46"); pole.addColorStop(.5, "#6288a2"); pole.addColorStop(1, "#172a43");
+                    ctx.fillStyle = pole; ctx.fillRect(lx - 1, 118, 3, 34);
+                    ctx.fillStyle = "#334f6b"; ctx.fillRect(lx - 4, 150, 9, 3); ctx.fillRect(lx - 1, 115, 3, 3);
+                    ctx.fillStyle = "#526f88"; ctx.fillRect(lx - 3, 114, 6, 2); ctx.fillRect(lx + 1, 116, 9, 2);
+                    ctx.fillStyle = `rgba(107,198,244,${pulse * .13})`;
+                    ctx.beginPath(); ctx.ellipse(lx + 7, 120, 12, 17, 0, 0, Math.PI * 2); ctx.fill();
+                    const glass = ctx.createLinearGradient(lx + 2, 0, lx + 9, 0);
+                    glass.addColorStop(0, "#427495"); glass.addColorStop(.5, "#b7eaff"); glass.addColorStop(1, "#315a78");
+                    ctx.fillStyle = glass; ctx.fillRect(lx + 3, 117, 7, 4); ctx.fillRect(lx + 2, 116, 9, 1);
+                    ctx.fillStyle = "rgba(223,246,255,.7)"; ctx.fillRect(lx + 4, 117, 2, 1);
+                };
+                const drawBench = (bx) => {
+                    ctx.fillStyle = "rgba(4,11,22,.45)";
+                    ctx.beginPath(); ctx.ellipse(bx + 17, 153, 21, 3, 0, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = "#253c58"; ctx.fillRect(bx + 2, 140, 30, 3); ctx.fillRect(bx + 4, 135, 26, 3);
+                    ctx.fillStyle = "#4e6e87"; ctx.fillRect(bx + 4, 134, 26, 1); ctx.fillRect(bx + 4, 139, 26, 1);
+                    ctx.fillStyle = "#6d8da2"; ctx.fillRect(bx + 3, 132, 28, 2);
+                    ctx.fillStyle = "#29415c"; ctx.fillRect(bx + 5, 143, 2, 8); ctx.fillRect(bx + 27, 143, 2, 8);
+                    ctx.fillStyle = "#64829a"; ctx.fillRect(bx + 4, 145, 4, 2); ctx.fillRect(bx + 26, 145, 4, 2);
+                    ctx.fillStyle = "rgba(157,208,232,.38)"; ctx.fillRect(bx + 6, 133, 20, 1);
+                };
+                if (layer === "ground") {
+                    drawLamp(72); drawLamp(354);
+                    drawBench(112); drawBench(286);
+                }
+                ctx.restore();
+            }
         }
         draw(ctx) {
             const w = this.width, h = this.height;
@@ -49,7 +132,9 @@
                     }
                 };
                 drawLoop(this.backgroundOffset, 0, splitY, 0, farH);
+                this.drawSceneDecor(ctx, w, "far");
                 drawLoop(this.floorOffset, splitY, image.naturalHeight - splitY, farH, floorH);
+                this.drawSceneDecor(ctx, w, "ground");
                 // 輕微暗化角色活動區，讓小尺寸像素角色仍清楚突出。
                 const shade = ctx.createLinearGradient(0, h * .45, 0, h);
                 shade.addColorStop(0, "rgba(5,12,25,.08)"); shade.addColorStop(1, "rgba(5,12,25,.34)");
@@ -303,34 +388,31 @@
             if (!this.canvas || !this.ctx) return;
             const dpr = Math.max(1, window.devicePixelRatio || 1);
             const width = this.canvas.clientWidth || W;
-            this.background.width = width;
-            this.canvas.width = Math.round(width * dpr); this.canvas.height = Math.round(H * dpr);
-            this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this.ctx.imageSmoothingEnabled = false;
+            const height = this.canvas.clientHeight || H;
+            // 模擬座標固定為 430×180，依實際顯示尺寸縮放，避免窄版畫布裁掉隊伍行走路徑。
+            this.background.width = W; this.background.height = H;
+            this.canvas.width = Math.round(width * dpr); this.canvas.height = Math.round(height * dpr);
+            this.ctx.setTransform(dpr * width / W, 0, 0, dpr * height / H, 0, 0);
+            this.ctx.imageSmoothingEnabled = false;
         }
         setActive(on) { this.active = !!on; this.last = 0; }
-        sync(gender, teamIds) {
+        sync(teamIds) {
             const ids = (teamIds || []).filter(id => typeof CHAR_TABLE !== "undefined" && CHAR_TABLE[id] && roster[id] && roster[id].unlocked).slice(0, 3);
-            const sig = `${gender}|${ids.join(",")}`; if (sig === this.signature) return;
+            const sig = ids.join(","); if (sig === this.signature) return;
             this.signature = sig; this.members = [];
-            const leadId = gender === "female" ? "arisa" : "alk";
-            const root = `${CDN_BASE}rarity4/${leadId}/`;
-            const lead = new Character({ id: leadId, name: gender === "female" ? "亞里莎" : "埃爾克", isLeader: true, index: 0,
-                spriteSrc: { walk: [root + "walk_front.gif", root + "walk_back.gif"], attack: [root + "kachidoki.gif", root + "walk_front.gif"], skill: [root + "special.gif", root + "skill_ready.gif", root + "walk_front.gif"] } });
-            const partyData = [lead];
             ids.forEach((id, i) => {
                 const d = CHAR_TABLE[id];
                 const walk = spriteCandidates("hero", id, "down");
                 const attack = spriteCandidates("hero", id, "attack");
                 const skill = spriteCandidates("hero", id, "skill");
-                partyData.push(new Character({ id, name: d.name, index: i + 1, element: d.element,
+                this.members.push(new Character({ id, name: d.name, index: i, isLeader: i === 0, element: d.element,
                     spriteSrc: { walk, attack, skill } }));
             });
             const startX = W * .68, dir = 1;
-            partyData.forEach((ch, i) => {
+            this.members.forEach((ch, i) => {
                 ch.direction = dir; ch.x = startX - i * 31; ch.y = FLOOR_Y - ch.height;
                 // 預填起始軌跡，避免剛出現時所有角色跳到領頭者身上。
                 for (let j = 3; j >= 0; j--) ch.history.push({ distance: -j * 31, x: ch.x - j * 31, y: ch.y, direction: dir });
-                this.members.push(ch);
             });
             myParty = this.members; window.myParty = this.members;
         }
@@ -356,7 +438,9 @@
             // 技能只切換施法者的動畫；整隊照常走動、跟隨與轉向，避免看起來像整個畫面卡住。
             if (this.castingTimer <= 0) this.skillWait -= dt;
             this.attackWait -= dt;
-            const v = lead.direction * .022 * dt; // 約 22 px/s；保持連續移動，不插入停等造成卡頓感
+            // 讓隊伍在窄幅展示區也能看出確實走過路面；原本 22 px/s 太慢，
+            // 小尺寸畫面容易只看到走路動畫的上下晃動。
+            const v = lead.direction * .046 * dt; // 約 46 px/s，持續往返移動
             lead.x += v; lead.distanceTravelled += Math.abs(v); lead.speed = v / dt * 1000;
             if (lead.x >= W - 24) { lead.x = W - 24; lead.direction = -1; }
             else if (lead.x <= 24) { lead.x = 24; lead.direction = 1; }

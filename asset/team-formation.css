@@ -125,6 +125,30 @@
 .fm-stat.empty { display: grid; place-items: center; min-height: 96px; }
 .fm-empty { font-size: 9px; color: #5d708c; }
 
+/* ---- 配隊1–4：翻隊器取代人數牌，金色皮沿用 .fm-count ---- */
+.fm-squad { display: flex; align-items: stretch; gap: 4px; }
+.fm-squad .sq-nav { width: 26px; padding: 0; font-size: 11px; line-height: 1; cursor: pointer; }
+#team .fm-count.sq-chip { display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1px; padding: 3px 12px; cursor: pointer; font-family: 'Microsoft JhengHei', sans-serif; }
+#team .fm-count.sq-chip i { font-style: normal; font-size: 12px; font-weight: 900; line-height: 1.2; letter-spacing: 1px; color: #38240e; }
+#team .fm-count.sq-chip u { text-decoration: none; font-size: 8px; line-height: 1.2; letter-spacing: 2px; color: #6b4a10; }
+/* 紅點＝這一隊就是實戰那一隊 */
+#team .fm-count.sq-chip.live { position: relative; }
+#team .fm-count.sq-chip.live::before { content: ""; position: absolute; left: 4px; top: 50%; margin-top: -3px;
+    width: 6px; height: 6px; border-radius: 50%; background: #d0333c; box-shadow: 0 0 0 1px rgba(0, 0, 0, .3); }
+.fm-squad-dots { display: flex; justify-content: center; gap: 5px; padding: 5px 0 6px; }
+.fm-squad-dots i { width: 6px; height: 6px; border-radius: 50%; background: #b6c8d2; box-shadow: inset 0 0 0 1px rgba(70, 95, 110, .55); }
+.fm-squad-dots i.on { width: 16px; border-radius: 3px; background: #e0a23a; }
+
+/* ---- 雙擊換人：整張角色卡（含空槽）就是按鈕，第一下只亮金框 ---- */
+#app-frame #team .fm-captain,
+#app-frame #team .fm-member,
+#app-frame #team .fm-slot-empty,
+#app-frame #team .rcard { cursor: pointer; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+#app-frame #team .fm-slot.armed,
+#app-frame #team .rcard.armed { outline: 2px solid #e0a23a !important; outline-offset: 2px; }
+#app-frame #team .fm-member-actions { justify-content: center; }
+
 /* ---- 隊長特性 ---- */
 .fm-lead { display: flex; align-items: center; gap: 7px; margin-top: 8px; padding: 5px 7px;
     border: 2px solid #050a13; background: #101d31;

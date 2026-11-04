@@ -56,17 +56,21 @@ window.BattleLifecycle = Object.freeze({
         });
     },
     shiftDeadlines(state, ms) {
-        for (const key of ['nextCastAt', 'stunUntil', 'slowUntil', 'mageSlowUntil', 'paralyzeReady', 'gustReady',
-            'lastContact', 'reviveAt', 'breakUntil']) if (state[key]) state[key] += ms;
+        for (const key of ['nextCastAt', 'stunUntil', 'specialSlowUntil',
+            'lastContact', 'breakUntil']) if (state[key]) state[key] += ms;
         if (state.weak) state.weak.at += ms;
         if (state.buff?.until) state.buff.until += ms;
         if (state.aura) { state.aura.at += ms; state.aura.until += ms; }
         if (state.doomFX) { state.doomFX.until += ms; state.doomFX.nextShakeAt += ms; }
         for (const burn of state.burns || []) burn.at += ms;
+        for (const unit of [...(state.enemyUnits || []), ...(state.summonedFoes || [])]) {
+            for (const key of ['statusSlowUntil', 'statusStunUntil', 'statusGustFxUntil', 'statusParalyzeReady', 'statusGustReady']) {
+                if (unit[key]) unit[key] += ms;
+            }
+        }
         for (const member of state.members || []) {
-            if (member.respawnAt) member.respawnAt += ms;
-            if (member.ch?._thiefShockReadyAt) member.ch._thiefShockReadyAt += ms;
-            for (const key of ['_warriorFloatUntil', '_archerPierceUntil']) {
+            if (member.ch?._fighterShockReadyAt) member.ch._fighterShockReadyAt += ms;
+            for (const key of ['_knightFloatUntil', '_rangerPierceUntil']) {
                 if (member.body?.[key]) member.body[key] += ms;
             }
         }

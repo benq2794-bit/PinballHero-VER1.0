@@ -1,0 +1,137 @@
+/* 攻擊型態天賦頁：單一淺色 pass。
+   色板跟隨主介面（白銀＋天藍＋金）；車道身分只靠 --lane-color 染車道、已學節點框線與連線，
+   節點狀態維持灰（鎖定）／天藍（可點）／車道色（已學）／金（滿級）四種語言，不再疊其他色。 */
+#pg-body.type-talent-page { overflow:hidden; padding:0; }
+
+/* 有三條全域皮會蓋掉天賦頁：theme 檔的 `#app-frame button:not(.gold)`（白面板＋字色）與
+   `#app-frame .pg :is(文字標籤)`（統一 #263039），還有 pixel-rpg-ui 的 `.pg button`（2px 框＋3px 圓角）。
+   全是 !important，所以用兩段 id 的權重把顏色與造型交還給自訂屬性：
+   --tt-face／--tt-line／--tt-shadow 決定表面，--tt-ink 決定文字，--tt-radius 決定圓角。 */
+#app-frame #pg-body .tt-shell button {
+    border-color:var(--tt-line,#b9c8cf) !important;
+    border-radius:var(--tt-radius,3px) !important;
+    background:var(--tt-face,linear-gradient(150deg,#fbfdfe,#dde8ec)) !important;
+    box-shadow:var(--tt-shadow,inset 0 1px 0 #fff,0 2px 0 rgba(120,145,155,.4)) !important;
+    color:var(--tt-ink,#33474f) !important;
+    text-shadow:none !important;
+}
+#app-frame #pg-body .tt-shell :is(h1,h2,h3,p,span,b,strong,small,label,li,em) {
+    color:var(--tt-ink,#263238) !important;
+    text-shadow:none !important;
+}
+
+.tt-shell { position:relative; width:100%; height:100%; min-height:0; box-sizing:border-box;
+    display:flex; flex-direction:column; gap:6px; padding:8px 9px 8px; overflow:hidden;
+    background:linear-gradient(160deg,#ffffff 0%,#f5f7fa 58%,#e8eef1 100%); }
+.tt-shell > * { flex:none; }
+
+/* ---- 標頭：標題＋一行摘要，右側只留一顆天賦點徽章 ---- */
+.tt-header { display:flex; align-items:center; gap:8px; min-width:0; padding:0 1px 6px; border-bottom:1px solid #c6d4db; }
+.tt-heading { flex:1 1 auto; min-width:0; }
+.tt-heading h2 { --tt-ink:#17394a; margin:0; font-size:15px; line-height:19px; }
+.tt-heading small { --tt-ink:#586a73; display:block; overflow:hidden; font-size:9px; line-height:12px; white-space:nowrap; text-overflow:ellipsis; }
+.tt-point { flex:none; display:flex; align-items:baseline; justify-content:center; gap:4px; padding:3px 8px;
+    border:1px solid #b7842f; border-radius:8px; background:linear-gradient(180deg,#fff6d2,#f0d68a);
+    box-shadow:inset 0 1px 0 #fffdf2,0 1px 0 rgba(140,105,30,.4); }
+.tt-point-mark { --tt-ink:#a97a1f; font-size:11px; }
+.tt-point b { --tt-ink:#6b4d0d; font-size:16px; line-height:17px; }
+.tt-point small { --tt-ink:#7a5a17; font-size:8px; }
+
+/* ---- 地圖：五條直列車道，節點依 left/top 百分比落位 ---- */
+.tt-canvas { position:relative; flex:1 1 auto; min-height:0; overflow:hidden;
+    border:1px solid #a9c1ce; border-radius:9px;
+    background:linear-gradient(180deg,#fbfdfe 0%,#eef4f7 62%,#e4edf1 100%);
+    box-shadow:inset 0 1px 0 #fff,inset 0 -14px 24px rgba(96,128,142,.08); }
+.tt-lanes { position:absolute; inset:0; z-index:0; pointer-events:none; }
+.tt-lane { position:absolute; top:1%; bottom:0; width:17%; transform:translateX(-50%); border-radius:0 0 9px 9px;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--lane-color) 15%,transparent) 0%,color-mix(in srgb,var(--lane-color) 7%,transparent) 58%,color-mix(in srgb,var(--lane-color) 4%,transparent) 100%);
+    border-top:2px solid color-mix(in srgb,var(--lane-color) 40%,transparent); }
+.tt-lane-foot { position:absolute; top:95.5%; left:50%; transform:translate(-50%,-50%); z-index:5;
+    display:flex; align-items:center; gap:3px; padding:1px 6px; white-space:nowrap; pointer-events:none; font-size:9px;
+    border:1px solid color-mix(in srgb,var(--lane-color) 45%,#c6d4db); border-radius:8px; background:rgba(255,255,255,.92); }
+.tt-lane-foot b { --tt-ink:color-mix(in srgb,var(--lane-color) 70%,#16303c); font-weight:700; }
+.tt-lane-foot i { color:#586a73; font-style:normal; font-size:8px; }
+.tt-lane-foot.done { border-color:#b7842f; background:rgba(255,250,232,.95); }
+.tt-lane-foot.done i { color:#8a6417; }
+
+.tt-tree-svg { position:absolute; inset:0; z-index:1; width:100%; height:100%; overflow:visible; }
+.tt-link { fill:none; stroke:#b7c6cd; stroke-width:1.1; stroke-linecap:round; opacity:.9; }
+.tt-link.cross { opacity:.45; stroke-dasharray:2.5 3.5; }
+.tt-link.stem { opacity:.55; }
+.tt-link.lit { stroke:color-mix(in srgb,var(--lane-color) 62%,#7f9aa6); stroke-width:1.9; opacity:1; stroke-dasharray:none; }
+.tt-link.unlocking { stroke:#c18c32; stroke-width:2.4; opacity:1; }
+
+.tt-icon { display:block; flex:none; width:19px; height:19px; object-fit:contain; }
+.tt-node { position:absolute; z-index:3; transform:translate(-50%,-50%); box-sizing:border-box;
+    width:34px; height:34px; padding:0; display:grid; place-items:center; cursor:pointer; }
+.tt-node img,.tt-node i { pointer-events:none; }
+.tt-node.locked { --tt-line:#c6d2d8; --tt-face:linear-gradient(150deg,#f4f7f8,#e2e9ec); --tt-shadow:inset 0 1px 0 #fff; opacity:.55; }
+.tt-node.locked .tt-icon { filter:grayscale(.8); opacity:.75; }
+.tt-node.available { --tt-line:#159bd1; --tt-face:linear-gradient(150deg,#f4fbff,#cfeaf9);
+    --tt-shadow:inset 0 1px 0 #fff,0 0 8px rgba(21,155,209,.5),0 2px 0 rgba(20,90,120,.35); }
+.tt-node.learned { --tt-line:color-mix(in srgb,var(--lane-color) 72%,#7f939c); --tt-face:linear-gradient(150deg,#ffffff,color-mix(in srgb,var(--lane-color) 16%,#e9f0f2)); }
+.tt-node.maxed { --tt-line:#b7842f; --tt-face:linear-gradient(150deg,#fff8dd,#eed899);
+    --tt-shadow:inset 0 1px 0 #fffdf2,0 0 7px rgba(183,132,47,.45),0 2px 0 rgba(140,105,30,.4); }
+.tt-node.selected { z-index:6; transform:translate(-50%,-50%) scale(1.12); outline:2px solid #159bd1; outline-offset:2px; }
+.tt-node:hover:not(.selected) { z-index:5; }
+.tt-node:focus-visible { outline:2px solid #159bd1; outline-offset:2px; }
+.tt-node i { position:absolute; right:-5px; bottom:-5px; z-index:2; min-width:15px; height:14px; padding:0 2px;
+    display:grid; place-items:center; border:1px solid #7f9aa6; border-radius:7px;
+    background:linear-gradient(#ffffff,#dde8ec); color:#33474f; font-size:8px; font-style:normal; font-weight:700; }
+.tt-node.learned i { border-color:color-mix(in srgb,var(--lane-color) 60%,#7f9aa6); }
+.tt-node.maxed i { border-color:#b7842f; background:linear-gradient(#fff6d2,#f0d68a); color:#6b4d0d; }
+
+.tt-passive-node { --tt-line:#c6d2d8; --tt-face:linear-gradient(150deg,#f2f5f7,#dbe6ea); --tt-radius:50%; width:38px; height:38px; }
+.tt-passive-node .tt-icon { width:21px; height:21px; }
+/* 車道點滿＝被動自動生效，只有這一種亮起狀態（舊的「已解鎖但未啟用」已隨開關移除）。 */
+.tt-passive-node.passive-active { --tt-line:#b7842f;
+    --tt-face:radial-gradient(circle at 34% 26%,#fffdf2,#f4e6bb 58%,#dcc277);
+    --tt-shadow:inset 0 1px 0 #fffdf2,0 0 9px rgba(183,132,47,.5); }
+
+/* ---- 節點詳情 ---- */
+.tt-detail { flex:none; padding:7px 9px 8px; border:1px solid #b3c4cd; border-radius:9px;
+    background:linear-gradient(150deg,#ffffff,#eef3f6); box-shadow:inset 0 1px 0 #fff,0 1px 3px rgba(60,90,105,.12); }
+.tt-branch-name { color:color-mix(in srgb,var(--lane-color) 55%,#586a73); font-size:9px; font-weight:700; }
+.tt-detail-title { display:flex; align-items:center; gap:7px; margin-top:2px; }
+.tt-detail-title .tt-icon { width:22px; height:22px; }
+.tt-detail-title b { --tt-ink:#17394a; flex:1; min-width:0; font-size:13px; }
+.tt-detail-title em { --tt-ink:#6b4d0d; flex:none; padding:2px 7px; border:1px solid #b7842f; border-radius:10px;
+    background:linear-gradient(#fff6d2,#f0d68a); font-style:normal; font-size:10px; font-weight:700; }
+.tt-detail p { --tt-ink:#43545d; min-height:26px; margin:4px 0 7px; font-size:10px; line-height:1.45; }
+.tt-detail-actions { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); gap:7px; }
+.tt-detail-actions :is(button,.tt-passive-state) { display:flex; align-items:center; justify-content:flex-start; gap:6px; min-width:0;
+    padding:5px 8px; font-family:inherit; font-size:10px; }
+.tt-detail-actions button { --tt-radius:7px; cursor:pointer; }
+.tt-detail-actions :is(button,.tt-passive-state) > span:first-child { flex:none; width:19px; height:19px; display:grid; place-items:center;
+    border:1px solid #b3c4cd; border-radius:5px; background:#fff; font-size:12px; }
+.tt-detail-actions :is(button,.tt-passive-state) > span:last-child { display:grid; gap:1px; min-width:0; text-align:left; font-weight:700; }
+.tt-detail-actions :is(button,.tt-passive-state) small { --tt-ink:#586a73; font-size:8px; font-weight:400; line-height:1.2; white-space:normal; }
+/* 被動沒有開關，這裡只是狀態列：細線＋光暈，不填底板，避免看成可點的按鈕。 */
+.tt-passive-state { --tt-ink:#5d6f78; border:1px dashed #b3c4cd; border-radius:7px; }
+.tt-passive-state > span:first-child { border-style:dashed; color:#93a4ac; }
+.tt-passive-state.active { --tt-ink:#7a5511; border-style:solid; border-color:#b7842f;
+    box-shadow:0 0 8px rgba(183,132,47,.28); }
+.tt-passive-state.active > span:first-child { border-style:solid; border-color:#c19a4a; color:#a97a1f; }
+.tt-passive-state.active small { --tt-ink:#8a6417; }
+.tt-detail-actions .tt-learn { --tt-line:#b7842f; --tt-ink:#38240e;
+    --tt-face:linear-gradient(180deg,#fff0a4,#f6c34e 53%,#d58a29);
+    --tt-shadow:inset 0 1px 0 #fff8df,0 2px 0 rgba(150,105,25,.55); }
+.tt-detail-actions .tt-learn > span:first-child { border-color:#c19a4a; background:rgba(255,255,255,.5); }
+.tt-detail-actions .tt-learn small { --tt-ink:#5a3c12; }
+.tt-detail-actions button:disabled { opacity:.5; cursor:default; }
+
+@media(max-height:700px) {
+    .tt-shell { gap:5px; padding:6px 7px; }
+    .tt-node { width:30px; height:30px; }
+    .tt-node .tt-icon { width:17px; height:17px; }
+    .tt-passive-node { width:34px; height:34px; }
+    .tt-passive-node .tt-icon { width:19px; height:19px; }
+    .tt-detail p { min-height:22px; margin:3px 0 6px; }
+}
+@media(max-height:600px) {
+    .tt-node { width:26px; height:26px; }
+    .tt-node .tt-icon { width:15px; height:15px; }
+    .tt-node i { min-width:13px; height:12px; font-size:7px; }
+    .tt-passive-node { width:30px; height:30px; }
+    .tt-passive-node .tt-icon { width:17px; height:17px; }
+}

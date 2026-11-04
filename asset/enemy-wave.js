@@ -5,7 +5,7 @@ function enemyUnitAlive(unit) {
 }
 function liveEnemies() {
     const units = PF.enemyUnits && PF.enemyUnits.length ? PF.enemyUnits : [PF.foe, ...PF.extraFoes];
-    return units.filter(enemyUnitAlive);
+    return [...units, ...(PF.summonedFoes || [])].filter(enemyUnitAlive);
 }
 function initializeEnemyWave() {
     PF.enemyUnits = [PF.foe, ...PF.extraFoes];
@@ -18,13 +18,20 @@ function initializeEnemyWave() {
         unit.fighter = unit === PF.foe ? enemyF : unit.fighter;
         unit.homeX = unit.homeX === undefined ? unit.x : unit.homeX;
         unit.homeY = unit.homeY === undefined ? unit.y : unit.homeY;
-        unit.kx = unit.ky = 0; unit.timer = 4.5; unit.diving = false; unit.target = null;
+        unit.kx = unit.ky = 0;
+        unit.statusSlowUntil = 0; unit.statusStunUntil = 0; unit.statusDownUntil = 0; unit.statusGustFxUntil = 0;
+        unit.statusParalyzeReady = 0; unit.statusGustReady = 0;
+        unit.timer = Number.isFinite(unit.timer) ? unit.timer : 4.5;
+        unit.attackCooldown = Number.isFinite(unit.attackCooldown) ? unit.attackCooldown : 10;
+        unit.diving = false; unit.target = null;
     });
     enemy.maxHp = total;
     refreshEnemyWave();
 }
 function refreshEnemyWave() {
-    const units = liveEnemies();
+    // 召喚物可被技能選取與擊殺，但不併入塔 Boss 的血量，也不會延長普通波次。
+    const units = (PF.enemyUnits && PF.enemyUnits.length ? PF.enemyUnits : [PF.foe, ...PF.extraFoes])
+        .filter(enemyUnitAlive);
     enemy.hp = units.reduce((sum, unit) => sum + Math.max(0, unit.hp || 0), 0);
     if (units.length && !enemyUnitAlive(PF.foe)) {
         PF.foe = units[0]; enemyF = PF.foe.fighter;
@@ -41,7 +48,13 @@ function damageEnemyUnit(target, amount) {
     if (target.hp <= 0) {
         target.hp = 0; target.defeated = true;
         if (target.fighter) { clearTimeout(target.fighter.timer); target.fighter.timer = null; }
-        target.node.remove();
+        // 死亡動畫要 300ms 才收，先把定位從 transform 換到 left/top，class 上的 keyframes 才不會把怪搬回場原點。
+        target.node.style.left = target.x + "px";
+        target.node.style.top = target.y + "px";
+        target.node.style.transform = "none";
+        target.node.classList.add("dying");
+        SFX.foeDown(target.isBossUnit || (target === PF.foe && enemy.boss));
+        setTimeout(() => target.node.remove(), 300);
     }
     refreshEnemyWave();
     return dealt;

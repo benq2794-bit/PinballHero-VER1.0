@@ -1,6 +1,6 @@
 // 頁面與返回路由；DOM、頁面內容和戰鬥處理均由主程式傳入。
 window.UIRouter = Object.freeze({
-    create({ screens, getElement, getPages, setTab, paintHome, renderPage, renderTabs,
+    create({ screens, getElement, getPages, setTab, paintHome, paintAdventure, renderPage, renderTabs,
         onBattle, onHomeParty, onLeave, closeOverlays, closeEmbeddedGate, leaveGateContext, resume }) {
         let current = 'home';
         function show(which) {
@@ -14,6 +14,7 @@ window.UIRouter = Object.freeze({
             if (route === 'home') { setTab('home'); paintHome(); }
             else if (route === 'page') renderPage();
             else if (route === 'team') setTab('team');
+            else if (route === 'adventure') { setTab('team'); paintAdventure(); }
             else if (route === 'battle') onBattle();
             onHomeParty(route === 'home');
             renderTabs();

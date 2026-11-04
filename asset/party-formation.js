@@ -48,7 +48,8 @@ function syncPartyFormation(reset = false) {
         b.ball.classList.toggle('party-follower', follower);
         b.ball.classList.toggle('party-pilot', !follower);
         if (!follower) continue;
-        const p = partyTrailPoint(++index * 42, head);
+        // 間距 42 → 58：腳下的增益圖示列寬 46px，42 會讓下一隻的球體壓掉這一列。
+        const p = partyTrailPoint(++index * 58, head);
         b.x = Math.max(b.r + 13, Math.min(W - b.r - 13, p.x));
         b.y = p.y;
         b.introDrop = !!(head.introDrop && b.y < BATTLE_BOUNDS.top + b.r);

@@ -14,7 +14,7 @@
 }
 
 /* Panels and cards use a compact stone frame and stepped shadow instead of soft glass. */
-.panel, .pgc, .bsg, .starter .s-card, #team .fm-panel, #team .fm-unit,
+.panel, .pgc, .bsg, #team .fm-panel, #team .fm-unit,
 #team .rcard, .slot, .pp-box, .hm-status-card, .hm-rank, .hm-energy-card,
 .dex-cell, .eq-cell, .gate-challenge-card {
     border: 2px solid var(--ui-stone) !important;
@@ -105,12 +105,12 @@
 .pf-hud .gauge-bar { border-radius:2px !important; }
 
 /* Selection, formation, and pause surfaces use the same square-cut frame. */
-.pgc .av, .starter .s-card .art, .pg-head .rs, #team .fm-count,
+.pgc .av, .pg-head .rs, #team .fm-count,
 #team .fm-meta span, #team .fm-power, #team .fm-lead, #team .fm-bar,
 .dex-bar select, .dex-bar input, .dex-cell, .equip-cell, .slot .out {
     border-radius:3px !important;
 }
-.pgc .nm, #team .fm-name, .starter .s-card .nm { color:#f1edcf !important; }
+.pgc .nm, #team .fm-name { color:#f1edcf !important; }
 .pgc .sub, #team .fm-type, #team .fm-sub { color:#b5c5a3 !important; }
 #team .fm-unit { border-color:#455c43 !important; background:linear-gradient(180deg,#263a2c,#15231a) !important; }
 #team .fm-unit.lead { border-color:#b79546 !important; border-left-color:#f2ca62 !important;
@@ -150,12 +150,6 @@
     border:3px solid #a77a36; outline:1px solid #ffdf83; background:#111a14; color:#ffdf83; font-weight:900; }
 .hm-avatar img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
 .hm-avatar.account-avatar img { width:138%; height:138%; max-width:none; object-fit:contain; image-rendering:auto; }
-.hm-job-badge { flex:none; padding:2px 4px; color:#f5eddb; background:#233b51; border:1px solid #7696ad; font-size:7px; font-weight:900; white-space:nowrap; }
-.pg .account-job-option { align-items:center; gap:8px; text-align:left; }
-.pg .account-job-option .k { display:flex; flex-direction:column; gap:3px; }
-.pg .account-job-option .k b { color:#ffe27c; }
-.pg .account-job-option .k small { color:#a8bed1; font-size:8px; font-weight:400; line-height:1.35; }
-.pg .account-job-option.on { border-color:#d4ad58; background:linear-gradient(145deg,#29465a,#14263a); }
 
 /* Compact party formation inspired by the supplied pixel RPG roster reference. */
 #team .fm-head { align-items:center; padding:2px 2px 8px; }
@@ -187,7 +181,7 @@
 #team .fm-mini-gauge > i b { display:block; width:0; height:100%; background:linear-gradient(90deg,#ff6267,#ffc369); }
 #team .fm-mini-gauge > i.energy b { background:linear-gradient(90deg,#4e99df,#ffe16b); }
 #team .fm-mini-gauge small { width:30px; overflow:hidden; color:#dce9f1; font-size:7px; text-align:right; white-space:nowrap; }
-#team .fm-captain-skill { margin-top:4px; overflow:hidden; color:#d5c4ff; font-size:7px; text-overflow:ellipsis; white-space:nowrap; }
+#team .fm-captain-unison { margin-top:4px; overflow:hidden; color:#d5c4ff; font-size:7px; text-overflow:ellipsis; white-space:nowrap; }
 #team .fm-member { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; }
 #team .fm-member-art { width:40px; height:50px; display:grid; place-items:center; overflow:hidden; border:1px solid #709bb7; background:linear-gradient(160deg,var(--slot-el),#0c1a2a); }
 #team .fm-member-art img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
@@ -195,7 +189,6 @@
 #team .fm-member > small { color:#a8bed1; font-size:7px; }
 #team .fm-member-actions { display:flex; gap:3px; width:100%; margin-top:2px; }
 #team .fm-member-actions button { flex:1; min-width:0; padding:2px 1px; color:#ffe27c; background:#173b59; border:1px solid #62859e; border-bottom:2px solid #0a1421; border-radius:2px; font-family:inherit; font-size:7px; font-weight:800; line-height:1.2; cursor:pointer; }
-#team .fm-member-actions .fm-dismiss { color:#ffc0bd; }
 #team .fm-a11y-data { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
 #team .fm-summary { display:flex; justify-content:space-between; margin-top:7px; padding:5px 6px; color:#a9c1d3; background:#0b1b2b; border:1px solid #34556d; font-size:8px; }
 #team .fm-summary b { color:#ffe27c; font-size:10px; }
@@ -332,7 +325,7 @@
     box-sizing:border-box !important; padding:1px 0 !important; line-height:12px !important; white-space:nowrap !important;
     overflow:hidden !important; text-overflow:ellipsis !important; }
 
-/* SAOUtilsHTML5 圓形按鈕素材：只套在帳號屬性加點與關閉等小型圖示按鈕。 */
+/* SAOUtilsHTML5 圓形按鈕素材：只套用於關閉等小型圖示按鈕。 */
 .account-stats .as-stat button,
 .account-stats .as-close {
     display:inline-grid !important; place-items:center !important; flex:none !important;

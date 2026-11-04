@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 100" fill="none">
+  <defs>
+    <linearGradient id="burst" x1="110" y1="8" x2="110" y2="92" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffad42"/>
+      <stop offset=".42" stop-color="#f04b22"/>
+      <stop offset="1" stop-color="#a81720"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="12" y1="18" x2="205" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffe9a0"/>
+      <stop offset=".48" stop-color="#ffbd45"/>
+      <stop offset="1" stop-color="#ff7040"/>
+    </linearGradient>
+  </defs>
+  <path d="M12 44 28 37 17 25 48 30 43 15 71 27 78 9 96 24 111 6 124 24 149 11 151 29 181 20 172 36 207 35 187 49 208 61 178 62 187 79 158 70 151 89 128 75 112 94 99 76 75 89 73 70 43 78 51 63 17 62 33 51Z" fill="#511019" opacity=".86" transform="translate(0 3)"/>
+  <path d="M12 41 28 34 17 22 48 27 43 12 71 24 78 6 96 21 111 3 124 21 149 8 151 26 181 17 172 33 207 32 187 46 208 58 178 59 187 76 158 67 151 86 128 72 112 91 99 73 75 86 73 67 43 75 51 60 17 59 33 48Z" fill="url(#burst)" stroke="#57121b" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M22 42 40 35 33 27 61 31 58 21 82 32 91 17 104 31 112 13 121 31 143 19 142 35 169 27 160 40 193 39 176 48 195 55 166 55 172 68 149 60 143 75 125 64 112 79 101 65 80 75 80 59 55 65 59 54 34 54 43 47Z" stroke="url(#edge)" stroke-width="2" stroke-linejoin="round" opacity=".95"/>
+  <path d="M17 47 4 51M203 45l13-4M34 19 24 9M185 75l12 9M108 4V0M108 94v5" stroke="#ffd878" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+</svg>

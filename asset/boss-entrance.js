@@ -167,10 +167,8 @@ function bossTouchdown(data) {
     if (BOSS_ENTRANCE.data !== data || !PF.foe) return;
     const b = PF.foe;
     const iy = b.y + b.r * .62;
-    // 放射線撐到場地寬的 1.2 倍、縱向 421px：再大就把整個畫面洗白，王的輪廓會一起消失；
-    // 腳下再補一團黑煙，它是實心形體，不能一起拉長，否則會變成一顆拉糊的黑棗
+    // 放射線撐到場地寬的 1.2 倍、縱向 421px：再大就把整個畫面洗白，王的輪廓會一起消失。
     playBossFx('slam', b.x, iy, 1.2, 2.34);
-    playBossFx('burst', b.x, iy, 1.1, 1.1);
     if (PF.el) {
         PF.el.classList.add('boss-quake');
         setTimeout(() => { if (PF.el) PF.el.classList.remove('boss-quake'); }, 760);

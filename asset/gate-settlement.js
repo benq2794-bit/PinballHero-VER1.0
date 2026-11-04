@@ -74,13 +74,11 @@ window.GateSettlement = (() => {
                 + `<div class="sc-fig-dmg">0</div></div>`;
         }).join("");
 
-        const token = res.first ? 5 : 2;
         const cells = [
-            { ic: "💎", v: "×" + comma(res.shards), t: "異界結晶", rare: true },
-            { ic: "🏅", v: "×" + token, t: elLabel + "屬性徽記", rare: res.first },
+            { ic: "💎", v: "×" + comma(res.shards), t: "虹彩石", rare: true },
             res.first ? { ic: "🏆", v: "首勝", t: "首次擊破獎勵", rare: true }
                       : { ic: "🔁", v: "第 " + comma(res.win) + " 次", t: "累計擊破", rare: false },
-            // 速度獎勵是總分的一節，不是會掉的寶；只有結晶／首通的東西才值得金光爆碎
+            // 速度獎勵是總分的一節，不是會掉的寶；只有虹彩石／首通的東西才值得金光爆碎
             { ic: "⏱", v: res.timeBonus > 0 ? "+" + comma(res.timeBonus) : "—", t: "速度獎勵", rare: false }
         ];
         const loot = cells.map(c => `<div class="sc-cell${c.rare ? " rare" : ""}">`

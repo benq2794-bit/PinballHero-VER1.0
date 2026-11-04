@@ -6,15 +6,15 @@ window.DamageFormulas = Object.freeze({
         return damage;
     },
 
-    receivedDamage(amount, jobShield, survivalRank) {
+    receivedDamage(amount, passiveShield, survivalRank) {
         const reduced = Math.round(amount
-            * Math.max(.4, 1 - jobShield)
+            * Math.max(.4, 1 - passiveShield)
             * (1 - .01 * survivalRank));
         return Math.max(1, reduced);
     },
 
-    criticalRate(baseRate, leaderBonus, accountBonus, jobBonus, maxRate) {
-        return Math.min(maxRate, Math.max(0, baseRate + leaderBonus + accountBonus + jobBonus));
+    criticalRate(baseRate, leaderBonus, accountBonus, passiveBonus, maxRate) {
+        return Math.min(maxRate, Math.max(0, baseRate + leaderBonus + accountBonus + passiveBonus));
     },
 
     skillDamage({ attack, multiplier, skillRank, accountSkillBonus, elementMultiplier, criticalMultiplier, dot }) {
