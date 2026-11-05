@@ -274,8 +274,8 @@ window.GAME_DATA.assets = {
         rise: { file: "smoke-rise.png", frames: 11, dur: 760 }, spike: { file: "smoke-spike.png", frames: 11, dur: 460 }
     },
     powerFlipFx: {
-        knight: { src: "asset/fx/pixelfx/pf-knight.png", frames: 16, ms: 530, fw: 264, fh: 150, scale: .76 },
-        fighter: { src: "asset/fx/pixelfx/pf-fighter.png", frames: 13, ms: 300, fw: 128, fh: 96, scale: 1.13 },
+        knight: { src: "asset/fx/pixelfx/pf-knight.png", frames: 10, ms: 330, fw: 264, fh: 150, scale: .88 },
+        fighter: { src: "asset/fx/pixelfx/pf-fighter.png", frames: 13, ms: 300, fw: 128, fh: 96, scale: 1.78 },
         ranger: { src: "asset/fx/pixelfx/pf-ranger.png", frames: 18, ms: 500, fw: 264, fh: 100, beam: 150 },
         special: { src: "asset/fx/pixelfx/pf-special.png", frames: 27, ms: 650, fw: 224, fh: 200, scale: .85 },
         supporter: { src: "asset/fx/pixelfx/pf-supporter.png", frames: 24, ms: 780, fw: 124, fh: 120, scale: 1.28 }
