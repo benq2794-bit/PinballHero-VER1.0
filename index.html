@@ -4112,9 +4112,12 @@ async function activateCloudSession(session, { boot = false } = {}) {
         if (remote?.save_data) {
             const local = saveStore.read();
             if (!local.ok || stableCloudJson(local.data) !== stableCloudJson(remote.save_data)) {
+                // 套用雲端存檔時不重新整理整個頁面：每次啟動 saveGame() 都會把
+                // battleBoostSavedAt 蓋成新的 Date.now()，本機快照永遠跟雲端不一樣，
+                // 用 location.reload() 會變成無限重整迴圈。
                 localStorage.setItem(SAVE_KEY, JSON.stringify(remote.save_data));
-                location.reload();
-                return true;
+                if (!loadGame()) throw new Error('雲端存檔已下載，但無法還原；請保留原始存檔並檢查版本相容性。');
+                syncSquadView(); syncTeamField(); spawnFoe();
             }
         } else {
             const metadataName = String(cloudUser.user_metadata?.account_name || '').trim().slice(0, 16);
