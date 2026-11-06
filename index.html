@@ -1223,7 +1223,7 @@
         .rs-tag.re { background: #3a4a6b; }
         .rs-gate { margin-top: 8px; font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #ffce5a; }
         .rs-boss { margin-top: 3px; font-size: 12px; color: #8fa0c0; letter-spacing: 1px; }
-        .rs-btns { margin-top: 14px; display: flex; gap: 8px; justify-content: center; }
+        .rs-btns { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 
         /* ===== 暫停選單（戰鬥畫面內，照原作：只在這一層放功能按鈕） ===== */
         .pf-pause { position: absolute; inset: 0; z-index: 24; display: none; align-items: center; justify-content: center;
@@ -2379,6 +2379,31 @@
         #expedition-mode-picker .expedition-mode-options .hell { border-color: #db755e; background: linear-gradient(#3b2333, #211827); }
         #expedition-mode-picker .expedition-mode-options .hell strong { color: #ffad95; }
         #expedition-mode-picker form { margin-top: 10px; text-align: center; }
+        #tower-mode-picker {
+            box-sizing: border-box; width: min(355px, calc(100% - 24px)); max-height: 90vh; overflow: auto; color: #eef3ff;
+            border: 1px solid #637187; border-radius: 12px; background: #111927; padding: 15px;
+            box-shadow: 0 18px 45px #000a; font: 14px/1.45 system-ui, sans-serif;
+        }
+        #tower-mode-picker::backdrop { background: #040710ca; }
+        #tower-mode-picker h2 { margin: 0 0 4px; text-align: center; font-size: 17px; color: #f8e6b4; }
+        #tower-mode-picker .tower-record { margin: 0 0 12px; text-align: center; font-size: 12px; color: #b9c6dd; }
+        #tower-mode-picker .tower-label { margin: 0 0 6px; font-size: 12px; color: #b9c6dd; }
+        #tower-mode-picker button { cursor: pointer; color: #e8eef9; background: #212b3c; border: 1px solid #65768f;
+            border-radius: 8px; font: inherit; padding: 8px; }
+        #tower-mode-picker button:focus-visible { outline: 2px solid #f1cc80; outline-offset: 2px; }
+        #tower-mode-picker .tower-floor-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+        #tower-mode-picker .tower-floor-options button[aria-pressed="true"] { border-color: #f1cc80; background: #3b3118; color: #ffe9b0; }
+        #tower-mode-picker .tower-auto { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
+            margin-top: 10px; text-align: left; }
+        #tower-mode-picker .tower-auto small { display: block; margin-top: 3px; font-size: 11px; color: #b9c6dd; }
+        #tower-mode-picker .tower-auto .pp-state { flex: none; min-width: 34px; padding: 2px 6px; border-radius: 10px;
+            text-align: center; font-weight: 800; color: #fff; background: #59616a; }
+        #tower-mode-picker .tower-auto[aria-pressed="true"] { border-color: #f1cc80; }
+        #tower-mode-picker .tower-auto[aria-pressed="true"] .pp-state { background: #397a50; }
+        #tower-mode-picker .tower-go { display: block; width: 100%; margin-top: 12px; padding: 11px; font-weight: 800;
+            border-color: #f1cc80; background: linear-gradient(#4a3a1c, #2a2213); color: #ffe9b0; }
+        #tower-mode-picker form { margin-top: 9px; text-align: center; }
+        #pp-tower-auto[hidden] { display: none !important; }
         #special-dungeon-picker { box-sizing:border-box; width:min(390px,calc(100% - 24px)); max-height:88vh; overflow:auto; color:#193247;
             border:1px solid #8bb3c6; border-radius:14px; padding:15px; background:linear-gradient(145deg,#f8fcff,#dcebf2); box-shadow:0 18px 48px #0009; }
         #special-dungeon-picker::backdrop { background:#020914c9; }
@@ -2858,6 +2883,8 @@
                     <div class="rs-boss" id="deep-fail-note">本層尚未完成</div>
                     <div class="rs-btns">
                         <button class="mini-btn gold" id="deep-retry" onclick="retryDeepFloor()">重試本層</button>
+                        <button class="mini-btn" id="deep-retreat" onclick="retreatTowerFloor()">退回 10 層</button>
+                        <button class="mini-btn" id="deep-restart" onclick="restartTowerFromFloorOne()">從第 1 層重開</button>
                         <button class="mini-btn gray" onclick="leaveDeepToHome()">返回主頁</button>
                     </div>
                 </div>
@@ -2908,6 +2935,7 @@
                     <button class="pp-go" onclick="togglePause()">▶ 繼續戰鬥</button>
                     <button class="pp-toggle" id="pp-auto-flippers" type="button" onclick="toggleAutoFlippers()" aria-pressed="true"><span>自動彈板</span><span class="pp-state">開</span></button>
                     <button class="pp-toggle" id="pp-auto-skills" type="button" onclick="toggleAutoSkills()" aria-pressed="true"><span>自動施放技能</span><span class="pp-state">開</span></button>
+                    <button class="pp-toggle" id="pp-tower-auto" type="button" onclick="toggleTowerAutoLoop()" aria-pressed="false" hidden><span>自動循環爬塔</span><span class="pp-state">關</span></button>
                     <label class="pp-volume-control" for="pp-sfx-volume"><span>音效音量</span><b id="pp-sfx-volume-value">40%</b><input id="pp-sfx-volume" type="range" min="0" max="100" value="40" oninput="setSfxVolume(this.value)" aria-label="音效音量百分比"></label>
                     <button id="pp-home" onclick="backHome()">🏠 返回主頁</button>
                     <button id="pp-gate-exit" onclick="gateExit()">↩ 離開境界領域</button>
@@ -3006,8 +3034,8 @@
                 <article class="adventure-mode-card tower-mode-card">
                     <div class="adventure-mode-heading"><span class="adventure-mode-icon" aria-hidden="true"><img class="adv-monster-img" src="asset/monster/ro/poring.png" alt=""></span><div><h2>波利塔</h2></div><button class="adventure-mode-help" type="button" onclick="openAdventureHelp('tower')" aria-label="查看波利塔掉落與機制">? 說明</button></div>
                     <p class="adventure-mode-desc">一波接一波挑戰怪物，看看隊伍能爬到第幾層。</p>
-                    <div class="adventure-mode-meta"><span>延續目前塔層紀錄</span><b>不消耗體力</b></div>
-                    <button class="adventure-mode-action" type="button" onclick="enterBattle()">點選進入</button>
+                    <div class="adventure-mode-meta"><span>可從已解鎖的樓層開始爬塔</span><b>不消耗體力</b></div>
+                    <button class="adventure-mode-action" type="button" onclick="showTowerModePicker()">點選進入</button>
                 </article>
                 <article class="adventure-mode-card boss-mode-card">
                     <div class="adventure-mode-heading"><span class="adventure-mode-icon adv-boss-cycle" aria-hidden="true"><img class="adv-monster-img" style="--i:0" src="asset/battle/gate-boss/nidhogg.webp" alt=""><img class="adv-monster-img" style="--i:1" src="asset/battle/gate-boss/water.webp" alt=""><img class="adv-monster-img" style="--i:2" src="asset/battle/gate-boss/wind.webp" alt=""><img class="adv-monster-img" style="--i:3" src="asset/battle/gate-boss/thunder.webp" alt=""></span><div><h2>BOSS 關卡</h2></div><button class="adventure-mode-help" type="button" onclick="openAdventureHelp('boss')" aria-label="查看首領戰掉落與機制">? 說明</button></div>
@@ -3057,6 +3085,15 @@
         <button class="hell" id="expedition-hell-mode-button" type="button" onclick="selectExpeditionMode('hell')"><strong>地獄</strong><span id="expedition-hell-attempts">今日剩餘 3 / 3 次</span><span>怪物更耐打、出手更快</span></button>
     </div>
     <form method="dialog"><button type="submit" autofocus>取消</button></form>
+</dialog>
+<dialog id="tower-mode-picker" aria-labelledby="tower-mode-title">
+    <h2 id="tower-mode-title">無限波利塔</h2>
+    <p class="tower-record" id="tower-mode-record">歷史最高紀錄：第 1 層</p>
+    <p class="tower-label">起始層</p>
+    <div class="tower-floor-options" id="tower-mode-floors"></div>
+    <button class="tower-auto" id="tower-mode-auto" type="button" onclick="toggleTowerAutoLoop()" aria-pressed="false"><span>自動循環爬塔<small>失敗後自動回到起始層，持續循環直到手動停止。</small></span><span class="pp-state">關</span></button>
+    <button class="tower-go" type="button" onclick="startTowerRun()">進入波利塔</button>
+    <form method="dialog"><button type="submit">取消</button></form>
 </dialog>
 <dialog id="special-dungeon-picker" aria-labelledby="special-dungeon-title">
     <header class="special-dungeon-heading"><h2 id="special-dungeon-title">素材副本</h2><button type="button" onclick="openAdventureHelp('specialDungeon')" aria-label="查看副本掉落與玩法">? 說明</button></header>
@@ -3375,6 +3412,8 @@ const BOSS_EVERY = TOWER_RULES.bossEvery;
 const NORMAL_FLOOR_WAVES = TOWER_RULES.normalWaves;
 const NORMAL_FLOOR_SECONDS = TOWER_RULES.normalSeconds, BOSS_FLOOR_SECONDS = TOWER_RULES.bossSeconds;
 let floorWins = 0, deepTimeLeft = NORMAL_FLOOR_SECONDS;
+// 自動循環爬塔是本次遊玩的操作開關（不入存檔）：失敗後回到進場時選定的起始層。
+let towerAutoLoop = false, towerStartFloor = 1;
 let towerFirstBossRecoveryUsed = false;
 const WEAK_DUR = TOWER_RULES.weakDurationMs;
 const BREAK_MS = TOWER_RULES.breakMs;
@@ -4372,6 +4411,9 @@ function togglePause() {
     if (restart) restart.hidden = EXPEDITION_MODE || !enemy.boss || TRAINING_MODE || !gateOn();
     const training = $("pp-training-controls");
     if (training) training.hidden = !TRAINING_MODE;
+    const towerAuto = $("pp-tower-auto");
+    if (towerAuto) towerAuto.hidden = gateOn() || TRAINING_MODE;
+    syncTowerAutoLoopButtons();
     syncAutoFlippersButton();
     syncAutoSkillsButton();
     if (PF.paused) syncBattleBoostButtons();
@@ -8831,6 +8873,12 @@ function restartCurrentGate() {
 }
 
 function showDeepFail() {
+    // 自動循環開啟時不擋失敗畫面：本輪獎勵在戰鬥中已即時入帳，直接回到起始層接下一輪。
+    if (towerAutoLoop) {
+        const failedAt = stage;
+        restartTowerAtFloor(towerStartFloor, `⏳ 第 ${failedAt} 層時間耗盡，自動循環回到第 ${towerStartFloor} 層重新挑戰。`);
+        return;
+    }
     setPaused(true);
     $("deep-retry").textContent = canRecoverAtFirstTowerBoss() ? "全隊滿血重試（一次）" : "重試本層";
     $("deep-fail-note").textContent = stage % BOSS_EVERY === 0
@@ -8840,6 +8888,35 @@ function showDeepFail() {
     syncBossHpPlacement();
     log(`⏳ 第 ${stage} 層時間耗盡，無限波利塔挑戰暫停。`);
     saveGame();
+}
+
+// 退回 10 層／從第 1 層重開／自動循環三者共用：換到指定樓層、重新計時，陣亡角色以 50% 血量復活。
+function restartTowerAtFloor(floor, note) {
+    resetBattleTransient();
+    $("deep-fail").classList.remove("on");
+    stage = Math.max(1, Math.floor(Number(floor) || 1));
+    floorWins = 0;
+    deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
+    tickCounter = 0;
+    PF.members.forEach(m => {
+        if (!m.down) return;
+        m.down = false;
+        m.ch.hp = Math.max(1, Math.round(hpMax(m.ch) * 0.5));
+        attachBall(m);
+    });
+    spawnEnemy(); spawnFoe(); applyStageBg(); updateUI();
+    saveGame();
+    setPaused(false);
+    log(note);
+}
+function towerFailPanelOpen() { return $("deep-fail").classList.contains("on"); }
+function retreatTowerFloor() {
+    if (!towerFailPanelOpen()) return;
+    restartTowerAtFloor(Math.max(1, stage - BOSS_EVERY), `⬇ 退回第 ${Math.max(1, stage - BOSS_EVERY)} 層重新挑戰。`);
+}
+function restartTowerFromFloorOne() {
+    if (!towerFailPanelOpen()) return;
+    restartTowerAtFloor(1, "⬇ 從第 1 層重新開始爬塔。");
 }
 
 function leaveDeepToHome() {
@@ -12060,6 +12137,69 @@ function showExpeditionModePicker() {
     if (!gateBattleOpen && !dialog.open) dialog.showModal();
 }
 
+// ===== 無限波利塔進場設定：起始層依已解鎖樓層（第 1 層＋每 10 層＋最高紀錄） =====
+function towerFloorOptions() {
+    const best = Math.max(1, Math.floor(Number(towerBestStage) || 1));
+    const floors = new Set([1, best]);
+    for (let floor = BOSS_EVERY; floor <= best; floor += BOSS_EVERY) floors.add(floor);
+    return [...floors].sort((a, b) => a - b);
+}
+
+function paintTowerModePicker() {
+    const box = $("tower-mode-floors");
+    if (!box) return;
+    const floors = towerFloorOptions();
+    if (!floors.includes(towerStartFloor)) {
+        const notPast = floors.filter(floor => floor <= Math.max(1, Math.floor(Number(stage) || 1)));
+        towerStartFloor = notPast.length ? notPast[notPast.length - 1] : floors[0];
+    }
+    $("tower-mode-record").textContent = `歷史最高紀錄：第 ${Math.max(1, Math.floor(Number(towerBestStage) || 1))} 層`;
+    box.innerHTML = floors.map(floor =>
+        `<button type="button" aria-pressed="${floor === towerStartFloor}" onclick="selectTowerStartFloor(${floor})">第 ${floor} 層</button>`).join("");
+    syncTowerAutoLoopButtons();
+}
+
+function selectTowerStartFloor(floor) {
+    towerStartFloor = Math.max(1, Math.floor(Number(floor) || 1));
+    paintTowerModePicker();
+}
+
+function syncTowerAutoLoopButtons() {
+    ["tower-mode-auto", "pp-tower-auto"].forEach(id => {
+        const button = $(id);
+        if (!button) return;
+        button.setAttribute("aria-pressed", String(towerAutoLoop));
+        const state = button.querySelector(".pp-state");
+        if (state) state.textContent = towerAutoLoop ? "開" : "關";
+    });
+}
+
+function toggleTowerAutoLoop() {
+    towerAutoLoop = !towerAutoLoop;
+    syncTowerAutoLoopButtons();
+    log(towerAutoLoop
+        ? `🔁 自動循環爬塔已開啟：失敗後自動回到第 ${towerStartFloor} 層。`
+        : "⏸ 自動循環爬塔已關閉：失敗後改為手動選擇。");
+}
+
+function showTowerModePicker() {
+    const dialog = $("tower-mode-picker");
+    if (!dialog) return;
+    if (!teamIds.length) { hmToast("請先編成隊伍再進入波利塔。"); return; }
+    paintTowerModePicker();
+    if (!dialog.open) dialog.showModal();
+}
+
+function startTowerRun() {
+    $("tower-mode-picker")?.close();
+    const floor = towerStartFloor;
+    enterBattle();
+    if (!tutorialSeen || $("pf-tutorial")?.classList.contains("on")) return;
+    // 起始層就是目前樓層＝原本的「延續塔層紀錄」，不打斷進行中的波次與血量。
+    if (floor === stage) return;
+    restartTowerAtFloor(floor, `🏰 從第 ${floor} 層開始爬塔。`);
+}
+
 function refreshSpecialDungeonRuns() {
     const today = taipeiDateKey();
     if (specialDungeonRunDate === today) return false;
@@ -12188,6 +12328,16 @@ function openAdventureHelp(kind) {
     } else if (kind === 'tower') {
         title.textContent = '波利塔｜掉落與機制';
         content.innerHTML = `
+            <section><h3>樓層規則</h3><ul>
+                <li><b>普通樓層通關</b>：清除所有波次，自動前往下一層。</li>
+                <li><b>Boss 樓層通關</b>：擊敗 Boss，自動前往下一層。</li>
+                <li><b>挑戰失敗</b>：時間耗盡，停止戰鬥並顯示失敗畫面。</li>
+                <li><b>重試本層</b>：重新計時、重置怪物，角色以 50% 血量復原。</li>
+                <li><b>退回 10 層</b>：從較低樓層重新挑戰。</li>
+                <li><b>從第 1 層重開</b>：重新開始爬塔。</li>
+                <li><b>進度保存</b>：保留最高通關紀錄。</li>
+                <li><b>自動循環爬塔</b>：開啟後失敗自動回到進場設定的起始層，重複到手動關閉；最高紀錄只升不降。</li>
+            </ul></section>
             <section><h3>普通怪物掉落</h3><ul>
                 <li>經驗水晶：100 層以下 0～3 顆；101～200 層 1～4 顆；201 層以上 2～5 顆。</li>
                 <li>虹彩石：30% 機率 ×1；金幣依層數增加（每隻約 10～50 金幣）。</li>
