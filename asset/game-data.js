@@ -254,7 +254,7 @@ window.GAME_DATA.ui = {
         { k: "book", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-book.png" alt="" draggable="false">', t: "圖鑑" },
         { k: "menu", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-menu.png" alt="" draggable="false">', t: "選單" }
     ],
-    pages: { chars: "角色", boss: "BOSS戰", shop: "轉蛋商店", exchange: "交換所", leaderboard: "排行榜", book: "圖鑑", title: "稱號系統", talents: "天賦", menu: "選單", items: "道具資源", checkin: "每日簽到", goldExchange: "金幣交易所", pass: "通行證" },
+    pages: { chars: "角色", boss: "BOSS戰", shop: "轉蛋商店", exchange: "交換所", leaderboard: "排行榜", book: "圖鑑", title: "稱號系統", talents: "天賦", menu: "選單", items: "道具資源", checkin: "每日簽到", offline: "離線收益", goldExchange: "金幣交易所", pass: "通行證" },
     dexRoles: { Sword: "劍士", Fist: "格鬥", Bow: "射擊", Support: "輔助", Special: "特殊" }
 };
 window.GAME_DATA.titles = [

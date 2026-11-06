@@ -6,7 +6,7 @@
    不會在大字上變成細線、也不會在小字上糊成一坨。
 
    挂在哪裡：stroke／paint-order／font 在 Chromium 會繼承到子節點，
-   所以只挂容器（.pf-over、.pp-box、#pg-body…），裡面的文字自動跟隨。
+   所以只挂容器（.pp-box、#pg-body…），裡面的文字自動跟隨。
 
    填色預設是 currentColor，也就是「不動既有配色，只加邊」。
    要強制換色才設 --wf-fill（例：.highlight 的亮黃）。
@@ -29,7 +29,7 @@
     --wf-stroke-w: .085em;
 
     /* 填色刻意不在這裡宣告：掛在容器上時，元素自己寫死的 color 會被蓋掉
-       （實測 .pf-over 的 #ff8a95 会变成繼承的 #e3e3e6）。要換色交給 .highlight
+       （實測深底面板自己寫的 #ff8a95 会被蓋成繼承的 #e3e3e6）。要換色交給 .highlight
        或各場自己的 color。 */
     letter-spacing: .02em;
     /* 外框會往外長 0.085em，行高要預留，否則在 flex／button 裡上下會被切 */

@@ -521,23 +521,6 @@
 
         /* 球體角色：貼圖直接浮在場上，不套圓形遮罩、不畫圓盤底色。勿用 mix-blend-mode: screen —— 會連角色自身的深色像素一起挖穿。 */
         .ent { position: absolute; left: 0; top: 0; z-index: 5; }
-        .coffin-entity { position:absolute; z-index:6; width:58px; height:62px; margin:-31px 0 0 -29px; pointer-events:none;
-            display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; filter:drop-shadow(0 3px 4px rgba(0,0,0,.82)); }
-        .coffin-visual { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; }
-        .coffin-entity.appear .coffin-visual { animation:coffinToss .52s cubic-bezier(.18,.78,.24,1) both; }
-        .coffin-shell { position:relative; width:30px; height:36px; box-sizing:border-box; border:2px solid #d7c69e;
-            clip-path:polygon(18% 0,82% 0,100% 20%,90% 82%,50% 100%,10% 82%,0 20%);
-            background:linear-gradient(135deg,#6f6c66 0%,#292d34 48%,#111923 100%); box-shadow:inset 0 0 0 2px #202631; }
-        .coffin-shell::before { content:""; position:absolute; inset:5px 9px; border:1px solid rgba(238,222,184,.8); opacity:.8; }
-        .coffin-shell::after { content:"✦"; position:absolute; inset:0; display:grid; place-items:center; color:#e9dfc5; font-size:13px; text-shadow:0 1px 3px #090b10; }
-        .coffin-count { min-width:29px; padding:1px 4px; border:1px solid rgba(238,222,184,.8); border-radius:5px;
-            color:#fff0c8; background:rgba(13,20,29,.94); font-size:10px; line-height:13px; text-align:center; font-weight:900; }
-        .coffin-label { color:#f3e4c2; font-size:8px; line-height:10px; white-space:nowrap; text-shadow:0 1px 3px #000; }
-        .coffin-entity.appear .coffin-shell { animation:coffinAppear .24s ease-out both; }
-        .coffin-entity.coffin-hit .coffin-shell { animation:coffinHit .18s steps(2,end) 1; }
-        @keyframes coffinAppear { from{opacity:.4;transform:scale(.82)} to{opacity:1;transform:scale(1)} }
-        @keyframes coffinHit { 50%{filter:brightness(1.8) sepia(.25)} }
-        @keyframes coffinToss { 0%{opacity:.25;transform:translateY(var(--coffin-launch-offset,58px)) scale(.82)} 72%{opacity:1;transform:translateY(-5px) scale(1.05)} 100%{opacity:1;transform:translateY(0) scale(1)} }
         /* 死亡動畫（C 擊飛）：被彈球撞到時往上掀、翻一下、邊轉邊淡掉，跟擊殺火花 240ms 同拍。
            .ent 只靠 transform 定位，所以掛 class 前必須先把位置改寫到 left/top，
            否則 keyframes 的 transform 會把整隻怪搬回場地原點。 */
@@ -1223,13 +1206,6 @@
             box-shadow: inset 0 0 0 3px rgba(255,74,38,.55), inset 0 0 60px rgba(255,60,20,.35);
             animation: warnBlink .75s ease-in-out infinite alternate; }
         @keyframes warnBlink { from { opacity: .25; } to { opacity: 1; } }
-        .pf-over { position: absolute; inset: 0; z-index: 11; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 10px;
-            background: rgba(4,5,10,.82); font-size: 20px; color: #ff8a95; letter-spacing: 3px; }
-        .pf-over.on { display: flex; }
-        .pf-over-note { color:#dbe7f1; font-size:11px; letter-spacing:.4px; }
-        .pf-over-actions { display:flex; gap:8px; margin-top:4px; }
-        .pf-over-actions button { min-width:112px; padding:8px 10px; color:#173044; background:linear-gradient(#fff,#dbe8ef); border:1px solid #8eafc2; border-radius:6px; font-weight:800; }
-        .pf-over-actions button.primary { color:#39250a; background:linear-gradient(#ffe79c,#e8ae38); border-color:#d7a137; }
 
         /* ===== 境界領域結算：獨立關卡打完才蓋上來，這時候戰鬥是凍住的 ===== */
         .pf-result { position: absolute; inset: 0; z-index: 13; display: none; align-items: center; justify-content: center;
@@ -2741,6 +2717,7 @@
                 <div class="hm-dock-panel" id="hm-checkin-panel" role="group" aria-label="每日系統入口" hidden>
                     <button type="button" onclick="pickHomeTab('checkin')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-check"/></svg></span>每日簽到</button>
                     <button type="button" onclick="pickHomeTab('pass')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-ticket"/></svg></span>通行證</button>
+                    <button type="button" onclick="pickHomeTab('offline')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-chest"/></svg></span>離線收益</button>
                 </div>
                 <button class="hm-action hm-dock-toggle" type="button" aria-expanded="false" aria-controls="hm-items-panel" onclick="toggleHomeDockMenu(this)"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-swords"/></svg></span><span class="hm-action-label">戰鬥挑戰</span></button>
                 <div class="hm-dock-panel" id="hm-items-panel" role="group" aria-label="戰鬥挑戰入口" hidden>
@@ -2869,12 +2846,6 @@
             </div>
 
 
-            <div class="pf-over wf-ui-text" id="pf-over">
-                <div id="pf-over-txt">隊伍全滅</div>
-                <div class="pf-over-note">所有隊員都已化為棺柩，無人能繼續救援。</div>
-                <div class="pf-over-actions"><button class="primary" type="button" onclick="retryAfterPartyWipe()">重新挑戰</button><button type="button" onclick="leaveAfterPartyWipe()">返回主頁</button></div>
-            </div>
-
             <!-- ===== 境界領域結算面板：內容整層由 asset/gate-settlement.js 現-build ===== -->
             <div class="pf-result wf-ui-text" id="pf-result"></div>
 
@@ -2887,12 +2858,6 @@
                         <button class="mini-btn gold" id="deep-retry" onclick="retryDeepFloor()">重試本層</button>
                         <button class="mini-btn gray" onclick="leaveDeepToHome()">返回主頁</button>
                     </div>
-                    <details id="deep-retreat-options" style="margin-top:10px">
-                        <summary>退層與重開選項</summary>
-                        <button class="mini-btn" id="deep-retreat" onclick="retreatDeepTenFloors()" style="width:100%;margin-top:8px">退回 10 層重新挑戰</button>
-                        <button class="mini-btn gray" id="deep-restart-first" onclick="restartDeepFromFirst()" style="width:100%;margin-top:8px">從第 1 層重新開始</button>
-                        <div class="sub" style="margin-top:8px;color:#a7bdd0;font-size:11px">退回後全隊恢復，從第一波開始；角色養成、資源與天賦保留。</div>
-                    </details>
                 </div>
             </div>
 
@@ -2941,7 +2906,6 @@
                     <button class="pp-go" onclick="togglePause()">▶ 繼續戰鬥</button>
                     <button class="pp-toggle" id="pp-auto-flippers" type="button" onclick="toggleAutoFlippers()" aria-pressed="true"><span>自動彈板</span><span class="pp-state">開</span></button>
                     <button class="pp-toggle" id="pp-auto-skills" type="button" onclick="toggleAutoSkills()" aria-pressed="true"><span>自動施放技能</span><span class="pp-state">開</span></button>
-                    <button class="pp-toggle" id="pp-dev-combat-max" type="button" onclick="toggleDevCombatMax()" aria-pressed="false" hidden><span>測試戰力：攻擊 999／暴擊 100%</span><span class="pp-state">關</span></button>
                     <label class="pp-volume-control" for="pp-sfx-volume"><span>音效音量</span><b id="pp-sfx-volume-value">40%</b><input id="pp-sfx-volume" type="range" min="0" max="100" value="40" oninput="setSfxVolume(this.value)" aria-label="音效音量百分比"></label>
                     <button id="pp-home" onclick="backHome()">🏠 返回主頁</button>
                     <button id="pp-gate-exit" onclick="gateExit()">↩ 離開境界領域</button>
@@ -3120,6 +3084,7 @@
 <script src="asset/character-growth.js"></script>
 <script src="asset/progression-formulas.js"></script>
 <script src="asset/reward-formulas.js"></script>
+<script src="asset/offline-earnings.js"></script>
 <script src="asset/party-formation.js"></script>
 <script src="asset/type-talents.js"></script>
 <script src="asset/enemy-wave.js"></script>
@@ -3158,13 +3123,10 @@ const DEV_MODE = (() => {
 })();
 const DEV_PF_ALWAYS_KEY = "wf_dev_pf_always_v1";
 let DEV_PF_ALWAYS = false;
-const DEV_COMBAT_MAX_KEY = "wf_dev_combat_max_v1";
-let DEV_COMBAT_MAX = false;
 const AUTO_SKILLS_KEY = "wf_auto_skills_v1";
 let AUTO_SKILLS_ENABLED = (() => { try { return localStorage.getItem(AUTO_SKILLS_KEY) !== "false"; } catch (_) { return true; } })();
 if (DEV_MODE) {
     try { DEV_PF_ALWAYS = localStorage.getItem(DEV_PF_ALWAYS_KEY) === "1"; } catch (_) {}
-    try { DEV_COMBAT_MAX = localStorage.getItem(DEV_COMBAT_MAX_KEY) === "1"; } catch (_) {}
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
@@ -4394,8 +4356,6 @@ function togglePause() {
     if (training) training.hidden = !TRAINING_MODE;
     syncAutoFlippersButton();
     syncAutoSkillsButton();
-    const devCombatButton = $("pp-dev-combat-max");
-    if (devCombatButton) { devCombatButton.hidden = !DEV_MODE; syncDevCombatMaxButton(); }
     if (PF.paused) syncBattleBoostButtons();
     if (PF.paused) saveGame();
     else PF.last = performance.now();
@@ -4416,20 +4376,6 @@ function toggleAutoSkills() {
     try { localStorage.setItem(AUTO_SKILLS_KEY, String(AUTO_SKILLS_ENABLED)); } catch (_) {}
     syncAutoSkillsButton();
     log(AUTO_SKILLS_ENABLED ? "⚡ 自動施放技能已開啟。" : "⏸ 自動施放技能已暫停；已蓄滿的技能會保留，重新開啟後繼續施放。");
-}
-function syncDevCombatMaxButton() {
-    const button = $("pp-dev-combat-max");
-    if (!button) return;
-    button.setAttribute("aria-pressed", String(DEV_COMBAT_MAX));
-    const state = button.querySelector(".pp-state");
-    if (state) state.textContent = DEV_COMBAT_MAX ? "開" : "關";
-}
-function toggleDevCombatMax() {
-    if (!DEV_MODE) return;
-    DEV_COMBAT_MAX = !DEV_COMBAT_MAX;
-    try { localStorage.setItem(DEV_COMBAT_MAX_KEY, DEV_COMBAT_MAX ? "1" : "0"); } catch (_) {}
-    syncDevCombatMaxButton();
-    hmToast(DEV_COMBAT_MAX ? "測試戰力已開：全隊攻擊固定 999、暴擊 100%。" : "測試戰力已關閉。");
 }
 
 let freeDungeonSpeed = false;
@@ -4677,7 +4623,6 @@ function leadTagsFor(targetId) {
 }
 
 function atkOf(ch) {
-    if (DEV_MODE && DEV_COMBAT_MAX) return 999;
     const now = performance.now();
     const buff = PF.buff && now < PF.buff.until ? PF.buff.atk : 0;
     let base = Math.round(ch.baseAtk * (1 + leadVal(ch.id, "atk")) * (1 + mainAccountBonus().atk)) + buff;
@@ -5487,88 +5432,8 @@ function buildField() {
 }
 
 // ===== 場上成員 =====
-function coffinHitsRequired(member) {
-    const level = gateOn() ? GATE_BASE_LEVEL : Math.max(1, stage);
-    const rarityBonus = CHAR_TABLE[member.ch.id]?.rarity >= 5 ? 2 : 0;
-    return Math.min(40, 10 + Math.floor((level - 1) / 10) * 2 + (enemy.boss ? 5 : 0) + rarityBonus);
-}
-
-function removeCoffin(member) {
-    member?.coffin?.node?.remove();
-    if (member) member.coffin = null;
-}
-
-function leaveCoffin(member, x, y) {
-    const hits = coffinHitsRequired(member);
-    const node = el('div', 'coffin-entity appear');
-    node.innerHTML = `<div class="coffin-visual"><div class="coffin-count">${hits}</div><div class="coffin-shell"></div><div class="coffin-label">撞擊救援</div></div>`;
-    PF.field.appendChild(node);
-    // 棺柩固定落在可救援的中段，避開下方彈板與陷洞；由下方短拋入場。
-    const safeY = Math.max(BATTLE_BOUNDS.top + 120, Math.min(H * .56, OUTHOLE_Y - 150));
-    const launchOffset = Math.max(0, Math.min(92, y - safeY));
-    node.style.setProperty('--coffin-launch-offset', `${launchOffset}px`);
-    member.coffin = {
-        x: Math.max(38, Math.min(W - 38, x)),
-        y: safeY, r: 23, hits, maxHits: hits, node, countNode: node.querySelector('.coffin-count'),
-        readyAt: performance.now() + 520, lastHitBy: new Map()
-    };
-    node.style.transform = `translate(${member.coffin.x}px,${member.coffin.y}px)`;
-}
-
-function reviveFromCoffin(member) {
-    const coffin = member.coffin;
-    if (!coffin) return;
-    const point = { x: coffin.x, y: coffin.y };
-    removeCoffin(member);
-    member.down = false;
-    member.ch.hp = Math.max(1, Math.round(hpMax(member.ch) * 0.6));
-    attachBall(member, point);
-    FX.bloom(point.x, point.y, ELEMENTS[CHAR_TABLE[member.ch.id].element].color, 74);
-    log(`💫 <b>${charName(member.ch.id)}</b> 的棺柩解鎖，帶著 60% 生命回到戰場！`);
-    updateUI();
-}
-
-function tickCoffinCollisions(now) {
-    const coffins = PF.members.filter(member => member.down && member.coffin);
-    if (!coffins.length) return;
-    for (const member of aliveMembers()) {
-        const ball = member.body;
-        for (const downed of coffins) {
-            const coffin = downed.coffin;
-            if (!coffin) continue;
-            if (now < coffin.readyAt) continue;
-            let dx = ball.x - coffin.x, dy = ball.y - coffin.y;
-            let distance = Math.hypot(dx, dy);
-            const minDistance = ball.r + coffin.r;
-            if (distance >= minDistance) continue;
-            if (distance < 0.001) { dx = 0; dy = -1; distance = 1; }
-            const nx = dx / distance, ny = dy / distance;
-            const overlap = minDistance - distance + 1;
-            ball.x += nx * overlap; ball.y += ny * overlap;
-            const velocityIntoCoffin = ball.vx * nx + ball.vy * ny;
-            if (velocityIntoCoffin < 0) {
-                const impulse = 1.82 * velocityIntoCoffin;
-                ball.vx -= impulse * nx; ball.vy -= impulse * ny;
-            }
-            const lastHitAt = coffin.lastHitBy.get(member.ch.id) ?? -Infinity;
-            if (now - lastHitAt < 260) continue;
-            coffin.lastHitBy.set(member.ch.id, now);
-            coffin.hits = Math.max(0, coffin.hits - 1);
-            coffin.countNode.textContent = coffin.hits;
-            coffin.node.classList.remove('coffin-hit');
-            void coffin.node.offsetWidth;
-            coffin.node.classList.add('coffin-hit');
-            FX.sparks(coffin.x, coffin.y, '#e8f3ff', 5);
-            PF.lastContact = now;
-            updateUI();
-            if (coffin.hits <= 0) reviveFromCoffin(downed);
-        }
-    }
-}
-
-function attachBall(m, spawnPoint = null) {
+function attachBall(m) {
     // 重生／墜出場外重新發球都走這裡：先清掉舊節點，否則孤兒 .ent 會一直累積在場上
-    removeCoffin(m);
     if (m.body) m.body.node.remove();
     const d = CHAR_TABLE[m.ch.id];
     const lead = m.idx === 0;
@@ -5576,8 +5441,8 @@ function attachBall(m, spawnPoint = null) {
     const b = mk.body;
     b.ball.style.setProperty("--glow", ELEMENTS[d.element].color);
     b.member = m;
-    b.x = Math.max(60, Math.min(W - 60, spawnPoint?.x ?? (W / 2 + (m.idx - 1) * 84 + (Math.random() * 20 - 10))));
-    b.y = spawnPoint?.y != null ? Math.max(BATTLE_BOUNDS.top + 40, spawnPoint.y - 28) : H - 150 - Math.random() * 70;
+    b.x = Math.max(60, Math.min(W - 60, W / 2 + (m.idx - 1) * 84 + (Math.random() * 20 - 10)));
+    b.y = H - 150 - Math.random() * 70;
     b.vx = Math.random() * 260 - 130;
     b.vy = -1000 - Math.random() * 120;
     b.introDrop = false;
@@ -5590,7 +5455,6 @@ function attachBall(m, spawnPoint = null) {
 }
 
 function detachBall(m) {
-    removeCoffin(m);
     if (m.body) m.body.node.remove();
     m.body = null;
     m.fighter = null;
@@ -5604,7 +5468,7 @@ function syncTeamField() {
     teamIds.forEach((id, i) => {
         warmSkillReady(id);
         let m = PF.members.find(x => x.ch.id === id);
-        if (!m) { m = { ch: roster[id], idx: i, body: null, fighter: null, down: false, coffin: null, lastDmg: 0, runDmg: 0 }; PF.members.push(m); }
+        if (!m) { m = { ch: roster[id], idx: i, body: null, fighter: null, down: false, lastDmg: 0, runDmg: 0 }; PF.members.push(m); }
         m.idx = i;
         if (!m.body && !m.down) attachBall(m);
     });
@@ -6087,7 +5951,7 @@ const FX = {
         PF.el.classList.remove("pf-drop"); void PF.el.offsetWidth; PF.el.classList.add("pf-drop");
         setTimeout(() => PF.el.classList.remove("pf-drop"), 460);
     },
-    // 受擊閃爍：白閃＋短透明，300ms 後把類別收乾淨，別讓它壓住之後的動畫（例如棺槨入場）。
+    // 受擊閃爍：白閃＋短透明，300ms 後把類別收乾淨，別讓它壓住之後的動畫。
     hurtBlink(node) {
         if (!node) return;
         node.classList.remove("hurt-blink"); void node.offsetWidth; node.classList.add("hurt-blink");
@@ -7182,7 +7046,6 @@ function checkKill() {
 
 // 暴擊率＝基礎值＋隊長被動，上限 75%；暴擊倍率固定，沒有暴擊傷害乘區
 function critRate(ch, context = "") {
-    if (DEV_MODE && DEV_COMBAT_MAX) return 1;
     const passiveCrit = typeEffects.shockCritical(context);
     return DamageFormulas.criticalRate(CRIT_RATE, leadVal(ch.id, "crit"), mainAccountBonus().crit, passiveCrit + (battleBoostActive("crit") ? 0.15 : 0), 0.75);
 }
@@ -7578,7 +7441,7 @@ function memberStrike(m, dmg, why, sourceElement = null) {
     if (PF.expedition) dmg = Math.max(1, Math.round(dmg / (1 + .18 * PF.expedition.ranks[4])));
     m.ch.hp = Math.max(0, m.ch.hp - dmg);
     SFX.playerHurt?.();
-    // 致命傷不閃：那一下交給棺槨入場，兩套動畫疊在一起只會糊成一片
+    // 致命傷不閃：那一下交給陣亡的水晶爆碎，兩套動畫疊在一起只會糊成一片
     if (m.ch.hp > 0) {
         FX.hurtBlink(m.body.ball);
         if (dmg >= hpMax(m.ch) * 0.25) FX.hurtShards(m.body.x, m.body.y, m.body.r * 3.1);
@@ -7591,8 +7454,6 @@ function memberStrike(m, dmg, why, sourceElement = null) {
 
 function downMember(m) {
     if (!m || m.down) return;
-    const x = m.body?.x ?? W / 2;
-    const y = m.body?.y ?? H / 2;
     m.down = true;
     m.ch.gauge = 0;
     SFX.voice(m.ch.id, "outhole");
@@ -7603,12 +7464,11 @@ function downMember(m) {
         setTimeout(() => node.remove(), 420);
     }
     m.body = null; m.fighter = null;
-    leaveCoffin(m, x, y);
-    log(`☠️ <b style='color:#ff8a95'>${charName(m.ch.id)}</b> 倒下，留下棺柩；撞擊 ${m.coffin.maxHits} 次可救援。`);
+    log(`☠️ <b style='color:#ff8a95'>${charName(m.ch.id)}</b> 陣亡；全隊陣亡時會以 25% 生命自動復活。`);
     if (PF.members.every(x => x.down)) {
         battleLifecycle.setRunning(false);
         if (expedition) finishExpedition("隊伍全滅");
-        else showOver("隊伍全滅");
+        else revivePartyAfterWipe();
     }
 }
 
@@ -8006,7 +7866,6 @@ function step(dt, now) {
         } else b.flipperStuckSteps = 0;
     }
 
-    tickCoffinCollisions(now);
     syncPartyFormation();
 
     // 弱點：讀條期間繞著王轉，球要追著打。
@@ -8287,10 +8146,7 @@ function render() {
     const now = performance.now();
     syncPartyFormation();
     for (const m of PF.members) {
-        if (m.down || !m.body) {
-            if (m.coffin) m.coffin.node.style.transform = `translate(${m.coffin.x}px,${m.coffin.y}px)`;
-            continue;
-        }
+        if (m.down || !m.body) continue;
         const b = m.body;
         enforceHeroBattleCeiling(b);
         b.node.style.transform = `translate(${b.x}px, ${b.y}px)`;
@@ -8377,27 +8233,15 @@ function pfLoop(ts) {
     }
 }
 
-function showOver(txt) {
-    document.getElementById("pf-over-txt").textContent = txt;
-    document.getElementById("pf-over").classList.add("on");
-}
-function hideOver() { document.getElementById("pf-over").classList.remove("on"); }
-
-function restorePartyAfterWipe(fullHealth) {
+// 全滅不再彈視窗：直接把全隊以 25% 生命放回戰場，重新挑戰本層。
+function revivePartyAfterWipe() {
     resetBattleTransient();
     PF.members.forEach(member => {
         member.down = false;
-        member.ch.hp = fullHealth ? hpMax(member.ch) : Math.max(1, Math.round(hpMax(member.ch) * 0.5));
+        member.ch.hp = Math.max(1, Math.round(hpMax(member.ch) * 0.25));
         member.ch.gauge = 0;
         attachBall(member);
     });
-    battleLifecycle.setRunning(true);
-    hideOver();
-}
-
-function retryAfterPartyWipe() {
-    if (PF.running || !PF.members.length || !PF.members.every(member => member.down)) return;
-    restorePartyAfterWipe(false);
     const gate = gateOf();
     if (gate) { GATE.t0 = performance.now(); GATE.dmg0 = dmgTotal; }
     else {
@@ -8406,15 +8250,11 @@ function retryAfterPartyWipe() {
     }
     spawnEnemy(); spawnFoe();
     if (gate) applyStageBg(gate.zone, 'gate_' + gate.id); else applyStageBg();
+    battleLifecycle.setRunning(true);
     setPaused(false);
     updateUI();
-    log('🔁 全隊重新整備，回到戰場再次挑戰。');
-}
-
-function leaveAfterPartyWipe() {
-    if (PF.running || !PF.members.length || !PF.members.every(member => member.down)) return;
-    restorePartyAfterWipe(true);
-    backHome();
+    log('🔁 隊伍全滅，全隊以 <b style="color:#ffce5a">25%</b> 生命自動復活，重新挑戰本層。');
+    pfBanner("隊伍全滅", "全隊以 25% 生命自動復活");
 }
 
 // ===== 關卡背景 =====
@@ -8974,9 +8814,7 @@ function restartCurrentGate() {
 
 function showDeepFail() {
     setPaused(true);
-    $("deep-retreat-options").open = false;
     $("deep-retry").textContent = canRecoverAtFirstTowerBoss() ? "全隊滿血重試（一次）" : "重試本層";
-    $("deep-retreat").textContent = `退回第 ${Math.max(1, stage - 10)} 層重新挑戰`;
     $("deep-fail-note").textContent = stage % BOSS_EVERY === 0
         ? `第 ${stage} 層 BOSS 未能在時限內擊敗。`
         : `第 ${stage} 層未能在時限內完成；已完成 ${floorWins}/${NORMAL_FLOOR_WAVES} 波。`;
@@ -9014,37 +8852,6 @@ function retryDeepFloor() {
     saveGame();
     setPaused(false);
     log(`🔁 重試第 ${stage} 層，天賦保留。`);
-}
-
-function retreatDeepTenFloors() {
-    restartFailedDeepAt(Math.max(1, stage - 10));
-}
-
-function restartDeepFromFirst() {
-    restartFailedDeepAt(1);
-}
-
-function restartFailedDeepAt(target) {
-    // Only the visible timeout result may rewind progress; ignore double clicks.
-    if (gateOn() || deepTimeLeft > 0 || !PF.paused || !$("deep-fail").classList.contains("on")) return;
-    const previous = stage;
-    stage = Math.max(1, Math.min(previous, Math.floor(target) || 1));
-    floorWins = 0;
-    deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
-    tickCounter = 0;
-    resetBattleTransient();
-    battleLifecycle.setRunning(true);
-    PF.members.forEach(m => {
-        m.down = false;
-        m.ch.hp = hpMax(m.ch); m.ch.gauge = 0;
-        attachBall(m);
-    });
-    $("deep-fail").classList.remove("on");
-    hideOver();
-    nextEnemy();
-    setPaused(false);
-    saveGame();
-    log(`↩️ 從第 ${previous} 層退回第 ${stage} 層，全隊恢復，角色養成、資源與天賦保留。`);
 }
 
 // ===== 換層轉場：向上捲動一層 =====
@@ -9662,7 +9469,7 @@ function updateUI() {
         if (chip) {
             chip.classList.toggle("down", m.down);
             chip.classList.toggle("ready", m.ch.gauge >= 100);
-            const hpTxt = m.down ? `棺柩救援 ${m.coffin?.hits ?? 0}/${m.coffin?.maxHits ?? 0}` : `${m.ch.hp}/${cap}`;
+            const hpTxt = m.down ? "已陣亡" : `${m.ch.hp}/${cap}`;
             const hpPct = m.down ? 0 : Math.round(Math.max(0, Math.min(1, m.ch.hp / cap)) * 100);
             $("mc-hp-" + i).style.width = clampPct(m.down ? 0 : m.ch.hp / cap);
             // 扣血拖尾：掉血時粉條從上一個血量慢慢追下來（60%/秒），回血直接貼齊、不拖。
@@ -9673,7 +9480,7 @@ function updateUI() {
             $("mc-lag-" + i).style.width = clampPct(m.lagPct / 100);
             $("mc-hp-pct-" + i).textContent = hpPct + "%";
             $("mc-g-" + i).style.width = clampPct(m.ch.gauge / 100);
-            $("mc-cd-" + i).textContent = m.down ? `救援 ${m.coffin?.hits ?? 0}` : (m.ch.gauge >= 100 ? "待放" : Math.floor(Math.max(0, m.ch.gauge)) + "%");
+            $("mc-cd-" + i).textContent = m.down ? "陣亡" : (m.ch.gauge >= 100 ? "待放" : Math.floor(Math.max(0, m.ch.gauge)) + "%");
             chip.title = hpTxt + "｜技能能量 " + Math.floor(m.ch.gauge) + "%" + (m.ch.gauge >= 100 ? "（等待依序施放）" : "");
         }
     });
@@ -9876,7 +9683,81 @@ function resetSave() {
     if (battleTimer) clearInterval(battleTimer);
     battleLifecycle.setRunning(false);
     saveStore.remove();
+    offlineStore.remove();
     location.reload();
+}
+
+// ==========================================================
+// 離線收益：待領取另存一個 key，不進 asset/save-system.js 的存檔欄位
+// ==========================================================
+const offlineStore = OfflineEarnings.createStore({ key: OfflineEarnings.KEY, getStorage: () => localStorage });
+const OFFLINE_ITEMS = [
+    { key: "gold", icon: '<img src="asset/items/gold-coin.svg" alt="">', name: "金幣", desc: "波利塔戰鬥獲得，用於角色上限解放" },
+    { key: "experience", icon: '<img src="asset/items/experience-crystal.png" alt="">', name: "經驗水晶", desc: "角色培養素材，每顆提供 100 經驗" },
+    { key: "rainbowCrystal", icon: '<img src="asset/items/crystal.png" alt="">', name: "虹彩石", desc: "戰鬥掉落與系統獎勵" },
+    { key: "jelly", icon: '<img src="asset/items/jelly-chunk.svg" alt="">', name: "果凍碎塊", desc: "波利塔普通怪掉落｜四星解放素材" },
+    { key: "blockScrap", icon: '<img src="asset/items/block-scrap.svg" alt="">', name: "方塊邊角料", desc: "波利塔普通怪掉落｜四星解放素材" },
+    { key: "monsterCrystal", icon: '<img src="asset/items/monster-crystal.svg" alt="">', name: "魔物結晶", desc: "波利塔普通怪掉落｜四星解放素材" }
+];
+// 計價用最高到過的層：往下重刷不會把已經攢下的收益縮水。
+const offlineStageBasis = () => Math.max(1, Math.floor(Number(towerBestStage) || Number(stage) || 1));
+function offlineAccrue(now = Date.now()) {
+    return OfflineEarnings.accrue(offlineStore.read(), { now, stage: offlineStageBasis() });
+}
+function offlineTimeText(ms) {
+    const sec = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60);
+    return h ? `${h} 小時 ${m} 分` : m ? `${m} 分 ${sec % 60} 秒` : `${sec} 秒`;
+}
+// 入帳只寫時間戳；頁面本身走 offlineAccrue（純計算），才不會在重繪時動到存檔。
+function syncOfflineEarnings(now = Date.now()) {
+    const accrued = offlineAccrue(now);
+    offlineStore.write(accrued.record);
+    return accrued;
+}
+// 開著玩的時間不算離線：只把時間戳推到當下，不計入任何掉落。
+function touchOfflineClock(now = Date.now()) {
+    offlineStore.write(OfflineEarnings.touch(offlineStore.read(), now));
+}
+function claimOfflineEarnings() {
+    const accrued = offlineAccrue();
+    const claimed = OfflineEarnings.claim(accrued.record);
+    const g = claimed.granted;
+    if (accrued.record.enemies <= 0 || !Object.values(g).some(v => v > 0)) {
+        hmToast("目前沒有可領取的離線收益。");
+        return;
+    }
+    const previous = { gold, cultivationMaterials, shardTotal, jelly: towerMaterials.jelly, blockScrap: towerMaterials.blockScrap, monsterCrystal: towerMaterials.monsterCrystal };
+    gold += g.gold;
+    cultivationMaterials += g.experience;
+    shardTotal += g.rainbowCrystal;
+    towerMaterials.jelly += g.jelly;
+    towerMaterials.blockScrap += g.blockScrap;
+    towerMaterials.monsterCrystal += g.monsterCrystal;
+    if (!saveGame()) {
+        gold = previous.gold;
+        cultivationMaterials = previous.cultivationMaterials;
+        shardTotal = previous.shardTotal;
+        Object.assign(towerMaterials, { jelly: previous.jelly, blockScrap: previous.blockScrap, monsterCrystal: previous.monsterCrystal });
+        hmToast("離線收益存檔失敗，獎勵沒有發放，請再試一次。");
+        return;
+    }
+    offlineStore.write(claimed.record);
+    const got = OFFLINE_ITEMS.filter(item => g[item.key] > 0).map(item => `${item.name} +${g[item.key].toLocaleString("zh-TW")}`).join("、");
+    log(`🌙 離線收益領取：${got}（共 ${accrued.record.enemies} 隻小怪）。`);
+    updateUI();
+    renderPage();
+    hmToast(`離線收益已領取：${got}`);
+}
+function pageOfflineEarnings() {
+    const accrued = offlineAccrue();
+    const pending = OfflineEarnings.whole(accrued.record.rewards);
+    const basis = offlineStageBasis();
+    const rows = OFFLINE_ITEMS.map(item => inventoryRow(item.icon, item.name, item.desc, pending[item.key].toLocaleString("zh-TW"))).join("");
+    const claimable = accrued.record.enemies > 0 && Object.values(pending).some(v => v > 0);
+    return `<div class="pg-sec">離線收益 <span class="rsec-n">每 2 分鐘＝1 隻波利塔小怪｜最多堆 8 小時</span></div>
+        <div class="pg-sec">待領取 <span class="rsec-n">${accrued.record.enemies} 隻小怪｜計價層數 ${basis}${accrued.capped ? "｜已達上限" : ""}</span></div>
+        ${claimable ? rows : `<div class="pg-empty">目前沒有待領取的離線收益；分頁留在背景或關掉瀏覽器後才會累計。</div>`}
+        <div class="inventory-filters"><button class="mini-btn gold" type="button" ${claimable ? "" : "disabled"} onclick="claimOfflineEarnings()">領取離線收益</button></div>`;
 }
 
 // ==========================================================
@@ -10608,7 +10489,7 @@ function renderPage() {
         : (PAGES[homeTabOn] || "主頁");
     $("pg-res").textContent = shardTotal;
     body.scrollTop = 0;
-const fn = { chars: pageChars, boss: pageBoss, shop: pageShop, exchange: pageCharacterExchange, leaderboard: pageTowerLeaderboard, book: pageBook, title: pageTitles, talents: pageTypeTalents, menu: pageMenu, items: pageItems, checkin: pageDailyCheckin, goldExchange: pageGoldExchange, pass: pagePass }[homeTabOn] || pageChars;
+const fn = { chars: pageChars, boss: pageBoss, shop: pageShop, exchange: pageCharacterExchange, leaderboard: pageTowerLeaderboard, book: pageBook, title: pageTitles, talents: pageTypeTalents, menu: pageMenu, items: pageItems, checkin: pageDailyCheckin, offline: pageOfflineEarnings, goldExchange: pageGoldExchange, pass: pagePass }[homeTabOn] || pageChars;
     body.innerHTML = fn();
     body.classList.toggle("char-directory-page", homeTabOn === "chars" && !growthFor);
     body.classList.toggle("type-talent-page", homeTabOn === "talents");
@@ -13404,6 +13285,16 @@ if (GATE_MODE) {
 if (!GATE_MODE) window.setInterval(() => {
     if (!document.hidden) grantDailyStaminaSupplies();
 }, 60 * 1000);
+// 離線收益：分頁隱藏或關掉瀏覽器才算離線；回到前台先入帳，開著遊戲時每 30 秒只推時鐘。
+if (!GATE_MODE) {
+    const offlineBoot = syncOfflineEarnings();
+    if (offlineBoot.gained > 0) {
+        log(`🌙 離線 ${offlineTimeText(offlineBoot.elapsedMs)}：波利塔小怪 ${offlineBoot.gained} 隻的收益已入帳，到主頁「每日系統 → 離線收益」領取。`);
+        if (offlineBoot.capped) log(`⏳ 離線收益已達 8 小時上限，多出來的時間沒有計價。`);
+    }
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) syncOfflineEarnings(); });
+    window.setInterval(() => { if (!document.hidden) touchOfflineClock(); }, 30 * 1000);
+}
 // 隱藏啟動畫面直到存檔路由與登入狀態都恢復，避免重新整理時短暫露出主頁。
 if (GATE_MODE) document.documentElement.classList.remove("ui-booting");
 

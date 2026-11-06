@@ -2,20 +2,17 @@
    wf-ui-mount.css — WF 字的站內接點（只有這一站用）
    樣式本體在 wf-ui-text.css；這裡只按「文字後面是深底還是淺底」調邊。
    容器上挂 class="wf-ui-text" 的位置：
-     .pf-over（隊伍全滅）、#pf-result（境界領域結算）、#deep-fail（挑戰結束）、
+     #pf-result（境界領域結算）、#deep-fail（挑戰結束）、
      .pp-box（暫停選單）、#pg-body（主介面／設定選單）
    ============================================================ */
 
 /* 深底那幾層吃滿預設 .085em，但行高收緊一點，避免既有面板被撐高 */
-.pf-over, .pf-result, .pp-box { line-height: 1.42; }
+.pf-result, .pp-box { line-height: 1.42; }
 
 /* 淺色底＋深色字：黑邊會和填色融成一坨（1500px 實拍放大核過，11～13px 的
    「畫面晃動」「重置當地存檔」直接糊成墨塊）。在這些地方只留 Noto 900，
    把邊關掉。寬度是繼承下來的實際值，所以要在子樹根上蓋一次才有效。 */
 #pg-body, .pp-box { -webkit-text-stroke-width: 0; }
-
-/* 全滅框裡的按鈕是白底深字，同樣只留字不描邊 */
-.pf-over-actions button { -webkit-text-stroke-width: 0; }
 
 /* .mini-btn 在現行 theme 下是淺色漸層＋深字（實拍：「重試本層」糊成墨塊），
    連同它自己那層底色一起關邊 */
