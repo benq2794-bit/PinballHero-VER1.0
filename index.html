@@ -2723,7 +2723,8 @@
                 <button class="hm-action hm-dock-toggle" type="button" aria-expanded="false" aria-controls="hm-items-panel" onclick="toggleHomeDockMenu(this)"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-swords"/></svg></span><span class="hm-action-label">戰鬥挑戰</span></button>
                 <div class="hm-dock-panel" id="hm-items-panel" role="group" aria-label="戰鬥挑戰入口" hidden>
                     <button type="button" onclick="openHomeDungeonPicker('special')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-key"/></svg></span>特殊副本</button>
-                    <button type="button" onclick="openHomeDungeonPicker('activity')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-portal"/></svg></span>活動副本</button>
+                    <button type="button" onclick="openHomeDungeonPicker('material')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-portal"/></svg></span>素材副本</button>
+                    <button type="button" onclick="openHomeDungeonPicker('event')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-ticket"/></svg></span>活動副本</button>
                 </div>
                 <button class="hm-action hm-dock-toggle" type="button" aria-expanded="false" aria-controls="hm-leaderboard-panel" onclick="toggleHomeDockMenu(this)"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-trophy"/></svg></span><span class="hm-action-label">排行榜</span></button>
                 <div class="hm-dock-panel" id="hm-leaderboard-panel" role="group" aria-label="排行榜入口" hidden>
@@ -3002,17 +3003,17 @@
                 </div>
             </div>
             <div class="pg-body adventure-body">
-                <article class="adventure-mode-card boss-mode-card">
-                    <div class="adventure-mode-heading"><span class="adventure-mode-icon adv-boss-cycle" aria-hidden="true"><img class="adv-monster-img" style="--i:0" src="asset/battle/gate-boss/nidhogg.webp" alt=""><img class="adv-monster-img" style="--i:1" src="asset/battle/gate-boss/water.webp" alt=""><img class="adv-monster-img" style="--i:2" src="asset/battle/gate-boss/wind.webp" alt=""><img class="adv-monster-img" style="--i:3" src="asset/battle/gate-boss/thunder.webp" alt=""></span><div><h2>BOSS 關卡</h2></div><button class="adventure-mode-help" type="button" onclick="openAdventureHelp('boss')" aria-label="查看首領戰掉落與機制">? 說明</button></div>
-                    <p class="adventure-mode-desc">選擇屬性 BOSS，破解弱點並爭取首勝獎勵。</p>
-                    <div class="adventure-mode-meta"><span>首勝與再戰獎勵</span><b id="adventure-boss-cost">消耗 15 體力</b></div>
-                    <button class="adventure-mode-action" type="button" onclick="pickHomeTab('boss')">點選進入</button>
-                </article>
                 <article class="adventure-mode-card tower-mode-card">
                     <div class="adventure-mode-heading"><span class="adventure-mode-icon" aria-hidden="true"><img class="adv-monster-img" src="asset/monster/ro/poring.png" alt=""></span><div><h2>波利塔</h2></div><button class="adventure-mode-help" type="button" onclick="openAdventureHelp('tower')" aria-label="查看波利塔掉落與機制">? 說明</button></div>
                     <p class="adventure-mode-desc">一波接一波挑戰怪物，看看隊伍能爬到第幾層。</p>
                     <div class="adventure-mode-meta"><span>延續目前塔層紀錄</span><b>不消耗體力</b></div>
                     <button class="adventure-mode-action" type="button" onclick="enterBattle()">點選進入</button>
+                </article>
+                <article class="adventure-mode-card boss-mode-card">
+                    <div class="adventure-mode-heading"><span class="adventure-mode-icon adv-boss-cycle" aria-hidden="true"><img class="adv-monster-img" style="--i:0" src="asset/battle/gate-boss/nidhogg.webp" alt=""><img class="adv-monster-img" style="--i:1" src="asset/battle/gate-boss/water.webp" alt=""><img class="adv-monster-img" style="--i:2" src="asset/battle/gate-boss/wind.webp" alt=""><img class="adv-monster-img" style="--i:3" src="asset/battle/gate-boss/thunder.webp" alt=""></span><div><h2>BOSS 關卡</h2></div><button class="adventure-mode-help" type="button" onclick="openAdventureHelp('boss')" aria-label="查看首領戰掉落與機制">? 說明</button></div>
+                    <p class="adventure-mode-desc">選擇屬性 BOSS，破解弱點並爭取首勝獎勵。</p>
+                    <div class="adventure-mode-meta"><span>首勝與再戰獎勵</span><b id="adventure-boss-cost">消耗 15 體力</b></div>
+                    <button class="adventure-mode-action" type="button" onclick="pickHomeTab('boss')">點選進入</button>
                 </article>
                 <article class="adventure-mode-card rogue-mode-card">
                     <div class="adventure-mode-heading"><span class="adventure-mode-icon" aria-hidden="true"><span class="adv-monster-strip" role="img" aria-label="混沌巴風特"></span></span><div><h2>巴風特的無限連擊</h2></div><button class="adventure-mode-help" type="button" onclick="openAdventureHelp('expedition')" aria-label="查看無盡連擊玩法與結算獎勵">? 說明</button></div>
@@ -3058,13 +3059,14 @@
     <form method="dialog"><button type="submit" autofocus>取消</button></form>
 </dialog>
 <dialog id="special-dungeon-picker" aria-labelledby="special-dungeon-title">
-    <header class="special-dungeon-heading"><h2 id="special-dungeon-title">活動副本</h2><button type="button" onclick="openAdventureHelp('specialDungeon')" aria-label="查看副本掉落與玩法">? 說明</button></header>
+    <header class="special-dungeon-heading"><h2 id="special-dungeon-title">素材副本</h2><button type="button" onclick="openAdventureHelp('specialDungeon')" aria-label="查看副本掉落與玩法">? 說明</button></header>
     <p id="special-dungeon-description">每個難度每日可進場 3 次。金幣／經驗副本為四波小怪加一波 Boss。</p>
     <section class="special-dungeon-group" data-dungeon-group="gold"><h3>🪙 金幣副本</h3><div class="special-dungeon-options" id="gold-dungeon-options"></div></section>
     <section class="special-dungeon-group" data-dungeon-group="experience"><h3>🎁 經驗副本</h3><div class="special-dungeon-options" id="experience-dungeon-options"></div></section>
+    <section class="special-dungeon-group" data-dungeon-group="event"><h3>🎪 活動副本</h3><div class="special-dungeon-options" id="event-dungeon-options"></div><p class="special-dungeon-note" id="event-dungeon-empty">目前沒有進行中的活動副本；活動開放時會出現在這裡。</p></section>
     <section class="special-dungeon-group" data-dungeon-group="lab"><h3>🧪 生體研究所</h3><div class="special-dungeon-options" id="lab-dungeon-options"></div></section>
     <section class="special-dungeon-group" data-dungeon-group="rift"><h3>🌌 時空裂縫</h3><div class="special-dungeon-options" id="rift-dungeon-options"></div></section>
-    <p class="special-dungeon-note">各難度按鈕只顯示難度與今日剩餘場次；掉落與結算獎勵請查看右上角「? 說明」。</p>
+    <p class="special-dungeon-note" id="special-dungeon-note">各難度按鈕只顯示難度與今日剩餘場次；掉落與結算獎勵請查看右上角「? 說明」。</p>
     <form method="dialog"><button type="submit">關閉</button></form>
 </dialog>
 <dialog id="adventure-help-dialog" aria-labelledby="adventure-help-title">
@@ -12070,7 +12072,8 @@ function refreshSpecialDungeonRuns() {
 function paintSpecialDungeonPicker() {
     const lists = {
         gold: $("gold-dungeon-options"), experience: $("experience-dungeon-options"),
-        lab: $("lab-dungeon-options"), rift: $("rift-dungeon-options")
+        lab: $("lab-dungeon-options"), rift: $("rift-dungeon-options"),
+        event: $("event-dungeon-options")
     };
     if (Object.values(lists).some(node => !node)) return;
     refreshSpecialDungeonRuns();
@@ -12087,23 +12090,31 @@ function paintSpecialDungeonPicker() {
     Object.entries(lists).forEach(([group, node]) => {
         node.innerHTML = SPECIAL_DUNGEONS.filter(d => groupOf(d) === group).map(buttonFor).join("");
     });
+    const eventEmpty = $("event-dungeon-empty");
+    if (eventEmpty) eventEmpty.hidden = SPECIAL_DUNGEONS.some(d => groupOf(d) === "event");
 }
 
-function showSpecialDungeonPicker(mode = "activity") {
+function showSpecialDungeonPicker(mode = "material") {
     const dialog = $("special-dungeon-picker");
     if (!dialog) return;
-    const specialOnly = mode === "special";
-    specialDungeonPickerMode = specialOnly ? "special" : "activity";
-    $("special-dungeon-title").textContent = specialOnly ? "特殊副本" : "活動副本";
-    $("special-dungeon-description").textContent = specialOnly
-        ? "挑戰特殊關卡。各難度每日可進場 3 次；通關獎勵與機制請查看右上角說明。"
-        : "金幣副本與經驗副本各有簡單、普通、困難三種難度；每個難度每日可進場 3 次。";
+    const pickerMode = mode === "special" || mode === "event" ? mode : "material";
+    specialDungeonPickerMode = pickerMode;
+    const titles = { special: "特殊副本", material: "素材副本", event: "活動副本" };
+    const notes = {
+        special: "挑戰特殊關卡。各難度每日可進場 3 次；通關獎勵與機制請查看右上角說明。",
+        material: "金幣副本與經驗副本各有簡單、普通、困難三種難度；每個難度每日可進場 3 次。",
+        event: "活動副本依營運期間開放；活動進行中時關卡會出現在下方，結束即關閉。"
+    };
+    const groups = { special: ["lab", "rift"], material: ["gold", "experience"], event: ["event"] };
+    $("special-dungeon-title").textContent = titles[pickerMode];
+    $("special-dungeon-description").textContent = notes[pickerMode];
     dialog.querySelectorAll("[data-dungeon-group]").forEach(section => {
-        section.hidden = specialOnly
-            ? !["lab", "rift"].includes(section.dataset.dungeonGroup)
-            : !["gold", "experience"].includes(section.dataset.dungeonGroup);
+        section.hidden = !groups[pickerMode].includes(section.dataset.dungeonGroup);
     });
     paintSpecialDungeonPicker();
+    // 沒有任何難度按鈕時（例如活動尚未開放），那行「各難度按鈕…」的提示也沒有東西可指
+    const note = $("special-dungeon-note");
+    if (note) note.hidden = !dialog.querySelector("[data-dungeon-group]:not([hidden]) .special-dungeon-options button");
     if (!gateBattleOpen && !dialog.open) dialog.showModal();
 }
 
@@ -12136,8 +12147,17 @@ function openAdventureHelp(kind) {
                     <li>各難度每日可進場 3 次；剩餘次數會顯示在難度按鈕上。</li>
                     <li>長副本需完成全部波次才會結算獎勵；途中戰敗不發放通關獎勵。</li>
                 </ul></section>`;
+        } else if (specialDungeonPickerMode === "event") {
+            const eventRows = SPECIAL_DUNGEONS.filter(d => d.group === "event")
+                .map(d => `<li><b>${d.name}</b>：${dungeonRewardText(d)}。</li>`).join("");
+            title.textContent = '活動副本｜開放方式';
+            content.innerHTML = `
+                <section><h3>活動副本</h3><ul>
+                    ${eventRows || "<li>目前沒有進行中的活動副本。</li>"}
+                    <li>活動副本依營運期間開放，活動結束後入口隨之關閉。</li>
+                </ul></section>`;
         } else {
-            title.textContent = '活動副本｜掉落與玩法';
+            title.textContent = '素材副本｜掉落與玩法';
             content.innerHTML = `
                 <section><h3>金幣副本</h3><ul>
                     <li>簡單／普通／困難分別以波利塔 10／50／100 層強度進行，四波小怪加一波 Boss。</li>
