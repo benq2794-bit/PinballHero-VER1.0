@@ -1,0 +1,4 @@
+Baphomet Jr. (1101), Ragnarok Online, Gravity Co., Ltd.
+Reference: https://rd.fharr.com/db/monster/1101/
+APNG source for each motion: https://rd.fharr.com/images/sprite/{idle|walk|attack|damage|die}/id/1101/
+Frames are retained in order and packed into transparent strips for in-game playback.

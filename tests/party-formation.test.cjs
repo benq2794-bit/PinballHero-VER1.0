@@ -12,26 +12,28 @@ function body(x = 200, y = 500) {
 function setup(count = 3) {
     const members = Array.from({ length: count }, (_, i) => ({ ch: { id: String(i), hp: 100, gauge: 25 + i }, body: body(100 + i * 70, 500), down: false }));
     const strikes = [];
+    let bites = 0;
     const ctx = { W: 430, H: 760, teamIds: members.map(m => m.ch.id),
         PF: { members, foeSeq: 1, running: true, ready: true, paused: false, foe: { x: 200, y: 200, r: 30 }, extraFoes: [], weak: null }, enemy: { hp: 100 },
         enforceBattleCeiling: b => { b.y = Math.max(176 + b.r + 12, b.y); },
         clearPowerFlip: b => { b.powerFlip = null; }, aliveMembers: () => ctx.PF.members.filter(m => !m.down && m.body), hpMax: () => 100,
         memberStrike: (m, damage) => { strikes.push(m.ch.id); m.ch.hp -= damage; if (m.ch.hp <= 0) { m.down = true; m.body = null; } },
         attachBall: m => { m.body = body(); }, $: () => ({ style: { display: '' } }),
+        outholeBite: () => { bites++; },
         FX: { sparks() {} }, SFX: { launch() {} } };
     ctx.enforceHeroBattleCeiling = ctx.enforceBattleCeiling;
     vm.createContext(ctx); vm.runInContext(fs.readFileSync(path.join(root, "asset/enemy-wave.js"), "utf8") + formation + collisions + ';this.formation=PARTY_FORMATION;this.dash=COLLISION_TRIAL;', ctx);
-    return { c: ctx, members, strikes };
+    return { c: ctx, members, strikes, bites: () => bites };
 }
 {
     const { c, members } = setup(); const head = members[0].body;
     c.syncPartyFormation(); assert.equal(c.partyMovers().length, 1); assert.equal(c.partyPilot(), members[0]);
     for (let y = 500; y >= 300; y -= 10) { head.y = y; c.syncPartyFormation(); }
-    assert.equal(members[1].body.y, 342); assert.equal(members[2].body.y, 384);
+    assert.equal(members[1].body.y, 358); assert.equal(members[2].body.y, 416, 'trail spacing 58 keeps the buff rows apart');
     assert.equal(members[1].body.vy, head.vy); assert.equal(members[1].ch.gauge, 26, 'own energy retained');
     head.vx = 600; head.vy = 0;
     for (let x = 100; x <= 300; x += 10) { head.x = x; c.syncPartyFormation(); }
-    assert.equal(members[1].body.x, 258); assert.equal(members[2].body.x, 216, 'follow curved history by path distance');
+    assert.equal(members[1].body.x, 242); assert.equal(members[2].body.x, 184, 'follow curved history by path distance');
     assert.equal(c.partyMotionBody(members[2]), head, 'member movement skills steer the pilot');
     head.x = 15; head.y = 190; c.syncPartyFormation();
     for (const m of members.slice(1)) { assert.ok(m.body.x >= m.body.r + 13); assert.ok(m.body.y >= 176 + m.body.r + 12); }
@@ -62,8 +64,9 @@ function setup(count = 3) {
     for (const m of members) assert.equal(m.body.vy, members[0].body.vy, 'auto dash moves the party together');
 }
 {
-    const { c, members, strikes } = setup(); c.syncPartyFormation(); members[0].body.y = 900;
+    const { c, members, strikes, bites } = setup(); c.syncPartyFormation(); members[0].body.y = 900;
     c.checkPartyOutOfBounds(); assert.equal(strikes.length, 3); assert.ok(members.every(m => m.ch.hp === 94));
+    assert.equal(bites(), 1, '一次落球只咬一次阱洞');
     assert.equal(c.partyMovers().length, 1); c.checkPartyOutOfBounds(); assert.equal(strikes.length, 3, 'one penalty per fall');
 }
 {

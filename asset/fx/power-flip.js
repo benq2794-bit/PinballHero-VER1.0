@@ -9,7 +9,11 @@ function clearPowerFlip(b) {
 // Only a real upward flipper stroke can consume the team's combo.
 function launchPowerFlip(b) {
     if (!POWER_FLIP.enabled || POWER_FLIP.lockMs > 0 || b.vy >= -80 || !PF.running || PF.paused) return;
-    const lv = flipLevel();
+    const comboLv = flipLevel();
+    // 開發者模式可略過連擊門檻，未達門檻時以 Lv1 發動；正式存檔不讀取此開關。
+    const devAlways = typeof DEV_MODE !== 'undefined' && DEV_MODE &&
+        typeof DEV_PF_ALWAYS !== 'undefined' && DEV_PF_ALWAYS;
+    const lv = comboLv || (devAlways ? 1 : 0);
     if (!lv || !PF.foe || enemy.hp <= 0) return;
     const member = PF.members.find(m => m.body === b && !m.down);
     const source = roster[teamIds[0]];
@@ -142,12 +146,19 @@ function powerFlipDamage(state, target, mult) {
     const rangePierce = typeEffects.pfBonus(state.type);
     const damage = Math.max(1, Math.round(atkOf(ch) * mult * (1 + mainAccountBonus().powerFlipDamage + rangePierce) * (1 + .08 * talentRank(ch, 'pf')) *
         elementMultiplier(CHAR_TABLE[ch.id].element, enemy.element) * (crit ? CRIT_DMG : 1)));
-    const dealt = applyDamage(ch, damage, { target, critical: crit, cls: 'pf-damage', combo: 1, pf: true });
+    const dealt = applyDamage(ch, damage, { target, critical: crit, cls: 'pf-damage', combo: 1, pf: true, pfState: state });
+    // 劍士每段命中加極短微停頓，利用既有全域節流避免連段變慢動作。
+    if (state.type === 'knight' && dealt > 0 && typeof triggerHitStop === 'function') triggerHitStop(30);
     if (typeEffects.active('knight') && dealt > 0) {
         const owner = powerFlipOwner(state);
         if (owner && owner.ch.hp > 0) {
-            const heal = typeEffects.lifeSteal(dealt, hpMax(owner.ch));
-            if (heal > 0) owner.ch.hp = Math.min(hpMax(owner.ch), owner.ch.hp + heal);
+            const cap = hpMax(owner.ch), before = owner.ch.hp;
+            const heal = Math.min(cap - before, typeEffects.lifeSteal(dealt, cap));
+            if (heal > 0) {
+                owner.ch.hp = before + heal;
+                if (owner.body) FX.pop(owner.body.x, owner.body.y - 30, `+${heal}`, 'heal');
+                SFX.lifeSteal();
+            }
         }
     }
     if (state.type === 'fighter' && typeEffects.active('fighter')) triggerFighterShockwave(ch, target);
@@ -204,9 +215,11 @@ function updatePowerFlip(dtMs) {
                 const ux = Math.cos(angle), uy = Math.sin(angle);
                 const width = 12 + state.lv * 8
                     + typeEffects.beamWidth(true);
+                // 弱點追蹤只放寬弱點判定，光束本體與命中帶不變。
+                const weakWidth = width + typeEffects.weakWidth();
                 // 射擊型：從球指向目標以長條光束掃過弱點。
                 showPowerFlipVFX('ranger', b.x, b.y, angle, state.lv, 1, 760);
-                powerFlipWeakRay(b.x, b.y, ux, uy, 760, width, state);
+                powerFlipWeakRay(b.x, b.y, ux, uy, 760, weakWidth, state);
                 const hits = powerFlipTargets().map(t => {
                     const dx = t.x - b.x, dy = t.y - b.y;
                     return { t, along: dx * ux + dy * uy, across: Math.abs(dx * uy - dy * ux) };

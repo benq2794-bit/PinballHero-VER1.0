@@ -29,6 +29,8 @@
 #pg-body .exchange-tools input::placeholder { color:#687b83; }
 #pg-body .exchange-character-list { display:grid; gap:7px; }
 #pg-body .exchange-character-card { display:grid; grid-template-columns:62px minmax(0,1fr); align-items:center; gap:9px; min-width:0; padding:8px; border:1px solid #8799a1; border-radius:8px; background:linear-gradient(145deg,#f8fbfc,#dbe4e7); color:#263842; box-shadow:inset 0 1px #fff,0 2px 5px #10182020; }
+#pg-body .exchange-character-card:focus-visible,
+#pg-body .exchange-character-card.skill-selected { outline:2px solid #f3c84f; outline-offset:1px; }
 #pg-body .exchange-character-art { position:relative; display:grid; place-items:center; width:58px; height:62px; overflow:hidden; border:1px solid #758993; border-radius:6px; background:linear-gradient(#263b48,#10202b); }
 #pg-body .exchange-character-art > img:first-child { width:52px; height:58px; object-fit:contain; image-rendering:pixelated; }
 #pg-body .exchange-character-art > img:last-child { position:absolute; top:2px; right:2px; width:17px; height:17px; object-fit:contain; image-rendering:pixelated; }

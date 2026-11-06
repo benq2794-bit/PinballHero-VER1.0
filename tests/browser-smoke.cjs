@@ -60,7 +60,7 @@ class CDP {
         }
         assert.deepEqual(page.errors, [], 'startup JavaScript exceptions'); assert.equal(ready, true);
         await page.evaluate(`accountCreated = true; accountGender = 'male'; accountName = 'Smoke';
-            mainAccountJob = 'warrior'; tutorialSeen = true;
+            tutorialSeen = true;
             $('account-setup').classList.remove('on'); pickStarter('doctor_pirate');
             setPaused(false); showScreen('home');`);
         const tabs = await page.evaluate("['team', ...Object.keys(PAGES), 'home']");
@@ -68,6 +68,19 @@ class CDP {
             const result = await page.evaluate(`pickHomeTab('${tab}'); ({ tab: homeTabOn, route: uiRouter.current() })`);
             assert.equal(result.tab, tab);
         }
+        // 天賦頁改以攻擊型態分組後，五條車道與圖示要真的渲染出來。
+        await page.evaluate("pickHomeTab('talents')");
+        await delay(500);
+        const talentPage = await page.evaluate(`({
+            lanes: Object.keys(TYPE_TALENT_TREES).join(','),
+            nodes: document.querySelectorAll('#pg-body .tt-node').length,
+            passives: document.querySelectorAll('#pg-body .tt-passive-node').length,
+            brokenIcons: Array.from(document.querySelectorAll('#pg-body .tt-icon')).filter(i => !i.complete || i.naturalWidth === 0).length });`);
+        assert.equal(talentPage.lanes, 'knight,fighter,ranger,supporter,special');
+        assert.equal(talentPage.nodes, 35, '30 顆天賦加 5 顆被動');
+        assert.equal(talentPage.passives, 5);
+        assert.equal(talentPage.brokenIcons, 0, '型態圖示不能掛掉');
+        await page.evaluate("pickHomeTab('home')");
         assert.equal(await page.evaluate("openAccountStats(); dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape' })); !$('account-stats').classList.contains('on') && uiRouter.current() === 'home'"), true);
         await page.evaluate("enterBattle(); setPaused(false); window.__smokeHits = 0; battleLifecycle.schedule(100, () => window.__smokeHits++); setPaused(true);");
         await delay(250); assert.equal(await page.evaluate('window.__smokeHits'), 0);

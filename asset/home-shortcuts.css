@@ -1,0 +1,30 @@
+/* The home shortcut controls are icon-and-label only; neutral global button
+   skins must not add a rectangular tile behind them. */
+#app-frame .hm .hm-home-shortcuts > button.hm-home-shortcut,
+html.ui-dark-mode #app-frame .hm .hm-home-shortcuts > button.hm-home-shortcut {
+    appearance:none !important;
+    -webkit-appearance:none !important;
+    border:0 !important;
+    background:transparent !important;
+    background-image:none !important;
+    box-shadow:none !important;
+    text-shadow:none !important;
+    padding:0 !important;
+    outline:0 !important;
+}
+
+#app-frame .hm .hm-home-shortcuts > button.hm-home-shortcut::before,
+#app-frame .hm .hm-home-shortcuts > button.hm-home-shortcut::after,
+html.ui-dark-mode #app-frame .hm .hm-home-shortcuts > button.hm-home-shortcut::before,
+html.ui-dark-mode #app-frame .hm .hm-home-shortcuts > button.hm-home-shortcut::after {
+    content:none !important;
+    display:none !important;
+    background:none !important;
+    box-shadow:none !important;
+}
+
+#app-frame .hm .hm-home-shortcuts > button.hm-home-shortcut:focus-visible,
+html.ui-dark-mode #app-frame .hm .hm-home-shortcuts > button.hm-home-shortcut:focus-visible {
+    outline:2px solid #ffe27a !important;
+    outline-offset:2px !important;
+}

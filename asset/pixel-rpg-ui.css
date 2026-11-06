@@ -151,6 +151,7 @@
 .hm-avatar img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
 .hm-avatar.account-avatar img { width:138%; height:138%; max-width:none; object-fit:contain; image-rendering:auto; }
 
+
 /* Compact party formation inspired by the supplied pixel RPG roster reference. */
 #team .fm-head { align-items:center; padding:2px 2px 8px; }
 #team .fm-head small { letter-spacing:.5px; font-size:9px; }
@@ -324,6 +325,7 @@
 .home-battle-log-panel #battle-log.log-box > div { display:block !important; width:100% !important; height:15px !important; min-height:15px !important;
     box-sizing:border-box !important; padding:1px 0 !important; line-height:12px !important; white-space:nowrap !important;
     overflow:hidden !important; text-overflow:ellipsis !important; }
+.home-battle-log-panel #battle-log.log-box > div[hidden] { display:none !important; }
 
 /* SAOUtilsHTML5 圓形按鈕素材：只套用於關閉等小型圖示按鈕。 */
 .account-stats .as-stat button,

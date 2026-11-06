@@ -1,0 +1,706 @@
+/* 可選深色介面：只調整 UI 表面與文字，戰場插畫、角色、特效保留原色。 */
+html.ui-dark-mode body { background:#080c11 !important; color:#e8eef3 !important; }
+
+/* 登入、設定彈窗 */
+html.ui-dark-mode .login-screen { background:#0b1118 !important; color:#e7edf2 !important; }
+html.ui-dark-mode .login-shell,
+html.ui-dark-mode .login-card,
+html.ui-dark-mode .login-settings-card { border-color:#50616b !important; background:linear-gradient(155deg,#27323a,#151d24) !important; color:#e8eef3 !important; }
+html.ui-dark-mode .login-card h1,
+html.ui-dark-mode .login-settings-card h2,
+html.ui-dark-mode .login-announcement b,
+html.ui-dark-mode .login-form label { color:#eef4f7 !important; }
+html.ui-dark-mode .login-caption,
+html.ui-dark-mode .login-foot,
+html.ui-dark-mode .login-version,
+html.ui-dark-mode .login-announcement span:last-child { color:#b6c4cc !important; }
+html.ui-dark-mode .login-announcement,
+html.ui-dark-mode .login-tab,
+html.ui-dark-mode .login-google,
+html.ui-dark-mode .login-guest,
+html.ui-dark-mode .login-settings-btn { border-color:#617986 !important; background:linear-gradient(#35434c,#202b33) !important; color:#edf5f8 !important; }
+html.ui-dark-mode .login-form input { border-color:#61717a !important; background:#111920 !important; color:#f1f5f7 !important; }
+html.ui-dark-mode .login-status { color:#ffb9a5; }
+html.ui-dark-mode .login-tab.active {
+    border-color:#95d8e7 !important;
+    background:#bdebf2 !important;
+    color:#173747 !important;
+}
+
+/* 頭像框收藏的已取得按鈕與未取得卡片共用同一套色板。 */
+html.ui-dark-mode #app-frame #avatar-picker .avatar-picker-card {
+    background:linear-gradient(#283a47,#1a2934);
+    color:#f1f7fa;
+    border-color:#648394;
+}
+html.ui-dark-mode #app-frame #avatar-picker :is(.avatar-picker-card > p,.avatar-frame-choice small) { color:#cedfe8 !important; }
+html.ui-dark-mode #app-frame #avatar-picker .avatar-frame-choice {
+    background:linear-gradient(#354d5c,#233744) !important;
+    border-color:#688596 !important;
+    color:#f1f7fa !important;
+    text-shadow:none !important;
+}
+html.ui-dark-mode #app-frame #avatar-picker .avatar-frame-choice.selected {
+    border-color:#e5c172 !important;
+    box-shadow:0 0 0 1px #e5c172 !important;
+}
+html.ui-dark-mode #app-frame #avatar-picker .avatar-frame-choice.locked { background:#263843 !important; }
+
+/* 遊戲內頁與共用面板 */
+html.ui-dark-mode #app-frame { color:#e8eef3 !important; }
+html.ui-dark-mode #app-frame .pg { border-color:#52616b !important; background:linear-gradient(180deg,#202a31,#11181e 70%,#0c1217) !important; color:#e8eef3 !important; }
+html.ui-dark-mode #app-frame .pg-head { border-color:#5a6b75 !important; background:linear-gradient(180deg,#34424a,#202a31) !important; color:#f0f4f6 !important; }
+html.ui-dark-mode #app-frame :is(.panel,.pgc,.bsg,.fm-panel,.fm-unit,.rcard,.fm-roster-card,.slot,.pp-box,.dex-cell,.eq-cell,.hm-profile-card,.hm-status-card,.hm-rank,.hm-energy-card,.hm-chip,.gate-challenge-card,.battle-log-panel,.as-panel,.as-stat,.as-summary,.as-derived,.as-available,.help-guide) {
+    border-color:#536570 !important;
+    background:linear-gradient(155deg,#303b43 0%,#222c33 55%,#182128 100%) !important;
+    color:#e8eef3 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 3px 7px rgba(0,0,0,.28) !important;
+}
+html.ui-dark-mode #app-frame :is(.pg-sec,.pg h2,.pg h3,.pg-head .tt,.pp-t,.battle-log-head h2,.hm-profile-title,.hm-rank .vv,.dex-name,.dex-title,.rc-title,.card-title) { color:#edf3f6 !important; text-shadow:0 1px 2px #000 !important; }
+html.ui-dark-mode #app-frame :is(.pg .sub,.pg .st,.pg .cap,.hint,.pg-empty,.pg-note,.help-guide p,.help-guide .desc,.muted,.secondary-text) { color:#bdcbd2 !important; }
+html.ui-dark-mode #app-frame :is(.pg input:not([type="range"]),.pg select,.pg textarea,.account-stats input) { border-color:#637780 !important; background:#151e24 !important; color:#edf3f6 !important; color-scheme:dark !important; }
+html.ui-dark-mode #app-frame .pg select option { background:#182127 !important; color:#edf3f6 !important; }
+
+/* 中性操作按鈕轉為深色金屬；金色主操作與代表屬性的彩色按鈕保留原設計。 */
+html.ui-dark-mode #app-frame button:not(.gold):not(.hm-go):not(.go):not(.pp-boost):not(.element-action),
+html.ui-dark-mode #app-frame .btn:not(.gold),
+html.ui-dark-mode #app-frame .mini-btn:not(.gold),
+html.ui-dark-mode #app-frame .pg .mi,
+html.ui-dark-mode #app-frame .dex-tab button:not(.on),
+html.ui-dark-mode #app-frame .hm-dock-tabs > *:not(.on) {
+    border-color:#657782 !important;
+    background:linear-gradient(180deg,#46545c 0%,#303c43 55%,#202a30 100%) !important;
+    color:#f0f4f6 !important;
+    text-shadow:0 1px 2px #000 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 2px 4px rgba(0,0,0,.3) !important;
+}
+html.ui-dark-mode #app-frame :is(button.on,button.active,button.selected,.rcard.onfield,.fm-roster-card.onfield,.dex-tab button.on,.hm-tabs .tb.on,.hm-dock-tabs .hm-action.active) {
+    border-color:#d8b85f !important;
+    background:linear-gradient(180deg,#806b38,#514322) !important;
+    color:#fff4cf !important;
+}
+html.ui-dark-mode #app-frame .mi .v { color:#8de0ff !important; }
+html.ui-dark-mode #app-frame .mi .v.off { color:#a8b6bf !important; }
+html.ui-dark-mode #app-frame .mi-volume b { color:#a9e9ff !important; }
+html.ui-dark-mode #app-frame .mi-volume input { accent-color:#69c5e5 !important; }
+
+/* 主頁底部與資源 HUD */
+html.ui-dark-mode #app-frame :is(.hm-top,.hm-dock,.hm-tabs,.hm-dock-tabs,.hm-log,.hm-status-card,.hm-profile-card,.hm-rank,.hm-chip,.hm-energy-card) {
+    border-color:#566771 !important;
+    background:linear-gradient(160deg,#303b43,#1b252c) !important;
+    color:#e8eef3 !important;
+}
+html.ui-dark-mode #app-frame .hm-tabs .tb.on .ic { background:linear-gradient(145deg,#ffeaa0,#dcae3d) !important; color:#382a12 !important; }
+
+/* 登入設定維持同一深色介面 */
+html.ui-dark-mode .login-settings { background:rgba(0,0,0,.72) !important; }
+html.ui-dark-mode .login-volume { color:#edf3f6 !important; }
+
+/* 亮色主題有不少文字直接指定深色；深色面板內統一提亮文字，避免沿用後看不清楚。 */
+html.ui-dark-mode #app-frame :is(.pg,.hm,.panel,.pgc,.bsg,.pp-box,.modal,.dialog,.popup,.overlay-card)
+    :is(h1,h2,h3,p,span,b,strong,small,label,li,dt,dd,th,td,a,em,div):not([class*="icon"]):not([class*="element"]):not([class*="rarity"]):not([class*="status"]):not([class*="color"]):not([class*="gold"]):not([style*="color"]) {
+    color:#e7eef3 !important;
+    text-shadow:none !important;
+}
+html.ui-dark-mode #app-frame :is(.pg-sec,.pg h2,.pg h3,.pg-head .tt,.help-guide h4,.update-log-version b,.update-log-label) { color:#ffd66b !important; }
+html.ui-dark-mode #app-frame :is(.hint,.pg-empty,.pg-note,.muted,.secondary-text,.pg .sub,.pg .st,.pg .cap) { color:#b8c8d1 !important; }
+
+/* 修正深色模式下各頁專屬樣式仍沿用淺色文字／淺色底板造成的低對比。 */
+html.ui-dark-mode #app-frame .hm-profile-card,
+html.ui-dark-mode #app-frame .hm-profile-card :is(.hm-profile-title,.hm-profile-title > b,.hm-title-line,.hm-current-title,.hm-exp-label,.hm-exp-label > span,.hm-exp-label > b,.hm-account-bonus,.hm-energy-card,.hm-energy-card *),
+html.ui-dark-mode #app-frame .hm-profile-card :is(.hm-rank-badge,.hm-rank-badge i) {
+    color:#f2f6f8 !important;
+    text-shadow:0 1px 2px #0008 !important;
+}
+html.ui-dark-mode #app-frame .hm-profile-card .hm-rank-badge { background:linear-gradient(#3e805c,#24533b) !important; border-color:#8bd5a9 !important; }
+html.ui-dark-mode #app-frame .hm-profile-card .hm-current-title { color:#ffe08a !important; }
+html.ui-dark-mode #app-frame .hm-profile-card .hm-exp-label,
+html.ui-dark-mode #app-frame .hm-profile-card .hm-exp-label > span { color:#d7e1e6 !important; }
+html.ui-dark-mode #app-frame .hm-profile-card .hm-energy-track { background:#0d151a !important; border-color:#71828b !important; }
+html.ui-dark-mode #app-frame .hm-profile-card .hm-energy-track i { background:linear-gradient(90deg,#30b7e8,#69e2ff) !important; }
+html.ui-dark-mode #app-frame .hm-profile-card .hm-account-bonus { background:linear-gradient(#34434b,#26343b) !important; border-color:#637984 !important; }
+html.ui-dark-mode #app-frame .hm-resource-chip { background:linear-gradient(#35434a,#253139) !important; border:1px solid #637984 !important; color:#edf3f6 !important; }
+html.ui-dark-mode #app-frame .hm-resource-chip b,
+html.ui-dark-mode #app-frame .hm-resource-chip i,
+html.ui-dark-mode #app-frame .hm-resource-chip .hm-regen { color:#e1e9ed !important; }
+
+/* 主頁新分層狀態列：深色模式保留金色 RANK 與體力溢出提示的對比。 */
+html.ui-dark-mode #app-frame .hm-avatar-rank { color:#573b0c !important; background:linear-gradient(#fff0ad,#d7a93d) !important; border-color:#f0d27a !important; text-shadow:none !important; }
+html.ui-dark-mode #app-frame .hm-avatar-rank i { color:#162a3a !important; text-shadow:none !important; }
+html.ui-dark-mode #app-frame .hm-identity-row .hm-profile-title > b { color:#f2f6f8 !important; }
+html.ui-dark-mode #app-frame .hm-stamina-heading,
+html.ui-dark-mode #app-frame .hm-stamina-heading b,
+html.ui-dark-mode #app-frame .hm-stamina-heading i { color:#edf5f8 !important; }
+html.ui-dark-mode #app-frame .hm-resource-chip.stamina { background:linear-gradient(#35434a,#253139) !important; }
+html.ui-dark-mode #app-frame .hm-resource-chip.stamina.over-cap { background:linear-gradient(#594b2c,#3c3321) !important; border-color:#e3b64b !important; }
+html.ui-dark-mode #app-frame .hm-resource-chip.stamina.over-cap .hm-stamina-heading,
+html.ui-dark-mode #app-frame .hm-resource-chip.stamina.over-cap .hm-stamina-heading b,
+html.ui-dark-mode #app-frame .hm-resource-chip.stamina.over-cap .hm-stamina-heading i { color:#ffe49a !important; text-shadow:0 1px 2px #000 !important; }
+html.ui-dark-mode #app-frame .hm-stamina-track { background:#15212a !important; }
+html.ui-dark-mode #app-frame .hm-stamina-track i { background:linear-gradient(90deg,#32bce8,#148fc5) !important; }
+html.ui-dark-mode #app-frame .hm-resource-chip.stamina.over-cap .hm-stamina-track i { background:linear-gradient(90deg,#ffcf4d,#ed861c) !important; }
+html.ui-dark-mode #app-frame .hm-resource-chip.gold { background:linear-gradient(#514526,#382f1d) !important; border-color:#b89c4a !important; }
+html.ui-dark-mode #app-frame .hm-resource-chip.crystal { background:linear-gradient(#294653,#20343f) !important; border-color:#6497ad !important; }
+html.ui-dark-mode #app-frame .hm-resource-name { color:#c4d2d9 !important; }
+html.ui-dark-mode #app-frame .hm-resource-value b { color:#f2f6f8 !important; }
+
+/* 隊伍編成：隊長卡、候補卡與隊長特性文字各自明確設定，避免白字落在淺銀底。 */
+html.ui-dark-mode #app-frame #team :is(.fm-panel,.fm-slot,.fm-captain,.fm-member,.fm-unit,.fm-lead,.fm-summary,.fm-count,.fm-squad-dots) {
+    color:#eaf1f4 !important;
+}
+html.ui-dark-mode #app-frame #team .fm-panel { background:linear-gradient(160deg,#26343c,#172129) !important; border-color:#617782 !important; }
+html.ui-dark-mode #app-frame #team :is(.fm-captain,.fm-member,.fm-unit) { background:linear-gradient(150deg,#34434b,#202b32) !important; border-color:#71838b !important; }
+html.ui-dark-mode #app-frame #team .fm-captain { background:linear-gradient(145deg,#51452d,#293238 70%) !important; border-color:#d8b75e !important; }
+html.ui-dark-mode #app-frame #team :is(.fm-captain-name,.fm-member-name,.fm-name,.fm-slot-kicker,.fm-position,.fm-lv,.fm-resource,.fm-resource b,.fm-type,.fm-main,.fm-sub,.fm-sub span,.fm-meta span,.fm-lead p,.fm-summary,.fm-power,.fm-power span,.fm-power strong) { color:#edf3f6 !important; text-shadow:0 1px 2px #0008 !important; }
+html.ui-dark-mode #app-frame #team :is(.fm-captain-sub,.fm-captain-unison,.fm-head small,.fm-lead p span,.fm-count:not(.sq-chip) u) { color:#c5d2d8 !important; }
+html.ui-dark-mode #app-frame #team .fm-lead { background:linear-gradient(110deg,#3c3525,#202b31) !important; border-color:#8a7441 !important; }
+html.ui-dark-mode #app-frame #team .fm-lead > span { color:#30230a !important; text-shadow:none !important; }
+html.ui-dark-mode #app-frame #team .fm-count.sq-chip { color:#fff1c2 !important; }
+html.ui-dark-mode #app-frame #team .fm-count.sq-chip :is(i,u) { color:#fff1c2 !important; }
+html.ui-dark-mode #app-frame .char-directory-grid .char-card,
+html.ui-dark-mode #app-frame #team .fm-roster-card,
+html.ui-dark-mode #app-frame #team .rcard { color:#edf3f6 !important; background:linear-gradient(150deg,#35434b,#202b32) !important; border-color:#637984 !important; }
+html.ui-dark-mode #app-frame .char-directory-grid .char-card :is(.nm,.sub,.char-card-stat,.char-card-skill,.char-card-info),
+html.ui-dark-mode #app-frame #team .fm-roster-card :is(b,small,.fm-roster-state),
+html.ui-dark-mode #app-frame #team .rcard :is(b,small,span) { color:#e8eef2 !important; }
+html.ui-dark-mode #app-frame .char-directory-grid .char-card .summon-tag { color:#e3ecef !important; background:linear-gradient(#46565e,#303d44) !important; border-color:#748790 !important; }
+html.ui-dark-mode #app-frame .char-directory-grid .char-card .summon-tag.limited { color:#3a2b0e !important; background:linear-gradient(#ffe8a4,#d6b04e) !important; border-color:#d5b65e !important; }
+html.ui-dark-mode #app-frame #team .fm-roster-card.onfield,
+html.ui-dark-mode #app-frame #team .rcard.onfield { color:#fff0bd !important; background:linear-gradient(150deg,#5a4e31,#34332a) !important; border-color:#d7b95e !important; }
+
+/* 招募頁：精選角色、保底條、獎池與分頁採深底＋高對比文字；角色圖本身不套濾鏡。 */
+html.ui-dark-mode #app-frame #pg-body :is(.gacha-shop,.summon-head,.summon-banner,.summon-featured-stage,.summon-pity,.summon-rates,.summon-info-panel,.summon-info-content,.summon-pool-content,.summon-pool-section,.summon-pool-materials,.summon-history-row,.summon-pity-rule) {
+    color:#edf3f6 !important;
+    border-color:#5e727c !important;
+    background:linear-gradient(155deg,#2a363d,#182229) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .gacha-shop { background:linear-gradient(160deg,#202b31,#11191f) !important; }
+html.ui-dark-mode #app-frame #pg-body :is(.summon-head h2,.summon-banner-copy b,.summon-featured-title,.summon-featured-meta b,.summon-pity-label,.summon-pity-rule b,.summon-rates h3,.summon-pool-section > b,.summon-history-row b) { color:#f5f7f8 !important; text-shadow:0 1px 2px #0008 !important; }
+html.ui-dark-mode #app-frame #pg-body :is(.summon-head p,.summon-head p small,.summon-head-title > small,.summon-banner-copy small,.summon-featured-meta span,.summon-pity small,.summon-pity-rule span,.summon-rates > div span,.summon-rates > small,.summon-pool-section small,.summon-pool-materials span,.summon-history-row p,.summon-history-row time,.summon-history-row header > span) { color:#c5d1d7 !important; }
+html.ui-dark-mode #app-frame #pg-body :is(.summon-head-title > small,.summon-banner-kicker,.summon-pity-label b,.summon-rates > div b) { color:#ffd66b !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-currency { color:#f0f5f7 !important; background:linear-gradient(#34434b,#202b31) !important; border-color:#6a7e87 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-currency small { color:#c7d3d8 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-featured-countdown { color:#1a3443 !important; background:linear-gradient(#f4f8f9,#d7e3e8) !important; border-color:#8ba3ad !important; text-shadow:none !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-acquisition-note { color:#e7eef2 !important; background:linear-gradient(90deg,#27343b,#202b31) !important; border-color:#d1ad58 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-pity-rule { background:linear-gradient(#334149,#26343c) !important; }
+html.ui-dark-mode #app-frame #pg-body :is(.summon-hero-card,.summon-pool-unit,.summon-result-card) { color:#edf3f6 !important; background:linear-gradient(#35434b,#253139) !important; border-color:#627782 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-hero-card :is(b,small,.summon-hero-stars) { color:#f2f6f8 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-pool-unit small { color:#d5e0e4 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-result-card.grand { background:linear-gradient(#574a2d,#382f20) !important; border-color:#d5b251 !important; }
+html.ui-dark-mode #app-frame #pg-body :is(.summon-result-kind,.summon-result-card > small) { color:#d9e2e6 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-info-tabs button { color:#e8eef2 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-info-tabs button.active { color:#30230a !important; }
+
+/* 角色交換所：交換卡曾同時套上灰色禁用按鈕與淡色卡字，深色主題下改回清楚的卡片層次。 */
+html.ui-dark-mode #app-frame #pg-body .character-exchange { color:#edf3f6 !important; }
+html.ui-dark-mode #app-frame #pg-body :is(.exchange-hero,.exchange-currency,.exchange-character-card,.exchange-tools input,.exchange-tools select) {
+    color:#edf3f6 !important;
+    border-color:#617681 !important;
+    background:linear-gradient(150deg,#344149,#222e35) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.08),0 2px 5px rgba(0,0,0,.28) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .exchange-mark { color:#d7edf5 !important; border-color:#728993 !important; background:linear-gradient(#52636b,#35454d) !important; }
+html.ui-dark-mode #app-frame #pg-body :is(.exchange-hero h2,.exchange-currency span:nth-child(2) b,.exchange-currency > strong,.exchange-character-title b,.exchange-character-stats) { color:#f1f5f7 !important; }
+html.ui-dark-mode #app-frame #pg-body :is(.exchange-hero small,.exchange-hero p,.exchange-currency span:nth-child(2) small,.exchange-section-title span,.exchange-character-info > small) { color:#c0cdd3 !important; }
+html.ui-dark-mode #app-frame #pg-body .exchange-section-title b { color:#ffe08a !important; }
+html.ui-dark-mode #app-frame #pg-body .exchange-tools input::placeholder { color:#aebdc4 !important; }
+html.ui-dark-mode #app-frame #pg-body .exchange-filters button { opacity:1 !important; color:#e4ecef !important; background:linear-gradient(#46565e,#303d44) !important; border-color:#71858e !important; }
+html.ui-dark-mode #app-frame #pg-body .exchange-filters button.active { color:#382a12 !important; background:linear-gradient(#ffe7a1,#d2a840) !important; border-color:#d5b65e !important; }
+html.ui-dark-mode #app-frame #pg-body .exchange-buy:disabled { color:#d4dfe3 !important; background:linear-gradient(#52616a,#38464d) !important; border-color:#71828a !important; opacity:1 !important; }
+html.ui-dark-mode #app-frame #pg-body .exchange-character-card.owned { opacity:1 !important; }
+
+/* 稱號／帳號資訊彈窗：白色裝備稱號列與加成欄改用可讀深色面板。 */
+html.ui-dark-mode #app-frame .account-stats .title-account-panel :is(.as-head,.as-identity b,.as-identity small,.title-account-equipped,.title-account-equipped > span,.title-account-equipped > b,.title-account-equipped > strong,.as-derived,.as-derived h3,.as-derived-grid span,.as-derived-grid b) {
+    color:#edf3f6 !important;
+    text-shadow:none !important;
+}
+html.ui-dark-mode #app-frame .account-stats .title-account-panel .title-account-equipped { background:linear-gradient(145deg,#35434a,#253139) !important; border-color:#758892 !important; }
+html.ui-dark-mode #app-frame .account-stats .title-account-panel .title-account-equipped > b { color:#ffe08a !important; }
+html.ui-dark-mode #app-frame .account-stats .title-account-panel .title-account-equipped > strong { color:#d0dbe0 !important; }
+html.ui-dark-mode #app-frame .account-stats .title-account-panel .as-derived { background:linear-gradient(145deg,#28353c,#1d282e) !important; border-color:#61747d !important; }
+html.ui-dark-mode #app-frame .account-stats .title-account-panel .as-derived h3 { color:#ffd66b !important; }
+html.ui-dark-mode #app-frame .account-stats .title-account-panel .as-derived-grid span { color:#cbd7dc !important; }
+html.ui-dark-mode #app-frame .account-stats .title-account-panel .as-derived-grid b { color:#f4f7f8 !important; }
+html.ui-dark-mode #app-frame .account-stats .title-account-panel .as-close { color:#f2f6f8 !important; background:linear-gradient(#53616a,#344149) !important; border-color:#71828a !important; }
+
+/* 補齊深色模式下仍沿用淺色主題色值的角色展示卡與懸浮資料卡。 */
+html.ui-dark-mode #app-frame #pg-body .char-directory-grid .char-card {
+    color:#f3f7f9 !important;
+    background:linear-gradient(155deg,#35434b 0%,#26333a 58%,#1d292f 100%) !important;
+    border-color:#71848d !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.1),0 2px 6px rgba(0,0,0,.3) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .char-directory-grid .char-card .char-card-art {
+    background:linear-gradient(145deg,#17232b,#0d171d) !important;
+    border-color:#8b9ba2 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .char-directory-grid .char-card :is(.nm,.sub,.char-card-stat,.char-card-skill,.char-card-info,.char-field-tag) {
+    color:#f0f5f7 !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.75) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .char-directory-grid .char-card .tag2 { filter:brightness(1.12) saturate(1.08); }
+html.ui-dark-mode #app-frame #pg-body .char-directory-grid .char-card .summon-tag {
+    color:#e6eef1 !important;
+    background:linear-gradient(#46565e,#303d44) !important;
+    border-color:#84969e !important;
+}
+html.ui-dark-mode #app-frame #pg-body .char-directory-grid .char-card .summon-tag.limited {
+    color:#382a10 !important;
+    background:linear-gradient(#ffedb2,#dfb94e) !important;
+    border-color:#f0cf70 !important;
+    text-shadow:none !important;
+}
+html.ui-dark-mode #app-frame .dex-hover-card .dex-detail {
+    color:#f3f7fa !important;
+    background:linear-gradient(145deg,#203344,#101d29) !important;
+    border-color:#9bb8c8 !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.13),0 7px 20px rgba(0,0,0,.55) !important;
+}
+html.ui-dark-mode #app-frame .dex-hover-card .dex-detail :is(.dex-detail-row,.dex-detail-row *) {
+    color:#edf4f7 !important;
+    text-shadow:none !important;
+}
+html.ui-dark-mode #app-frame .dex-hover-card .dex-detail .dex-detail-row b {
+    color:#ffd66b !important;
+    text-shadow:0 1px 2px #352500 !important;
+}
+html.ui-dark-mode #app-frame .dex-hover-card .dex-detail-head strong,
+html.ui-dark-mode #app-frame .dex-hover-card .dex-detail-tags { color:#ffdc72 !important; }
+
+/* 招募券交換區使用自己的樣式，獨立補上標題、券數、價格與說明的對比。 */
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-exchange { color:#edf3f6 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-exchange-head,
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-wallet article,
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-offer {
+    color:#edf3f6 !important;
+    border-color:#617681 !important;
+    background:linear-gradient(150deg,#344149,#222e35) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.08),0 2px 5px rgba(0,0,0,.28) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-offer.ten { border-color:#d1ad58 !important; background:linear-gradient(145deg,#4a412c,#302b21) !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-offer.stamina { border-color:#6d9d87 !important; background:linear-gradient(145deg,#263c35,#1c2c28) !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-exchange-head :is(small,h2,p),
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-wallet :is(b,small),
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-offer :is(b,small,strong) { color:#eef4f6 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-exchange-head > div:nth-child(2) > small { color:#9fd8eb !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-offer strong { color:#ffe08a !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-offer strong em { color:#201a0c !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-balance { background:linear-gradient(#3b4a52,#26343b) !important; border-color:#72868f !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-balance :is(b,small) { color:#f3f7f8 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-note { color:#e5eef2 !important; background:#26343b !important; border-color:#81b5c6 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-return,
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-offer button { color:#f0f5f7 !important; }
+html.ui-dark-mode #app-frame #pg-body .summon-ticket-offer button:not(:disabled) { border-color:#d5ad4c !important; color:#51390b !important; background:linear-gradient(#fff0b5,#e3b94d) !important; box-shadow:inset 0 1px #fff8d6,0 2px 0 #8b6d31 !important; }
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-actions button.confirm { color:#563f13 !important; background:linear-gradient(#fff0b5,#e3b94d) !important; }
+
+/* 裝備中的稱號本體會帶有稀有度色變數，深色模式固定用亮金色確保可讀。 */
+html.ui-dark-mode #app-frame .account-stats .as-panel .title-account-equipped > b.hm-current-title,
+html.ui-dark-mode #app-frame .account-stats .title-account-panel .title-account-equipped > b.hm-current-title {
+    color:#ffe08a !important;
+    text-shadow:0 1px 2px #3a2a08 !important;
+}
+
+/* 圖鑑使用 dex-grid/dex-cell，與角色培養頁的 char-directory-grid 是兩套卡片。 */
+html.ui-dark-mode #app-frame #pg-body .dex-grid .dex-cell {
+    color:#f1f5f7 !important;
+    background:linear-gradient(155deg,#35434b 0%,#26333a 62%,#1b272e 100%) !important;
+    border-color:#72858e !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.1),0 3px 8px rgba(0,0,0,.32) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-grid .dex-cell .art {
+    background:radial-gradient(ellipse at 50% 42%,#3a4c55,#17232a 78%) !important;
+    border-color:#81949c !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-grid .dex-cell .n {
+    color:#f5f7f8 !important;
+    text-shadow:0 1px 2px #000 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-grid .dex-cell .t {
+    color:#d2dee3 !important;
+    text-shadow:0 1px 2px #000 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-grid .dex-cell .rl {
+    color:#e0e9ed !important;
+    background:linear-gradient(#43535b,#2c3940) !important;
+    border-color:#6f828b !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-grid .dex-cell.hero {
+    border-color:#e1bd5e !important;
+    box-shadow:inset 0 0 0 1px rgba(255,218,120,.72),0 3px 9px rgba(0,0,0,.32) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-grid .dex-cell.own { border-color:#7ecb94 !important; }
+
+/* 新版圖鑑三區面板深色模式：保持焦點、搜尋、成就區的文字對比。 */
+html.ui-dark-mode #app-frame #pg-body .dex-pane {
+    border-color:#536873 !important;
+    background:linear-gradient(155deg,#303c43,#202b32 65%,#182229) !important;
+    color:#e8eef3 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-focus-portrait {
+    background:linear-gradient(180deg,rgba(31,45,52,.45),rgba(23,35,42,.58)),url("ui/ui-background-polita.png") center 42% / cover no-repeat !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-pane :is(.dex-pane-title,.dex-focus-name,.dex-focus-meta,.dex-matrix-head,.dex-focus-data,.dex-focus-data span,.dex-bonus-title,.dex-bonus-row,.dex-achievement-head,.dex-achievement-desc,.dex-achievement-foot) {
+    color:#d9e5eb !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-pane :is(.dex-focus-data b,.dex-bonus-row b,.dex-achievement-head span:first-child) { color:#f2f6f8 !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-focus-data div,
+html.ui-dark-mode #app-frame #pg-body .dex-selection-detail .dex-detail {
+    border-color:#536873 !important;
+    background:linear-gradient(145deg,#25343c,#1b282f) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-focus-skill,
+html.ui-dark-mode #app-frame #pg-body .dex-achievement {
+    border-color:#52656f !important;
+    background:linear-gradient(145deg,#293740,#202b32) !important;
+    color:#dce7ec !important;
+}
+html.ui-dark-mode #app-frame #pg-body .dex-achievement.ready { border-color:#c49b3c !important; background:linear-gradient(145deg,#51452a,#2d3030) !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-achievement.claimed { border-color:#65a681 !important; background:linear-gradient(145deg,#263d34,#1d2c29) !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-selection-detail .dex-detail-row { color:#e2ebef !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-selection-detail .dex-detail-row b,
+html.ui-dark-mode #app-frame #pg-body .dex-selection-detail .dex-detail-head strong { color:#ffd66b !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-selection-detail .dex-detail-tags { color:#c5d8e1 !important; }
+
+/* 天賦頁自帶較高權重的淺色變數，深色模式在此重新指定節點、連線與說明區色板。 */
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-shell {
+    background:linear-gradient(160deg,#202b32 0%,#151e24 62%,#10171c 100%) !important;
+    color:#edf3f6 !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-shell :is(.tt-header,.tt-canvas,.tt-detail) {
+    border-color:#60737c !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-header { border-bottom-color:#60737c !important; }
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-heading h2 { --tt-ink:#f0f5f7 !important; }
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-heading small { --tt-ink:#c3d0d6 !important; }
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-canvas {
+    background:linear-gradient(180deg,#25323a 0%,#1b272e 62%,#172229 100%) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.07),inset 0 -14px 24px rgba(0,0,0,.12) !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-lane {
+    background:linear-gradient(180deg,color-mix(in srgb,var(--lane-color) 20%,transparent),color-mix(in srgb,var(--lane-color) 8%,transparent)) !important;
+    border-top-color:color-mix(in srgb,var(--lane-color) 65%,#334650) !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-lane-foot {
+    color:#eef4f6 !important;
+    background:rgba(30,43,50,.96) !important;
+    border-color:color-mix(in srgb,var(--lane-color) 65%,#70838b) !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-lane-foot b,
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-lane-foot i { --tt-ink:#f0f5f7 !important; color:#e8f0f3 !important; }
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-lane-foot.done { background:rgba(73,61,35,.96) !important; border-color:#d1ad58 !important; }
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-link { stroke:#84949b !important; }
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-link.lit { stroke:color-mix(in srgb,var(--lane-color) 72%,#d5e1e5) !important; }
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-node.locked {
+    --tt-line:#596b73 !important;
+    --tt-face:linear-gradient(150deg,#46545b,#303d44) !important;
+    --tt-shadow:inset 0 1px rgba(255,255,255,.12),0 2px 0 rgba(0,0,0,.3) !important;
+    opacity:.88 !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-node.locked .tt-icon { filter:grayscale(.65) brightness(1.25) !important; opacity:.9 !important; }
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-node.available {
+    --tt-face:linear-gradient(150deg,#d9f4ff,#86cbe5) !important;
+    --tt-line:#67c5e8 !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-node.learned {
+    --tt-face:linear-gradient(150deg,#edf7fa,#b8d2dc) !important;
+    --tt-line:color-mix(in srgb,var(--lane-color) 78%,#d4e2e7) !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-node i {
+    color:#f3f7f8 !important;
+    background:linear-gradient(#46575f,#2d3b42) !important;
+    border-color:#95a7af !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-node.maxed i { color:#382a10 !important; background:linear-gradient(#fff0b5,#e1ba50) !important; }
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-detail {
+    background:linear-gradient(150deg,#2d3a41,#1c272d) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.07),0 2px 6px rgba(0,0,0,.26) !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-detail :is(.tt-branch-name,.tt-detail-title b,.tt-detail p,.tt-detail-actions small,.tt-passive-state) {
+    --tt-ink:#e5edf0 !important;
+    color:#e5edf0 !important;
+}
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-detail-title b { color:#f3f6f7 !important; }
+html.ui-dark-mode #app-frame #pg-body.type-talent-page .tt-detail-actions .tt-passive-state { border-color:#81939b !important; }
+
+/* 出發冒險：修正淺色卡片中淡化的標籤、說明與狀態字，主入口保持金色按鈕。 */
+html.ui-dark-mode #app-frame #adventure {
+    color:#edf3f6 !important;
+    background:linear-gradient(180deg,#202b32,#121a20 70%,#0f161b) !important;
+}
+html.ui-dark-mode #app-frame #adventure .pg-head {
+    background:linear-gradient(#34424a,#202a31) !important;
+    border-color:#5a6b75 !important;
+}
+html.ui-dark-mode #app-frame #adventure .pg-head :is(.bk,.tt) { color:#f0f5f7 !important; }
+html.ui-dark-mode #app-frame #adventure .adventure-resources span {
+    color:#e9f1f4 !important;
+    background:linear-gradient(#35434b,#222e35) !important;
+    border-color:#6c8089 !important;
+}
+html.ui-dark-mode #app-frame #adventure .adventure-resources b { color:#8de0ff !important; }
+html.ui-dark-mode #app-frame #adventure .adventure-mode-card {
+    color:#edf3f6 !important;
+    background:linear-gradient(155deg,#303d44,#202b32 65%,#19242a) !important;
+    border-color:#637780 !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.08),0 3px 7px rgba(0,0,0,.3) !important;
+}
+/* 深色模式的卡片底色會蓋掉訓練場指定的主頁背景，這裡保留圖片並用暗色遮罩維持文字對比。 */
+html.ui-dark-mode #app-frame #adventure .training-mode-card {
+    background-image:linear-gradient(180deg,rgba(12,20,26,.48),rgba(12,20,26,.64) 58%,rgba(12,20,26,.78)),url("home/main-bg-user.jpeg") !important;
+    background-size:cover !important;
+    background-position:center 30% !important;
+}
+html.ui-dark-mode #app-frame #adventure .adventure-mode-card:is(.boss-mode-card,.tower-mode-card,.rogue-mode-card) {
+    background:linear-gradient(180deg,rgba(12,20,26,.66),rgba(12,20,26,.78) 48%,rgba(12,20,26,.93)),var(--adv-bg) !important;
+    background-size:cover !important;
+    background-position:center 38% !important;
+}
+html.ui-dark-mode #app-frame #adventure .adventure-mode-heading h2,
+html.ui-dark-mode #app-frame #adventure .adventure-mode-desc { color:#f1f5f7 !important; text-shadow:0 1px 2px #0008 !important; }
+html.ui-dark-mode #app-frame #adventure .adventure-mode-tag {
+    color:#e7eef1 !important;
+    background:linear-gradient(#45545c,#303d44) !important;
+    border-color:#84969e !important;
+}
+html.ui-dark-mode #app-frame #adventure .adventure-mode-help {
+    color:#f3e0ac !important;
+    background:linear-gradient(#46545a,#2e3b41) !important;
+    border-color:#9aabb0 !important;
+}
+html.ui-dark-mode #app-frame #adventure .rogue-mode-card .adventure-mode-tag {
+    color:#3a2b0e !important;
+    background:linear-gradient(#ffedb2,#dfb94e) !important;
+    border-color:#e0bf60 !important;
+}
+html.ui-dark-mode #app-frame #adventure .adventure-mode-meta,
+html.ui-dark-mode #app-frame #adventure .adventure-mode-meta span,
+html.ui-dark-mode #app-frame #adventure .adventure-mode-status { color:#c7d3d8 !important; }
+html.ui-dark-mode #app-frame #adventure .adventure-mode-meta b { color:#f1f5f7 !important; }
+html.ui-dark-mode #app-frame #adventure .adventure-mode-action:not(:disabled) { color:#382a10 !important; }
+html.ui-dark-mode #app-frame #adventure .rogue-mode-card .adventure-mode-status { color:#d3dee2 !important; }
+html.ui-dark-mode #app-frame #adventure .adventure-training-choice {
+    color:#edf3f6 !important;
+    background:linear-gradient(145deg,#3b4a51,#263239) !important;
+    border-color:#778b93 !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.08),0 2px 0 #121b20 !important;
+}
+html.ui-dark-mode #adventure-help-dialog {
+    color:#edf3f6;
+    background:linear-gradient(150deg,#26363e,#17252c);
+    border-color:#718995;
+}
+html.ui-dark-mode #adventure-help-dialog header { border-color:#50636c; }
+html.ui-dark-mode #adventure-help-dialog h2 { color:#f3e0ac; }
+html.ui-dark-mode #adventure-help-dialog header button,
+html.ui-dark-mode #adventure-help-dialog form button { color:#edf3f6;background:linear-gradient(#45545c,#303d44);border-color:#7f959e; }
+html.ui-dark-mode #adventure-help-dialog section { background:#111d24a8;border-color:#51656e; }
+html.ui-dark-mode #adventure-help-dialog h3 { color:#ffd779; }
+html.ui-dark-mode #adventure-help-dialog p,
+html.ui-dark-mode #adventure-help-dialog ul { color:#e0e9ed; }
+html.ui-dark-mode #app-frame #adventure .adventure-training-choice :is(b,small,em) { color:#edf3f6 !important; }
+
+/* 主頁稱號採深色徽章底，避免銀白徽章搭配低對比的稱號字。 */
+html.ui-dark-mode #app-frame .hm-profile-card .hm-title-line::before,
+html.ui-dark-mode #app-frame .hm-profile-card .hm-title-line::after { background:linear-gradient(90deg,transparent,#8da0a8) !important; }
+html.ui-dark-mode #app-frame .hm-profile-card .hm-current-title {
+    color:#ffe08a !important;
+    background:linear-gradient(180deg,#435159,#28363e) !important;
+    border-color:var(--tb,#b7c7ce) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.14),0 0 0 2px rgba(160,185,196,.18) !important;
+    text-shadow:0 1px 2px #000 !important;
+}
+
+/* 每日簽到：深色模式下保留金色今日提示，獎勵與日期維持清晰對比。 */
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-hero,
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-day {
+    color:#edf3f6 !important;
+    background:linear-gradient(155deg,#35434b,#222d34) !important;
+    border-color:#667982 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-hero h2,
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-day .day-reward { color:#f2f6f8 !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-hero p,
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-day .day-label,
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-day .day-state,
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-foot { color:#c4d1d6 !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-count { color:#ffe08a !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-count b { color:#ffd15c !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-day.next {
+    background:linear-gradient(155deg,#64552f,#3e3521) !important;
+    border-color:#e0bd59 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-day.next .day-label,
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-day.next .day-state { color:#ffe59a !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-day.done {
+    background:linear-gradient(155deg,#29483a,#1e342b) !important;
+    border-color:#6eaa85 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-day.done .day-state { color:#a8edbd !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-stamina-supply { background:linear-gradient(145deg,#26373e,#1b282e) !important; border-color:#607781 !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-stamina-supply-head b,
+html.ui-dark-mode #app-frame #pg-body .daily-stamina-slot b { color:#edf4f6 !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-stamina-supply-head span,
+html.ui-dark-mode #app-frame #pg-body .daily-stamina-slot small { color:#bfd0d6 !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-stamina-slot { background:linear-gradient(155deg,#34434a,#26343b) !important; border-color:#607781 !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-stamina-slot.claimed { background:linear-gradient(155deg,#29483a,#1e342b) !important; border-color:#6eaa85 !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-stamina-slot.claimed small { color:#a8edbd !important; }
+html.ui-dark-mode #app-frame #pg-body .daily-checkin-claim:disabled {
+    color:#d0dbe0 !important;
+    background:linear-gradient(#45545b,#303b42) !important;
+    border-color:#71828a !important;
+}
+
+/* 招募商店兌換確認：深色模式維持清楚的文字對比與按鈕層級。 */
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-overlay { background:rgba(3,8,12,.78) !important; }
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-dialog {
+    color:#eaf2f5 !important;
+    border-color:#718b97 !important;
+    background:linear-gradient(150deg,#263740,#17252d) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.09),0 14px 36px #000b !important;
+}
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-dialog h3,
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-dialog>b { color:#f2d27e !important; text-shadow:0 1px 2px #0008 !important; }
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-dialog>p,
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-cost { color:#d2e0e5 !important; }
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-item { border-color:#718b97 !important; background:linear-gradient(#344b56,#1a2b34) !important; }
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-actions button {
+    color:#e8f0f3 !important;
+    border-color:#708995 !important;
+    background:linear-gradient(#435963,#2a3a43) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.08),0 2px 3px #0007 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-actions button.confirm {
+    color:#fff1bf !important;
+    border-color:#c59b3d !important;
+    background:linear-gradient(#806629,#5e4718) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .ticket-confirm-actions button:focus-visible { outline:2px solid #ffe080 !important; outline-offset:2px; }
+
+/* 金幣交易所深色模式：所有說明與材料名稱維持高對比。 */
+html.ui-dark-mode #app-frame #pg-body .gold-market-hero,
+html.ui-dark-mode #app-frame #pg-body .gold-market-group,
+html.ui-dark-mode #app-frame #pg-body .gold-market-footer { color:#eaf2f5 !important; border-color:#617984 !important; background:linear-gradient(145deg,#2c3c44,#1d2a31) !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-hero h2,
+html.ui-dark-mode #app-frame #pg-body .gold-market-group h3,
+html.ui-dark-mode #app-frame #pg-body .gold-market-item-copy>b,
+html.ui-dark-mode #app-frame #pg-body .gold-market-footer>div>b { color:#f0d17a !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-hero p,
+html.ui-dark-mode #app-frame #pg-body .gold-market-item-copy>small,
+html.ui-dark-mode #app-frame #pg-body .gold-market-item-copy>span,
+html.ui-dark-mode #app-frame #pg-body .gold-market-footer>div { color:#d0dde2 !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-note { color:#e0e8eb !important; border-color:#c6a34b !important; background:#29363b !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-wallet { border-color:#aa8b3e !important; background:linear-gradient(#493d20,#332b18) !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-wallet small,
+html.ui-dark-mode #app-frame #pg-body .gold-market-wallet b { color:#ffdf83 !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-item { border-color:#5e737d !important; background:linear-gradient(#34454d,#26363d) !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-item-copy strong,
+html.ui-dark-mode #app-frame #pg-body .gold-market-footer>div>strong { color:#ffdb75 !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-controls input { color:#f1f5f7 !important; border-color:#657b85 !important; background:#19252b !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-controls button { color:#e9f1f4 !important; border-color:#718994 !important; background:linear-gradient(#465b64,#2d3d44) !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-confirm { color:#eaf2f5 !important; border-color:#718894 !important; background:linear-gradient(145deg,#293a42,#17252d) !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-confirm h2 { color:#f0d17a !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-confirm-items>div { border-color:#5d727c !important; background:#26363e !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-confirm-items span,
+html.ui-dark-mode #app-frame #pg-body .gold-market-confirm-items b,
+html.ui-dark-mode #app-frame #pg-body .gold-market-confirm>p { color:#e0e9ed !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-confirm-total { border-color:#aa8b3e !important; background:linear-gradient(#493d20,#332b18) !important; color:#ffe293 !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-confirm-total strong { color:#fff0bd !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-confirm-actions button { color:#eaf2f5 !important; border-color:#6d838d !important; background:linear-gradient(#455a63,#2b3b43) !important; }
+html.ui-dark-mode #app-frame #pg-body .gold-market-confirm-actions button.confirm { color:#fff0bd !important; border-color:#c49b42 !important; background:linear-gradient(#806629,#5e4718) !important; }
+
+/* ===== 限定招募跳轉介面：深色模式 ===== */
+html.ui-dark-mode #app-frame #pg-body .sumfull-overlay {
+    background:linear-gradient(180deg,#212c33,#161f25 60%,#11181d) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-head,
+html.ui-dark-mode #app-frame #pg-body .sumfull-detail,
+html.ui-dark-mode #app-frame #pg-body .sumfull-owned,
+html.ui-dark-mode #app-frame #pg-body .sumfull-pity,
+html.ui-dark-mode #app-frame #pg-body .sumfull-info,
+html.ui-dark-mode #app-frame #pg-body .sumfull-four-row {
+    color:#e9f1f4 !important;
+    border-color:#5f747d !important;
+    background:linear-gradient(#2b363d,#1d262c) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.07),0 2px 5px rgba(0,0,0,.35) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-title h2,
+html.ui-dark-mode #app-frame #pg-body .sumfull-picks h3,
+html.ui-dark-mode #app-frame #pg-body .sumfull-fours h3,
+html.ui-dark-mode #app-frame #pg-body .sumfull-detail header b,
+html.ui-dark-mode #app-frame #pg-body .sumfull-pity header,
+html.ui-dark-mode #app-frame #pg-body .sumfull-owned>b,
+html.ui-dark-mode #app-frame #pg-body .sumfull-actions button b { color:#f1f5f7 !important; text-shadow:0 1px 2px #0008 !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-title small { color:#e0c274 !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-picks h3 span,
+html.ui-dark-mode #app-frame #pg-body .sumfull-fours h3 span,
+html.ui-dark-mode #app-frame #pg-body .sumfull-detail header span,
+html.ui-dark-mode #app-frame #pg-body .sumfull-foot { color:#b8c9d1 !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-detail p,
+html.ui-dark-mode #app-frame #pg-body .sumfull-pity small,
+html.ui-dark-mode #app-frame #pg-body .sumfull-four-unit small { color:#cfdde3 !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-stage {
+    background:linear-gradient(180deg,rgba(12,20,26,.5),rgba(12,20,26,.68) 52%,rgba(12,20,26,.9)),url("home/party-stage-bg.png") center bottom / cover no-repeat !important;
+    border-color:#5f747d !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-period {
+    color:#f0d79a !important;
+    border-color:#8a6a24 !important;
+    background:linear-gradient(#4a3c1c,#33280f) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-flag { color:#f0d79a !important; border-color:#8a6a24 !important; background:linear-gradient(#4a3c1c,#33280f) !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-clock,
+html.ui-dark-mode #app-frame #pg-body .sumfull-back,
+html.ui-dark-mode #app-frame #pg-body .sumfull-chip.sumfull-chip {
+    color:#dceaf2 !important;
+    border-color:#6c828c !important;
+    background:linear-gradient(#3a4750,#28333a) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.08),0 2px 3px rgba(0,0,0,.4) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-chip.active { color:#f0d79a !important; border-color:#8a6a24 !important; background:linear-gradient(#4a3c1c,#33280f) !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-pick.sumfull-pick {
+    color:#dfe9ee !important;
+    border-color:#5f747d !important;
+    background:linear-gradient(#323e46,#212b31) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.06),0 2px 4px rgba(0,0,0,.35) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-pick b { color:#eef4f7 !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-pick small { color:var(--el-color,#dfe9ee) !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-pick.sel {
+    color:#f5e7bd !important;
+    border-color:#c9a44f !important;
+    background:linear-gradient(#4a3d1c,#33290f) !important;
+    box-shadow:0 0 0 2px #c9a44f55,0 2px 6px rgba(0,0,0,.45) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-pick.sel b { color:#f7ecc7 !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-pick-tag { color:#f0d79a !important; border-color:#8a6a24 !important; background:linear-gradient(#4a3c1c,#33280f) !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-stats i,
+html.ui-dark-mode #app-frame #pg-body .sumfull-owned span {
+    color:#dce8ee !important;
+    border-color:#66798a !important;
+    background:#2b363d !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-pity header b { color:#8de0ff !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-pity-track { border-color:#66798a !important; background:#39464d !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-guarantee { color:#f0d79a !important; border-color:#8a6a24 !important; background:linear-gradient(#4a3c1c,#33280f) !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-actions button {
+    color:#dceaf2 !important;
+    border-color:#6c828c !important;
+    background:linear-gradient(#3a4750,#28333a) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.08),0 3px 0 #131b20 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-actions button small { color:#b8c9d1 !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-actions button.gold {
+    color:#f5e7bd !important;
+    border-color:#a5822f !important;
+    background:linear-gradient(#6b5423,#4a3813) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.12),0 3px 0 #241a08 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-actions button.gold small { color:#e0c274 !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-enter {
+    color:#f5e7bd !important;
+    border-color:#a5822f !important;
+    background:linear-gradient(#6b5423,#4a3813) !important;
+    box-shadow:inset 0 1px rgba(255,255,255,.12),0 3px 0 #241a08 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .sumfull-enter b { color:#f5e7bd !important; }
+html.ui-dark-mode #app-frame #pg-body .sumfull-enter small { color:#e0c274 !important; }

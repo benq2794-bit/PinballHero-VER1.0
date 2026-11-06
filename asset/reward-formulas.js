@@ -21,6 +21,27 @@ window.RewardFormulas = Object.freeze({
         return this.randomInRange(range, randomValue);
     },
 
+    towerEnemyRainbowCrystal(randomValue = Math.random()) {
+        const rules = GAME_DATA.rewards.towerEnemyRainbowCrystal;
+        return randomValue < rules.chance ? rules.amount : 0;
+    },
+
+    towerEnemyCharacterFragment(randomValue = Math.random()) {
+        const rules = GAME_DATA.rewards.towerEnemyCharacterFragment;
+        return randomValue < rules.chance ? rules.amount : 0;
+    },
+
+    towerEnemyGold(stage, randomValue = Math.random()) {
+        const rules = GAME_DATA.rewards.towerEnemyGold;
+        const range = stage > 200 ? rules.after200 : stage > 100 ? rules.after100 : rules.base;
+        return this.randomInRange(range, randomValue);
+    },
+
+    towerEnemyMaterial(kind, randomValue = Math.random()) {
+        const rule = GAME_DATA.rewards.towerEnemyMaterials[kind];
+        return rule && randomValue < rule.chance ? rule.amount : 0;
+    },
+
     towerBossDropKinds(stage) {
         const rules = GAME_DATA.rewards.towerBossDrop;
         return stage > 200 ? rules.kindsAfter200 : stage > 100 ? rules.kindsAfter100 : rules.kindsBefore100;
@@ -32,5 +53,15 @@ window.RewardFormulas = Object.freeze({
 
     towerBossCharacterFragments(randomValue = Math.random()) {
         return this.randomInRange(GAME_DATA.rewards.towerBossDrop.characterFragment, randomValue);
+    },
+
+    towerBossGold(stage, randomValue = Math.random()) {
+        const rules = GAME_DATA.rewards.towerBossDrop.gold;
+        const range = stage > 200 ? rules.after200 : stage > 100 ? rules.after100 : rules.base;
+        return this.randomInRange(range, randomValue);
+    },
+
+    towerBossAdventureMedal(randomValue = Math.random()) {
+        return randomValue < GAME_DATA.rewards.towerBossDrop.adventureMedalChance ? 1 : 0;
     }
 });

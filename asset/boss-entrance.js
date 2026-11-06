@@ -13,7 +13,7 @@ function bossAppearanceName() {
     return names[file] || enemy.name;
 }
 
-// 異界迴廊的王比較大尾，節奏再放慢一格
+// 境界領域的王比較大尾，節奏再放慢一格
 function bossEntranceTiming(gate) {
     return { name: 820, intro: 1800, charge: 760 };
 }

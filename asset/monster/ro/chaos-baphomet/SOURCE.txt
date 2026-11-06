@@ -1,0 +1,3 @@
+Chaos Baphomet (20520), Ragnarok Online, Gravity Co., Ltd.
+Source: https://rd.fharr.com/db/monster/20520/
+https://rd.fharr.com/images/sprite/{idle|walk|attack|damage|die}/id/20520/

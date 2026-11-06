@@ -2,10 +2,12 @@ const fs = require('node:fs'), path = require('node:path'), vm = require('node:v
 const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '..'), ctx = { window: {} };
 vm.createContext(ctx);
-for (const name of ['battle-lifecycle', 'battle-settlement', 'ui-router', 'reward-formulas', 'job-effects']) {
+for (const name of ['game-data', 'battle-lifecycle', 'battle-settlement', 'ui-router', 'reward-formulas', 'type-effects']) {
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/' + name + '.js'), 'utf8'), ctx);
 }
-const { BattleLifecycle, BattleSettlement, UIRouter, RewardFormulas, JobEffects } = ctx.window;
+// Browsers expose window properties as global identifiers; mirror that binding in this isolated VM.
+ctx.GAME_DATA = ctx.window.GAME_DATA;
+const { BattleLifecycle, BattleSettlement, UIRouter, RewardFormulas, TypeEffects } = ctx.window;
 function clock() {
     const state = { paused: false, running: true, holdL: true, holdR: true };
     let time = 1000, intro = false, cinematic = false;
@@ -42,11 +44,11 @@ function clock() {
 {
     const state = { nextCastAt: 2000, breakUntil: 2100, weak: { at: 1000 },
         aura: { at: 1200, until: 2400 }, buff: { until: 3000 }, burns: [{ at: 1100 }],
-        members: [{ respawnAt: 1500, ch: { _thiefShockReadyAt: 1600 }, body: { _archerPierceUntil: 1700 } }] };
+        members: [{ respawnAt: 1500, ch: { _fighterShockReadyAt: 1600 }, body: { _rangerPierceUntil: 1700 } }] };
     BattleLifecycle.shiftDeadlines(state, 5000);
     assert.equal(state.weak.at, 6000); assert.equal(state.breakUntil, 7100);
     assert.equal(state.aura.until, 7400); assert.equal(state.burns[0].at, 6100);
-    assert.equal(state.members[0].body._archerPierceUntil, 6700);
+    assert.equal(state.members[0].body._rangerPierceUntil, 6700);
 }
 function settlement(training = false, gate = null) {
     const c = clock(), events = [], members = [{ ch: { id: 'a' } }, { ch: { id: 'b' } }];
@@ -54,7 +56,7 @@ function settlement(training = false, gate = null) {
         gateDefinition: gate ? { id: gate, gate: '火關', el: 'fire', shards: 60, replay: 12 } : null,
         bossWin: {}, now: 2200, startedAt: 1000, damage: 1000, damageStart: 0 };
     const actions = Object.fromEntries(['playVictory', 'trainingNotice', 'resetTraining', 'experienceNotice',
-        'gainRankExp', 'gateVictory', 'settleTower', 'showGateResult', 'save', 'publishGateResult'].map(name =>
+        'gainRankExp', 'gateVictory', 'settleTower', 'showGateResult', 'recordGate', 'save', 'publishGateResult'].map(name =>
         [name, (...args) => events.push({ name, args })]));
     actions.survivors = () => members;
     actions.addExp = (ch, amount) => events.push({ name: 'exp', id: ch.id, amount });
@@ -66,7 +68,9 @@ function settlement(training = false, gate = null) {
 {
     const t = settlement();
     assert.equal(t.runtime.resolveWave(), true); assert.equal(t.runtime.resolveWave(), false);
-    assert.deepEqual(t.events.filter(e => e.name === 'exp').map(e => e.amount), [51, 50]);
+    // 戰鬥經驗整筆進 RANK；角色經驗改由培養道具，不再依人數拆帳。
+    assert.deepEqual(t.events.filter(e => e.name === 'gainRankExp').map(e => e.args), [[101]]);
+    assert.equal(t.events.some(e => e.name === 'exp'), false, '戰鬥經驗不再直接分給角色');
     assert.equal(t.events.filter(e => e.name === 'settleTower').length, 1);
 }
 {
@@ -77,6 +81,10 @@ function settlement(training = false, gate = null) {
     assert.equal(t.events.filter(e => e.name === 'gateVictory').length, 1);
     assert.equal(t.runtime.resolveGate(), true); assert.equal(t.runtime.resolveGate(), false);
     assert.equal(t.events.find(e => e.name === 'reward').result.shards, 60);
+    // 破關同時把這一場的用時與分數交回紀錄簿（門 id／毫秒／分數）
+    const recorded = t.events.find(e => e.name === 'recordGate');
+    assert.deepEqual(recorded.args.slice(0, 2), ['fire', 1200]);
+    assert.ok(recorded.args[2] > 0, 'score is positive');
     t.life.invalidate(); t.state.seq++; t.runtime.resolveGate();
     assert.equal(t.events.filter(e => e.name === 'reward')[1].result.shards, 12);
     const receipts = new Map();
@@ -88,7 +96,8 @@ function settlement(training = false, gate = null) {
     const t = settlement(true, 'fire');
     t.runtime.resolveWave(); t.life.advance(500);
     assert.equal(t.events.filter(e => e.name === 'resetTraining').length, 1);
-    assert.equal(t.events.some(e => e.name === 'exp' || e.name === 'reward' || e.name === 'settleTower'), false);
+    assert.equal(t.events.some(e => e.name === 'gainRankExp' || e.name === 'reward' || e.name === 'settleTower'), false,
+        '訓練場不發 RANK 經驗、不發獎勵、不推樓層');
     assert.equal(t.runtime.resolveGate(), false);
     const stale = settlement(false, 'fire'); stale.runtime.resolveWave(); stale.life.invalidate(); stale.life.advance(1000);
     assert.equal(stale.events.some(e => e.name === 'gateVictory'), false);
@@ -109,19 +118,29 @@ function settlement(training = false, gate = null) {
     embedded = false; router.select('unknown'); assert.equal(router.current(), 'home');
 }
 {
-    let job = 'archer', enabled = false, fever = false;
-    const effect = JobEffects.create({ getJob: () => job, isActive: () => enabled,
+    let activeType = null, fever = false;
+    const effect = TypeEffects.create({ isActive: type => type === activeType,
         getStat: () => 99, getTalent: () => 5, isFever: () => fever });
-    assert.equal(effect.directBonus(), 0); enabled = true;
-    assert.equal(effect.directBonus(), .30); assert.equal(effect.beamWidth(true), 24);
-    assert.equal(effect.pfBonus('ranger'), .30); assert.equal(effect.pfBonus('knight'), 0);
-    job = 'priest'; assert.equal(effect.gaugeMultiplier(), 1.198); fever = true;
-    assert.equal(effect.attackMultiplier(), 2); assert.equal(effect.gaugeMultiplier(), 2); assert.equal(effect.shield(), .18);
-    job = 'warrior'; assert.equal(effect.floating(14, 0, 100), false); assert.equal(effect.floating(15, 0, 100), true);
+    assert.equal(effect.directBonus(), 0, '射擊車道未點滿時不給直擊加成');
+    activeType = 'ranger';
+    assert.equal(effect.directBonus(), .05); assert.equal(effect.beamWidth(true), 10);
+    assert.equal(effect.weakWidth(), 8);
+    assert.equal(effect.pfBonus('ranger'), .10); assert.equal(effect.pfBonus('knight'), 0);
+    activeType = 'supporter';
+    assert.equal(effect.gaugeMultiplier(), 1.25); fever = true;
+    assert.equal(effect.attackMultiplier(), 2.5); assert.equal(effect.gaugeMultiplier(), 2); assert.equal(effect.shield(), .20);
+    fever = false; activeType = 'knight';
+    assert.equal(effect.floating(14, 0, 100), false); assert.equal(effect.floating(15, 0, 100), true);
     assert.equal(effect.lifeSteal(100000, 1000), 50); assert.ok(effect.gravity() >= .55);
-    job = 'mage'; assert.equal(effect.weakDelay(1500), 0); assert.equal(effect.enemyTimeScale(1000, 500), .45);
-    job = 'thief'; assert.ok(effect.shockRadius() <= 144); assert.equal(effect.shockCritical(''), 0);
-    enabled = false; assert.equal(effect.shockCritical('shockwave'), 0);
+    activeType = 'special';
+    assert.equal(effect.weakDelay(1500), 400); assert.equal(effect.weakDelay(0), 1300);
+    assert.equal(effect.enemyTimeScale(1000, 500), .45);
+    activeType = 'fighter';
+    assert.equal(effect.shockRadius(), 72); assert.equal(effect.shockMultiplier(), .47);
+    assert.equal(effect.shockCritical(''), 0); assert.equal(effect.shockCritical('shockwave'), .15);
+    activeType = null; assert.equal(effect.shockCritical('shockwave'), 0);
+    assert.equal(effect.beamWidth(true), 0, '其他車道點滿不會讓射擊被動成立');
+    assert.equal(effect.weakWidth(), 0, '弱點追蹤同樣只在射擊車道生效');
 }
 {
     const c = clock(); c.life.setPaused(true); c.elapse(1000); c.life.invalidate();
@@ -129,13 +148,16 @@ function settlement(training = false, gate = null) {
     assert.equal(c.state.nextCastAt, 3500, 'new encounters only inherit pause time after their creation');
 }
 {
-    ctx.mainAccountJob = 'warrior';
-    vm.runInContext(fs.readFileSync(path.join(root, 'asset/job-talents.js'), 'utf8'), ctx);
-    vm.runInContext('jobPassiveActive = true; jobTalentRanks = normalizeJobTalentRanks({});', ctx);
-    assert.equal(ctx.isJobPassiveActive(), false, 'passive remains locked before the actual tree is maxed');
-    vm.runInContext(`jobTalentRanks = normalizeJobTalentRanks({ warrior: Object.fromEntries(
-        JOB_TALENT_TREES.warrior.branches.flatMap(branch => branch.nodes.map(node => [node.id, 5]))) });`, ctx);
-    assert.equal(ctx.isJobPassiveActive(), true);
-    ctx.mainAccountJob = 'mage'; assert.equal(ctx.isJobPassiveActive('warrior'), false);
+    vm.runInContext(fs.readFileSync(path.join(root, 'asset/type-talents.js'), 'utf8'), ctx);
+    vm.runInContext('typeTalentRanks = normalizeTypeTalentRanks({});', ctx);
+    assert.equal(ctx.typeTalentTreeMaxed('knight'), false, '車道未點滿時被動不生效');
+    vm.runInContext(`typeTalentRanks = normalizeTypeTalentRanks({ knight: Object.fromEntries(
+        TYPE_TALENT_TREES.knight.branches.flatMap(branch => branch.nodes.map(node => [node.id, 5]))) });`, ctx);
+    assert.equal(ctx.typeTalentTreeMaxed('knight'), true);
+    assert.equal(ctx.typeTalentTreeMaxed('ranger'), false, '一條點滿不會讓其他車道一起成立');
+    assert.equal(vm.runInContext('typeTalentSpent()', ctx), 30, '一條車道 6 節點 × 5 級');
+    assert.deepEqual(JSON.parse(JSON.stringify(vm.runInContext('normalizeTypeTalentRanks({ warrior: { warrior_recovery: 5 } })', ctx))),
+        { knight: {}, fighter: {}, ranger: {}, supporter: {}, special: {} }, '職業 key 的舊等級讀入即歸零');
+    assert.equal(ctx.typeTalentTreeMaxed('warrior'), false, '職業 key 不認得');
 }
-console.log('PASS: battle phases, paused deadlines, canceled multihits, delayed/unique rewards, gate receipts, training isolation, page routes and profession effect bounds.');
+console.log('PASS: battle phases, paused deadlines, canceled multihits, delayed/unique rewards, gate receipts, training isolation, page routes and attack-type effect bounds.');

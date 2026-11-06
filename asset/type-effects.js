@@ -4,14 +4,16 @@ window.TypeEffects = Object.freeze({
         const active = type => isActive(type);
         return Object.freeze({
             active,
-            attackMultiplier: () => active('supporter') && isFever() ? 2 : 1,
+            attackMultiplier: () => active('supporter') && isFever() ? 2 + getTalent('supporter_fever_attack') * .1 : 1,
             gaugeMultiplier: () => active('supporter') ? (isFever() ? 2 : 1 + getTalent('supporter_gauge') * .05) : 1,
+            feverStartGauge: () => active('supporter') ? getTalent('supporter_energy') * 3 : 0,
             shield: () => active('supporter') && isFever() ? Math.min(.20, getTalent('supporter_fever_shield') * .04) : 0,
             shockCritical: context => active('fighter') && context === 'shockwave' ? Math.min(.25, getTalent('fighter_crit') * .03) : 0,
             directBonus: () => active('ranger') ? Math.min(.30, getTalent('ranger_direct') * .01) : 0,
             pfBonus: pfType => active('ranger') && pfType === 'ranger'
                 ? Math.min(.30, getTalent('ranger_direct') * .01 + getTalent('ranger_pierce') * .01) : 0,
             beamWidth: (pf = false) => active('ranger') ? Math.min(24, pf ? getTalent('ranger_beam') * 2 : 0) : 0,
+            weakWidth: () => active('ranger') ? Math.min(8, getTalent('ranger_weak') * 1.6) : 0,
             floating: (combo, until, now) => active('knight') && (combo >= 15 || until > now),
             gravity: () => .82,
             airDrag: base => base,

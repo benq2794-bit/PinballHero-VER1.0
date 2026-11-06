@@ -1,4 +1,4 @@
-// 異界迴廊通關結算畫面。
+// 境界領域通關結算畫面。
 // 這一層是在戰場被凍住（PF.paused）之後才蓋上來的，pfLoop 那條時間軸根本不走，
 // 所以整段節拍只能用 wall-clock 的 setTimeout，數字滾動另走一支 rAF 幫浦。
 window.GateSettlement = (() => {
@@ -74,14 +74,27 @@ window.GateSettlement = (() => {
                 + `<div class="sc-fig-dmg">0</div></div>`;
         }).join("");
 
+        const drops = res.drops || {};
+        const bossMaterialName = ({ fire: '赤焰龍的翅膀', water: '蒼溟貝的尾巴', wind: '金鷺鷲的鳥喙', thunder: '玄雷機的核心' })[res.el];
+        const dropSummary = [
+            `限定突破石 ×${comma(drops.breakthrough)}`,
+            `虹彩石 ×${comma(drops.rainbow)}`,
+            `經驗水晶 ×${comma(drops.experience)}`,
+            `高階經驗水晶 ×${comma(drops.highExperience)}`,
+            drops.bossMaterial ? `${bossMaterialName} ×${comma(drops.bossMaterial)}` : "",
+            drops.expeditionMedal ? `境界遠征勳章 ×${comma(drops.expeditionMedal)}` : "",
+            drops.singleTicket ? `單抽招募券 ×${comma(drops.singleTicket)}` : "",
+            drops.tenTicket ? `十抽招募券 ×${comma(drops.tenTicket)}` : ""
+        ].filter(Boolean).join("　・　");
         const cells = [
-            { ic: "💎", v: "×" + comma(res.shards), t: "虹彩石", rare: true },
+            { ic: '<img src="asset/items/crystal.png" alt="">', v: "×" + comma(res.shards), t: "通關虹彩石", rare: true },
             res.first ? { ic: "🏆", v: "首勝", t: "首次擊破獎勵", rare: true }
                       : { ic: "🔁", v: "第 " + comma(res.win) + " 次", t: "累計擊破", rare: false },
+            { ic: "🎁", v: dropSummary, t: "額外戰利品", rare: false, wide: true },
             // 速度獎勵是總分的一節，不是會掉的寶；只有虹彩石／首通的東西才值得金光爆碎
             { ic: "⏱", v: res.timeBonus > 0 ? "+" + comma(res.timeBonus) : "—", t: "速度獎勵", rare: false }
         ];
-        const loot = cells.map(c => `<div class="sc-cell${c.rare ? " rare" : ""}">`
+        const loot = cells.map(c => `<div class="sc-cell${c.rare ? " rare" : ""}${c.wide ? " wide" : ""}">`
             + `<span class="ic">${c.ic}</span><b class="v">${esc(c.v)}</b><span class="t">${esc(c.t)}</span></div>`).join("");
 
         // 橫幅上的閃爍粒子：CSS 沒有隨機值，座標就在這裡寫死成互不重疊的幾顆

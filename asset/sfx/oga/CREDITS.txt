@@ -1,19 +1,10 @@
-OpenGameArt audio trial assets
+目前使用的第三方取樣音效
 
-Kenney, Digital SFX Set (CC0)
-https://opengameart.org/content/63-digital-sound-effects-lasers-phasers-space-etc
-Used: tone1.mp3 (UI click), zapThreeToneUp.mp3 (skill cast),
-laser4.mp3 (Boss doom beam), powerUp1.mp3 (FEVER activation).
-Attribution is optional; credit included in the game anyway.
+Fupi — Erase / Escape（CC0）
+來源：https://opengameart.org/content/erase-escape
+使用：取樣並處理為 outhole_erase.wav，供暴擊音效播放。
 
-artisticdude (submitted by Ogrebane), Battle Sound Effects (CC0 option)
-https://opengameart.org/content/battle-sound-effects
-Used: swish_2.wav, swish_3.wav, swish_4.wav (randomized direct hit / Power Flip).
+doom-laser.mp3 目前仍由 Boss 毀滅炮音效載入，但專案內沒有記錄其作者或授權來源；
+來源確認前，不將它標示為已確認授權素材。
 
-Fupi, Erase / Escape (CC0)
-https://opengameart.org/content/erase-escape
-Used: erase_0.wav cut to outhole_erase.wav (0.585s, mono 44.1k, tanh soft-sat,
-peak 0.85 matched to hit_punch) for the outhole bite.
-
-The Spell Sounds Starter Pack was not included because its listed licenses
-(CC-BY-SA 3.0 / GPL 2.0 / GPL 3.0) need additional redistribution handling.
+其他戰鬥音效由遊戲內 Web Audio 程式合成。

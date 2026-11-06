@@ -41,6 +41,29 @@ function typeTalentTreeMaxed(type) {
     const tree = TYPE_TALENT_TREES[type];
     return !!tree && tree.branches.every(branch => branch.nodes.every(node => typeTalentRank(node.id, type) >= TYPE_TALENT_MAX_RANK));
 }
+function showTypeTalentTooltip(event, node) {
+    const text = node?.dataset?.tooltip;
+    if (!text) return;
+    let tip = document.getElementById("tt-hover-tooltip");
+    if (!tip) {
+        tip = document.createElement("div");
+        tip.id = "tt-hover-tooltip";
+        tip.className = "tt-hover-tooltip";
+        tip.setAttribute("role", "tooltip");
+        document.body.appendChild(tip);
+    }
+    tip.textContent = text;
+    tip.classList.add("visible");
+    const margin = 10, gap = 14;
+    const rect = tip.getBoundingClientRect();
+    const left = Math.max(margin, Math.min(event.clientX + gap, window.innerWidth - rect.width - margin));
+    const top = Math.max(margin, Math.min(event.clientY + gap, window.innerHeight - rect.height - margin));
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+}
+function hideTypeTalentTooltip() {
+    document.getElementById("tt-hover-tooltip")?.classList.remove("visible");
+}
 function typeTalentNodeState(type, branch, index) {
     const sequence = TYPE_TALENT_TREES[type].branches.flatMap(path => path.nodes);
     const node = branch.nodes[index], sequenceIndex = sequence.findIndex(item => item.id === node.id);
@@ -56,11 +79,6 @@ function typeTalentIconMarkup(key, extraClass = "") {
     const valid = ["shield", "heart", "sword", "slash", "target", "arrow", "burst", "moon", "speed", "eye"];
     const icon = valid.includes(key) ? key : "burst";
     return `<img class="tt-icon ${extraClass}" src="asset/ui/type-talent-icons/${icon}.png" alt="" aria-hidden="true" draggable="false">`;
-}
-function selectTypeTalentNode(type, nodeId) {
-    typeTalentHasSelectedTree = true;
-    typeTalentSelected = { type, node: nodeId };
-    renderTypeTalentTree();
 }
 function stopTypeTalentMapFlow() {
     if (typeTalentMapFrame) cancelAnimationFrame(typeTalentMapFrame);
@@ -108,6 +126,7 @@ function investTypeTalent(type, nodeId) {
     if (!typeTalentRanks[type]) typeTalentRanks[type] = {};
     typeTalentRanks[type][nodeId] = rank + 1;
     typeTalentPoints--;
+    typeTalentSelected = { type, node: nodeId };
     if (rank === 0) typeTalentLineUnlock = { type, nodeId, startedAt: 0 };
     saveGame();
     renderTypeTalentTree();
@@ -115,6 +134,32 @@ function investTypeTalent(type, nodeId) {
         typeTalentLineUnlock.startedAt = performance.now();
         startTypeTalentMapFlow();
     }
+}
+function refundTypeTalent(type, nodeId) {
+    const tree = TYPE_TALENT_TREES[type];
+    if (!tree) return;
+    const sequence = tree.branches.flatMap(branch => branch.nodes);
+    const index = sequence.findIndex(node => node.id === nodeId);
+    if (index < 0) return;
+    const rank = typeTalentRank(nodeId, type);
+    if (!rank) return;
+    if (!typeTalentRanks[type]) typeTalentRanks[type] = {};
+    typeTalentRanks[type][nodeId] = rank - 1;
+    let refunded = 1;
+    // 若節點完全歸零，後續依賴節點一併退回，避免留下不符合前置條件的天賦。
+    if (rank === 1) {
+        for (const node of sequence.slice(index + 1)) {
+            const downstreamRank = typeTalentRank(node.id, type);
+            if (downstreamRank > 0) {
+                refunded += downstreamRank;
+                typeTalentRanks[type][node.id] = 0;
+            }
+        }
+    }
+    typeTalentPoints += refunded;
+    typeTalentSelected = { type, node: nodeId };
+    saveGame();
+    renderTypeTalentTree();
 }
 function resetAllTypeTalents() {
     const refund = typeTalentSpent();
@@ -128,6 +173,7 @@ function resetAllTypeTalents() {
 function renderTypeTalentTree() {
     const body = $("pg-body");
     if (homeTabOn !== "talents" || !body) return;
+    hideTypeTalentTooltip();
     const scroll = body.scrollTop;
     body.innerHTML = typeTalentTreeMarkup();
     body.scrollTop = scroll;
@@ -178,37 +224,24 @@ function typeTalentTreeMarkup() {
         const rank = isPassive ? 0 : typeTalentRank(node.id, type);
         const state = isPassive ? (typeTalentTreeMaxed(type) ? "passive-active" : "passive-locked") : typeTalentNodeState(type, item.branch, item.index);
         const iconKey = isPassive ? TYPE_TALENT_PASSIVE_ICON[type] : TYPE_TALENT_ICON_BY_ID[node.id];
-        const label = `${TYPE_INFO[type].n}・${node.title}${isPassive ? (typeTalentTreeMaxed(type) ? "（被動生效中）" : "（完成車道解鎖）") : ` ${rank}/${TYPE_TALENT_MAX_RANK} 級`}`;
+        const effect = isPassive ? TYPE_PASSIVES[type].desc : node.desc;
+        const label = `${TYPE_INFO[type].n}・${node.title}${isPassive ? (typeTalentTreeMaxed(type) ? "（該道天賦點滿自動解鎖・被動生效中）" : "（該道天賦點滿自動解鎖）") : ` ${rank}/${TYPE_TALENT_MAX_RANK} 級`}`;
         const badge = isPassive || !rank ? "" : `<i>${rank}</i>`;
-        return `<button class="tt-node ${state}${isPassive ? " tt-passive-node" : ""}${active ? " selected" : ""}" type="button" style="left:${position[0]}%;top:${position[1]}%;--lane-color:${laneHue(type)}" title="${label}" aria-label="${label}" onclick="selectTypeTalentNode('${type}','${node.id}')">${typeTalentIconMarkup(iconKey)}${badge}</button>`;
+        const tooltip = `${label}\n效果：${effect}`;
+        const tooltipAttr = tooltip.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+        const actions = isPassive ? "" : `onclick="investTypeTalent('${type}','${node.id}')" oncontextmenu="event.preventDefault();refundTypeTalent('${type}','${node.id}');return false"`;
+        return `<button class="tt-node ${state}${isPassive ? " tt-passive-node" : ""}${active ? " selected" : ""}" type="button" style="left:${position[0]}%;top:${position[1]}%;--lane-color:${laneHue(type)}" data-tooltip="${tooltipAttr}" aria-label="${tooltipAttr}" onmouseenter="showTypeTalentTooltip(event,this)" onmousemove="showTypeTalentTooltip(event,this)" onmouseleave="hideTypeTalentTooltip()" ${actions}>${typeTalentIconMarkup(iconKey)}${badge}</button>`;
     }).join("");
-    const selectedRank = selected.isPassive ? 0 : typeTalentRank(selected.node.id, selected.type);
-    const currentState = selected.isPassive ? (typeTalentTreeMaxed(selected.type) ? "unlocked" : "locked") : typeTalentNodeState(selected.type, selected.branch, selected.index);
-    const detailTitle = selected.isPassive ? TYPE_PASSIVES[selected.type].name : selected.node.title;
-    const laneSize = typeTalentLaneNodes(selected.type).length;
-    const detailDescription = selected.isPassive
-        ? `${TYPE_PASSIVES[selected.type].desc} ${typeTalentTreeMaxed(selected.type) ? "車道已點滿，被動目前自動生效。" : `需將此車道 ${laneSize} 顆天賦全部升到 ${TYPE_TALENT_MAX_RANK} 級。`}`
-        : `${selectedRank ? `目前 ${selectedRank}/${TYPE_TALENT_MAX_RANK} 級。` : ""}${selected.node.desc}`;
-    const canInvest = !selected.isPassive && typeTalentPoints > 0 && currentState !== "maxed" && currentState !== "locked";
-    // 停用原因要分「沒點數」與「車道前一顆還沒點」，否則第一顆節點會顯示錯誤的提示。
-    const learnHint = currentState === "maxed" ? `每顆節點最高 ${TYPE_TALENT_MAX_RANK} 級`
-        : !typeTalentPoints ? "目前沒有可用點數"
-        : currentState === "locked" ? "需先點亮同車道前一顆" : "消耗 1 點天賦點";
-    const passiveMaxed = typeTalentTreeMaxed(selected.type);
-    const detailAction = selected.isPassive
-        ? `<div class="tt-passive-state${passiveMaxed ? " active" : ""}"><span class="tt-passive-mark" aria-hidden="true">✧</span><span>${passiveMaxed ? "被動自動生效中<small>車道點滿就成立，不需要開關</small>" : `車道尚未點滿<small>完成此車道的 ${laneSize} 顆天賦</small>`}</span></div>`
-        : `<button class="tt-learn" type="button" onclick="investTypeTalent('${selected.type}','${selected.node.id}')" ${canInvest ? "" : "disabled"}><span aria-hidden="true">✦</span><span>${currentState === "maxed" ? "已滿級" : selectedRank ? `升級至 ${selectedRank + 1}/${TYPE_TALENT_MAX_RANK}` : currentState === "available" ? "學習天賦" : "尚未解鎖"}<small>${learnHint}</small></span></button>`;
     const passiveCount = types.filter(type => typeTalentTreeMaxed(type)).length;
     return `<div class="tt-shell" style="--lane-color:${laneHue(selected.type)}">
         <header class="tt-header">
-            <div class="tt-heading"><h2>攻擊型態天賦</h2><small>五型 30 節點・被動 ${passiveCount} / 5</small></div>
-            <div class="tt-point" title="每達 RANK 5 倍數獲得 1 點天賦點"><span class="tt-point-mark" aria-hidden="true">✦</span><b>${typeTalentPoints}</b><small>天賦點</small></div>
+            <div class="tt-heading"><h2>攻擊型態天賦</h2><small>30 節點・被動 ${passiveCount}/5・左鍵解鎖／右鍵返還・懸浮看效果</small></div>
+            <div class="tt-header-actions"><button class="tt-reset-mini" type="button" onclick="resetAllTypeTalents()" ${typeTalentSpent() ? "" : "disabled"} title="重置天賦並返還全部點數">↺ 重置</button><div class="tt-point" title="每達 RANK 5 倍數獲得 1 點天賦點"><span class="tt-point-mark" aria-hidden="true">✦</span><b>${typeTalentPoints}</b><small>天賦點</small></div></div>
         </header>
         <div class="tt-canvas">
             <div class="tt-lanes">${lanes}</div>
             <svg class="tt-tree-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${links}</svg>
             ${nodes}
         </div>
-        <footer class="tt-detail"><div class="tt-branch-name">${TYPE_INFO[selected.type].n}・${selected.isPassive ? "專屬被動" : selected.branch.name}</div><div class="tt-detail-title">${typeTalentIconMarkup(selected.isPassive ? TYPE_TALENT_PASSIVE_ICON[selected.type] : TYPE_TALENT_ICON_BY_ID[selected.node.id])}<b>${detailTitle}</b><em>${selected.isPassive ? "自動生效" : `${selectedRank}/${TYPE_TALENT_MAX_RANK}`}</em></div><p>${detailDescription}</p><div class="tt-detail-actions"><button class="tt-reset" type="button" onclick="resetAllTypeTalents()" ${typeTalentSpent() ? "" : "disabled"}><span aria-hidden="true">↺</span><span>重置天賦<small>返還 ${typeTalentSpent()} 點</small></span></button>${detailAction}</div></footer>
     </div>`;
 }

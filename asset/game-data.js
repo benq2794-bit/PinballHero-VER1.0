@@ -106,6 +106,12 @@ window.GAME_DATA.characterRules = {
     },
     // 稀有度成長倍率：四星基準、常駐五星 +20%、限定五星 +50%；不改等級上限與突破成本。
     rarityPower: { fourStar: 1, permanentFiveStar: 1.20, limitedFiveStar: 1.50 },
+    // 隊長基礎加成依稀有度區分；生命為固定 HP，不是百分比。
+    leaderRarityBonus: {
+        fourStar: { crit: .01, hp: 20 },
+        permanentFiveStar: { crit: .05, hp: 40 },
+        limitedFiveStar: { crit: .10, hp: 60 }
+    },
     leaderTemplates: {
         knight: { atk: .12, pfComboDamage: .12, comboThreshold: 15, label: "連擊追擊", desc: "Combo 達 15 以上時，強力彈射傷害 +12%" },
         fighter: { atk: .12, collisionDamage: .15, label: "近身爆發", desc: "角色直接撞擊敵人時，碰撞傷害 +15%" },
@@ -129,11 +135,11 @@ window.GAME_DATA.combatRules = {
         knight: { name: "永續風刃", desc: "連擊達 15 後，下次 PF 短暫浮游且仍保留碰撞；生命回復與浮游能力可由天賦強化。" },
         fighter: { name: "爆裂定格", desc: "格鬥型 PF 首次命中追加範圍衝擊；衝擊範圍與暴擊率可由天賦強化。" },
         special: { name: "星爆時空", desc: "擊中 Boss 弱點時延長毀滅炮讀條，形成短暫時空緩速；控制效果可由天賦強化。" },
-        supporter: { name: "狂熱共鳴", desc: "FEVER 期間全隊攻擊翻倍、碰撞蓄能翻倍；護盾與非 FEVER 蓄能可由天賦強化。" }
+        supporter: { name: "狂熱共鳴", desc: "FEVER 期間全隊攻擊翻倍、碰撞蓄能翻倍；攻擊加成、護盾與技能蓄能可由天賦進一步強化。" }
     },
     skillCooldowns: { knight: 15, fighter: 12, ranger: 12, supporter: 18, special: 18 },
     skillChargeTime: 2.0, skillHitCharge: 2.4, skillCastGapMs: 400,
-    skillChain: { requiredMembers: 3, windowMs: 6000, finisherMultiplier: 1.25, areaRadius: 220, downMs: 1500 },
+    skillChain: { requiredMembers: 3, windowMs: 6000, downMs: 1500 },
     skillActions: {
         knight: { openingDamage: 2.2, followups: 2, followupGapMs: 180, followupDamage: 1, areaRadius: 110 },
         fighter: { hits: 4, hitGapMs: 100, hitDamage: .8 },
@@ -157,10 +163,10 @@ window.GAME_DATA.combatRules = {
 };
 window.GAME_DATA.encounters = {
     gates: [
-        { id: "thunder", el: "thunder", boss: "colossus_thunder", gate: "雷鳴禁域", zone: "ruin", mult: 9, amult: 1.2, shards: 90, replay: 18, par: 50, hint: "玄雷機・軋空盤踞在銳牙的戰場。風克雷——希薇在場上，撞擊和克制一起吃到。" },
-        { id: "wind", el: "wind", boss: "colossus_wind", gate: "翠風裂谷", zone: "gale", mult: 12, amult: 1.3, shards: 130, replay: 26, par: 65, hint: "金鬣鷲・掠雲的風壓很硬。火克風——羅爾夫是這道門的正解。" },
-        { id: "water", el: "water", boss: "colossus_water", gate: "蒼瀧深域", zone: "frost", mult: 16, amult: 1.5, shards: 190, replay: 38, par: 80, hint: "滄溟貝・溺音鎮守蒼瀧深域，是四道門裡最厚的一層。雷克水——讓斬鐵打頭陣。" },
-        { id: "fire", el: "fire", boss: "colossus_fire", gate: "紅蓮熔境", zone: "lava", mult: 6, amult: 1.1, shards: 60, replay: 12, par: 40, hint: "赤焰龍・焚原是門口的新手王。水克火——莉潔兒或尤維爾上場，別用火對噴。" }
+        { id: "thunder", el: "thunder", boss: "colossus_thunder", gate: "雷鳴禁域", zone: "ruin", mult: 9, amult: 1.2, shards: 50, replay: 5, par: 50, hint: "玄雷機・軋空盤踞在銳牙的戰場。風克雷——希薇在場上，撞擊和克制一起吃到。" },
+        { id: "wind", el: "wind", boss: "colossus_wind", gate: "翠風裂谷", zone: "gale", mult: 12, amult: 1.3, shards: 50, replay: 5, par: 65, hint: "金鬣鷲・掠雲的風壓很硬。火克風——羅爾夫是這道門的正解。" },
+        { id: "water", el: "water", boss: "colossus_water", gate: "蒼瀧深域", zone: "frost", mult: 16, amult: 1.5, shards: 50, replay: 5, par: 80, hint: "滄溟貝・溺音鎮守蒼瀧深域，是四道門裡最厚的一層。雷克水——讓斬鐵打頭陣。" },
+        { id: "fire", el: "fire", boss: "colossus_fire", gate: "紅蓮熔境", zone: "lava", mult: 6, amult: 1.1, shards: 50, replay: 5, par: 40, hint: "赤焰龍・焚原是門口的新手王。水克火——莉潔兒或尤維爾上場，別用火對噴。" }
     ],
     zones: [
         { id: "star_see", name: "精靈的樂園", hue: 0, sat: .80, bright: .34, tint: "rgba(16,22,40,.34)" },
@@ -173,45 +179,113 @@ window.GAME_DATA.encounters = {
     zoneStageCount: 5,
     towerFields: { normal: "polita-field-crystal-v2", boss: "polita-sky" }
 };
+// 特殊副本以波利塔戰鬥為基底。金幣／經驗副本維持「四波小怪＋一波 Boss」；
+// 後面三條長副本改用 waves 逐波指定怪、強度與隻數，中途戰死不發獎，最後一波打完才結算。
+const RO = "asset/monster/ro/";
+window.GAME_DATA.specialDungeons = [
+    { id: "gold-easy", kind: "gold", name: "金幣副本", difficulty: "簡單", level: 10, mobId: 2479, mobName: "受詛咒寶箱", mobIcon: "🧰", mobSkin: "asset/monster/ro/cursed_box.png", bossId: 2747, bossName: "憤怒米洛斯", bossIcon: "🐂", bossSkin: "asset/monster/ro/wrath_minos.png", clearGold: 10000, bossRainbow: 5 },
+    { id: "gold-normal", kind: "gold", name: "金幣副本", difficulty: "普通", level: 50, mobId: 2479, mobName: "受詛咒寶箱", mobIcon: "🧰", mobSkin: "asset/monster/ro/cursed_box.png", bossId: 2747, bossName: "憤怒米洛斯", bossIcon: "🐂", bossSkin: "asset/monster/ro/wrath_minos.png", clearGold: 50000, bossRainbow: 10 },
+    { id: "gold-hard", kind: "gold", name: "金幣副本", difficulty: "困難", level: 100, mobId: 2479, mobName: "受詛咒寶箱", mobIcon: "🧰", mobSkin: "asset/monster/ro/cursed_box.png", bossId: 2747, bossName: "憤怒米洛斯", bossIcon: "🐂", bossSkin: "asset/monster/ro/wrath_minos.png", clearGold: 100000, bossRainbow: 20 },
+    { id: "exp-easy", kind: "experience", name: "經驗副本", difficulty: "簡單", level: 10, mobId: 2995, mobName: "被釋放的玩具熊", mobIcon: "🧸", mobSkin: "asset/monster/ro/released_toy_bear.png", bossId: 2622, bossName: "迅捷薇歐莉", bossIcon: "🎻", bossSkin: "asset/monster/ro/swift_viole.png", clearExperience: 10, clearHighExperience: 1, bossRainbow: 5 },
+    { id: "exp-normal", kind: "experience", name: "經驗副本", difficulty: "普通", level: 50, mobId: 2995, mobName: "被釋放的玩具熊", mobIcon: "🧸", mobSkin: "asset/monster/ro/released_toy_bear.png", bossId: 2622, bossName: "迅捷薇歐莉", bossIcon: "🎻", bossSkin: "asset/monster/ro/swift_viole.png", clearExperience: 50, clearHighExperience: 5, bossRainbow: 10 },
+    { id: "exp-hard", kind: "experience", name: "經驗副本", difficulty: "困難", level: 100, mobId: 2995, mobName: "被釋放的玩具熊", mobIcon: "🧸", mobSkin: "asset/monster/ro/released_toy_bear.png", bossId: 2622, bossName: "迅捷薇歐莉", bossIcon: "🎻", bossSkin: "asset/monster/ro/swift_viole.png", clearExperience: 100, clearHighExperience: 10, bossRainbow: 20 },
+    // 三條長副本：逐波指定怪、強度與隻數，中途戰死不發獎，最後一波打完才結算。
+    {
+        id: "lab-madness", kind: "lab", group: "lab", name: "生體研究所：精神崩潰觀察迴廊", difficulty: "觀察迴廊",
+        level: 100, icon: "🧪", element: "dark", field: { normal: "lab-corridor", boss: "lab-observation" },
+        waves: [
+            { mobs: [{ id: 1652, name: "暗●劍士", icon: "⚔️", skin: RO + "dark_swordsman.png", count: 3 }, { id: 1653, name: "暗●盜賊", icon: "🗡️", skin: RO + "dark_thief.png", count: 3 }] },
+            { mobs: [{ id: 1654, name: "暗●商人", icon: "💰", skin: RO + "dark_merchant.png", count: 3 }, { id: 1655, name: "暗●服事", icon: "📿", skin: RO + "dark_acolyte.png", count: 3 }] },
+            { mobs: [{ id: 1656, name: "暗●弓箭手", icon: "🏹", skin: RO + "dark_archer.png", count: 3 }, { id: 1657, name: "暗●魔法師", icon: "🔮", skin: RO + "dark_wizard.png", count: 3 }] },
+            { boss: true, mobs: [{ id: 1658, name: "暗●劍士・賽尼亞", icon: "🎖️", skin: RO + "dark_swordsman.png", count: 2 }] }
+        ],
+        reward: { shard: 60, highExperience: 20, breakthrough: 2 }
+    },
+    {
+        id: "lab-virus", kind: "lab", group: "lab", name: "生體研究所：零號原始病毒禁區", difficulty: "病毒禁區",
+        level: 120, icon: "☣️", element: "dark", field: { normal: "lab-corridor", boss: "lab-virus" },
+        waves: [
+            { mobs: [{ id: 1634, name: "暗●騎士領主", icon: "🛡️", skin: RO + "dark_knight_lord.png", count: 3 }, { id: 1635, name: "暗●十字刺客", icon: "🔪", skin: RO + "dark_assassin.png", count: 3 }] },
+            { mobs: [{ id: 1636, name: "暗●神工匠", icon: "🔧", skin: RO + "dark_artisan.png", count: 3 }, { id: 1637, name: "暗●神官", icon: "🕊️", skin: RO + "dark_priest.png", count: 3 }] },
+            { mobs: [{ id: 1638, name: "暗●神射手", icon: "🎯", skin: RO + "dark_sniper.png", count: 3 }, { id: 1639, name: "暗●超魔導師", icon: "🌟", skin: RO + "dark_archmage.png", count: 3 }] },
+            { mobs: [{ id: 2221, name: "暗●聖殿十字軍", icon: "⚜️", skin: RO + "dark_paladin.png", count: 3 }, { id: 2222, name: "暗●創造者", icon: "⚗️", skin: RO + "dark_creator.png", count: 3 }] },
+            { mobs: [{ id: 2224, name: "暗●武術宗師", icon: "🥋", skin: RO + "dark_grandmaster.png", count: 3 }, { id: 2223, name: "暗●智者", icon: "📖", skin: RO + "dark_sage.png", count: 3 }] },
+            { mobs: [{ id: 2226, name: "暗●搞笑藝人", icon: "🎪", skin: RO + "dark_clown.png", count: 3 }, { id: 2227, name: "暗●吉普賽", icon: "🃏", skin: RO + "dark_gypsy.png", count: 3 }] },
+            { boss: true, mobs: [{ id: 20390, name: "零號原始病毒", icon: "🦠", skin: RO + "zero_virus.png", count: 2 }] }
+        ],
+        reward: { shard: 90, highExperience: 35, breakthrough: 3 }
+    },
+    {
+        id: "rift-babylon", kind: "rift", group: "rift", name: "時空裂縫：巴比倫之獄", difficulty: "地獄",
+        level: 80, icon: "🌌", element: "dark", field: { normal: "polita-sky-dark", boss: "polita-sky-dark" },
+        waves: [
+            { boss: true, mobs: [{ id: 1090, name: "波利之王", icon: "👑", skin: RO + "poring_lord.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 1086, name: "黃金蟲", icon: "🪲", skin: RO + "golden_bug.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 1150, name: "月夜貓", icon: "🌙", skin: RO + "moonlight.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 1115, name: "虎王", icon: "🐅", skin: RO + "tiger_lord.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 21555, name: "草原蜂后", icon: "🐝", skin: RO + "grass_bee_queen.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 1389, name: "德古拉男爵", icon: "🧛", skin: RO + "baron_dracula.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 1046, name: "死靈", icon: "💀", skin: RO + "necromancer.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 1190, name: "獸人酋長", icon: "🪓", skin: RO + "orc_lord.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 1147, name: "蟻后", icon: "🐜", skin: RO + "ant_queen.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 1272, name: "黑暗之王", icon: "🌑", skin: RO + "dark_lord.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 1312, name: "烏龜將軍", icon: "🐢", skin: RO + "turtle_general.png", count: 1 }] },
+            { boss: true, mobs: [{ id: 1157, name: "法老王", icon: "⚱️", skin: RO + "pharaoh.png", count: 1 }] },
+            { boss: true, level: 160, mobs: [{ id: 22174, name: "巴比倫之主", icon: "🩸", skin: RO + "babylon_lord.png", count: 1, big: true }] }
+        ],
+        reward: { shard: 130, highExperience: 50, breakthrough: 5 }
+    }
+];
 window.GAME_DATA.summon = {
-    singleCost: 50, tenCost: 450, limitedPity: 120, softPityStart: 90, softPityStep: .005,
+    singleCost: 50, tenCost: 450, singleTicketExchangeCost: 50, tenTicketExchangeCost: 450, limitedPity: 120, softPityStart: 90, softPityStep: .005,
     limitedBaseRate: .001,
     fragmentMin: 1, fragmentMax: 3, duplicateFragments: 10,
-    fourStarCharacterRate: .08, fiveStarFragmentRate: .10, fourStarFragmentRate: .15, fourStarBreakthroughStoneRate: .04, highExperienceCrystalRate: .06,
-    permanentExchangeCost: 250
+    fourStarCharacterRate: .08, fourStarFragmentRate: .15, fourStarBreakthroughStoneRate: .04, highExperienceCrystalRate: .06,
+    permanentExchangeCost: 4500
 };
+window.GAME_DATA.shop = { staminaRestoreAmount: 15, staminaCrystalCost: 100, limitedBreakthroughStoneCost: 450, highExperienceCrystalCost: 200 };
 window.GAME_DATA.ui = {
     elementIconFiles: { fire: "element_red", water: "element_blue", thunder: "element_yellow", wind: "element_green", light: "element_white", dark: "element_black" },
     homeTabs: [
         { k: "home", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-home.png" alt="" draggable="false">', t: "主頁" },
-        { k: "chars", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-chars.png" alt="" draggable="false">', t: "角色" },
+        { k: "title", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-chars.png" alt="" draggable="false">', t: "稱號系統" },
         { k: "talents", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-talents.png" alt="" draggable="false">', t: "天賦" },
         { k: "team", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-team.png" alt="" draggable="false">', t: "出發冒險" },
         { k: "book", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-book.png" alt="" draggable="false">', t: "圖鑑" },
         { k: "menu", ic: '<img class="nav-art" src="asset/ui/nav-tabs/tab-menu.png" alt="" draggable="false">', t: "選單" }
     ],
-    pages: { chars: "角色", boss: "BOSS戰", shop: "轉蛋商店", exchange: "交換所", leaderboard: "排行榜", book: "圖鑑", title: "頭銜", talents: "天賦", menu: "選單", items: "通貨統計" },
+    pages: { chars: "角色", boss: "BOSS戰", shop: "轉蛋商店", exchange: "交換所", leaderboard: "排行榜", book: "圖鑑", title: "稱號系統", talents: "天賦", menu: "選單", items: "道具資源", checkin: "每日簽到", goldExchange: "金幣交易所", pass: "通行證" },
     dexRoles: { Sword: "劍士", Fist: "格鬥", Bow: "射擊", Support: "輔助", Special: "特殊" }
 };
 window.GAME_DATA.titles = [
     { id:"novice", name:"見習勇者", category:"冒險", tier:1, desc:"開始你的旅程", requirement:{type:"always"}, bonus:{hp:.0025} },
     { id:"hunter", name:"初戰告捷", category:"戰鬥", tier:1, desc:"累計擊殺 5 隻敵人", requirement:{type:"kills",value:5}, bonus:{atk:.0025} },
     { id:"slayer", name:"彈射狩獵者", category:"戰鬥", tier:1, desc:"累計擊殺 50 隻敵人", requirement:{type:"kills",value:50}, bonus:{powerFlipDamage:.005} },
+    { id:"kills-200", name:"戰陣破風", category:"戰鬥", tier:2, desc:"累計擊殺 200 隻敵人", requirement:{type:"kills",value:200}, bonus:{atk:.0025} },
     { id:"combo-star", name:"連擊新星", category:"戰鬥", tier:2, desc:"累計擊殺 500 隻敵人", requirement:{type:"kills",value:500}, bonus:{gauge:.005} },
+    { id:"kills-1000", name:"千擊如雷", category:"戰鬥", tier:3, desc:"累計擊殺 1,000 隻敵人", requirement:{type:"kills",value:1000}, bonus:{powerFlipDamage:.005} },
     { id:"monster-breaker", name:"魔物破壞者", category:"戰鬥", tier:3, desc:"累計擊殺 2,000 隻敵人", requirement:{type:"kills",value:2000}, bonus:{atk:.005} },
-    { id:"legend-hunter", name:"傳說獵人", category:"戰鬥", tier:4, desc:"累計擊殺 10,000 隻敵人", requirement:{type:"kills",value:10000}, bonus:{atk:.0075,hp:.0075} },
+    { id:"kills-5000", name:"裂陣之星", category:"戰鬥", tier:4, desc:"累計擊殺 5,000 隻敵人", requirement:{type:"kills",value:5000}, bonus:{crit:.0015} },
+    { id:"legend-hunter", name:"傳說獵人", category:"戰鬥", tier:5, desc:"累計擊殺 10,000 隻敵人", requirement:{type:"kills",value:10000}, bonus:{atk:.0075,hp:.0075} },
     { id:"deep", name:"踏塔者", category:"冒險", tier:1, desc:"抵達波利塔第 10 層", requirement:{type:"stage",value:10}, bonus:{hp:.005} },
+    { id:"tower-20", name:"塔路開拓者", category:"冒險", tier:2, desc:"抵達波利塔第 20 層", requirement:{type:"stage",value:20}, bonus:{hp:.0025} },
     { id:"master", name:"高塔探索者", category:"冒險", tier:2, desc:"抵達波利塔第 30 層", requirement:{type:"stage",value:30}, bonus:{skillDamage:.005} },
+    { id:"tower-45", name:"霧階旅人", category:"冒險", tier:3, desc:"抵達波利塔第 45 層", requirement:{type:"stage",value:45}, bonus:{gauge:.0025} },
     { id:"tower-60", name:"雲端行者", category:"冒險", tier:3, desc:"抵達波利塔第 60 層", requirement:{type:"stage",value:60}, bonus:{gauge:.0075} },
-    { id:"tower-100", name:"塔頂征服者", category:"冒險", tier:4, desc:"抵達波利塔第 100 層", requirement:{type:"stage",value:100}, bonus:{atk:.01} },
+    { id:"tower-80", name:"星階守望者", category:"冒險", tier:4, desc:"抵達波利塔第 80 層", requirement:{type:"stage",value:80}, bonus:{skillDamage:.005} },
+    { id:"tower-100", name:"塔頂征服者", category:"冒險", tier:5, desc:"抵達波利塔第 100 層", requirement:{type:"stage",value:100}, bonus:{atk:.01} },
     { id:"rank-10", name:"歷練之證", category:"成長", tier:1, desc:"主帳號 RANK 達到 10", requirement:{type:"rank",value:10}, bonus:{atk:.0025,hp:.0025} },
     { id:"rank-30", name:"熟練冒險者", category:"成長", tier:2, desc:"主帳號 RANK 達到 30", requirement:{type:"rank",value:30}, bonus:{skillDamage:.0075} },
     { id:"rank-60", name:"百戰旅人", category:"成長", tier:3, desc:"主帳號 RANK 達到 60", requirement:{type:"rank",value:60}, bonus:{powerFlipDamage:.01} },
+    { id:"rank-80", name:"淬鍊先鋒", category:"成長", tier:3, desc:"主帳號 RANK 達到 80", requirement:{type:"rank",value:80}, bonus:{hp:.005} },
     { id:"rank-100", name:"不屈傳奇", category:"成長", tier:4, desc:"主帳號 RANK 達到 100", requirement:{type:"rank",value:100}, bonus:{atk:.01,hp:.01} },
+    { id:"rank-150", name:"極境勇者", category:"成長", tier:5, desc:"主帳號 RANK 達到 150", requirement:{type:"rank",value:150}, bonus:{atk:.005,hp:.005} },
     { id:"team", name:"新銳召集人", category:"蒐集", tier:1, desc:"解鎖 3 位角色", requirement:{type:"unlockedCharacters",value:3}, bonus:{hp:.005} },
+    { id:"roster-8", name:"八方集結", category:"蒐集", tier:1, desc:"解鎖 8 位角色", requirement:{type:"unlockedCharacters",value:8}, bonus:{gauge:.0025} },
     { id:"roster-15", name:"夥伴收藏家", category:"蒐集", tier:2, desc:"解鎖 15 位角色", requirement:{type:"unlockedCharacters",value:15}, bonus:{gauge:.0075} },
     { id:"roster-30", name:"星辰名冊", category:"蒐集", tier:3, desc:"解鎖 30 位角色", requirement:{type:"unlockedCharacters",value:30}, bonus:{skillDamage:.01} },
-    { id:"roster-50", name:"羈絆大師", category:"蒐集", tier:4, desc:"解鎖 50 位角色", requirement:{type:"unlockedCharacters",value:50}, bonus:{atk:.0075,hp:.0075} },
+    { id:"roster-40", name:"群星策展人", category:"蒐集", tier:4, desc:"解鎖 40 位角色", requirement:{type:"unlockedCharacters",value:40}, bonus:{skillDamage:.005} },
+    { id:"roster-50", name:"羈絆大師", category:"蒐集", tier:5, desc:"解鎖 50 位角色", requirement:{type:"unlockedCharacters",value:50}, bonus:{atk:.0075,hp:.0075} },
     { id:"hexa", name:"四象共鳴", category:"蒐集", tier:2, desc:"名冊收集火、水、雷、風四種屬性", requirement:{type:"unlockedElements",value:4}, bonus:{crit:.0025} },
     { id:"penta", name:"全能編隊", category:"蒐集", tier:3, desc:"名冊收集五種攻擊型態", requirement:{type:"unlockedTypes",value:5}, bonus:{powerFlipDamage:.01} }
 ];
@@ -223,7 +297,25 @@ window.GAME_DATA.progression = {
             survival: { name: "生存", icon: "🛡", desc: "每階最大生命 +4%、受到傷害 -1%" }
         },
         baseCap: 80, maxCap: 100, capStep: 5,
-        breakthroughRanks: [40, 60, 80, 100], breakthroughShards: [20, 30, 40, 50],
+        breakthroughRanks: [40, 60, 80, 100], breakthroughCosts: [20, 30, 40, 50],
+        fourStarRelease: [
+            { shards: 10, jelly: 30, gold: 10000 },
+            { shards: 20, blockScrap: 60, gold: 30000 },
+            { shards: 30, monsterCrystal: 120, gold: 60000 },
+            { shards: 40, expeditionMedal: 4, gold: 90000 }
+        ],
+        permanentFiveStarBreakthrough: [
+            { breakthroughStone: 10, dragonWing: 1, shellfishTail: 1, garudaBeak: 1, thunderCore: 1, gold: 100000 },
+            { breakthroughStone: 20, dragonWing: 2, shellfishTail: 2, garudaBeak: 2, thunderCore: 2, gold: 200000 },
+            { breakthroughStone: 30, dragonWing: 3, shellfishTail: 3, garudaBeak: 3, thunderCore: 3, gold: 300000 },
+            { breakthroughStone: 40, dragonWing: 4, shellfishTail: 4, garudaBeak: 4, thunderCore: 4, gold: 400000 }
+        ],
+        limitedFiveStarBreakthrough: [
+            { breakthroughStone: 20, rainbow: 1000 },
+            { breakthroughStone: 40, rainbow: 2000 },
+            { breakthroughStone: 60, rainbow: 3000 },
+            { breakthroughStone: 100, rainbow: 4000, baphometHorn: 1 }
+        ],
         exp: { base: 100, linear: 45, quadratic: 15 },
         levelGains: { atk: 3, hp: 20 },
         talent: { basePoints: 2, pointsPerLevels: 5 }
@@ -233,10 +325,17 @@ window.GAME_DATA.progression = {
 };
 window.GAME_DATA.rewards = {
     towerEnemyExperience: { base: [0, 3], after100: [1, 4], after200: [2, 5] },
+    towerEnemyRainbowCrystal: { chance: 0.3, amount: 1 },
+    towerEnemyCharacterFragment: { chance: 0.01, amount: 1 },
+    towerEnemyGold: { base: [10, 20], after100: [20, 35], after200: [30, 50] },
+    towerEnemyMaterials: {
+        jelly: { chance: 0.2, amount: 1 }, blockScrap: { chance: 0.1, amount: 1 }, monsterCrystal: { chance: 0.05, amount: 1 }
+    },
     towerBossDrop: {
         categories: ["rainbowCrystal", "characterFragment", "highGradeExperienceCrystal"],
         kindsBefore100: 1, kindsAfter100: 2, kindsAfter200: 3,
-        rainbowCrystal: [1, 5], characterFragment: [1, 3]
+        rainbowCrystal: [1, 5], characterFragment: [1, 3], adventureMedalChance: 0.01,
+        gold: { base: [100, 160], after100: [180, 280], after200: [300, 450] }
     }
 };
 window.GAME_DATA.assets = {
@@ -331,7 +430,7 @@ window.GAME_DATA.typeTalentTrees = {
             { id: "ranger_pierce", title: "穿透強化", icon: "≫", desc: "射擊 PF 的貫穿傷害再提高 5%。" }
         ] },
         { name: "鷹眼鎖定", nodes: [
-            { id: "ranger_beam", title: "拓寬光束", icon: "⌖", desc: "射擊 PF 光束寬度增加 8px。" },
+            { id: "ranger_beam", title: "拓寬光束", icon: "⌖", desc: "射擊 PF 光束寬度增加 10px。" },
             { id: "ranger_weak", title: "弱點追蹤", icon: "◇", desc: "光束弱點判定寬度增加 8px。" }
         ] },
         { name: "迅捷裝填", nodes: [

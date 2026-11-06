@@ -14,3 +14,51 @@ chimney_black.png: 黑方體惡魔 https://rd.fharr.com/images/sprite/idle/id/17
 chimney_angel_blue.png: 天使藍方體惡魔 https://rd.fharr.com/images/sprite/idle/id/20604/
 chimney_angel_red.png: 天使紅方體惡魔 https://rd.fharr.com/images/sprite/idle/id/20605/
 21569 冰河天使方體惡魔的 idle 圖與 20604 位元組相同，共用 chimney_angel_blue.png
+cursed_box.png: 受詛咒寶箱 (2479) https://rd.fharr.com/images/sprite/idle/id/2479/  37x44 APNG 8 幀 @75ms
+wrath_minos.png: 憤怒米洛斯 (2747) https://rd.fharr.com/images/sprite/idle/id/2747/  130x130 APNG 18 幀 @75ms
+金幣副本的小怪與 BOSS；來源同上，皆透明 APNG 未做任何圖像修改。
+released_toy_bear.png: 被釋放的玩具熊 (2995) https://rd.fharr.com/images/sprite/idle/id/2995/  35x59 APNG 37 幀 @62ms
+swift_viole.png: 迅捷薇歐莉 (2622) https://rd.fharr.com/images/sprite/idle/id/2622/  54x96 APNG 14 幀 @62ms
+經驗副本的小怪與 BOSS；來源同上，皆透明 APNG 未做任何圖像修改。
+
+三條新副本（生體研究所×2、時空裂縫×1）的小怪與 BOSS：32 個檔案／33 隻怪（1658 沿用 1652 的圖）。
+來源同上：https://rd.fharr.com/images/sprite/idle/id/<id>/ 透明 APNG，未做任何圖像修改。
+poring_lord.png: 波利之王 (1090) https://rd.fharr.com/images/sprite/idle/id/1090/  61x58 APNG 4 幀
+golden_bug.png: 黃金蟲 (1086) https://rd.fharr.com/images/sprite/idle/id/1086/  71x52 APNG 4 幀
+moonlight.png: 月夜貓 (1150) https://rd.fharr.com/images/sprite/idle/id/1150/  81x90 APNG 6 幀
+tiger_lord.png: 虎王 (1115) https://rd.fharr.com/images/sprite/idle/id/1115/  151x111 APNG 15 幀
+grass_bee_queen.png: 草原蜂后 (21555) https://rd.fharr.com/images/sprite/idle/id/21555/  41x87 APNG 12 幀
+baron_dracula.png: 德古拉男爵 (1389) https://rd.fharr.com/images/sprite/idle/id/1389/  74x167 APNG 12 幀
+necromancer.png: 死靈 (1046) https://rd.fharr.com/images/sprite/idle/id/1046/  35x92 靜態PNG 1 幀
+orc_lord.png: 獸人酋長 (1190) https://rd.fharr.com/images/sprite/idle/id/1190/  88x107 APNG 9 幀
+ant_queen.png: 蟻后 (1147) https://rd.fharr.com/images/sprite/idle/id/1147/  130x168 APNG 6 幀
+dark_lord.png: 黑暗之王 (1272) https://rd.fharr.com/images/sprite/idle/id/1272/  161x215 APNG 12 幀
+turtle_general.png: 烏龜將軍 (1312) https://rd.fharr.com/images/sprite/idle/id/1312/  84x110 APNG 24 幀
+pharaoh.png: 法老王 (1157) https://rd.fharr.com/images/sprite/idle/id/1157/  39x144 APNG 18 幀
+babylon_lord.png: 巴比倫之主（顯示名未查證） (22174) https://rd.fharr.com/images/sprite/idle/id/22174/  224x293 APNG 16 幀
+dark_swordsman.png: 暗●劍士 (1652) https://rd.fharr.com/images/sprite/idle/id/1652/  66x103 APNG 6 幀
+dark_thief.png: 暗●盜賊 (1653) https://rd.fharr.com/images/sprite/idle/id/1653/  66x101 APNG 6 幀
+dark_merchant.png: 暗●商人 (1654) https://rd.fharr.com/images/sprite/idle/id/1654/  66x101 APNG 6 幀
+dark_acolyte.png: 暗●服事 (1655) https://rd.fharr.com/images/sprite/idle/id/1655/  66x101 APNG 6 幀
+dark_archer.png: 暗●弓箭手 (1656) https://rd.fharr.com/images/sprite/idle/id/1656/  66x102 APNG 6 幀
+dark_wizard.png: 暗●魔法師 (1657) https://rd.fharr.com/images/sprite/idle/id/1657/  66x101 APNG 6 幀
+dark_swordsman.png: 暗●劍士・賽尼亞（與 1652 同一張圖） (1658) https://rd.fharr.com/images/sprite/idle/id/1658/  66x103 APNG 6 幀（同一張圖）
+dark_knight_lord.png: 暗●騎士領主 (1634) https://rd.fharr.com/images/sprite/idle/id/1634/  66x101 APNG 6 幀
+dark_assassin.png: 暗●十字刺客 (1635) https://rd.fharr.com/images/sprite/idle/id/1635/  66x101 APNG 6 幀
+dark_artisan.png: 暗●神工匠 (1636) https://rd.fharr.com/images/sprite/idle/id/1636/  66x101 APNG 6 幀
+dark_priest.png: 暗●神官 (1637) https://rd.fharr.com/images/sprite/idle/id/1637/  66x101 APNG 6 幀
+dark_sniper.png: 暗●神射手 (1638) https://rd.fharr.com/images/sprite/idle/id/1638/  66x101 APNG 6 幀
+dark_archmage.png: 暗●超魔導師 (1639) https://rd.fharr.com/images/sprite/idle/id/1639/  66x101 APNG 6 幀
+dark_paladin.png: 暗●聖殿十字軍 (2221) https://rd.fharr.com/images/sprite/idle/id/2221/  66x101 APNG 6 幀
+dark_creator.png: 暗●創造者 (2222) https://rd.fharr.com/images/sprite/idle/id/2222/  66x102 APNG 6 幀
+dark_grandmaster.png: 暗●武術宗師 (2224) https://rd.fharr.com/images/sprite/idle/id/2224/  66x102 APNG 6 幀
+dark_sage.png: 暗●智者 (2223) https://rd.fharr.com/images/sprite/idle/id/2223/  66x102 APNG 6 幀
+dark_clown.png: 暗●搞笑藝人 (2226) https://rd.fharr.com/images/sprite/idle/id/2226/  66x101 APNG 6 幀
+dark_gypsy.png: 暗●吉普賽 (2227) https://rd.fharr.com/images/sprite/idle/id/2227/  66x101 APNG 6 幀
+zero_virus.png: 零號原始病毒（顯示名未查證） (20390) https://rd.fharr.com/images/sprite/idle/id/20390/  137x162 APNG 13 幀
+
+場布（asset/battle/bg/）四張為本專案自產，非 RO 解包圖：
+polita-sky-dark.webp = polita-sky.webp 降亮＋去色＋壓藍黑的衍生圖（時空裂縫的暗黑版波利塔 Boss 場）。
+lab-corridor.webp／lab-observation.webp／lab-virus.webp = 由 expedition-catacombs.png 衍生：調亮 .78~.80、
+色調覆蓋 alpha .34~.36、遠端光暈 fill 120、暗角 pad .13；三張只差在覆蓋色與光暈位置。
+衍生用的腳本與過程中間檔放在暫存目錄，未入庫。

@@ -1,0 +1,135 @@
+/* ============================================================
+   轉蛋大獎揭曉動畫（滾動定格＋神光／光柱降臨，3.1 秒）
+   只在招募結果彈窗抽出限定五星時掛載；素材為 asset/fx/pixelfx 的 CC0 橫條。
+   壓軸那一拍是「光柱＋神光把角色送下來」，不是黑洞炸開（他否掉 be-dark-burst）。
+   座標系：特效層被 JS 钉成彈窗卡片（.summon-animation）的框，
+   所以 --jk-feet（角色腳下＝舞台底緣 14＋138＝152px）在任何視窗縮放都不跑位。
+   ============================================================ */
+
+/* ---- 先解決「只有中間一條有特效」：層級 ----
+   彈窗與特效層都掛在 #pg-body（z-index:1）裡，但同層的 #pg-head z6、#pg-tabs z7 是兄弟，
+   會蓋在遮黑／閃光／光柱上面 → 標題列與導覽列那兩條永遠不暗，光也被截斷（實測命中：
+   標題列中點打到的是 #pg-head、導覽列是 #pg-tabs）。揭曉期間把整頁抬到它們之上，
+   全畫面才真的是一張圖；#pg-toast z20 留在最上面不動。 */
+#app-frame #pg-body:has(.summon-overlay) { z-index: 10049; }
+
+/* ---- 遮罩層：铺滿視窗（fixed 不會被特效層的震動位移帶著跑） ---- */
+#app-frame #pg-body .summon-jackpot-veil { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+#app-frame #pg-body .jk-scrim, #app-frame #pg-body .jk-flash { position: absolute; inset: 0; opacity: 0; }
+#app-frame #pg-body .jk-scrim { background: radial-gradient(ellipse at 50% 48%, rgba(10, 17, 22, .84), rgba(3, 7, 10, .95)); }
+#app-frame #pg-body .jk-flash { background: #fff8d8; }
+
+/* ---- 特效層：框 = 彈窗卡片的框（JS 釘 left/top/width/height） ---- */
+#app-frame #pg-body .summon-jackpot-fx {
+    position: absolute; inset: 0; z-index: 3; pointer-events: none; user-select: none;
+    --jk-feet: 152px;
+    --jk-cell: 80.8px;
+    --jk-gap: 6px;
+    --jk-shift: -616.6px;
+}
+
+/* ---- 三條 pixelfx 橫條：一律放大到「框的四條邊都落在視窗外」，不靠遮罩藏邊 ----
+   座標換算（實測 482×774 環境）：特效層框 = 458×399 CSS px，腳下線 y=152，
+   視窗在框內座標是 x −15.2…472.8、y −192.5…591.5。
+   橫條原生四邊都是有內容的（光束在頂邊被切平、金帶在左右被切平），
+   所以只要有任何一條邊落在視窗內，畫面就會出現一條直線＝他說的「邊框／割裂感」。 */
+#app-frame #pg-body .jk-lines, #app-frame #pg-body .jk-rays, #app-frame #pg-body .jk-pillar {
+    position: absolute; opacity: 0; pointer-events: none;
+    image-rendering: pixelated; mix-blend-mode: screen; transform-origin: 0 0; background-repeat: no-repeat;
+}
+/* 撞擊線：1424×801，四邊全在視窗外 */
+#app-frame #pg-body .jk-lines { left: calc(50% - 712px); top: calc(50% - 400.5px); width: 320px; height: 180px; background-image: url("fx/pixelfx/be-impact-lines.png"); background-size: 1920px 180px; }
+/* 神光：656×369，左／右／頂三邊都在視窗外。
+   橫條最後 10 行（170–179／180＝94.4% 起）是一整條亮金底帶，實測亮度 25→82 硬跳，
+   放大 2.05 倍後橫貫整屏＝他說的「邊框／割裂感」，而且 2300ms 滾動帶退掉之後再也沒東西蓋它。
+   遮罩改成 86%（第 155 行）開始淡、93%（第 167 行）淡到全透：整條金帶落在全透區＝完全不出現，
+   光束尾端改成化進暗場，畫面裡不再有一條橫贯的直線。 */
+#app-frame #pg-body .jk-rays {
+    left: calc(50% - 328px); top: calc(var(--jk-feet) - 354.6px); width: 320px; height: 180px;
+    background-image: url("fx/pixelfx/be-god-rays.png"); background-size: 6080px 180px;
+    -webkit-mask-image: linear-gradient(180deg, #000 0 86%, transparent 93%);
+    mask-image: linear-gradient(180deg, #000 0 86%, transparent 93%);
+}
+/* 光柱：502×510，光池中心釘在腳下，頂邊與左右全在視窗外，底邊同样藏在卡片帶後 */
+#app-frame #pg-body .jk-pillar {
+    left: calc(50% - 250.8px); top: calc(var(--jk-feet) - 453.2px); width: 228px; height: 232px;
+    background-image: url("fx/pixelfx/be-pillar.png");
+}
+
+/* ---- 降臨的角色立繪＋名字 ---- */
+#app-frame #pg-body .jk-art { position: absolute; left: 50%; top: calc(var(--jk-feet) - 159.7px); opacity: 0; }
+#app-frame #pg-body .jk-art img { display: block; width: 168px; height: 192px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .7)) drop-shadow(0 0 18px rgba(255, 214, 110, .6)); }
+/* 名字擱在卡片框下方：卡片框內从腳下（--jk-feet 152）到底邊全是滾動定格帶＋結果網格的地盤，
+   擱在腳下會被卡片整塊蓋掉（在上方則壓到卡片的字），所以釘在框外、只靠遮黑當底。 */
+#app-frame #pg-body .jk-name { position: absolute; z-index: 6; left: 0; right: 0; top: calc(100% + 12px); text-align: center; opacity: 0; }
+/* 名字那行要用 !important：全域 `#app-frame .pg :is(…b…)` 那條 1,1,1＋!important 會把白字壓成深灰，
+   而遮黑最重的那 0.9s 背景接近全黑，深灰字等於消失。 */
+#app-frame #pg-body .jk-name b { display: block; color: #fff !important; font-size: 30px; font-weight: 950; letter-spacing: .06em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, .9), 0 0 22px rgba(255, 206, 92, .75) !important; }
+#app-frame #pg-body .jk-name s { display: block; width: 150px; height: 1px; margin: 7px auto 0; background: linear-gradient(90deg, transparent, #ffd75e, transparent) !important; text-decoration: none !important; }
+#app-frame #pg-body .jk-name i { display: block; margin-top: 5px; color: #ffe08a; font-size: 13px; font-style: normal; font-weight: 900; letter-spacing: .16em; text-shadow: 0 1px 6px rgba(0, 0, 0, .95); }
+#app-frame #pg-body .jk-spark { position: absolute; z-index: 31; width: 5px; height: 5px; border-radius: 50%; background: #ffe8a8; box-shadow: 0 0 8px #ffcf5e; opacity: 0; }
+
+/* ---- 揭曉那 3.1 秒把「框」收掉 ----
+   彈窗卡片自己那條 2px 灰框＋內白線、還有彈跳舞台（限定招募／圖釘／彈板）都是矩形，
+   疊在滿版光線中間等於畫面裡又蓋了两个方框（他講的割裂感）。
+   舞台用 visibility 不用 display：格子位置是 JS 量出來算定格位移的，撐塌就會定錯格。 */
+#app-frame #pg-body .summon-animation.jackpot { border-color: transparent !important; box-shadow: none !important; background: transparent !important; }
+#app-frame #pg-body .summon-animation.jackpot > .summon-stage { visibility: hidden; }
+/* 滾動那 1.4 秒遮黑還沒起來（jkScr 1404→1560ms 才壓滿），卡片一透明就會看到後面的商店頁穿幫。
+   所以特效層最底墊一塊底板冒充彈窗背景，光柱那拍之前先化掉，不會留方框。 */
+#app-frame #pg-body .jk-plate { position: absolute; inset: 0; border-radius: 10px; background: rgba(9, 14, 18, .94); }
+
+/* ---- 滾動定格帶：擱在結果網格那块地（網格 offTop 160，寬＝網格寬） ----
+   這塊原本是「不透明深灰＋1px 灰框＋圓角」，在滿版光線中間就是一個明顯的方框。
+   改成半透明板＋四邊軟遮罩：框線拿掉、邊緣化進光裡，定格金框與大獎卡都在中央不受影響。 */
+#app-frame #pg-body .jk-roll {
+    position: absolute; left: 15px; top: 160px; width: calc(100% - 30px); height: 130px; box-sizing: border-box;
+    overflow: hidden; background: linear-gradient(rgba(18, 25, 30, .8), rgba(9, 14, 17, .68));
+    -webkit-mask-image: radial-gradient(ellipse 84% 92% at 50% 50%, #000 66%, transparent 100%);
+    mask-image: radial-gradient(ellipse 84% 92% at 50% 50%, #000 66%, transparent 100%);
+}
+#app-frame #pg-body .jk-roll:before, #app-frame #pg-body .jk-roll:after { content: ""; position: absolute; z-index: 4; top: 0; bottom: 0; width: 56px; }
+#app-frame #pg-body .jk-roll:before { left: 0; background: linear-gradient(90deg, rgba(12, 18, 22, .92), transparent); }
+#app-frame #pg-body .jk-roll:after { right: 0; background: linear-gradient(270deg, rgba(12, 18, 22, .92), transparent); }
+#app-frame #pg-body .jk-track { position: absolute; z-index: 2; left: 0; top: 6px; display: flex; flex-wrap: nowrap; align-items: flex-start; gap: var(--jk-gap, 6px); padding-left: 8px; width: max-content; }
+#app-frame #pg-body .jk-track > .summon-result-card { flex: none; width: var(--jk-cell); }
+#app-frame #pg-body .jk-mark {
+    position: absolute; z-index: 5; left: 50%; top: 0; bottom: 0; width: calc(var(--jk-cell) + 12px);
+    margin-left: calc((var(--jk-cell) + 12px) / -2); border-left: 2px solid #ffd75e; border-right: 2px solid #ffd75e;
+    box-shadow: 0 0 14px rgba(255, 215, 94, .35) inset; opacity: 0;
+}
+
+/* ---- 節奏：0＝揭曉那瞬間 ---- */
+@keyframes jkSpriteLines { to { background-position-x: -1600px; } }
+@keyframes jkSprite19 { to { background-position-x: -5760px; } }
+@keyframes jkSpritePillar { from { background-position-x: -228px; } to { background-position-x: -3420px; } }
+@keyframes jkRoll { from { transform: translateX(0); } to { transform: translateX(var(--jk-shift)); } }
+@keyframes jkMark { 0%, 4% { opacity: 0; } 12% { opacity: 1; } 52% { opacity: 1; } 62%, 100% { opacity: 0; } }
+@keyframes jkScr { 0%, 54% { opacity: 0; } 60% { opacity: 1; } 86% { opacity: 1; } 96%, 100% { opacity: 0; } }
+@keyframes jkPlate { 0%, 44% { opacity: 1; } 60%, 100% { opacity: 0; } }
+@keyframes jkFlash { 0%, 60% { opacity: 0; } 62% { opacity: .9; } 68%, 100% { opacity: 0; } }
+@keyframes jkPillar { 0% { opacity: 0; transform: scale(2.2); } 10% { opacity: 1; transform: scale(2.2); } 72% { opacity: .9; transform: scale(2.2); } 100% { opacity: 0; transform: scale(2.2); } }
+@keyframes jkRays { 0% { opacity: 0; transform: scale(2.05); } 12% { opacity: .7; transform: scale(2.05); } 62% { opacity: .45; transform: scale(2.05); } 100% { opacity: 0; transform: scale(2.05); } }
+@keyframes jkLines { 0% { opacity: 0; transform: scale(4.45); } 10% { opacity: .5; transform: scale(4.45); } 60% { opacity: .28; transform: scale(4.45); } 100% { opacity: 0; transform: scale(4.45); } }
+@keyframes jkArt { 0% { opacity: 0; transform: translateX(-50%) scale(.18); } 22% { opacity: 1; transform: translateX(-50%) scale(1.16); } 36% { transform: translateX(-50%) scale(1); } 84% { opacity: 1; transform: translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateX(-50%) scale(.3) translateY(96px); } }
+@keyframes jkName { 0% { opacity: 0; transform: translateY(16px) scale(.86); } 16% { opacity: 1; transform: none; } 82% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes jkSpark { 0% { opacity: 0; transform: scale(.2); } 22% { opacity: 1; transform: scale(1.5); } 100% { opacity: 0; transform: scale(.5) translateY(-34px); } }
+@keyframes jkShake { 0% { transform: none; } 12% { transform: translate(-9px, 5px); } 28% { transform: translate(8px, -6px); } 46% { transform: translate(-6px, 4px); } 64% { transform: translate(5px, -3px); } 82% { transform: translate(-3px, 2px); } 100% { transform: none; } }
+@keyframes jkRollOut { 0% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+@keyframes jkGrid { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: none; } }
+
+#app-frame #pg-body .summon-jackpot-veil .jk-scrim { animation: jkScr 2600ms linear both; }
+#app-frame #pg-body .summon-jackpot-veil .jk-flash { animation: jkFlash 2600ms linear both; }
+#app-frame #pg-body .summon-jackpot-fx { animation: jkShake 420ms ease-out both; animation-delay: 1860ms; }
+#app-frame #pg-body .jk-track { animation: jkRoll 1500ms cubic-bezier(.12, .72, .16, 1) both; animation-delay: 700ms; }
+#app-frame #pg-body .jk-mark { animation: jkMark 2600ms linear both; animation-delay: 700ms; }
+#app-frame #pg-body .jk-plate { animation: jkPlate 2600ms linear both; }
+#app-frame #pg-body .jk-pillar { animation: jkPillar 1040ms linear both, jkSpritePillar 600ms steps(14, end) both; animation-delay: 1560ms, 1560ms; }
+#app-frame #pg-body .jk-rays { animation: jkRays 980ms linear both, jkSprite19 720ms steps(18, end) both; animation-delay: 1620ms, 1620ms; }
+#app-frame #pg-body .jk-lines { animation: jkLines 700ms linear both, jkSpriteLines 200ms steps(5, end) both; animation-delay: 1800ms, 1800ms; }
+#app-frame #pg-body .jk-art { animation: jkArt 740ms cubic-bezier(.25, 1.5, .4, 1) both; animation-delay: 1860ms; }
+#app-frame #pg-body .jk-name { animation: jkName 740ms ease-out both; animation-delay: 1900ms; }
+#app-frame #pg-body .jk-spark { animation: jkSpark 620ms ease-out both; }
+#app-frame #pg-body .jk-roll { animation: jkRollOut 300ms linear both; animation-delay: 2300ms; }
+#app-frame #pg-body .summon-animation.jackpot > .summon-results-grid { animation: jkGrid 420ms ease-out both; animation-delay: 2600ms; }

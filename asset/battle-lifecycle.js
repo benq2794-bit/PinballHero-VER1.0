@@ -64,13 +64,14 @@ window.BattleLifecycle = Object.freeze({
         if (state.doomFX) { state.doomFX.until += ms; state.doomFX.nextShakeAt += ms; }
         for (const burn of state.burns || []) burn.at += ms;
         for (const unit of [...(state.enemyUnits || []), ...(state.summonedFoes || [])]) {
-            for (const key of ['statusSlowUntil', 'statusStunUntil', 'statusGustFxUntil', 'statusParalyzeReady', 'statusGustReady']) {
+            for (const key of ['statusSlowUntil', 'statusStunUntil', 'statusGustFxUntil', 'statusParalyzeReady', 'statusGustReady',
+                'castingUntil']) {
                 if (unit[key]) unit[key] += ms;
             }
         }
         for (const member of state.members || []) {
             if (member.ch?._fighterShockReadyAt) member.ch._fighterShockReadyAt += ms;
-            for (const key of ['_knightFloatUntil', '_rangerPierceUntil']) {
+            for (const key of ['_knightFloatUntil', '_rangerPierceUntil', '_chillUntil']) {
                 if (member.body?.[key]) member.body[key] += ms;
             }
         }

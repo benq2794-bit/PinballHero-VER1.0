@@ -29,7 +29,7 @@
     background:linear-gradient(160deg,#f4f8fa 0%,#e6eef2 100%); box-shadow:inset 0 1px 0 #fff,0 2px 5px rgba(48,77,91,.16); }
 #app-frame #pg-body .lbv .lb-sec { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
 #app-frame #pg-body .lbv .lb-sec h3 { margin:0; font-size:11px; font-weight:900; color:#17394a !important; text-shadow:0 1px 0 #fff !important; letter-spacing:.8px; }
-#app-frame #pg-body .lbv .lb-sec span { font-size:8px; font-weight:800; letter-spacing:.6px; color:#7d8b92 !important; text-shadow:none !important; }
+#app-frame #pg-body .lbv .lb-sec span { font-size:10px; font-weight:800; letter-spacing:.6px; color:#465e6a !important; text-shadow:none !important; }
 /* 本週倒數掛在小節標題右側；生涯那頁不掛（週期只屬於本週榜） */
 #app-frame #pg-body .lbv .lb-sec span.lb-clock { flex:none; padding:3px 7px; font-size:10px; font-weight:900; color:#17394a !important; text-shadow:none !important;
     border:1px solid #a9c1ce; border-bottom-width:2px; border-radius:3px; background:linear-gradient(180deg,#ffffff,#e4eef3); white-space:nowrap; }
@@ -38,14 +38,10 @@
 #app-frame #pg-body .lbv .lb-pod { display:grid; justify-items:center; gap:2px; padding:7px 4px 8px;
     border:1px solid #a9c1ce; border-radius:4px; background:linear-gradient(160deg,#ffffff,#eef3f6);
     box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(48,77,91,.14); }
-#app-frame #pg-body .lbv .lb-pod .medal { display:grid; place-items:center; width:22px; height:22px; border-radius:3px;
-    font-size:11px; font-weight:900; color:#263238 !important; text-shadow:none !important;
-    border:1px solid #b9c6cc; background:linear-gradient(180deg,#f2f5f6,#cdd7dc); }
+#app-frame #pg-body .lbv .lb-pod .medal { display:block; width:48px; height:25px; image-rendering:pixelated;
+    filter:drop-shadow(0 1px 0 rgba(48,77,91,.18)); }
 #app-frame #pg-body .lbv .lb-pod.p1 { padding-top:16px; padding-bottom:11px; border-color:#e0b64f;
     background:linear-gradient(150deg,#fffdf2 0%,#f8f2dd 55%,#ece3c9 100%); box-shadow:inset 0 1px 0 #fff,0 3px 7px rgba(96,74,20,.22); }
-#app-frame #pg-body .lbv .lb-pod.p1 .medal { color:#38240e !important; border-color:#ffe4a0; background:linear-gradient(180deg,#fff0a4,#f6c34e 55%,#d58a29); }
-#app-frame #pg-body .lbv .lb-pod.p2 .medal { color:#3a4750 !important; border-color:#cfd9de; background:linear-gradient(180deg,#ffffff,#c7d2d8); }
-#app-frame #pg-body .lbv .lb-pod.p3 .medal { color:#4d3418 !important; border-color:#d8bd9a; background:linear-gradient(180deg,#f4dcc0,#c99a63); }
 #app-frame #pg-body .lbv .lb-pod .who { max-width:100%; font-size:10px; font-weight:900; color:#17394a !important; text-shadow:none !important;
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #app-frame #pg-body .lbv .lb-pod .flo { font-size:13px; font-weight:900; color:#8a5a12 !important; text-shadow:none !important; font-variant-numeric:tabular-nums; }
@@ -53,7 +49,8 @@
 #app-frame #pg-body .lbv .lb-pod .sub { font-size:8px; font-weight:800; color:#586a73 !important; text-shadow:none !important; }
 /* 還沒有資料源的名次：留空位，不鋪假名字 */
 #app-frame #pg-body .lbv .lb-pod.void { border-style:dashed; background:linear-gradient(160deg,#f7fafb,#eaf1f4); box-shadow:none; }
-#app-frame #pg-body .lbv .lb-pod.void .flo { color:#8eafc1 !important; }
+#app-frame #pg-body .lbv .lb-pod.void .medal { opacity:.4; filter:grayscale(.75) drop-shadow(0 1px 0 rgba(48,77,91,.12)); }
+#app-frame #pg-body .lbv .lb-pod.void .flo { color:#465e6a !important; }
 
 /* 榜單（4 名之後）＋自己釘底 */
 #app-frame #pg-body .lbv .lb-board { padding:6px 7px; border:1px solid #a9c1ce; border-radius:4px;
@@ -62,7 +59,7 @@
 #app-frame #pg-body .lbv .lb-row,
 #app-frame #pg-body .lbv .lb-self { display:grid; grid-template-columns:26px minmax(0,1fr) 58px 46px; align-items:center; gap:5px; }
 #app-frame #pg-body .lbv .lb-head { padding-bottom:4px; border-bottom:1px solid rgba(142,175,193,.55); }
-#app-frame #pg-body .lbv .lb-head span { font-size:8px; font-weight:900; letter-spacing:.6px; color:#586a73 !important; text-shadow:none !important; }
+#app-frame #pg-body .lbv .lb-head span { font-size:10px; font-weight:900; color:#465e6a !important; text-shadow:none !important; }
 #app-frame #pg-body .lbv .lb-head span:nth-child(n+3) { text-align:right; }
 #app-frame #pg-body .lbv .lb-row { min-height:21px; border-bottom:1px solid rgba(142,175,193,.28); }
 #app-frame #pg-body .lbv .lb-row:last-child { border-bottom:0; }
@@ -87,3 +84,39 @@
 
 /* 底部主行動 */
 #app-frame #pg-body .lbv .lb-cta { width:100%; height:34px; font-size:12px; font-weight:900; letter-spacing:.6px; }
+
+html.ui-dark-mode #app-frame #pg-body .lbv :is(.lb-panel,.lb-pod,.lb-pod.void,.lb-board,.lb-note) {
+    background:#263d4a;
+    border-color:#668597;
+    box-shadow:none;
+}
+html.ui-dark-mode #app-frame #pg-body .lbv :is(.lb-pod.p1:not(.void),.lb-self) {
+    background:#453620;
+    border-color:#c99d50;
+    box-shadow:none;
+}
+html.ui-dark-mode #app-frame #pg-body .lbv :is(.lb-sec h3,.lb-pod .who,.lb-row :is(.rk,.nm,.fl)) {
+    color:#edf7fd !important;
+    text-shadow:none !important;
+}
+html.ui-dark-mode #app-frame #pg-body .lbv :is(.lb-sec span,.lb-pod .sub,.lb-pod.void .flo,.lb-head span,.lb-row .tm,.lb-dots,.lb-note) {
+    color:#c1d5df !important;
+    text-shadow:none !important;
+}
+html.ui-dark-mode #app-frame #pg-body .lbv :is(.lb-pod:not(.void) .flo,.lb-self :is(.rk,.nm,.fl,.tm,.tag)) {
+    color:#ffe2a0 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .lbv .lb-sec span.lb-clock {
+    background:#172c38;
+    border-color:#668597;
+    color:#edf7fd !important;
+}
+html.ui-dark-mode #app-frame #pg-body .lbv .lb-sec span.lb-clock b {
+    color:#9ee5f7 !important;
+}
+html.ui-dark-mode #app-frame #pg-body .lbv :is(.lb-modes,.lb-tabs) button.on {
+    background:#b8edfa !important;
+    border-color:#80d8ee !important;
+    color:#17394a !important;
+    box-shadow:none !important;
+}

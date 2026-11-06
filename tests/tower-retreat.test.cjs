@@ -19,7 +19,7 @@ function setup(stage) {
     ctx.window = ctx;
     ctx.cancelSkillCinematic = () => {}; ctx.hideBossEntrance = () => {};
     ctx.clearWeak = () => {}; ctx.clearField = () => {};
-    ctx.clearPowerFlip = () => {}; ctx.clearArcherPierce = () => {};
+    ctx.clearPowerFlip = () => {}; ctx.clearRangerPierce = () => {};
     vm.createContext(ctx);
     vm.runInContext(fs.readFileSync(require('node:path').resolve(__dirname, '../asset/battle-lifecycle.js'), 'utf8'), ctx);
     ctx.battleLifecycle = ctx.BattleLifecycle.create({ getState: () => ctx.PF, now: () => 0 });

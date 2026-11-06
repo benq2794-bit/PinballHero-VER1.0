@@ -54,7 +54,8 @@ function damageEnemyUnit(target, amount) {
         target.node.style.transform = "none";
         target.node.classList.add("dying");
         SFX.foeDown(target.isBossUnit || (target === PF.foe && enemy.boss));
-        setTimeout(() => target.node.remove(), 300);
+        const deathMs = target.defeatMotion?.() || 300;
+        setTimeout(() => target.node.remove(), deathMs);
     }
     refreshEnemyWave();
     return dealt;

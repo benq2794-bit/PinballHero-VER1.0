@@ -1,4 +1,4 @@
-/* ===== 異界迴廊 STAGE CLEAR 結算 =====
+/* ===== 境界領域 STAGE CLEAR 結算 =====
    戰場凍住之後才蓋上來的這一層，本身是一張「 arcade 通關畫面」。
    背景那條 blur 是把戰場留在身後（不是拿一張黑底重畫），斜條紋才疊得上去。 */
 
@@ -118,6 +118,9 @@
 @keyframes scCellFlip { 0% { opacity: 0; transform: rotateY(88deg) scale(.9); }
     70% { opacity: 1; } 100% { opacity: 1; transform: rotateY(0) scale(1); } }
 .sc-cell .ic { font-size: 19px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.8)); }
+.sc-cell .ic img { width:22px; height:22px; object-fit:contain; vertical-align:middle; }
+.sc-cell.wide { grid-column:1 / -1; min-height:48px; }
+.sc-cell.wide .v { font-size:10px; line-height:1.4; }
 .sc-cell .v { font-size: 14px; font-weight: 900; color: #fff; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .sc-cell .t { font-size: 9px; letter-spacing: 1px; color: #93a6c6; }
 /* 稀有格：先劇烈抖動，抖完才從格子中心爆出金光 */
@@ -190,8 +193,8 @@
 .sc-stamp i { position:relative; z-index:1; display:block; font-size:23px; line-height:.95;
     color:#f1c96b; -webkit-text-stroke:.35px #fff1bc;
     text-shadow:0 1px 0 #fff1bb,0 2px 0 #c88d2b,0 3px 0 #8d5a19,0 4px 0 #52350e,0 5px 3px rgba(0,0,0,.8); }
-.sc-stamp small { position:relative; z-index:1; inset:auto; display:block; margin-top:2px; font-size:6px;
-    line-height:1; letter-spacing:1px; color:#ffe6b0; text-shadow:0 1px 2px #000; }
+.sc-stamp small { position:relative; z-index:1; inset:auto; display:block; margin-top:2px; font-size:9px;
+    line-height:1; letter-spacing:.3px; color:#ffe6b0; text-shadow:0 1px 2px #000; }
 .sc-cell .ic { filter:drop-shadow(0 2px 3px rgba(0,0,0,.8)); }
 .sc-cell .v { color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.8); }
 .sc-cell .t { color:#93a6c6; }

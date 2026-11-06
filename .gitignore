@@ -13,8 +13,18 @@ codex-clipboard-*.png
 # 桌面貼上留下的截圖與暫存圖檔（不是遊戲素材，只在 root 層）
 /ChatGPT *.png
 /image_*.jpeg
+/design-reference/images/ChatGPT *.png
 
 # Windows / OneDrive 自己寫的縮圖與設定
 Thumbs.db
 desktop.ini
 .DS_Store
+/dist/
+/node_modules/
+
+# 開發用資料：探針腳本、參考截圖、預覽圖與 log，一律不進公開 repo
+/tmp/
+/design-reference/
+/previews/
+/dev-artifacts/
+/dev-tools/

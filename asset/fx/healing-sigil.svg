@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <radialGradient id="core" cx="0" cy="0" r="1" gradientTransform="matrix(0 52 -52 0 128 128)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#effff6" stop-opacity=".86"/><stop offset=".34" stop-color="#75ffc0" stop-opacity=".42"/><stop offset="1" stop-color="#25d985" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="jade" x1="30" x2="226" y1="32" y2="224" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d8ffe9"/><stop offset=".48" stop-color="#63f4ad"/><stop offset="1" stop-color="#b5ffe0"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="2.1" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <g id="rune">
+      <path d="M128 25v12m-5-6h10m-5-5 4 5-4 5-4-5 4-5Z"/>
+      <path d="M122 17h12M124 14h8" opacity=".72"/>
+    </g>
+    <g id="leaf">
+      <path d="M128 47c-10-8-11-19 0-27 11 8 10 19 0 27Z"/>
+      <path d="M128 44V25m0 10-5-5m5 9 5-6" opacity=".8"/>
+    </g>
+  </defs>
+  <circle cx="128" cy="128" r="48" fill="url(#core)"/>
+  <g stroke="url(#jade)" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
+    <!-- 外側分段刻度與八方定位符 -->
+    <circle cx="128" cy="128" r="116" stroke-width="1.6" stroke-dasharray="2 5" opacity=".78"/>
+    <circle cx="128" cy="128" r="106" stroke-width="1.1" stroke-dasharray="22 7 3 7" opacity=".88"/>
+    <circle cx="128" cy="128" r="94" stroke-width="1.5" stroke-dasharray="46 10 7 10" opacity=".8"/>
+    <circle cx="128" cy="128" r="82" stroke-width="1" opacity=".54"/>
+    <path d="M128 18 142 42 128 55 114 42 128 18Zm0 220 14-24-14-13-14 13 14 24ZM18 128l24-14 13 14-13 14-24-14Zm220 0-24-14-13 14 13 14 24-14Z" stroke-width="1.6" opacity=".9"/>
+    <!-- 八瓣交錯星芒與法術導線 -->
+    <path d="m128 54 16 38 38 16-38 16-16 38-16-38-38-16 38-16 16-38Z" stroke-width="1.6" opacity=".9"/>
+    <path d="m128 70 10 32 32 10-32 10-10 32-10-32-32-10 32-10 10-32Z" stroke-width="1.2" opacity=".7"/>
+    <path d="M57 57 91 91m108-34-34 34M57 199l34-34m108 34-34-34" stroke-width="1" opacity=".55"/>
+    <path d="M78 45 211 178M178 45 45 178M45 78l133 133M211 78 78 211" stroke-width=".8" opacity=".32"/>
+    <!-- 內圈符文刻痕 -->
+    <circle cx="128" cy="128" r="62" stroke-width="1.2" stroke-dasharray="1 4" opacity=".86"/>
+    <circle cx="128" cy="128" r="54" stroke-width="1.7" stroke-dasharray="14 5 2 5" opacity=".9"/>
+    <circle cx="128" cy="128" r="42" stroke-width="1" opacity=".68"/>
+    <g stroke-width="1.2" opacity=".9">
+      <use href="#rune"/><use href="#rune" transform="rotate(45 128 128)"/><use href="#rune" transform="rotate(90 128 128)"/><use href="#rune" transform="rotate(135 128 128)"/>
+      <use href="#rune" transform="rotate(180 128 128)"/><use href="#rune" transform="rotate(225 128 128)"/><use href="#rune" transform="rotate(270 128 128)"/><use href="#rune" transform="rotate(315 128 128)"/>
+      <use href="#leaf"/><use href="#leaf" transform="rotate(45 128 128)"/><use href="#leaf" transform="rotate(90 128 128)"/><use href="#leaf" transform="rotate(135 128 128)"/>
+      <use href="#leaf" transform="rotate(180 128 128)"/><use href="#leaf" transform="rotate(225 128 128)"/><use href="#leaf" transform="rotate(270 128 128)"/><use href="#leaf" transform="rotate(315 128 128)"/>
+    </g>
+    <!-- 中心治癒花印／生命晶核 -->
+    <path d="M128 91c-14 10-17 24 0 37 17-13 14-27 0-37Zm0 74c-14-10-17-24 0-37 17 13 14 27 0 37Zm-37-37c10-14 24-17 37 0-13 17-27 14-37 0Zm74 0c-10-14-24-17-37 0 13 17 27 14 37 0Z" stroke-width="1.8"/>
+    <path d="M128 108c-8 7-9 14 0 20 9-6 8-13 0-20Zm0 40c-8-7-9-14 0-20 9 6 8 13 0 20Zm-20-20c7-8 14-9 20 0-6 9-13 8-20 0Zm40 0c-7-8-14-9-20 0 6 9 13 8 20 0Z" fill="#baffdc" fill-opacity=".22" stroke-width="1.2"/>
+    <circle cx="128" cy="128" r="8" fill="#effff6" fill-opacity=".9" stroke-width="1.4"/>
+    <path d="M128 121v14m-7-7h14m-12-5 10 10m0-10-10 10" stroke-width="1"/>
+  </g>
+  <g fill="#dffff0" filter="url(#glow)">
+    <path d="m128 7 2.2 6.8L137 16l-6.8 2.2L128 25l-2.2-6.8L119 16l6.8-2.2L128 7Z"/>
+    <path d="m128 231 2.2 6.8L137 240l-6.8 2.2L128 249l-2.2-6.8L119 240l6.8-2.2L128 231Z"/>
+    <path d="m7 128 2.2-6.8L16 119l2.2 6.8L25 128l-6.8 2.2L16 137l-2.2-6.8L7 128Z"/>
+    <path d="m231 128 2.2-6.8L240 119l2.2 6.8L249 128l-6.8 2.2L240 137l-2.2-6.8L231 128Z"/>
+  </g>
+</svg>

@@ -6,7 +6,7 @@
    #app-frame .pg :is(b,span,small,…) 全域深字規則。
    ============================================================ */
 
-/* 背景：波利塔原圖，不糊不壓（蓋掉 .pg::before／::after 的浮空島處理） */
+/* 培養頁恢復波利塔原背景；只套在含培養舞台的頁面，不影響其他介面。 */
 .pg:has(.growth-stage)::before { background-image:url("ui/ui-background-polita.png") !important; background-position:center 42% !important;
     filter:none !important; opacity:1 !important; transform:none !important; }
 .pg:has(.growth-stage)::after { background:linear-gradient(180deg,rgba(5,13,23,.1),rgba(5,12,22,.2)) !important; }
@@ -97,6 +97,7 @@
 /* ---------- 經驗培養與上限解放 ---------- */
 #app-frame #pg-body .growth-acts { flex:none; display:grid; grid-template-columns:1fr 1fr; gap:7px; margin:0 0 8px; }
 #app-frame #pg-body .growth-act { display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 4px !important;
+    touch-action:none; user-select:none;
     border:1px solid var(--gk-line) !important; border-radius:5px !important; background:linear-gradient(#fff,#e3eef3) !important;
     box-shadow:none !important; color:var(--gk-ink) !important; text-shadow:none !important; font-family:inherit; line-height:1.2; cursor:pointer; }
 #app-frame #pg-body .growth-act b { font-size:13px; font-weight:900; color:var(--gk-ink) !important; text-shadow:none !important; }

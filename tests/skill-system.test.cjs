@@ -14,10 +14,11 @@ function setup() {
     const ally = { ch: { hp: 100 }, body: { x: 150, y: 350 } };
     const down = { ch: { hp: 0 }, body: {}, down: true };
     const state = { members: [member, ally, down], foe: { x: 200, y: 200 } };
-    const enemy = { hp: 1000 }, hits = [], repeats = [], cooldowns = [], heals = [];
+    const enemy = { hp: 1000 }, hits = [], repeats = [], cooldowns = [], heals = [], vfx = [];
     let dashes = 0;
     const runtime = SkillSystem.createRuntime({
         skillHit: (m, mult, opt) => hits.push({ m, mult, opt }),
+        skillVfx: (m, type, opt) => vfx.push({ type, opt }),
         dashTo: () => dashes++,
         repeat: (m, seq, n, gap, fn) => repeats.push({ n, gap, fn }),
         talentRank: () => 2,
@@ -26,13 +27,15 @@ function setup() {
         aliveMembers: () => [member, ally], getEnemy: () => enemy, getPartyState: () => state,
         pop: () => {}, now: () => 1000
     });
-    return { runtime, member, ally, state, enemy, hits, repeats, cooldowns, heals, dashes: () => dashes };
+    return { runtime, member, ally, state, enemy, hits, repeats, cooldowns, heals, vfx, dashes: () => dashes };
 }
 for (const [role, expected] of [['knight', [2.2, 1]], ['fighter', [.8, .8, .8, .8]], ['ranger', [1.9, .75, .75]], ['special', [2.8]]]) {
     const t = setup();
     t.runtime.byRole[role](t.member, 7);
     for (const r of t.repeats) for (let i = 1; i < r.n; i++) r.fn(i);
     assert.deepEqual(t.hits.map(h => h.mult), expected, role + ' keeps its hit budget');
+    assert.ok(t.vfx.length, role + ' 施放一定要有技能特效');
+    assert.deepEqual([...new Set(t.vfx.map(v => v.type))], [role], role + ' 只放自己那條技能特效');
     if (role === 'knight') assert.equal(t.dashes(), 1);
     if (role === 'ranger') {
         assert.equal(t.hits[0].opt.beam.length, 640);

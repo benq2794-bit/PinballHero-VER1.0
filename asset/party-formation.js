@@ -69,7 +69,7 @@ function checkPartyOutOfBounds() {
         memberStrike(m, damage, '隊伍掉出彈射場');
         if (!m.down) attachBall(m);
     }
-    // 落球口就是阱洞：扣血之外還要吞掉連擊與強力彈射（規則寫在 index.html 的 outholeBite）
+    // 落球口就是陷洞：扣血之外還要吞掉連擊與強力彈射（規則寫在 index.html 的 outholeBite）
     outholeBite();
     syncPartyFormation(true);
 }

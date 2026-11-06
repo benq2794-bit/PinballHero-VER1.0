@@ -37,4 +37,7 @@ ctx.syncBossHpPlacement();
 assert.equal(bar.style.display, '', 'boss HP HUD remains visible');
 assert.equal(bar.parentElement, field, 'boss HP HUD is positioned in the battle field');
 assert.ok(bar.classes.has('boss-hp-ui'));
+// 隊伍增益只留「角色腳下」這一個出口，頂部面板不得再長回來
+assert.equal(html.includes('hud-buff-panel'), false, 'the old team-buff panel is gone');
+assert.ok(/for \(const m of PF\.members\) setMemberBuffRow\(m, memberBuffEntries\(m, tNow\)\);/.test(html), 'buffs render per member');
 console.log('PASS: normal wave HUD hidden while the boss HP HUD remains visible and follows its boss layer.');

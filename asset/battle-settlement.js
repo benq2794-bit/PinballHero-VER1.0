@@ -25,7 +25,14 @@ window.BattleSettlement = Object.freeze({
                 }
                 // 戰鬥經驗只供主帳號 RANK 使用；彈射角色改由培養道具取得角色經驗。
                 const exp = Math.max(0, s.enemy.expReward);
-                actions.gainRankExp(exp);
+                if (!s.dungeon) actions.gainRankExp(exp);
+                if (s.dungeon) {
+                    const seq = s.seq, dungeon = s.dungeon;
+                    lifecycle.schedule(500, actions.dungeonWaveVictory, () => {
+                        const next = getState(); return next.dungeon === dungeon && next.seq === seq && next.enemy.hp <= 0;
+                    });
+                    return true;
+                }
                 if (s.gate) {
                     const seq = s.seq, gate = s.gate;
                     lifecycle.schedule(500, actions.gateVictory, () => {
@@ -43,15 +50,25 @@ window.BattleSettlement = Object.freeze({
                 const ms = Math.max(1, Math.round(s.now - s.startedAt));
                 const dmg = Math.max(0, Math.round(s.damage - s.damageStart));
                 const shards = first ? gate.shards : gate.replay;
+                const drops = {
+                    breakthrough: 1 + Math.floor(Math.random() * 3),
+                    rainbow: 1 + Math.floor(Math.random() * 3),
+                    experience: 10,
+                    highExperience: 1 + Math.floor(Math.random() * 3),
+                    singleTicket: Math.random() < 0.001 ? 1 : 0,
+                    tenTicket: Math.random() < 0.00001 ? 1 : 0,
+                    expeditionMedal: Math.random() < 0.10 ? 1 : 0,
+                    bossMaterial: Math.random() < 0.03 ? 1 : 0
+                };
                 // 結算的「分」是把實打傷害、時間剩下的額度、結晶與首通疊起來；
                 // par（速度滿分線）由關卡表給，評級也照它算，才不會每道門都拿同一把尺量。
                 const parMs = Math.max(1, (gate.par || 60) * 1000);
                 const timeBonus = Math.round(Math.max(0, parMs - ms) * 1.5);
-                const score = dmg + timeBonus + shards * 400 + (first ? 20000 : 0);
+                const score = dmg + timeBonus + (shards + drops.rainbow) * 400 + (first ? 20000 : 0);
                 const record = (s.gateRecord || {})[gate.id] || {};
                 const result = {
                     gate: gate.gate, boss: s.enemy.name, el: gate.el, first,
-                    shards, win, ms, parMs, timeBonus, score, rating: ratingOf(ms, parMs),
+                    shards, drops, win, ms, parMs, timeBonus, score, rating: ratingOf(ms, parMs),
                     // 「打敗自己」要有前一筆可比：第一次破關只是立紀錄，不標 NEW RECORD
                     prevMs: record.ms || 0, prevScore: record.score || 0,
                     recordTime: (record.ms || 0) > 0 && ms < record.ms,

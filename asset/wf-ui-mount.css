@@ -2,7 +2,7 @@
    wf-ui-mount.css — WF 字的站內接點（只有這一站用）
    樣式本體在 wf-ui-text.css；這裡只按「文字後面是深底還是淺底」調邊。
    容器上挂 class="wf-ui-text" 的位置：
-     .pf-over（隊伍全滅）、#pf-result（異界迴廊結算）、#deep-fail（挑戰結束）、
+     .pf-over（隊伍全滅）、#pf-result（境界領域結算）、#deep-fail（挑戰結束）、
      .pp-box（暫停選單）、#pg-body（主介面／設定選單）
    ============================================================ */
 

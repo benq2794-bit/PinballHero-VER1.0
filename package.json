@@ -1,0 +1,10 @@
+{
+  "name": "pinball-realms",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build-release.cjs"
+  },
+  "devDependencies": {
+    "terser": "5.44.1"
+  }
+}
