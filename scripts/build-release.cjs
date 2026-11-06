@@ -2,6 +2,7 @@ const fs = require("node:fs/promises");
 const path = require("node:path");
 const { Script } = require("node:vm");
 const { minify } = require("terser");
+const { build: buildAssetIndex } = require("./build-asset-index.cjs");
 
 const root = path.resolve(__dirname, "..");
 const output = path.join(root, "dist");
@@ -21,6 +22,7 @@ async function compress(code, filename) {
 }
 
 async function build() {
+    await buildAssetIndex();
     const input = await fs.readFile(path.join(root, "index.html"), "utf8");
     const devMode = /const DEV_MODE = \(\(\) => \{[\s\S]*?\n\}\)\(\);/;
     if (!devMode.test(input)) throw new Error("Production DEV_MODE override no longer matches");

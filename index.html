@@ -3077,6 +3077,7 @@
 </div>
 
 <script src="asset/game-data.js"></script>
+<script src="asset/asset-index.js"></script>
 <script src="asset/fx/skill-signatures.js"></script>
 <script src="asset/fx/power-flip.js"></script>
 <script src="asset/fx/collision-trial.js"></script>
@@ -3513,6 +3514,16 @@ function artRef(kind, id) {
     return null;
 }
 
+// 本地解包素材有清單了：查不到的候補根本不用發請求，console 才不會被逐檔試探的 404 淹掉。
+// 清單（asset/asset-index.js）沒載到時一律放行，留給直接開 html 又沒跑產生腳本的情況。
+const ASSET_FILES = window.ASSET_INDEX ? new Set(window.ASSET_INDEX.files) : null;
+function assetAvailable(url) {
+    if (!ASSET_FILES || !url) return true;
+    const path = url.split(/[?#]/)[0];
+    if (!window.ASSET_INDEX.prefixes.some(prefix => path.startsWith(prefix))) return true;
+    return ASSET_FILES.has(path);
+}
+
 function spriteCandidates(kind, id, state) {
     if (!id) return [];
     const out = [];
@@ -3558,7 +3569,8 @@ function spriteCandidates(kind, id, state) {
         if (state !== "idle") out.push(SPRITE_DIRS[kind] + "/" + id + "_" + state + ".png");
         out.push(SPRITE_DIRS[kind] + "/" + id + ".png");
     }
-    return [...new Set(out)];
+    // 本地解包那幾條查無檔案就從頭刪掉，連試探的請求都不發（CDN 與 assets/ 備援照常保留）。
+    return [...new Set(out)].filter(assetAvailable);
 }
 
 const missingSprites = new Set();
@@ -3797,7 +3809,7 @@ const SFX = {
         for (const r of roots) out.push(EX_CHAR + r + "/voice/battle/" + line + ".mp3",
             EX_CHAR + r + "/voice/battle/" + line + "_0.mp3",
             EX_CHAR + r + "/voice/battle/" + line + "_1.mp3");
-        return out;
+        return out.filter(assetAvailable);
     },
 
     // 回傳 true 代表這組路徑是這一次才登記的，探測結果還沒回來
@@ -8310,7 +8322,7 @@ function applyStageBg(zoneId, bgKey, warm) {
                 return;
             }
             const { url, art } = list[i++];
-            if (missingSprites.has(url)) { tryNext(); return; }
+            if (!assetAvailable(url) || missingSprites.has(url)) { tryNext(); return; }
             const pre = new Image();
             pre.onload = () => {
                 if (warm || PF.bgEl.dataset.bg !== key) return;
