@@ -3144,7 +3144,7 @@
     <p class="tower-record" id="tower-mode-record">歷史最高紀錄：第 1 層</p>
     <p class="tower-label">起始層</p>
     <div class="tower-floor-options" id="tower-mode-floors"></div>
-    <button class="tower-auto" id="tower-mode-auto" type="button" onclick="toggleTowerAutoLoop()" aria-pressed="false"><span>自動循環爬塔<small>失敗後自動回到起始層，持續循環直到手動停止。</small></span><span class="pp-state">關</span></button>
+    <button class="tower-auto" id="tower-mode-auto" type="button" onclick="toggleTowerAutoLoop()" aria-pressed="false"><span>自動循環爬塔<small>勝利自動上樓；超時回到起始層。全滅以 50% 生命自動重試當層。</small></span><span class="pp-state">關</span></button>
     <button class="tower-go" type="button" onclick="startTowerRun()">進入波利塔</button>
     <form method="dialog"><button type="submit">取消</button></form>
 </dialog>
@@ -3212,7 +3212,7 @@
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.4";
+const GAME_VERSION = "v0.1.0-alpha.5";
 const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
@@ -3264,6 +3264,7 @@ function watchPowerState() {
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
+    {"version":"v0.1.0-alpha.5","date":"2026-11-08","content":["修正波利塔全隊死亡時誤觸全滅視窗：全隊自動以 50% 最大生命復活並重試當前樓層。","波利塔自動循環開關會保留上次設定；開啟時超時直接循環，關閉時保留原有超時手動流程。","更新波利塔循環與復活提示，明確區分全滅重試當層及超時返回起始層；其他模式與獎勵規則維持原樣。"]},
     {"version":"v0.1.0-alpha.4","date":"2026-11-08","content":["新增每 10 秒版本偵測、30 秒倒數與立即更新通知，戰鬥及重要操作期間延後更新。","重新載入前確認本機與雲端存檔完成；存檔失敗會停止自動更新並提供重試。","版本更新後自動顯示最新更新日誌，同版本只顯示一次，保留手動查閱及歷史內容。","新增唯一發布版本檔、資源快取更新與部署前檢查／正式網站驗證流程。"]},
     { version: "v0.1.0-alpha.3", date: "2026-11-07", content: [
         "角色培養新增升級、紫色「升級 ×10」與金色「一鍵升至上限」，可直接使用水晶與返還經驗，水晶剩餘面額會保留。",
@@ -3524,8 +3525,9 @@ const BOSS_EVERY = TOWER_RULES.bossEvery;
 const NORMAL_FLOOR_WAVES = TOWER_RULES.normalWaves;
 const NORMAL_FLOOR_SECONDS = TOWER_RULES.normalSeconds, BOSS_FLOOR_SECONDS = TOWER_RULES.bossSeconds;
 let floorWins = 0, deepTimeLeft = NORMAL_FLOOR_SECONDS;
-// 自動循環爬塔是本次遊玩的操作開關（不入存檔）：失敗後回到進場時選定的起始層。
-let towerAutoLoop = false, towerStartFloor = 1;
+// 波利塔循環偏好獨立保存，不改動玩家存檔格式；起始層仍依本次進場選擇。
+const TOWER_AUTO_LOOP_KEY = DEV_MODE ? "wf_dev_tower_auto_loop_v1" : "wf_tower_auto_loop_v1";
+let towerAutoLoop = (() => { try { return localStorage.getItem(TOWER_AUTO_LOOP_KEY) === "true"; } catch { return false; } })(), towerStartFloor = 1;
 let towerFirstBossRecoveryUsed = false;
 const WEAK_DUR = TOWER_RULES.weakDurationMs;
 const BREAK_MS = TOWER_RULES.breakMs;
@@ -5646,7 +5648,7 @@ function buildField() {
 
 // ===== 場上成員 =====
 // 棺柩救援只用在境界領域、特殊副本與訓練場：波利塔與巴風特的無限連擊不鋪棺柩，
-// 那裡全滅直接走戰敗面板（原本的復活機制還在，只是不改由撞棺解鎖）。
+// 波利塔全滅自動以 50% 生命重試當層；巴風特沿用原有戰敗結算。
 function coffinRescueOn() { return !!GATE_MODE && !EXPEDITION_MODE; }
 
 function coffinHitsRequired(member) {
@@ -7774,7 +7776,7 @@ function downMember(m) {
     if (PF.members.every(x => x.down)) {
         battleLifecycle.setRunning(false);
         if (expedition) finishExpedition("隊伍全滅");
-        else showOver("隊伍全滅");
+        else if (!retryTowerAfterPartyWipe()) showOver("隊伍全滅");
     }
 }
 
@@ -8577,8 +8579,32 @@ function restorePartyAfterWipe(fullHealth) {
     hideOver();
 }
 
+// 僅波利塔全滅走自動重試，其他模式保留原有戰敗處理。
+function retryTowerAfterPartyWipe() {
+    if (gateOn() || GATE_MODE || DUNGEON_MODE || TRAINING_MODE || EXPEDITION_MODE || expedition ||
+        !PF.members.length || !PF.members.every(member => member.down)) return false;
+    resetBattleTransient();
+    floorWins = 0;
+    deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
+    tickCounter = 0;
+    PF.members.forEach(member => {
+        member.down = false;
+        member.ch.hp = Math.max(1, Math.round(hpMax(member.ch) * 0.5));
+        member.ch.gauge = 0;
+        attachBall(member);
+    });
+    hideOver();
+    battleLifecycle.setRunning(true);
+    spawnEnemy(); spawnFoe(); applyBattlefieldBg();
+    setPaused(false);
+    updateUI(); saveGame();
+    log(`🔁 波利塔全隊以 50% 生命復活，自動重新挑戰第 ${stage} 層。`);
+    return true;
+}
+
 function retryAfterPartyWipe() {
     if (PF.running || !PF.members.length || !PF.members.every(member => member.down)) return;
+    if (retryTowerAfterPartyWipe()) return;
     restorePartyAfterWipe(false);
     const gate = gateOf();
     if (gate) { GATE.t0 = performance.now(); GATE.dmg0 = dmgTotal; }
@@ -9193,7 +9219,7 @@ function restartCurrentGate() {
 
 function showDeepFail() {
     // 自動循環開啟時不擋失敗畫面：本輪獎勵在戰鬥中已即時入帳，直接回到起始層接下一輪。
-    if (towerAutoLoop) {
+    if (towerAutoLoop && !gateOn() && !GATE_MODE && !DUNGEON_MODE && !TRAINING_MODE && !EXPEDITION_MODE && !expedition) {
         const failedAt = stage;
         restartTowerAtFloor(towerStartFloor, `⏳ 第 ${failedAt} 層時間耗盡，自動循環回到第 ${towerStartFloor} 層重新挑戰。`);
         return;
@@ -12646,10 +12672,11 @@ function syncTowerAutoLoopButtons() {
 
 function toggleTowerAutoLoop() {
     towerAutoLoop = !towerAutoLoop;
+    try { localStorage.setItem(TOWER_AUTO_LOOP_KEY, String(towerAutoLoop)); } catch { hmToast("無法儲存循環設定，本次遊玩仍可使用。"); }
     syncTowerAutoLoopButtons();
     log(towerAutoLoop
-        ? `🔁 自動循環爬塔已開啟：失敗後自動回到第 ${towerStartFloor} 層。`
-        : "⏸ 自動循環爬塔已關閉：失敗後改為手動選擇。");
+        ? `🔁 自動循環爬塔已開啟：勝利自動上樓，超時自動回到第 ${towerStartFloor} 層。`
+        : "⏸ 自動循環爬塔已關閉：超時後手動選擇；全滅仍以 50% 生命自動重試當層。");
 }
 
 function showTowerModePicker() {
@@ -12804,7 +12831,7 @@ function openAdventureHelp(kind) {
                 <li><b>挑戰失敗</b>：時間耗盡，停止戰鬥並顯示失敗畫面。</li>
                 <li><b>重試本層</b>：重新計時、重置怪物，角色以 50% 血量復原。</li>
                 <li><b>進度保存</b>：保留最高通關紀錄。</li>
-                <li><b>自動循環爬塔</b>：開啟後失敗自動回到進場設定的起始層，重複到手動關閉；最高紀錄只升不降。</li>
+                <li><b>自動循環爬塔</b>：開啟後勝利自動上樓、超時自動回到進場設定的起始層；關閉後超時保留手動處理。無論開關，全滅皆以 50% 生命自動重試當層；開關設定會保留，最高紀錄只升不降。</li>
             </ul></section>
             <section><h3>普通怪物掉落</h3><ul>
                 <li>經驗水晶：100 層以下 0～3 顆；101～200 層 1～4 顆；201 層以上 2～5 顆。</li>

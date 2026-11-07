@@ -1,28 +1,14 @@
 {
   "content": [
-    "新增每 10 秒版本偵測、30 秒倒數與立即更新通知，戰鬥及重要操作期間延後更新。",
-    "重新載入前確認本機與雲端存檔完成；存檔失敗會停止自動更新並提供重試。",
-    "版本更新後自動顯示最新更新日誌，同版本只顯示一次，保留手動查閱及歷史內容。",
-    "新增唯一發布版本檔、資源快取更新與部署前檢查／正式網站驗證流程。"
+    "修正波利塔全隊死亡時誤觸全滅視窗：全隊自動以 50% 最大生命復活並重試當前樓層。",
+    "波利塔自動循環開關會保留上次設定；開啟時超時直接循環，關閉時保留原有超時手動流程。",
+    "更新波利塔循環與復活提示，明確區分全滅重試當層及超時返回起始層；其他模式與獎勵規則維持原樣。"
   ],
   "files": [
-    "AGENTS.md",
-    "asset/game-update.js",
-    "asset/game-update.css",
-    "asset/supabase-cloud.js",
     "index.html",
-    "package.json",
-    "vercel.json",
-    "scripts/check.cjs",
-    "scripts/deploy.cjs",
-    "scripts/build-release.cjs",
-    "tests/character-growth.test.cjs",
-    "tests/fever-feedback.test.cjs",
-    "tests/gate-scenes.test.cjs",
-    "tests/save-system.test.cjs",
-    "tests/game-update.test.cjs",
-    "tests/cloud-save-flush.test.cjs",
-    "tests/browser-update.cjs",
+    "tests/tower-wipe.test.cjs",
+    "tests/tower-auto-loop.test.cjs",
+    "tests/browser-tower.cjs",
     "release-notes.json"
   ]
 }
