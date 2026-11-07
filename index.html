@@ -794,10 +794,10 @@
         @keyframes fevStarFloat { from { transform:translateY(-2px); } to { transform:translateY(3px); } }
         @keyframes fevStarSpin { to { transform:rotate(360deg); } }
 
-        /* 陷洞（Outhole）：直接複刻彈射世界那顆「尖刺凹槽」—— 60×18 格、每格 4px（CSS 240×72）。
+        /* 陷洞（Outhole）：直接複刻彈射世界那顆「尖刺凹槽」—— 60×18 格、每格 2px（CSS 120×36）。
            唇緣 5 列由淺入暗 → 內壁 6 列 → 中帶 → 底緣 → 前唇 → 底線，左右各 5 格側牆越裡越暗；
            五根尖刺的中心 x、逐列寬度、每一列的平均色全部量自那張截圖，離線腳本一次產生圖與 keyframes，改外形就重跑它。 */
-        .outhole { position:absolute; width:240px; height:72px; margin:-36px 0 0 -120px; z-index:3; pointer-events:none; }
+        .outhole { position:absolute; width:120px; height:36px; margin:-18px 0 0 -60px; z-index:3; pointer-events:none; }
         .outhole > svg { display:block; width:100%; height:100%; overflow:visible; }
         .outhole .oh-rim-1 { fill:#c8a150; }
         .outhole .oh-rim-2 { fill:#c59b51; }
@@ -5412,9 +5412,7 @@ function refreshTurf(boss) {
 // 洞心 y：彈板樞軸在 668、板尖之間那道縫就在其下，700 是截圖量出來的實際落球口
 const OUTHOLE_Y = 700;
 
-// 陷洞的圖：40×22 格、每格 4px（CSS 160×88），洞心落在第 (20,11) 格＝元素正中心。
-// 路徑全是格線上的整數矩形，由一支離線腳本產生；改外形就重跑那支腳本，把它吐的 SVG 整串換掉這裡。
-// 陷洞的圖：60×18 格、每格 4px（CSS 240×72），凹槽正中心落在第 (30,9) 格＝元素正中心＝落球口。
+// 陷洞的圖：60×18 格、每格 2px（CSS 120×36），凹槽正中心落在第 (30,9) 格＝元素正中心＝落球口。
 // 路徑全是格線上的整數矩形，由一支離線腳本產生；改外形就重跑那支腳本，把它吐的 SVG 整串換掉這裡。
 const OUTHOLE_ART = `
 <svg viewBox="0 0 60 18" aria-hidden="true" shape-rendering="crispEdges">
