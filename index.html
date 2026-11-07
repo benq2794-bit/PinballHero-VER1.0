@@ -5012,7 +5012,7 @@ const PF = {
     memberStunUntil: new Map(),
     // 現場型技能（冰晶／影蛇力場）；屬性遲緩計時存於各敵人單位。
     aura: null, specialSlowUntil: 0,
-    climbing: false, climbTimer: null,
+    climbTimer: null,
     skillQueue: [], skillCastWait: 0, skillChain: { members: [], expiresAt: 0, foeSeq: -1 },
     // 弱點／BREAK
     weak: null, breakUntil: 0, nextCastAt: 0,
@@ -5050,7 +5050,6 @@ function resetBattleTransient() {
     // 排程會跟著 invalidate 一起作廢，但收尾那顆是 wall-clock 的 setTimeout（它必須活過 invalidate）；
     // 還有 CSS 的 class 也不會自己掉。兩者都要在這裡掃乾淨，不然下一場就掛著一條黑帶、整場暗暗的。
     clearTimeout(PF.climbTimer); PF.climbTimer = null;
-    PF.climbing = false;
     PF.el?.classList.remove('pf-climb', 'pf-climb-roll');
     cancelSkillCinematic(); hideBossEntrance(); clearWeak(); clearField();
     PF.holdL = PF.holdR = false;
@@ -8956,14 +8955,16 @@ function floorClimb(swap, warmBgKey) {
     // 境界領域是單場勝負、訓練場不計層——兩者都沒有「上一層」這件事可演；
     // 特殊副本是逐波推進，照樣用波利塔那條向上捲動的轉場。
     if (!PF.el || (gateOn() && !DUNGEON_MODE) || TRAINING_MODE) return false;
-    PF.climbing = true;
     SFX.floorUp();
     PF.el.classList.add('pf-climb', 'pf-climb-roll');
     // 場布是異步載入的：現在就先暖下一層的圖（只進 cache，畫面不動），等黑帶蓋上來時檔已經在本地。
     // 不先暖的話，換圖會拖到帶子掀開之後，變成「舊的一層亮著亮著突然跳成新的」。
     applyStageBg(warmBgKey ? STAGE_ZONES[0].id : null, warmBgKey || null, true);
+    // 這顆排程不能拿「轉場還在不在」當前後閘門：收尾是 wall-clock 計時器，排程卻會跟著暫停、
+    // 切背景、以及單幀超過 33ms 一起凍住。閘門先關掉，排程就被判定失效而整顆丟掉，
+    // 而結算那一次性領取已經吃掉（checkKill 記了 waveResolvedSeq）——場上從此再也不會生成怪。
+    // 換場景要作廢排程，另有 invalidate() 會整批清掉，不需要這裡的布爾閘門。
     battleLifecycle.schedule(PF_CLIMB_SWAP_MS, () => {
-        if (!PF.climbing) return;
         if (PF.el) PF.el.classList.remove('pf-climb-roll');
         swap();     // 新的一層（連同它那張場布）在這裡生成，stage 也是在這裡進到下一層
         // 切片得照「新的一層」來推，放在 swap 之後才讀得到新的 stage；擺前面會慢一層。
@@ -8971,11 +8972,10 @@ function floorClimb(swap, warmBgKey) {
         // 副本每波都是獨立場布，一律用 CSS 預設的構圖。
         if (!DUNGEON_MODE && PF.bgEl) PF.bgEl.style.backgroundPositionY =
             stage % BOSS_EVERY === 0 ? "" : (22 + (stage % 4) * 12) + "%";
-    }, () => PF.climbing);
+    });
     clearTimeout(PF.climbTimer);
     PF.climbTimer = setTimeout(() => {
         PF.climbTimer = null;
-        PF.climbing = false;
         if (PF.el) PF.el.classList.remove('pf-climb', 'pf-climb-roll');
     }, PF_CLIMB_MS);
     return true;
