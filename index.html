@@ -4239,6 +4239,13 @@ async function activateCloudSession(session, { boot = false } = {}) {
             if (local.ok) await SupabaseCloud.writeSave(cloudUser.id, local.data);
             else saveGame();
         }
+        // 上報只掛在「踏上一層」當下，登入前爬過的層數不會自己補送；不在這裡補一次，
+        // 老玩家要再破一次本週紀錄才會進榜。名字還沒設定好時先不送，免得榜上留「見習勇者」。
+        if (accountName) {
+            reportTowerScores();
+            const hellSaved = expeditionHellWeekRecord();
+            if (hellSaved.rows.length) reportHellScore(hellSaved.rows[0]);
+        }
         const screen = $('login-screen');
         const nameSetupRequired = localStorage.getItem('wf_account_name_required') === '1';
         grantDailyStaminaSupplies();
