@@ -10962,12 +10962,77 @@ function exchangePermanentCharacter(id) {
     saveGame(); updateUI(); renderPage();
 }
 
-// ---- 波利塔／巴風特的無限連擊排行榜（C 版・前段舞台）----
-// 本機只查得到自己的紀錄：全服名次要等帳號與線上資料服務接上，台子與榜單才會出現別人。
+// ---- 波利塔／巴風特無限連擊的全服排行榜 ----
+// 本機紀錄先算；成績會同步到 leaderboard_entries，線上榜回來後才排得到別人。訪客看得到全服榜，但成績只留本機。
 const TOWER_WEEK_KEY = "wf_tower_week_v1";
 let towerLbScope = "week";
 let towerLbMode = "tower";
+let towerLbCloud = { key: "", rows: [], state: "idle" };
 
+function towerCloudReady() {
+    return !DEV_MODE && typeof cloudUser !== "undefined" && !!cloudUser?.id
+        && typeof SupabaseCloud !== "undefined" && !!SupabaseCloud?.available;
+}
+// 讀榜不用登入（資料庫那側對所有人開放 select），寫榜才要有帳號。
+function towerLbReadReady() {
+    return !DEV_MODE && typeof SupabaseCloud !== "undefined" && !!SupabaseCloud?.available;
+}
+function towerLbScopeKey() {
+    return towerLbMode === "rogue" ? "hell_week" : towerLbScope === "life" ? "tower_life" : "tower_week";
+}
+function towerLbCacheKey() { return `${towerLbScopeKey()}|${towerWeekRecord().week}`; }
+function towerLbOnline() { return towerLbCloud.state === "online" && towerLbCloud.key === towerLbCacheKey(); }
+// 進榜單那一頁才發請求；同一個榜在本頁只查一次，換分頁／換模式才會再查。
+function requestTowerLeaderboard() {
+    const key = towerLbCacheKey();
+    if (towerLbCloud.key === key && towerLbCloud.state !== "idle") return;
+    towerLbCloud = { key, rows: [], state: "loading" };
+    if (!towerLbReadReady()) { towerLbCloud.state = "local"; return; }
+    const pageAtRequest = typeof uiRouter !== "undefined" ? uiRouter.current() : "";
+    SupabaseCloud.readLeaderboard(towerLbScopeKey(), towerWeekRecord().week)
+        .then(rows => {
+            if (towerLbCloud.key !== key) return;
+            towerLbCloud = { key, rows, state: "online" };
+            // 觀眾還停在同一頁才重繪，避免從戰鬥中途把畫面洗掉。
+            if (typeof uiRouter !== "undefined" && uiRouter.current() === pageAtRequest) renderPage();
+        })
+        .catch(() => {
+            if (towerLbCloud.key !== key) return;
+            towerLbCloud = { key, rows: [], state: "local" };
+            if (typeof uiRouter !== "undefined" && uiRouter.current() === pageAtRequest) renderPage();
+        });
+}
+function towerCloudUserId() { return typeof cloudUser !== "undefined" ? cloudUser?.id || "" : ""; }
+// 雲端那筆跟本機那筆取較高者：上報還沒回來時也不至於把自己的成績報小。
+function towerLbMerge(rows, mine, same) {
+    if (!mine) return rows;
+    const i = rows.findIndex(r => r.me);
+    if (i < 0) return rows.concat([mine]);
+    return same(mine, rows[i]) > 0 ? rows.map((r, k) => k === i ? mine : r) : rows;
+}
+function reportTowerScores() {
+    if (!towerCloudReady()) return;
+    const week = towerWeekRecord();
+    const name = accountName || "見習勇者";
+    const life = Math.max(1, Math.floor(Number(towerBestStage) || stage || 1));
+    if (week.floor) SupabaseCloud.writeLeaderboard({ scope: "tower_week", name, floor: week.floor, at: week.at, weekStart: week.week }).catch(() => { });
+    SupabaseCloud.writeLeaderboard({ scope: "tower_life", name, floor: life }).catch(() => { });
+}
+function reportHellScore(row) {
+    if (!towerCloudReady()) return;
+    SupabaseCloud.writeLeaderboard({
+        scope: "hell_week", name: accountName || "見習勇者",
+        seconds: row.seconds, count: row.count, clear: row.clear, weekStart: towerWeekStart()
+    }).catch(() => { });
+}
+// 榜單只剩自己那一筆時，要講清楚卡在哪一環，別讓人以為榜單壞了。
+function towerLbSourceNote() {
+    if (towerLbOnline()) return "榜單目前只有你這一筆：本週全服還沒有其他勇者登塔。";
+    if (towerLbCloud.state === "loading") return "榜單目前只有你這一筆：全服榜單讀取中，稍後會自動更新。";
+    return towerLbReadReady()
+        ? "榜單目前只有你這一筆：全服榜單暫時讀不到，先顯示本機紀錄（換分頁或重整會再試一次）。"
+        : "榜單目前只有你這一筆：網路未就緒，先顯示本機紀錄；成績要登入後才會上傳到全服榜。";
+}
 function towerWeekStart(at = Date.now()) {
     const d = new Date(at);
     return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).getTime();
@@ -10997,13 +11062,31 @@ function towerWeekCommit(floor) {
     const now = new Date();
     const at = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
     try { localStorage.setItem(TOWER_WEEK_KEY, JSON.stringify({ week: rec.week, floor, at })); } catch (err) { /* 存不進去只影響本週榜顯示 */ }
+    reportTowerScores();
 }
 function towerLbRows() {
     const life = towerLbScope === "life";
     const week = towerWeekRecord();
     const floor = life ? Math.max(1, Math.floor(Number(towerBestStage) || stage || 1)) : week.floor;
-    if (!floor) return [];
-    return [{ name: accountName || "見習勇者", floor, at: life ? "" : week.at, me: true }];
+    const mine = floor ? { name: accountName || "見習勇者", floor, at: life ? "" : week.at, me: true } : null;
+    if (!towerLbOnline()) return mine ? [mine] : [];
+    const uid = towerCloudUserId();
+    const rows = towerLbCloud.rows.map(e => ({
+        name: e.name || "無名勇者", floor: e.floor, at: life ? "" : e.at, me: !!uid && e.userId === uid
+    }));
+    return towerLbMerge(rows, mine, (a, b) => a.floor - b.floor)
+        .sort((a, b) => b.floor - a.floor || String(a.name).localeCompare(String(b.name)));
+}
+// 地獄模式：線上有資料就改成「每人一筆最佳」，查不到時維持本機那 10 次跑圖。
+function hellLbRows(weekRecord) {
+    if (!towerLbOnline()) return weekRecord.rows;
+    const uid = towerCloudUserId();
+    const better = (a, b) => (Number(a.clear) - Number(b.clear)) || (a.seconds - b.seconds) || (a.count - b.count);
+    const rows = towerLbCloud.rows.map(e => ({
+        name: e.name || "無名勇者", clear: e.clear, seconds: e.seconds, count: e.count, me: !!uid && e.userId === uid
+    }));
+    const mine = weekRecord.rows.length ? { ...weekRecord.rows[0], me: true } : null;
+    return towerLbMerge(rows, mine, better).sort((a, b) => better(b, a) || String(a.name).localeCompare(String(b.name)));
 }
 function setTowerLbScope(scope) { towerLbScope = scope === "life" ? "life" : "week"; renderPage(); }
 function setTowerLbMode(mode) { towerLbMode = mode === "rogue" ? "rogue" : "tower"; renderPage(); }
@@ -11013,6 +11096,7 @@ function openHomeLeaderboard(mode) {
 }
 
 function pageTowerLeaderboard() {
+    requestTowerLeaderboard();
     const esc = value => String(value).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;", "'":"&#39;" }[ch]));
     const isRogue = towerLbMode === "rogue";
     const rows = isRogue ? [] : towerLbRows();
@@ -11022,7 +11106,7 @@ function pageTowerLeaderboard() {
         const e = rows[rank - 1];
         if (!e) return voidPod(rank);
         return `<div class="lb-pod p${rank}">${medal(rank)}<span class="who">${esc(e.name)}</span>`
-            + `<span class="flo">${e.floor} 層</span><span class="sub">${e.at ? `${e.at} 抵達` : "本機紀錄"}</span></div>`;
+            + `<span class="flo">${e.floor} 層</span><span class="sub">${e.at ? `${e.at} 抵達` : towerLbOnline() ? "生涯最佳" : "本機紀錄"}</span></div>`;
     };
     const modes = `<nav class="lb-modes" role="tablist">
             <button type="button" role="tab" aria-selected="${!isRogue}" class="${isRogue ? "" : "on"}" onclick="setTowerLbMode('tower')">波利塔</button>
@@ -11030,12 +11114,13 @@ function pageTowerLeaderboard() {
         </nav>`;
     if (isRogue) {
         const hellWeek = expeditionHellWeekRecord();
+        const hellRows = hellLbRows(hellWeek);
         return `<section class="lbv">${modes}
         <div class="lb-panel"><div class="lb-sec"><h3>地獄模式・本週 ${towerWeekLabel(hellWeek.week)}</h3>
             <span class="lb-clock" title="每週一 00:00 結算並清空本週榜">本週倒數 <b>${towerWeekCountdown(hellWeek.week)}</b></span></div>
-        ${hellWeek.rows.length ? `<div class="lb-board"><div class="lb-head"><span>名次</span><span>冒險者</span><span>成績</span><span>擊倒</span></div>
-        ${hellWeek.rows.map((row, i) => `<div class="lb-row"><span class="rk">${i+1}</span><span class="nm">${esc(row.name)}</span><span class="fl">${row.clear ? "通關" : expeditionTime(row.seconds)}</span><span class="tm">${row.count}</span></div>`).join("")}</div>` : '<p class="lb-note">本週還沒有地獄模式成績。</p>'}
-        <p class="lb-note">本機紀錄・每週一 00:00 結算</p></div>
+        ${hellRows.length ? `<div class="lb-board"><div class="lb-head"><span>名次</span><span>冒險者</span><span>成績</span><span>擊倒</span></div>
+        ${hellRows.map((row, i) => `<div class="lb-row"><span class="rk">${i+1}</span><span class="nm">${esc(row.name)}</span><span class="fl">${row.clear ? "通關" : expeditionTime(row.seconds)}</span><span class="tm">${row.count}</span></div>`).join("")}</div>` : `<p class="lb-note">${towerLbCloud.state === "loading" ? "全服榜單讀取中，稍後會自動更新。" : "本週還沒有地獄模式成績。"}</p>`}
+        <p class="lb-note">${towerLbOnline() ? "全服榜單" : "本機紀錄"}・每週一 00:00 結算</p></div>
         <button class="mini-btn gold lb-cta" type="button" onclick="openAdventureEntry()">前往出發冒險 ›</button>
     </section>`;
     }
@@ -11050,8 +11135,7 @@ function pageTowerLeaderboard() {
             + `<div class="lb-self"><span class="rk">${rows.indexOf(me) + 1}</span><span class="nm">${esc(me.name)}</span>`
             + `<span class="fl">${me.floor} 層</span><span class="tm">${me.at || "—"}</span>`
             + `<span class="tag">個人最佳・${life ? "生涯紀錄" : "本週紀錄"}</span></div>`
-        : `<p class="lb-note">${rows.length
-            ? "榜單目前只有你這一筆：全服排行需連接帳號與線上資料服務後才會開放。"
+        : `<p class="lb-note">${rows.length ? towerLbSourceNote()
             : "本週還沒上塔：在波利塔爬過任何一層，這裡就會留下你的紀錄。"}</p>`;
     return `<section class="lbv">${modes}
         <nav class="lb-tabs" role="tablist">
@@ -11059,7 +11143,7 @@ function pageTowerLeaderboard() {
             <button type="button" role="tab" aria-selected="${life}" class="${life ? "on" : ""}" onclick="setTowerLbScope('life')">生涯最高</button>
         </nav>
         <div class="lb-panel"><div class="lb-sec"><h3>${life ? "生涯前段" : `本週前段・${towerWeekLabel(week.week)}`}</h3>`
-        + (life ? "<span>本機紀錄</span>" : `<span class="lb-clock" title="每週一 00:00 結算並清空本週榜">本週倒數 <b>${towerWeekCountdown(week.week)}</b></span>`) + `</div>
+        + (life ? `<span>${towerLbOnline() ? "全服最佳" : "本機紀錄"}</span>` : `<span class="lb-clock" title="每週一 00:00 結算並清空本週榜">本週倒數 <b>${towerWeekCountdown(week.week)}</b></span>`) + `</div>
             <div class="lb-podium">${podium(2)}${podium(1)}${podium(3)}</div></div>
         ${tail}
         <button class="mini-btn gold lb-cta" type="button" onclick="enterBattle()">繼續挑戰波利塔 ›</button>
@@ -12663,6 +12747,7 @@ function recordExpedition(data) {
     record.rows.length = Math.min(10, record.rows.length);
     try { localStorage.setItem(EXPEDITION_HELL_WEEK_KEY, JSON.stringify(record)); }
     catch { /* The settlement can still be viewed when local storage is unavailable. */ }
+    if (record.rows.length) reportHellScore(record.rows[0]);
 }
 
 

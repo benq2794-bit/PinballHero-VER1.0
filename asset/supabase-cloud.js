@@ -33,6 +33,44 @@ window.SupabaseCloud = (() => {
         });
         return flushPromise;
     }
+    async function readLeaderboard(scope, weekStart) {
+        const { data, error } = await requireClient().from('leaderboard_entries')
+            .select('user_id, account_name, best_floor, clear_seconds, kill_count, cleared, reached_at')
+            .eq('scope', scope)
+            .eq('week_start', scope === 'tower_life' ? 0 : (Number(weekStart) || 0))
+            .order('best_floor', { ascending: false })
+            .limit(50);
+        if (error) throw error;
+        return (data || []).map(row => ({
+            userId: row.user_id,
+            name: String(row.account_name || '').slice(0, 16),
+            floor: Math.min(99999, Math.max(0, Math.floor(Number(row.best_floor) || 0))),
+            seconds: Math.max(0, Math.floor(Number(row.clear_seconds) || 0)),
+            count: Math.min(99999, Math.max(0, Math.floor(Number(row.kill_count) || 0))),
+            clear: row.cleared === true,
+            at: String(row.reached_at || '')
+        }));
+    }
+    async function writeLeaderboard(entry) {
+        const { data: { session }, error: sessionError } = await requireClient().auth.getSession();
+        if (sessionError) throw sessionError;
+        const id = session?.user?.id;
+        if (!id) return false; // 訪客沒有帳號，成績只留本機。
+        const { error } = await requireClient().from('leaderboard_entries').upsert({
+            user_id: id,
+            scope: entry.scope,
+            account_name: String(entry.name || '').slice(0, 16),
+            best_floor: Math.max(0, Math.floor(Number(entry.floor) || 0)),
+            clear_seconds: Math.max(0, Math.floor(Number(entry.seconds) || 0)),
+            kill_count: Math.max(0, Math.floor(Number(entry.count) || 0)),
+            cleared: entry.clear === true,
+            week_start: Number(entry.weekStart) || 0,
+            reached_at: String(entry.at || ''),
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,scope' });
+        if (error) throw error;
+        return true;
+    }
     return Object.freeze({
         available: !!client,
         async getSession() {
@@ -81,6 +119,8 @@ window.SupabaseCloud = (() => {
             if (error) throw error;
         },
         queueSave,
-        flushSave
+        flushSave,
+        readLeaderboard,
+        writeLeaderboard
     });
 })();
