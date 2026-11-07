@@ -322,6 +322,8 @@ async function test() {
     Object.assign(context, {
         growthCap:() => 80, hpMax:() => 100, atkOf:() => 10, charName:() => "Owned",
         gainGrowthExp(character, amount) { experience.push(amount); return 0; },
+        runGrowthTransaction(id, change) { return change(context.roster[id]); },
+        normalizeGrowthLedger(ch) { return ch.growthLedger || (ch.growthLedger = { experience:0 }); },
         refreshGrowthAfterPurchase() {}, log() {}
     });
     reset(T0);

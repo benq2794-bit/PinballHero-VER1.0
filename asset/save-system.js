@@ -8,11 +8,11 @@ window.SaveSystem = (() => {
         'tutorialSeen', 'stage', 'towerBestStage', 'towerFirstBossRecoveryUsed', 'rankLv', 'rankExp', 'kills',
         'floorWins', 'deepTimeLeft', 'shardTotal', 'gold', 'towerMaterials', 'stamina', 'staminaTickAt', 'staminaOverflowResetDate', 'teamIds', 'squads', 'squadOn', 'unisonMap', 'titleOn',
         'bossWin', 'gateRecord', 'cultivationMaterials', 'highGradeExperienceCrystals', 'breakthroughStones', 'battleBoostMs', 'battleBoostSavedAt', 'limitedSummonCount', 'summonFeaturedCharacterId', 'limitedFeaturedGuaranteed', 'summonTicketSingle', 'summonTicketTen', 'expeditionHellEntryDay', 'expeditionHellEntriesUsed', 'expeditionNormalClearCount', 'expeditionNormalRewardDay', 'expeditionNormalRewardedToday', 'dailyCheckinDate', 'dailyCheckinStreak', 'dailyCheckinTotal', 'staminaSupplyDate', 'staminaSupplyNoonAmount', 'staminaSupplyEveningAmount', 'specialDungeonRunDate', 'specialDungeonRuns', 'collectionAchievementClaims', 'shakeOn',
-        'betaEventState', 'passSeason', 'passExp', 'passPremium', 'passClaimedFree', 'passClaimedPremium', 'passCosmetics', 'passDailyDate', 'passDailyCheckinAwarded', 'passDailyStamina', 'passDailyFloors', 'passWeeklyDate', 'passWeeklyWeakHits', 'passWeeklyExpeditionClears'
+        'growthExpReserve', 'betaEventState', 'passSeason', 'passExp', 'passPremium', 'passClaimedFree', 'passClaimedPremium', 'passCosmetics', 'passDailyDate', 'passDailyCheckinAwarded', 'passDailyStamina', 'passDailyFloors', 'passWeeklyDate', 'passWeeklyWeakHits', 'passWeeklyExpeditionClears'
     ];
     const CHARACTER_FIELDS = [
         'unlocked', 'shards', 'lvl', 'exp', 'nextExp', 'baseAtk', 'maxHp',
-        'growthVersion', 'legacyCap', 'breakthrough'
+        'growthVersion', 'legacyCap', 'breakthrough', 'growthLedger'
     ];
     const parseFailure = '存檔解析失敗，進度重新開始。';
 
@@ -118,6 +118,7 @@ window.SaveSystem = (() => {
         state.gold = Math.max(0, Math.min(9999999999, Math.floor(+p.gold) || 0));
         const savedTowerMaterials = p.towerMaterials && typeof p.towerMaterials === 'object' ? p.towerMaterials : {};
         state.towerMaterials = Object.fromEntries(['jelly', 'blockScrap', 'monsterCrystal', 'adventureMedal', 'expeditionMedal', 'dragonWing', 'shellfishTail', 'garudaBeak', 'thunderCore', 'baphometHorn'].map(key => [key, Math.max(0, Math.min(9999999, Math.floor(+savedTowerMaterials[key]) || 0))]));
+        state.growthExpReserve = Number.isSafeInteger(p.growthExpReserve) && p.growthExpReserve >= 0 ? p.growthExpReserve : 0;
         state.cultivationMaterials = Math.max(0, Math.min(999999, Math.floor(+p.cultivationMaterials) || 0));
         state.highGradeExperienceCrystals = Math.max(0, Math.min(999999, Math.floor(+p.highGradeExperienceCrystals) || 0));
         const savedBoosts = p.battleBoostMs && typeof p.battleBoostMs === 'object' ? p.battleBoostMs : {};
@@ -174,6 +175,8 @@ window.SaveSystem = (() => {
             const saved = p.roster && p.roster[id];
             if (!saved) continue;
             Object.assign(state.roster[id], saved);
+            if (saved.growthLedger) state.roster[id].growthLedger = JSON.parse(JSON.stringify(saved.growthLedger));
+            else delete state.roster[id].growthLedger;
             if (saved.growthVersion !== 1 && saved.growthVersion !== 2) state.roster[id].growthVersion = 0;
             normalizeCharacterGrowth(state.roster[id]);
             state.roster[id].hp = state.roster[id].maxHp;

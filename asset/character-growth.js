@@ -7,6 +7,8 @@ let growthFor = null;
 let growthViewSignature = '';
 let growthHoldRepeat = null;
 let growthPointerActionAt = 0;
+let growthOperationBusy = false;
+let growthPendingAction = null;
 const growthInt = (n, min, max) => Math.max(min, Math.min(max, Math.floor(Number(n) || 0)));
 const GROWTH_BASE_CAP = GROWTH_CONFIG.baseCap;
 const GROWTH_MAX_CAP = GROWTH_CONFIG.maxCap;
@@ -40,7 +42,7 @@ function growthHeadStarsMarkup(ch) {
 function growthCap(ch) { return Math.max(ch.lvl > GROWTH_MAX_CAP ? ch.lvl : 0, Math.min(GROWTH_MAX_CAP, GROWTH_BASE_CAP + breakthroughStage(ch) * GROWTH_CAP_STEP)); }
 function talentRank(ch, key) { return growthInt(ch && ch.talents && ch.talents[key], 0, 999999); }
 // 天賦點由等級與角色上限成長累積；不再設總點數或單條天賦階級上限。
-function talentBudget(ch) { return GROWTH_CONFIG.talent.basePoints + Math.floor(ch.lvl / GROWTH_CONFIG.talent.pointsPerLevels) + breakthroughStage(ch); }
+function talentBudget(ch) { return Math.max(ch.growthLedger?.talentBudgetFloor || 0, GROWTH_CONFIG.talent.basePoints + Math.floor(ch.lvl / GROWTH_CONFIG.talent.pointsPerLevels) + breakthroughStage(ch)); }
 function talentUsed(ch) { return Object.keys(GROWTH_PATHS).reduce((n, k) => n + talentRank(ch, k), 0); }
 function growthFourStarReleaseCost(ch) {
     return CHAR_TABLE[ch && ch.id]?.rarity === 4
@@ -115,6 +117,7 @@ function normalizeCharacterGrowth(ch) {
     ch.breakthrough = growthInt(ch.breakthrough, 0, GROWTH_BREAK_RANKS.length);
     ch.shards = growthInt(ch.shards, 0, 999999);
     ch.nextExp = growthExpNeed(ch.lvl);
+    normalizeGrowthLedger(ch);
     if (ch.lvl >= growthCap(ch)) ch.exp = Math.min(ch.exp, ch.nextExp);
     const oldTalents = ch.talents || {};
     ch.talents = {};
@@ -193,10 +196,13 @@ if (!window.__growthHoldHandlersInstalled) {
     window.addEventListener('blur', stopGrowthContinuous);
     document.addEventListener('visibilitychange', () => { if (document.hidden) stopGrowthContinuous(); });
 }
-function refreshGrowthAfterPurchase() {
+function refreshGrowthAfterPurchase(persist = true) {
     const body = $('pg-body'), scroll = body ? body.scrollTop : 0;
-    growthViewSignature = ''; saveGame(); renderPage(); updateUI();
+    const sheetScroll = body?.querySelector('.growth-sheet')?.scrollTop || 0;
+    growthViewSignature = ''; if (persist) saveGame(); renderPage(); updateUI();
     if (body) body.scrollTop = scroll;
+    const sheet = body?.querySelector('.growth-sheet');
+    if (sheet) sheet.scrollTop = sheetScroll;
 }
 function breakthroughChar(id, event) {
     const ch = roster[id];
@@ -233,49 +239,29 @@ function breakthroughChar(id, event) {
     if (sourceRect && targetRect) playBreakthroughEffect(sourceRect, targetRect, oldCap, growthCap(ch));
 }
 
-function cultivateGrowthChar(id, event) {
-    const ch = roster[id];
-    if (!ch || !ch.unlocked || typeof cultivationMaterials !== 'number' || cultivationMaterials < 1) return;
-    if (ch.lvl >= growthCap(ch)) { hmToast(`角色已達目前等級上限，請先${growthBreakActionName(ch)}`); return; }
-    const sourceRect = event && event.currentTarget && event.currentTarget.getBoundingClientRect();
-    const targetEl = typeof document !== 'undefined' ? document.querySelector('#pg-body .growth-break-target') : null;
-    const targetRect = targetEl && targetEl.getBoundingClientRect();
-    const oldLevel = ch.lvl;
-    const oldAttack = atkOf(ch), oldHealth = hpMax(ch);
-    cultivationMaterials--;
-    const amount = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(100) : 100;
-    const levels = gainGrowthExp(ch, amount);
-    const change = levels ? `｜攻擊 ${oldAttack} → ${atkOf(ch)}｜生命 ${oldHealth} → ${hpMax(ch)}` : '';
-    log(`🧪 ${charName(id)} 培養完成，角色經驗 +${amount}${levels ? `，升級 ${levels} 級` : ''}${change}。`);
-    refreshGrowthAfterPurchase();
-    if (sourceRect && targetRect) playGrowthEffect(sourceRect, targetRect, {
-        colors:['#f0ffe8','#b8ff8a','#6cdb62','#d9ffd1','#ffffff'],
-        ringColor:'#a8ff83', textColor:'#caffad',
-        title:levels ? `培養成功　Lv.${oldLevel} → ${ch.lvl}` : '培養成功',
-        subtitle:change ? change.slice(1) : `角色經驗 +${amount}`
-    });
-}
-
-function cultivateGrowthCharWithHighCrystal(id, event) {
-    const ch = roster[id];
-    if (!ch || !ch.unlocked || highGradeExperienceCrystals < 1) return;
-    if (ch.lvl >= growthCap(ch)) { hmToast(`角色已達目前等級上限，請先${growthBreakActionName(ch)}`); return; }
-    const sourceRect = event && event.currentTarget && event.currentTarget.getBoundingClientRect();
-    const targetEl = typeof document !== 'undefined' ? document.querySelector('#pg-body .growth-break-target') : null;
-    const targetRect = targetEl && targetEl.getBoundingClientRect();
-    const oldLevel = ch.lvl;
-    const oldAttack = atkOf(ch), oldHealth = hpMax(ch);
-    highGradeExperienceCrystals--;
-    const amount = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(1000) : 1000;
-    const levels = gainGrowthExp(ch, amount);
-    const change = levels ? `｜攻擊 ${oldAttack} → ${atkOf(ch)}｜生命 ${oldHealth} → ${hpMax(ch)}` : '';
-    log(`💎 ${charName(id)} 使用高階經驗水晶，角色經驗 +${amount.toLocaleString('zh-TW')}${levels ? `，升級 ${levels} 級` : ''}${change}。`);
-    refreshGrowthAfterPurchase();
-    if (sourceRect && targetRect) playGrowthEffect(sourceRect, targetRect, {
-        colors:['#fff0ff','#e2b8ff','#a66eff','#d8c7ff','#ffffff'],
-        ringColor:'#d8b5ff', textColor:'#edcaff',
-        title:levels ? `強化成功　Lv.${oldLevel} → ${ch.lvl}` : '高階培養成功',
-        subtitle:change ? change.slice(1) : `角色經驗 +${amount.toLocaleString('zh-TW')}`
+function cultivateGrowthChar(id, event) { return cultivateGrowthCrystal(id, event, false); }
+function cultivateGrowthCharWithHighCrystal(id, event) { return cultivateGrowthCrystal(id, event, true); }
+function cultivateGrowthCrystal(id, event, high) {
+    const sourceRect = event?.currentTarget?.getBoundingClientRect();
+    const targetRect = document.querySelector('#pg-body .growth-break-target')?.getBoundingClientRect();
+    return runGrowthTransaction(id, ch => {
+        if (ch.lvl >= growthCap(ch) || (high ? highGradeExperienceCrystals : cultivationMaterials) < 1) return null;
+        const from = ch.lvl, oldAttack = atkOf(ch), oldHealth = hpMax(ch);
+        const base = high ? 1000 : 100;
+        const amount = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(base) : base;
+        normalizeGrowthLedger(ch).experience += base;
+        if (high) highGradeExperienceCrystals--; else cultivationMaterials--;
+        const levels = gainGrowthExp(ch, amount);
+        return { from, oldAttack, oldHealth, levels, amount };
+    }, (ch, result) => {
+        const change = result.levels ? `｜攻擊 ${result.oldAttack} → ${atkOf(ch)}｜生命 ${result.oldHealth} → ${hpMax(ch)}` : '';
+        log(`${charName(id)} 培養完成，角色經驗 +${result.amount.toLocaleString('zh-TW')}${change}。`);
+        if (sourceRect && targetRect) playGrowthEffect(sourceRect, targetRect, {
+            colors:high ? ['#fff0ff','#e2b8ff','#a66eff'] : ['#f0ffe8','#b8ff8a','#6cdb62'],
+            ringColor:high ? '#d8b5ff' : '#a8ff83', textColor:high ? '#edcaff' : '#caffad',
+            title:result.levels ? `培養成功　Lv.${result.from} → ${ch.lvl}` : '培養成功',
+            subtitle:change ? change.slice(1) : `角色經驗 +${result.amount.toLocaleString('zh-TW')}`
+        });
     });
 }
 
@@ -350,7 +336,7 @@ function resetTalents(id) {
     refreshGrowthAfterPurchase();
 }
 
-function growthSignature(ch) { return [ch.id, ch.lvl, ch.exp, ch.shards, ch.breakthrough, shardTotal, gold, breakthroughStones?.fourStar, ...Object.keys(towerMaterials || {}).map(k => towerMaterials[k]), growthRank(), ...Object.keys(GROWTH_PATHS).map(k => talentRank(ch, k))].join('|'); }
+function growthSignature(ch) { return [ch.id, ch.lvl, ch.exp, ch.shards, ch.breakthrough, shardTotal, gold, cultivationMaterials, highGradeExperienceCrystals, growthExpReserve, ch.growthLedger?.resets, breakthroughStones?.fourStar, ...Object.keys(towerMaterials || {}).map(k => towerMaterials[k]), growthRank(), ...Object.keys(GROWTH_PATHS).map(k => talentRank(ch, k))].join('|'); }
 function syncGrowthView() {
     if (!growthFor || homeTabOn !== 'chars' || !roster[growthFor]) return;
     const page = $('page'), body = $('pg-body');
@@ -378,6 +364,8 @@ function renderGrowthPage() {
     const highMaterials = typeof highGradeExperienceCrystals === 'number' ? highGradeExperienceCrystals : 0;
     const normalExp = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(100) : 100;
     const highExp = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(1000) : 1000;
+    const resetQuote = growthResetQuote(ch);
+    const canUpgrade = count => !!growthUpgradeQuote(ch, count);
     // 圓台與徽章都取自角色自己的屬性，沒有對應素材時退回風屬性的圓台。
     const el = GROWTH_DAIS_EL.includes(d.element) ? d.element : 'wind', elInfo = GROWTH_ELEMENTS[el];
     const skill = talentRank(ch, 'skill'), pf = talentRank(ch, 'pf'), survival = talentRank(ch, 'survival');
@@ -402,6 +390,12 @@ function renderGrowthPage() {
         <div class="growth-exp">
             <div class="growth-exp-head"><b>${capped ? (maxed ? '已達最高等級' : `已達等級上限，請先${breakAction}`) : `經驗 ${Math.floor(ch.exp)} / ${ch.nextExp}`}</b><span>每級 攻擊 +${growthGainText(growthStatGain(ch, 'atk'))}｜生命 +${growthGainText(growthStatGain(ch, 'hp'))}</span></div>
             <div class="growth-track"><i class="growth-fill${capped ? ' full' : ''}" style="width:${Math.min(100, ch.exp / ch.nextExp * 100)}%"></i></div></div>
+        <div class="growth-batch-acts">
+            <button type="button" class="growth-batch-single" onclick="upgradeGrowthLevels('${ch.id}',1)" ${!canUpgrade(1) ? 'disabled' : ''}>升級</button>
+            <button type="button" class="growth-batch-ten" onclick="upgradeGrowthLevels('${ch.id}',10)" ${!canUpgrade(10) ? 'disabled' : ''}>⚡ 升級 ×10</button>
+            <button type="button" class="growth-batch-cap" onclick="openGrowthActionDialog('${ch.id}','cap')" ${!canUpgrade('cap') ? 'disabled' : ''}>🚀 一鍵升至上限</button>
+        </div><div class="growth-refund-row"><span>返還經驗 <b>${growthExpReserve.toLocaleString('zh-TW')}</b></span><button type="button" onclick="openGrowthActionDialog('${ch.id}','reset')" ${resetQuote.error ? 'disabled' : ''}>🔄 重置等級（${3 - ch.growthLedger.resets}/3）</button></div>
+        <p class="growth-reset-notice">${resetQuote.error || '重置返還實際投入的培養經驗與金幣各 80%；剩餘經驗可繼續升級。'}</p>
         <div class="growth-acts">
             <button class="growth-act gold" ${!materials || capped ? 'disabled' : ''} onpointerdown="startGrowthContinuous(event,'${ch.id}','normal')" onclick="growthClickFallback(event,'${ch.id}','normal')" title="按住左鍵連續強化，放開停止"><b>經驗水晶強化</b><small>${capped ? `需先${breakAction}` : `+${normalExp.toLocaleString('zh-TW')} 經驗｜持有 ${materials}｜按住連續強化`}</small></button>
             <button class="growth-act high-crystal" ${!highMaterials || capped ? 'disabled' : ''} onpointerdown="startGrowthContinuous(event,'${ch.id}','high')" onclick="growthClickFallback(event,'${ch.id}','high')" title="按住左鍵連續強化，放開停止"><b>高階水晶強化</b><small>${capped ? `需先${breakAction}` : `+${highExp.toLocaleString('zh-TW')} 經驗｜持有 ${highMaterials}｜按住連續強化`}</small></button>
@@ -412,4 +406,193 @@ function renderGrowthPage() {
             ${Object.entries(GROWTH_PATHS).map(([key, p]) => { const rank = talentRank(ch, key); return `<div class="growth-path"><div><b>${p.icon} ${p.name}<u>${rank}</u></b><div class="sub">${p.desc}</div></div>
                 <button class="growth-talent-plus" aria-label="${p.name}天賦加一點" title="消耗 1 點天賦點" ${used >= budget ? 'disabled' : ''} onclick="upgradeTalent('${ch.id}','${key}')">＋</button></div>`; }).join('')}
             <div class="growth-eff" title="天賦點隨等級與${breakAction}增加；PF 效果以隊長天賦為準。">目前：技能傷害 +${skill * 6}%／治療 +${skill * 2}%・PF 效果 +${pf * 8}%・生命 +${survival * 4}%／減傷 ${survival}%</div></div></div>`;
+}
+function normalizeGrowthLedger(ch) {
+    const ledger = ch.growthLedger;
+    const valid = ledger?.version === 1 &&
+        ['experience', 'gold', 'resets', 'talentBudgetFloor'].every(key => Number.isSafeInteger(ledger[key]) && ledger[key] >= 0) &&
+        ledger.resets <= 3 && Number.isFinite(ledger.baseAtk) && ledger.baseAtk > 0 &&
+        Number.isFinite(ledger.baseHp) && ledger.baseHp > 0;
+    if (valid) {
+        ledger.complete = ledger.complete === true;
+        return ledger;
+    }
+    ch.growthLedger = { version:1, complete:false, experience:0, gold:0, resets:0,
+        baseAtk:ch.baseAtk, baseHp:ch.maxHp, talentBudgetFloor:0 };
+    return ch.growthLedger;
+}
+
+function growthResourceKey(character, wallet) {
+    return JSON.stringify({
+        lvl:character.lvl, exp:character.exp, breakthrough:character.breakthrough,
+        baseAtk:character.baseAtk, maxHp:character.maxHp, talents:character.talents,
+        ledger:character.growthLedger, reserve:wallet.growthExpReserve || 0,
+        normal:wallet.cultivationMaterials || 0, high:wallet.highGradeExperienceCrystals || 0, gold:wallet.gold || 0
+    });
+}
+
+function growthCurrentWallet() {
+    return { growthExpReserve, cultivationMaterials, highGradeExperienceCrystals, gold };
+}
+
+function growthResetQuote(ch) {
+    const ledger = normalizeGrowthLedger(ch);
+    if (!ledger.complete) return { error:'舊存檔缺少完整培養消耗紀錄，暫時無法安全返還資源。' };
+    if (ledger.resets >= 3) return { error:'此角色已用完 3 次等級重置。' };
+    if (ch.lvl === 1 && !ch.exp && !ledger.experience && !ledger.gold) return { error:'角色目前尚無可重置的等級或培養投入。' };
+    const experience = Number(BigInt(ledger.experience) * 4n / 5n);
+    const money = Number(BigInt(ledger.gold) * 4n / 5n);
+    if (!Number.isSafeInteger(growthExpReserve + experience) || gold + money > 9999999999)
+        return { error:'返還後的持有資源將超過可儲存範圍，請先使用部分資源。' };
+    return { experience, gold:money, remaining:3 - ledger.resets };
+}
+
+function growthUpgradeQuote(ch, count) {
+    if (!ch?.unlocked || ch.lvl >= growthCap(ch)) return null;
+    const target = count === 'cap' ? growthCap(ch) : Math.min(growthCap(ch), ch.lvl + count);
+    let needed = -ch.exp;
+    for (let level = ch.lvl; level < target; level++) needed += growthExpNeed(level);
+    needed = Math.max(0, needed);
+    const multiplier = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(1) : 1;
+    const spent = Math.ceil(needed / multiplier);
+    const reserve = Math.min(growthExpReserve, spent);
+    const remainder = spent - reserve;
+    const high = Math.max(0, Math.ceil((remainder - cultivationMaterials * 100) / 1000));
+    const normal = Math.max(0, Math.ceil((remainder - high * 1000) / 100));
+    if (normal > cultivationMaterials || high > highGradeExperienceCrystals) return null;
+    return { target, needed, multiplier, spent, reserve, normal, high,
+        change:reserve + normal * 100 + high * 1000 - spent };
+}
+
+async function runGrowthTransaction(id, change, onSuccess) {
+    if (growthOperationBusy || typeof GATE_MODE !== 'undefined' && GATE_MODE) return false;
+    growthOperationBusy = true;
+    const execute = () => {
+        const ch = roster[id];
+        if (!ch?.unlocked) return false;
+        const saved = saveStore.read();
+        if (!saved.ok && saved.note) {
+            hmToast('目前無法讀取存檔，請先確認存檔狀態再操作培養。');
+            return false;
+        }
+        if (saved.ok && saved.data.roster?.[id] &&
+            growthResourceKey(saved.data.roster[id], saved.data) !== growthResourceKey(ch, growthCurrentWallet())) {
+            hmToast('培養資料已在其他頁面更新，請重新載入後再操作。');
+            return false;
+        }
+        const previous = structuredClone({ ch, wallet:growthCurrentWallet() });
+        let result;
+        try {
+            result = change(ch);
+            if (!result) return false;
+            if (!saveGame()) throw new Error('儲存失敗，本次扣款或返還已還原。');
+        } catch (error) {
+            Object.keys(ch).forEach(key => delete ch[key]);
+            Object.assign(ch, previous.ch);
+            ({ growthExpReserve, cultivationMaterials, highGradeExperienceCrystals, gold } = previous.wallet);
+            hmToast(error.message);
+            refreshGrowthAfterPurchase(false);
+            return false;
+        }
+        if (onSuccess) onSuccess(ch, result);
+        refreshGrowthAfterPurchase(false);
+        return true;
+    };
+    try {
+        if (typeof navigator !== 'undefined' && navigator.locks)
+            return await navigator.locks.request('pinball-character-growth', execute);
+        return execute();
+    } finally {
+        growthOperationBusy = false;
+    }
+}
+
+function upgradeGrowthLevels(id, count = 1, expected = null) {
+    stopGrowthContinuous();
+    if (![1, 10, 'cap'].includes(count)) return;
+    return runGrowthTransaction(id, ch => {
+        if (expected && growthResourceKey(ch, growthCurrentWallet()) !== expected) throw new Error('資源或角色狀態已改變，請重新確認。');
+        const quote = growthUpgradeQuote(ch, count);
+        if (!quote) return null;
+        const ledger = normalizeGrowthLedger(ch);
+        const from = ch.lvl;
+        cultivationMaterials -= quote.normal;
+        highGradeExperienceCrystals -= quote.high;
+        growthExpReserve = growthExpReserve - quote.reserve + quote.change;
+        ledger.experience += quote.spent;
+        gainGrowthExp(ch, quote.spent * quote.multiplier);
+        return { from, quote };
+    }, (ch, { from }) => {
+        hmToast(`${charName(id)}　Lv.${from} → Lv.${ch.lvl}`);
+        log(`培養升級：${charName(id)} Lv.${from} → Lv.${ch.lvl}。`);
+    });
+}
+
+function resetGrowthLevel(id, expected) {
+    stopGrowthContinuous();
+    return runGrowthTransaction(id, ch => {
+        if (growthResourceKey(ch, growthCurrentWallet()) !== expected) throw new Error('角色或資源狀態已改變，請重新確認。');
+        const quote = growthResetQuote(ch);
+        if (quote.error) throw new Error(quote.error);
+        const ledger = ch.growthLedger;
+        ledger.talentBudgetFloor = talentBudget(ch);
+        ledger.resets++;
+        ledger.experience = 0;
+        ledger.gold = 0;
+        ch.lvl = 1;
+        ch.exp = 0;
+        ch.nextExp = growthExpNeed(1);
+        ch.baseAtk = ledger.baseAtk;
+        ch.maxHp = ledger.baseHp;
+        if (ch.hp > 0) ch.hp = hpMax(ch);
+        growthExpReserve += quote.experience;
+        gold += quote.gold;
+        return quote;
+    }, (ch, quote) => {
+        hmToast(`已重置為 Lv.1，返還 ${quote.experience.toLocaleString('zh-TW')} 培養經驗、${quote.gold.toLocaleString('zh-TW')} 金幣。`);
+    });
+}
+
+function closeGrowthActionDialog() {
+    growthPendingAction = null;
+    document.getElementById('growth-action-dialog')?.close();
+}
+
+function openGrowthActionDialog(id, kind) {
+    stopGrowthContinuous();
+    const ch = roster[id];
+    if (!ch?.unlocked || growthOperationBusy || !['cap', 'reset'].includes(kind)) return;
+    const quote = kind === 'reset' ? growthResetQuote(ch) : growthUpgradeQuote(ch, 'cap');
+    if (!quote || quote.error) { hmToast(quote?.error || '資源不足，無法升至目前等級上限。'); return; }
+    let dialog = document.getElementById('growth-action-dialog');
+    if (!dialog) {
+        dialog = document.createElement('dialog');
+        dialog.id = 'growth-action-dialog';
+        dialog.className = 'growth-action-dialog';
+        dialog.setAttribute('aria-labelledby', 'growth-action-dialog-title');
+        dialog.addEventListener('cancel', () => { growthPendingAction = null; });
+        document.getElementById('app-frame').appendChild(dialog);
+    }
+    const reset = kind === 'reset';
+    const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+    growthPendingAction = { id, kind, expected:growthResourceKey(ch, growthCurrentWallet()) };
+    dialog.innerHTML = `<form method="dialog" onsubmit="event.preventDefault();confirmGrowthAction()">
+        <small>CHARACTER TRAINING</small><h2 id="growth-action-dialog-title">${reset ? '確認重置等級' : '確認升至上限'}</h2>
+        <p class="growth-dialog-character">${escape(charName(id))}</p>
+        <div class="growth-dialog-level"><b>Lv.${ch.lvl}</b><span>→</span><b>Lv.${reset ? 1 : quote.target}</b></div>
+        ${reset ? `<dl><div><dt>返還培養經驗</dt><dd>${quote.experience.toLocaleString('zh-TW')}</dd></div><div><dt>返還金幣</dt><dd>${quote.gold.toLocaleString('zh-TW')}</dd></div><div><dt>重置剩餘次數</dt><dd>${quote.remaining} → ${quote.remaining - 1}</dd></div></dl>
+        <p class="growth-dialog-warning">將損失 20% 已投入資源。星級、突破與天賦進度保留。</p><p>經驗存入「返還經驗」，可用於升級。返還以實際使用的水晶原始經驗計算，封測額外加成不計入投入；現有水晶強化不扣金幣，因此該部分金幣返還為 0。</p>`
+        : `<dl><div><dt>使用返還經驗</dt><dd>${quote.reserve.toLocaleString('zh-TW')}</dd></div><div><dt>經驗水晶</dt><dd>×${quote.normal}</dd></div><div><dt>高階水晶</dt><dd>×${quote.high}</dd></div><div><dt>金幣</dt><dd>0</dd></div></dl>
+        <p>升至目前已解鎖上限。水晶未用完的 ${quote.change.toLocaleString('zh-TW')} 經驗轉入返還經驗。</p>`}
+        <div class="growth-dialog-actions"><button type="button" onclick="closeGrowthActionDialog()">取消</button><button type="submit" class="growth-dialog-confirm">${reset ? '確認重置' : '確認升級'}</button></div></form>`;
+    dialog.showModal();
+    dialog.querySelector('button[type="button"]').focus();
+}
+
+function confirmGrowthAction() {
+    const pending = growthPendingAction;
+    if (!pending || growthOperationBusy) return;
+    closeGrowthActionDialog();
+    if (pending.kind === 'reset') return resetGrowthLevel(pending.id, pending.expected);
+    return upgradeGrowthLevels(pending.id, 'cap', pending.expected);
 }

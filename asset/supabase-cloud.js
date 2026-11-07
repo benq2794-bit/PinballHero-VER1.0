@@ -34,12 +34,14 @@ window.SupabaseCloud = (() => {
         return flushPromise;
     }
     async function readLeaderboard(scope, weekStart) {
-        const { data, error } = await requireClient().from('leaderboard_entries')
+        let query = requireClient().from('leaderboard_entries')
             .select('user_id, account_name, best_floor, clear_seconds, kill_count, cleared, reached_at')
             .eq('scope', scope)
-            .eq('week_start', scope === 'tower_life' ? 0 : (Number(weekStart) || 0))
-            .order('best_floor', { ascending: false })
-            .limit(50);
+            .in('week_start', scope === 'tower_life' ? [0] : [Number(weekStart) || 0, (Number(weekStart) || 0) - 8 * 3600000]);
+        query = scope === 'hell_week'
+            ? query.order('cleared', { ascending:false }).order('clear_seconds', { ascending:false }).order('kill_count', { ascending:false })
+            : query.order('best_floor', { ascending:false });
+        const { data, error } = await query.order('updated_at', { ascending:true }).limit(50);
         if (error) throw error;
         return (data || []).map(row => ({
             userId: row.user_id,
@@ -51,11 +53,31 @@ window.SupabaseCloud = (() => {
             at: String(row.reached_at || '')
         }));
     }
+    // 上報前先查自己那筆：換裝置或清過瀏覽器時，本機數字會比線上小，不能盲目覆寫。
+    // 只按 user_id + scope 取，不帶週期條件，跨週那筆才看得見、也才比得了。
+    async function readOwnLeaderboard(scope) {
+        const { data: { session }, error: sessionError } = await requireClient().auth.getSession();
+        if (sessionError) throw sessionError;
+        if (!session?.user?.id) return null;
+        const { data, error } = await requireClient().from('leaderboard_entries')
+            .select('best_floor, clear_seconds, kill_count, cleared, week_start')
+            .eq('user_id', session.user.id).eq('scope', scope).maybeSingle();
+        if (error) throw error;
+        if (!data) return null;
+        return {
+            floor: Math.max(0, Math.floor(Number(data.best_floor) || 0)),
+            seconds: Math.max(0, Math.floor(Number(data.clear_seconds) || 0)),
+            count: Math.max(0, Math.floor(Number(data.kill_count) || 0)),
+            clear: data.cleared === true,
+            weekStart: Math.floor(Number(data.week_start) || 0)
+        };
+    }
     async function writeLeaderboard(entry) {
         const { data: { session }, error: sessionError } = await requireClient().auth.getSession();
         if (sessionError) throw sessionError;
         const id = session?.user?.id;
         if (!id) return false; // 訪客沒有帳號，成績只留本機。
+        if (entry.userId && entry.userId !== id) return false;
         const { error } = await requireClient().from('leaderboard_entries').upsert({
             user_id: id,
             scope: entry.scope,
@@ -121,6 +143,7 @@ window.SupabaseCloud = (() => {
         queueSave,
         flushSave,
         readLeaderboard,
+        readOwnLeaderboard,
         writeLeaderboard
     });
 })();

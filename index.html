@@ -3210,7 +3210,7 @@
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.2";
+const GAME_VERSION = "v0.1.0-alpha.3";
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
 const DEV_MODE = (() => {
@@ -3262,6 +3262,14 @@ function watchPowerState() {
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
     { version: GAME_VERSION, date: "2026-11-07", content: [
+        "角色培養新增升級、紫色「升級 ×10」與金色「一鍵升至上限」，可直接使用水晶與返還經驗，水晶剩餘面額會保留。",
+        "新增遊戲內升級確認與等級重置視窗；有完整投入紀錄的角色可重置至 Lv.1，每名角色最多 3 次，返還原始投入經驗與金幣各 80%。",
+        "等級重置保留角色星級、突破與天賦進度。缺少歷史消耗紀錄的舊角色維持原有培養功能，並明確標示重置限制。",
+        "加入培養投入紀錄、返還經驗保存、重複操作檢查，以及儲存失敗還原。",
+        "修正兩個全服排行榜的成績同步與週期相容讀取，以台灣時間每週一換週，保留既有較高紀錄。",
+        "修正尚未上榜的訪客讀取全服榜單時的顯示問題，並調整巴風特地獄榜的排序。"
+    ] },
+    { version: "v0.1.0-alpha.2", date: "2026-11-07", content: [
         "每日系統新增「異界開拓祭」封測活動，領取下第 1 天登入獎勵那一刻起算每人獨立 336 小時，提供每日十連、首次 20 抽與任務合計 30 抽。",
         "第 7、14 天各可領取常駐五星召喚券，優先獲得未擁有角色，不影響一般卡池保底。",
         "加入 14 日金幣、體力與養成素材獎勵、每日額外 120 體力補給，以及一鍵領取功能。",
@@ -4269,12 +4277,8 @@ async function activateCloudSession(session, { boot = false } = {}) {
             else saveGame();
         }
         // 上報只掛在「踏上一層」當下，登入前爬過的層數不會自己補送；不在這裡補一次，
-        // 老玩家要再破一次本週紀錄才會進榜。名字還沒設定好時先不送，免得榜上留「見習勇者」。
-        if (accountName) {
-            reportTowerScores();
-            const hellSaved = expeditionHellWeekRecord();
-            if (hellSaved.rows.length) reportHellScore(hellSaved.rows[0]);
-        }
+        // 老玩家要再破一次本週紀錄才會進榜。
+        syncTowerScoresToCloud();
         const screen = $('login-screen');
         const nameSetupRequired = localStorage.getItem('wf_account_name_required') === '1';
         grantDailyStaminaSupplies();
@@ -4382,6 +4386,8 @@ async function submitMainAccountName(event) {
         localStorage.removeItem('wf_account_name_required');
         saveGame();
         if (cloudUser && cloudSaveReady) await SupabaseCloud.flushSave(cloudUser.id);
+        // 名字的補送：剛註冊那趟登入因為還沒名字而跳過，這裡設好就馬上把成績推上榜。
+        syncTowerScoresToCloud();
         $("login-screen").hidden = true;
         $("account-name-step").hidden = true;
         $("login-card").hidden = false;
@@ -4748,7 +4754,7 @@ function newChar(id, unlocked) {
     const baseAtk = Math.round(d.atk * powerScale), maxHp = Math.round(d.hp * powerScale);
     return { id, unlocked: !!unlocked, shards: 0, lvl: 1, exp: 0, nextExp: 100,
              baseAtk, maxHp, hp: maxHp, gauge: 0, rarityScaleVersion: 2,
-             growthVersion: 2, legacyCap: 80, breakthrough: 0, talents: { skill: 0, pf: 0, survival: 0 } };
+             growthVersion: 2, legacyCap: 80, breakthrough: 0, growthLedger: { version:1, complete:true, experience:0, gold:0, resets:0, baseAtk, baseHp:maxHp, talentBudgetFloor:0 }, talents: { skill: 0, pf: 0, survival: 0 } };
 }
 let roster = {};
 let teamIds = [];
@@ -4961,6 +4967,7 @@ const BATTLE_BOOSTS = Object.freeze({
 });
 let pendingBattleBoost = null;
 let cultivationMaterials = 0;
+let growthExpReserve = 0;
 let highGradeExperienceCrystals = 0;
 let dailyCheckinDate = "", dailyCheckinStreak = 0, dailyCheckinTotal = 0;
 let specialDungeonRunDate = "", specialDungeonRuns = {};
@@ -10033,7 +10040,7 @@ function saveGame() {
             picked: starterPicked, accountCreated, accountName, accountAvatarId, accountAvatarFrameId, avatarFramesOwned,
             typeTalentPoints, typeTalentRanks,
             tutorialSeen, stage, towerBestStage, towerFirstBossRecoveryUsed, rankLv, rankExp, kills, floorWins, deepTimeLeft, shardTotal, gold, towerMaterials, stamina, staminaTickAt, staminaOverflowResetDate,
-            teamIds, squads, squadOn, unisonMap, titleOn, bossWin, gateRecord, cultivationMaterials, highGradeExperienceCrystals, breakthroughStones,
+            teamIds, squads, squadOn, unisonMap, titleOn, bossWin, gateRecord, cultivationMaterials, highGradeExperienceCrystals, growthExpReserve, breakthroughStones,
             battleBoostMs: { speed: BATTLE_PAID_BOOSTS.speed, attack: BATTLE_PAID_BOOSTS.attack, crit: BATTLE_PAID_BOOSTS.crit }, battleBoostSavedAt: Date.now(),
             limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, betaEventState, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, collectionAchievementClaims,
             passSeason, passExp, passPremium, passClaimedFree, passClaimedPremium, passCosmetics, passDailyDate, passDailyCheckinAwarded, passDailyStamina, passDailyFloors, passWeeklyDate, passWeeklyWeakHits, passWeeklyExpeditionClears,
@@ -10077,7 +10084,7 @@ function loadGame() {
             typeTalentPoints, floorWins, deepTimeLeft, shardTotal, gold, towerMaterials, roster, teamIds,
             squads, squadOn,
             unisonMap, titleOn, bossWin, gateRecord,
-            cultivationMaterials, highGradeExperienceCrystals, breakthroughStones, limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, betaEventState, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, collectionAchievementClaims,
+            cultivationMaterials, highGradeExperienceCrystals, growthExpReserve, breakthroughStones, limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, betaEventState, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, collectionAchievementClaims,
             passSeason, passExp, passPremium, passClaimedFree, passClaimedPremium, passCosmetics, passDailyDate, passDailyCheckinAwarded, passDailyStamina, passDailyFloors, passWeeklyDate, passWeeklyWeakHits, passWeeklyExpeditionClears } = restored);
         Object.assign(BATTLE_PAID_BOOSTS, restored.battleBoostMs || { speed: 0, attack: 0, crit: 0 });
         FX.shakeOn = restored.shakeOn;
@@ -11129,7 +11136,7 @@ function requestTowerLeaderboard() {
     towerLbCloud = { key, rows: [], state: "loading" };
     if (!towerLbReadReady()) { towerLbCloud.state = "local"; return; }
     const pageAtRequest = typeof uiRouter !== "undefined" ? uiRouter.current() : "";
-    SupabaseCloud.readLeaderboard(towerLbScopeKey(), towerWeekRecord().week)
+    SupabaseCloud.readLeaderboard(towerLbScopeKey(), towerWeekBucket())
         .then(rows => {
             if (towerLbCloud.key !== key) return;
             towerLbCloud = { key, rows, state: "online" };
@@ -11150,20 +11157,58 @@ function towerLbMerge(rows, mine, same) {
     if (i < 0) return rows.concat([mine]);
     return same(mine, rows[i]) > 0 ? rows.map((r, k) => k === i ? mine : r) : rows;
 }
+// 同一個榜每個玩家只留一列，所以覆寫前必須先比過雲端那筆：
+// 換裝置、清過瀏覽器或上報失敗過的人，本機數字常常比線上小，直接送就把自己的紀錄打掉了。
+const TOWER_LB_BETTER = {
+    tower_week: (a, b) => a.floor - b.floor,
+    tower_life: (a, b) => a.floor - b.floor,
+    hell_week: (a, b) => (Number(a.clear) - Number(b.clear)) || (a.seconds - b.seconds) || (a.count - b.count)
+};
+let towerLbSync = { bucket:0, userId:"", rows:{}, pending:{} };
+async function towerLbSubmit(entry) {
+    if (!towerCloudReady()) return false;
+    const bucket = towerWeekBucket();
+    const userId = towerCloudUserId();
+    if (towerLbSync.bucket !== bucket || towerLbSync.userId !== userId) towerLbSync = { bucket, userId, rows:{}, pending:{} };
+    const cycle = towerLbSync;
+    const queued = cycle.pending[entry.scope] || Promise.resolve();
+    const operation = queued.catch(() => {}).then(async () => {
+        if (towerLbSync !== cycle || towerCloudUserId() !== userId) return false;
+        try {
+            let base = cycle.rows[entry.scope];
+            if (base === undefined) {
+                base = await SupabaseCloud.readOwnLeaderboard(entry.scope) || null;
+                // 雲端那筆還掛在舊週期時當它不存在：本週從零開始，不能拿上週的成績擋這週的人。
+                if (base && entry.scope !== "tower_life" && ![bucket, bucket - 8 * 3600000].includes(base.weekStart)) base = null;
+                cycle.rows[entry.scope] = base;
+            }
+            if (base && TOWER_LB_BETTER[entry.scope](entry, base) <= 0) return false;
+            if (towerCloudUserId() !== userId || towerLbSync !== cycle) return false;
+            if (!await SupabaseCloud.writeLeaderboard({ ...entry, userId })) return false;
+            cycle.rows[entry.scope] = { floor: entry.floor, seconds: entry.seconds, count: entry.count, clear: entry.clear === true };
+            return true;
+        } catch (error) {
+            // 比對不成時寧可不送，也不能拿較小的本機數字去蓋線上成績；下次觸發會再試一次。
+            console.warn("[leaderboard sync]", entry.scope, error);
+            return false;
+        }
+    });
+    cycle.pending[entry.scope] = operation;
+    return operation;
+}
 function reportTowerScores() {
     if (!towerCloudReady()) return;
     const week = towerWeekRecord();
     const name = accountName || "見習勇者";
-    const life = Math.max(1, Math.floor(Number(towerBestStage) || stage || 1));
-    if (week.floor) SupabaseCloud.writeLeaderboard({ scope: "tower_week", name, floor: week.floor, at: week.at, weekStart: week.week }).catch(() => { });
-    SupabaseCloud.writeLeaderboard({ scope: "tower_life", name, floor: life }).catch(() => { });
+    if (week.floor) towerLbSubmit({ scope: "tower_week", name, floor: week.floor, at: week.at, weekStart: towerWeekBucket() });
+    towerLbSubmit({ scope: "tower_life", name, floor: Math.max(1, Math.floor(Number(towerBestStage) || stage || 1)) });
 }
 function reportHellScore(row) {
     if (!towerCloudReady()) return;
-    SupabaseCloud.writeLeaderboard({
+    towerLbSubmit({
         scope: "hell_week", name: accountName || "見習勇者",
-        seconds: row.seconds, count: row.count, clear: row.clear, weekStart: towerWeekStart()
-    }).catch(() => { });
+        seconds: row.seconds, count: row.count, clear: row.clear === true, weekStart: towerWeekBucket()
+    });
 }
 // 榜單只剩自己那一筆時，要講清楚卡在哪一環，別讓人以為榜單壞了。
 function towerLbSourceNote() {
@@ -11174,12 +11219,16 @@ function towerLbSourceNote() {
         : "榜單目前只有你這一筆：網路未就緒，先顯示本機紀錄；成績要登入後才會上傳到全服榜。";
 }
 function towerWeekStart(at = Date.now()) {
-    const d = new Date(at);
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).getTime();
+    return towerWeekBucket(at) - 8 * 3600000;
+}
+// 先按台灣時間找週一，再以同一天的 UTC 日期作週期鍵；讀榜同時相容舊版台灣零點鍵。
+function towerWeekBucket(at = Date.now()) {
+    const d = new Date(at + 8 * 3600000);
+    return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - (d.getUTCDay() + 6) % 7);
 }
 function towerWeekLabel(start) {
-    const s = new Date(start), e = new Date(start + 6 * 864e5);
-    return `${s.getMonth() + 1}/${s.getDate()}–${e.getMonth() + 1}/${e.getDate()}`;
+    const s = new Date(start + 8 * 3600000), e = new Date(start + 8 * 3600000 + 6 * 864e5);
+    return `${s.getUTCMonth() + 1}/${s.getUTCDate()}–${e.getUTCMonth() + 1}/${e.getUTCDate()}`;
 }
 function towerWeekCountdown(start) {
     const ms = Math.max(0, start + 7 * 864e5 - Date.now());
@@ -11230,6 +11279,17 @@ function hellLbRows(weekRecord) {
 }
 function setTowerLbScope(scope) { towerLbScope = scope === "life" ? "life" : "week"; renderPage(); }
 function setTowerLbMode(mode) { towerLbMode = mode === "rogue" ? "rogue" : "tower"; renderPage(); }
+// 把本機既有的最佳成績補送到全服榜：登入當下、剛設好名字、以及每次進到榜單那頁各跑一次。
+// 名字還沒設定好時先不送，免得榜上留「見習勇者」；送過的數字記在 towerLbSync 裡，
+// 同一輪再進這頁不會重複打資料庫，但上報失敗過的下次進這頁會自動再試。
+function syncTowerScoresToCloud() {
+    if (!accountName || !towerCloudReady()) return;
+    reportTowerScores();
+    if (typeof expeditionHellWeekRecord === "function") {
+        const hellSaved = expeditionHellWeekRecord();
+        if (hellSaved.rows.length) reportHellScore(hellSaved.rows[0]);
+    }
+}
 function openHomeLeaderboard(mode) {
     towerLbMode = mode;
     pickHomeTab("leaderboard");
@@ -11237,6 +11297,7 @@ function openHomeLeaderboard(mode) {
 
 function pageTowerLeaderboard() {
     requestTowerLeaderboard();
+    syncTowerScoresToCloud();
     const esc = value => String(value).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;", "'":"&#39;" }[ch]));
     const isRogue = towerLbMode === "rogue";
     const rows = isRogue ? [] : towerLbRows();
@@ -11272,9 +11333,10 @@ function pageTowerLeaderboard() {
             + rows.slice(3, 10).map((e, i) => `<div class="lb-row"><span class="rk">${i + 4}</span><span class="nm">${esc(e.name)}</span>`
                 + `<span class="fl">${e.floor} 層</span><span class="tm">${e.at || "—"}</span></div>`).join("")
             + (rows.length > 10 ? `<div class="lb-dots">⋯</div>` : "") + `</div>`
-            + `<div class="lb-self"><span class="rk">${rows.indexOf(me) + 1}</span><span class="nm">${esc(me.name)}</span>`
-            + `<span class="fl">${me.floor} 層</span><span class="tm">${me.at || "—"}</span>`
-            + `<span class="tag">個人最佳・${life ? "生涯紀錄" : "本週紀錄"}</span></div>`
+            + (me ? `<div class="lb-self"><span class="rk">${rows.indexOf(me) + 1}</span><span class="nm">${esc(me.name)}</span>`
+                + `<span class="fl">${me.floor} 層</span><span class="tm">${me.at || "—"}</span>`
+                + `<span class="tag">個人最佳・${life ? "生涯紀錄" : "本週紀錄"}</span></div>`
+                : '<p class="lb-note">目前尚無你的本週成績；登入帳號並挑戰後即可上榜。</p>')
         : `<p class="lb-note">${rows.length ? towerLbSourceNote()
             : "本週還沒上塔：在波利塔爬過任何一層，這裡就會留下你的紀錄。"}</p>`;
     return `<section class="lbv">${modes}
@@ -12328,7 +12390,7 @@ function bindInput() {
         }
     });
     addEventListener("keydown", e => {
-        if ($("title-apply-dialog").open) return;
+        if ($("title-apply-dialog").open || $("growth-action-dialog")?.open) return;
         if (e.key === "Enter" && document.querySelector(".gold-market-confirm-overlay")) {
             e.preventDefault();
             e.stopImmediatePropagation();

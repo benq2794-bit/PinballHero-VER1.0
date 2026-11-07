@@ -148,3 +148,50 @@
 #app-frame #pg-body .growth-path .growth-talent-plus:not(:disabled):active { transform:scale(.92); }
 #app-frame #pg-body .growth-eff { font-size:9.5px; font-weight:800; line-height:1.5; padding:0 2px;
     color:var(--gk-sub) !important; text-shadow:none !important; }
+
+/* 角色等級操作：返還經驗與批次培養直接排列在原有水晶操作上方。 */
+#app-frame #pg-body .growth-batch-acts { display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:6px; margin:2px 0 8px; }
+#app-frame #pg-body .growth-batch-acts > button {
+    min-width:0; min-height:38px; padding:7px 4px !important; border-radius:6px !important;
+    font-size:11px !important; font-weight:800; line-height:1.5; white-space:normal; text-shadow:none !important;
+}
+#app-frame #pg-body .growth-batch-acts .growth-batch-single { background:linear-gradient(#fff,#d9edf6) !important; color:#183f55 !important; border:1px solid #85afc4 !important; }
+#app-frame #pg-body .growth-batch-acts .growth-batch-ten { background:linear-gradient(#8260a8,#553476) !important; color:#fff4ff !important; border:1px solid #a48bc5 !important; }
+#app-frame #pg-body .growth-batch-acts .growth-batch-cap { background:linear-gradient(#fff0b5,#dcb663) !important; color:#443016 !important; border:1px solid #ae8946 !important; }
+#app-frame #pg-body .growth-batch-acts > button:disabled { background:#e1e7ec !important; color:#52636e !important; border-color:#9baab4 !important; box-shadow:none !important; opacity:1 !important; filter:none !important; cursor:default; }
+#app-frame #pg-body .growth-refund-row { display:flex; justify-content:space-between; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:5px; font-size:11px; }
+#app-frame #pg-body .growth-refund-row button { min-height:32px; padding:5px 9px; font-size:11px; border-radius:5px; }
+#app-frame #pg-body .growth-reset-notice { font-size:11px; line-height:1.6; margin:0 0 10px; color:#5b5066 !important; text-shadow:none !important; }
+html.ui-dark-mode #app-frame #pg-body .growth-reset-notice { color:#d9cce6 !important; }
+html.ui-dark-mode #app-frame #pg-body .growth-batch-acts > button:disabled { background:#34424b !important; color:#c6d1d8 !important; border-color:#667883 !important; }
+#app-frame #growth-action-dialog {
+    --growth-dialog-bg:#faf8f1; --growth-dialog-ink:#302a3c; --growth-dialog-muted:#64596e;
+    --growth-dialog-line:#cfc3ad;
+    width:min(390px,calc(100vw - 30px)); max-height:calc(100dvh - 36px);
+    margin:auto; overflow-y:auto; padding:22px; border:2px solid #af8b4e; border-radius:12px;
+    background:var(--growth-dialog-bg); color:var(--growth-dialog-ink); box-shadow:0 12px 45px #080b1c80;
+}
+#app-frame #growth-action-dialog::backdrop { background:#111628ba; }
+#app-frame #growth-action-dialog :is(h2,b,dd) { color:var(--growth-dialog-ink) !important; text-shadow:none !important; }
+#app-frame #growth-action-dialog :is(p,small,span,dt) { color:var(--growth-dialog-muted) !important; text-shadow:none !important; }
+#app-frame #growth-action-dialog small { font-size:10px; letter-spacing:2px; }
+#app-frame #growth-action-dialog h2 { margin:7px 0; font-size:20px; }
+#app-frame #growth-action-dialog p { font-size:12px; line-height:1.7; }
+#app-frame #growth-action-dialog .growth-dialog-character { font-weight:800; }
+#app-frame #growth-action-dialog .growth-dialog-level { display:flex; justify-content:space-evenly; align-items:center; padding:15px 0; border-block:1px solid var(--growth-dialog-line); font-size:22px; }
+#app-frame #growth-action-dialog dl { margin:12px 0; }
+#app-frame #growth-action-dialog dl > div { display:flex; justify-content:space-between; gap:12px; padding:5px 0; font-size:13px; }
+#app-frame #growth-action-dialog dd { margin:0; font-weight:800; }
+#app-frame #growth-action-dialog .growth-dialog-warning { background:#efe4cf; border-left:3px solid #aa782e; padding:9px; color:#5b381c !important; }
+#app-frame #growth-action-dialog .growth-dialog-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px; }
+#app-frame #growth-action-dialog button { min-height:40px; border-radius:6px; font-size:13px; }
+#app-frame #growth-action-dialog .growth-dialog-confirm { background:linear-gradient(#fff0b5,#dcb663) !important; color:#443016 !important; border:1px solid #ae8946 !important; text-shadow:none !important; }
+html.ui-dark-mode #app-frame #growth-action-dialog { --growth-dialog-bg:#292538; --growth-dialog-ink:#fff1da; --growth-dialog-muted:#d9cce6; --growth-dialog-line:#6b5c77; }
+html.ui-dark-mode #app-frame #growth-action-dialog .growth-dialog-warning { background:#4a382c; color:#ffe0ba !important; }
+@media (max-width:360px) { #app-frame #pg-body .growth-batch-acts { grid-template-columns:1fr 1fr; } #app-frame #pg-body .growth-batch-acts .growth-batch-cap { grid-column:1/-1; } }
+html.ui-dark-mode #app-frame #pg-body:has(.growth-stage) {
+    --gk-ink:#eff5ff; --gk-sub:#c8d7e4; --gk-card:#2d3b47; --gk-line:#698395; --gk-edge:#698395;
+}
+html.ui-dark-mode #app-frame #pg-body .growth-sheet { background:#24323e; }
+html.ui-dark-mode #app-frame #pg-body :is(.growth-break-meta,.growth-break-meta i,.growth-refund-row span,.growth-refund-row b,.growth-path b) { color:var(--gk-ink) !important; }
+html.ui-dark-mode #app-frame #pg-body :is(.growth-who .mini-btn.growth-back,.growth-reset,.growth-act.breakthrough) { background:linear-gradient(#3a4c5a,#293b49) !important; }
