@@ -1275,6 +1275,20 @@
         .pp-boost-confirm-actions { display:flex; gap:8px; }
         .pp-box .pp-boost-confirm-actions button { flex:1; text-align:center; padding:7px; }
         .pp-box .pp-boost-confirm-actions .confirm-buy { border-color:#ffe4a0 !important; background:linear-gradient(180deg,#fff0a4,#d58a29) !important; color:#38240e !important; }
+        /* 退出確認框掛在 .pp-box 外面（跟增益框同一層），1276 那兩條選不到它。
+           全域淺色 pass 那條是 1,3,1 還帶 !important，所以要兩個 id 才壓得住金框；按鈕尺寸沿用預設，不另墊 padding。
+           增益框那顆 .confirm-buy 的金框（1277 與 theme 137）也因為同樣原因一直沒生效，這裡一起補回來，三張卡同一個長相。 */
+        #pf-pause :is(#pp-exit-confirm, #pp-boost-confirm) .pp-boost-confirm-actions .confirm-buy,
+        #gate-veil #veil-exit-confirm .pp-boost-confirm-actions .confirm-buy { border-color:#ffe4a0 !important; background:linear-gradient(180deg,#fff0a4,#d58a29) !important; color:#38240e !important; }
+        /* veil 那顆也不在 #app-frame 內，吃不到 theme 檔 133–136 的三欄版面，會縮成兩顆小鈕；照同一套版面補齊。 */
+        #gate-veil #veil-exit-confirm .pp-boost-confirm-actions { display:grid; grid-template-columns:1fr 1fr 1fr; align-items:center; gap:8px; }
+        #gate-veil #veil-exit-confirm .pp-boost-confirm-actions button { width:100%; text-align:center; }
+        #gate-veil #veil-exit-confirm .pp-boost-confirm-actions .confirm-buy { grid-column:2; }
+        #gate-veil #veil-exit-confirm .pp-boost-confirm-actions button:not(.confirm-buy) { grid-column:3; }
+        /* theme 472 那條 .gate-veil :is(b,p…) 把字壓成深墨還帶白字影（它是替淺色卡写的），
+           但這張卡是深底，所以要 !important 搶回跟增益框一樣的金字＋淺字。 */
+        #gate-veil #veil-exit-confirm .pp-boost-confirm-card>b { color:#ffe08a !important; text-shadow:none !important; }
+        #gate-veil #veil-exit-confirm .pp-boost-confirm-card p { color:#edf1f3 !important; text-shadow:none !important; }
         /* ===== 首次戰鬥教學：先凍結戰場，讓玩家看清左右操作 ===== */
         .pf-tutorial { position: absolute; inset: 0; z-index: 14; display: none; align-items: center; justify-content: center;
             padding: 16px; background: rgba(3,6,13,.88); backdrop-filter: blur(3px); }
@@ -2938,7 +2952,7 @@
                     <button class="pp-toggle" id="pp-tower-auto" type="button" onclick="toggleTowerAutoLoop()" aria-pressed="false" hidden><span>自動循環爬塔</span><span class="pp-state">關</span></button>
                     <label class="pp-volume-control" for="pp-sfx-volume"><span>音效音量</span><b id="pp-sfx-volume-value">40%</b><input id="pp-sfx-volume" type="range" min="0" max="100" value="40" oninput="setSfxVolume(this.value)" aria-label="音效音量百分比"></label>
                     <button id="pp-home" onclick="backHome()">🏠 返回主頁</button>
-                    <button id="pp-gate-exit" onclick="gateExit()">↩ 離開境界領域</button>
+                    <button id="pp-gate-exit" onclick="requestGateExit()">↩ 離開境界領域</button>
                     <button id="pp-restart" onclick="restartCurrentGate()" hidden>↻ 重新開始本關</button>
                     <div id="pp-training-controls" hidden>
                         <div class="pp-t">訓練場控制</div>
@@ -2953,6 +2967,13 @@
                         <b id="pp-boost-confirm-title">啟動戰鬥增益</b>
                         <p id="pp-boost-confirm-copy"></p>
                         <div class="pp-boost-confirm-actions"><span aria-hidden="true"></span><button type="button" class="confirm-buy" onclick="confirmBattleBoost()">確認啟動</button><button type="button" onclick="closeBattleBoostConfirm()">取消</button></div>
+                    </div>
+                </div>
+                <div class="pp-boost-confirm" id="pp-exit-confirm" hidden role="dialog" aria-modal="true" aria-labelledby="pp-exit-confirm-title">
+                    <div class="pp-boost-confirm-card">
+                        <b id="pp-exit-confirm-title">確定要離開戰場嗎？</b>
+                        <p id="pp-exit-confirm-copy"></p>
+                        <div class="pp-boost-confirm-actions"><span aria-hidden="true"></span><button type="button" class="confirm-buy" onclick="confirmGateExit()">確定</button><button type="button" onclick="closeGateExitConfirm()">取消</button></div>
                     </div>
                 </div>
             </div>
@@ -3112,8 +3133,15 @@
     <form method="dialog"><button type="submit">知道了</button></form>
 </dialog>
 <div class="gate-veil" id="gate-veil">
-    <button id="expedition-frame-exit" type="button" onclick="exitExpeditionFrame()">離開遠征</button>
+    <button id="expedition-frame-exit" type="button" onclick="requestExpeditionFrameExit()">離開遠征</button>
     <iframe id="gate-frame" title="境界領域獨立戰場"></iframe>
+    <div class="pp-boost-confirm" id="veil-exit-confirm" hidden role="dialog" aria-modal="true" aria-labelledby="veil-exit-confirm-title">
+        <div class="pp-boost-confirm-card">
+            <b id="veil-exit-confirm-title">確定要離開遠征嗎？</b>
+            <p id="veil-exit-confirm-copy"></p>
+            <div class="pp-boost-confirm-actions"><span aria-hidden="true"></span><button type="button" class="confirm-buy" onclick="confirmExpeditionFrameExit()">確定</button><button type="button" onclick="closeExpeditionFrameExitConfirm()">取消</button></div>
+        </div>
+    </div>
 </div>
 
 <script src="asset/game-data.js"></script>
@@ -8555,6 +8583,7 @@ function closeGateBattle() {
     if (!gateBattleOpen) return;
     gateBattleOpen = false; gateBattleId = null; gateReceipts.clear();
     $("gate-veil").classList.remove("on", "expedition-open");
+    closeExpeditionFrameExitConfirm();
     $("gate-frame").title = "境界領域獨立戰場";
     $("gate-frame").src = "about:blank";
     setPaused(gatePrevPaused);
@@ -8801,6 +8830,7 @@ function setPaused(v) {
     const button = $('btn-pause');
     if (button) button.innerHTML = PF.paused ? '▶' : '❚❚';
     $('pf-pause')?.classList.remove('on');
+    closeGateExitConfirm();   // 面板收起來時確認框也要跟著收，下次開面板才不會還壓著上一次的詢問
 }
 
 // 結算：只發門自己的獎勵，kills／stage／寶箱掉落一律不記這筆帳
@@ -8821,6 +8851,35 @@ function renderGateResult(res) {
 }
 
 function hideResult() { GateSettlement.hide(); $("pf-result").classList.remove("on"); syncBossHpPlacement(); }
+
+// 退出鈕緊貼在「自動施放技能」下方，手滑一下就直接出場，所以先擋一層並把代價寫在畫面上。
+function gateExitCost() {
+    if (expedition)
+        return `目前生存 ${expeditionTime(Math.min(EXPEDITION_LIMIT, Math.floor(expedition.elapsed)))}｜擊倒 ${expedition.kills}。撤退會立刻結算，本場不算通過。`;
+    if (DUNGEON_MODE) {
+        const cfg = gateOf();
+        return cfg
+            ? `目前第 ${DUNGEON_WAVE}／${dungeonWaveTotal(cfg)} 波。未打完全部波次不會發任何獎勵，本場今日額度已扣、不會退回。`
+            : "未打完全部波次不會發任何獎勵，本場今日額度已扣、不會退回。";
+    }
+    if (TRAINING_MODE) return "訓練場不發獎勵；離開後 Boss 與隊伍狀態會重置。";
+    return `本次進場已消耗 ${StaminaSystem.GATE_COST} 點體力，中途離開不退體力、也不發獎勵。`;
+}
+function requestGateExit() {
+    if (!PF.paused) return;
+    $("pp-exit-confirm-title").textContent = `確定要${$("pp-gate-exit").textContent.replace(/^↩\s*/, "")}嗎？`;
+    $("pp-exit-confirm-copy").textContent = gateExitCost();
+    $("pp-exit-confirm").hidden = false;
+    $("pp-exit-confirm").querySelector(".pp-boost-confirm-actions button:last-child").focus();
+}
+function closeGateExitConfirm() {
+    const box = $("pp-exit-confirm");
+    if (box) box.hidden = true;
+}
+function confirmGateExit() {
+    closeGateExitConfirm();
+    gateExit();
+}
 
 // 打完／不想打都要把深層流程還回來：GATE 一清空，spawnEnemy 就回到原本那一層
 function gateExit() {
@@ -12402,8 +12461,33 @@ function expeditionHellWeekRecord() {
     return { week, rows: [] };
 }
 
+function requestExpeditionFrameExit() {
+    $("veil-exit-confirm-copy").textContent = expeditionFrameReady
+        ? "遠征會立刻結算並結束本場，未打完 15:00 不算通過。"
+        : "戰場還沒就緒，這一場根本沒打過；今日已扣的地獄入場次數會退回。";
+    $("veil-exit-confirm").hidden = false;
+    $("veil-exit-confirm").querySelector(".pp-boost-confirm-actions button:last-child").focus();
+}
+function closeExpeditionFrameExitConfirm() {
+    const box = $("veil-exit-confirm");
+    if (box) box.hidden = true;
+}
+function confirmExpeditionFrameExit() {
+    closeExpeditionFrameExitConfirm();
+    exitExpeditionFrame();
+}
+
 function exitExpeditionFrame() {
-    if (!expeditionFrameReady) { closeGateBattle(); return; }
+    if (!expeditionFrameReady) {
+        // 沒收到 ready 就是這場還沒真正開始：地獄額度要退回，不然按一顆還沒負載完的離開就白扣一次
+        if (expeditionRunMode === "hell" && expeditionHellEntriesUsed > 0) {
+            expeditionHellEntriesUsed--;
+            saveGame();
+            paintExpeditionEntry();
+        }
+        closeGateBattle();
+        return;
+    }
     $("gate-frame").contentWindow.postMessage({ type: "wf-expedition-retreat" }, GATE_TARGET);
 }
 
