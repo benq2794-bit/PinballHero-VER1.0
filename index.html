@@ -2610,6 +2610,7 @@
 <link rel="stylesheet" href="asset/character-exchange.css">
 <link rel="stylesheet" href="asset/ui-dark-mode.css">
 <link rel="stylesheet" href="asset/beta-event.css">
+<link rel="stylesheet" href="asset/game-update.css">
 <link rel="stylesheet" href="asset/summon-jackpot.css">
 <link rel="stylesheet" href="asset/boss-mech-fx.css">
 <script>
@@ -3207,10 +3208,12 @@
 <script src="asset/type-effects.js"></script>
 <script src="asset/stamina-system.js"></script>
 <script src="asset/ui-router.js"></script>
+<script src="asset/game-update.js"></script>
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.3";
+const GAME_VERSION = "v0.1.0-alpha.4";
+const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
 const DEV_MODE = (() => {
@@ -3261,7 +3264,8 @@ function watchPowerState() {
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
-    { version: GAME_VERSION, date: "2026-11-07", content: [
+    {"version":"v0.1.0-alpha.4","date":"2026-11-08","content":["新增每 10 秒版本偵測、30 秒倒數與立即更新通知，戰鬥及重要操作期間延後更新。","重新載入前確認本機與雲端存檔完成；存檔失敗會停止自動更新並提供重試。","版本更新後自動顯示最新更新日誌，同版本只顯示一次，保留手動查閱及歷史內容。","新增唯一發布版本檔、資源快取更新與部署前檢查／正式網站驗證流程。"]},
+    { version: "v0.1.0-alpha.3", date: "2026-11-07", content: [
         "角色培養新增升級、紫色「升級 ×10」與金色「一鍵升至上限」，可直接使用水晶與返還經驗，水晶剩餘面額會保留。",
         "新增遊戲內升級確認與等級重置視窗；有完整投入紀錄的角色可重置至 Lv.1，每名角色最多 3 次，返還原始投入經驗與金幣各 80%。",
         "等級重置保留角色星級、突破與天賦進度。缺少歷史消耗紀錄的舊角色維持原有培養功能，並明確標示重置限制。",
@@ -12313,15 +12317,15 @@ function devMaxCharacterGrowth() {
     hmToast(`${charName(id)} 已完成滿等與滿突破／解放。` );
 }
 
+function renderUpdateLogEntry(entry) {
+    const escape = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    return '<article class="pgc update-log-card"><div class="update-log-version"><b>彈射之境 '+escape(entry.version)+'</b><time>'+escape(entry.date)+'</time></div><div class="update-log-label">更新內容</div><ul class="update-log-list">'+entry.content.map(item=>'<li>'+escape(item)+'</li>').join('')+'</ul></article>';
+}
 // ---- 選單 ----
 function pageMenu() {
     const devCharacterId = [growthFor, ...teamIds, ...CHAR_IDS].find(id => id && roster[id] && CHAR_TABLE[id]) || "";
     const devCharacterOptions = CHAR_IDS.map(id => `<option value="${id}" ${id === devCharacterId ? "selected" : ""}>${charName(id)}｜${CHAR_TABLE[id].rarity}★ ${ELEMENTS[CHAR_TABLE[id].element]?.label || ""}</option>`).join("");
-    const updateEntries = UPDATE_LOG.map(entry => `<article class="pgc update-log-card" aria-label="${entry.version} 更新日誌">
-            <div class="update-log-version"><b>彈射之境 ${entry.version}</b><time datetime="${entry.date}">${entry.date.replaceAll("-", "/")}</time></div>
-            <div class="update-log-label">更新內容</div>
-            <ul class="update-log-list">${entry.content.map(item => `<li>${item}</li>`).join("")}</ul>
-        </article>`).join("");
+    const updateEntries = UPDATE_LOG.map(renderUpdateLogEntry).join("");
     return `${DEV_MODE ? `<div class="pg-sec dev-tools-title">開發者模式｜DEV BUILD ${DEV_BUILD_VERSION}</div>
         <section class="pgc dev-tools" aria-label="開發者測試工具">
             <p class="dev-tools-note">正式遊戲 ${GAME_VERSION}｜此模式使用獨立本機存檔，不登入、不同步雲端，也不寫入正式週排行榜。</p>
@@ -14020,6 +14024,7 @@ battleTimer = setInterval(() => {
     battleTick();
     if (battleSpeedMultiplier() > 1) battleTick();
 }, 200);
+startGameUpdates();
 </script>
 <script src="asset/boss-mech-fx.js"></script>
 </body>

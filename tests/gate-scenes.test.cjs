@@ -1,7 +1,7 @@
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict'), path = require('node:path');
 const root = path.resolve(__dirname, '..'), html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 let gateId = null, renders = 0;
-const ctx = { stage: 10, enemy: {}, homeTabOn: 'boss', renderPage: () => renders++, bossWin: { fire: 2 },
+const ctx = { applyTowerDifficultyBonus: stats=>stats, DUNGEON_MODE:null, stage: 10, enemy: {}, homeTabOn: 'boss', renderPage: () => renders++, bossWin: { fire: 2 },
     window: {},
     ELEMENTS: { fire: { label: '火', color: '#f00' }, water: { label: '水', color: '#00f' }, wind: { label: '風', color: '#0f0' }, thunder: { label: '雷', color: '#ff0' } },
     gateStats: () => ({ hp: 1000, atk: 20 }), foeStats: () => ({ hp: 100, atk: 5 }), fmt: String,
@@ -17,7 +17,7 @@ vm.runInContext(`GAME_DATA = window.GAME_DATA;
     ENEMY_TABLE = [{ id: 'ordinary', name: '普通怪', icon: '●', element: 'fire' }];
     ${html.slice(html.indexOf('const TOWER_BOSS_TABLE ='), html.indexOf('let enemy = {'))}
     this.gates = BOSS_STAGES; this.towerBossCount = TOWER_BOSS_TABLE.length;`, ctx);
-vm.runInContext(html.slice(html.indexOf('function spawnEnemy()'), html.indexOf('// 主頁異界迴廊：')), ctx);
+vm.runInContext(html.slice(html.indexOf('function spawnEnemy()'), html.indexOf('function enterBossGate(id)')), ctx);
 const towerIds = [];
 for (let i = 0; i < ctx.towerBossCount; i++) { ctx.spawnEnemy(); towerIds.push(ctx.enemy.id); assert.ok(ctx.enemy.battleSkinUrl.includes('/ro/')); }
 assert.equal(new Set(towerIds).size, ctx.towerBossCount);
@@ -40,7 +40,7 @@ const browserSource = fs.readFileSync(path.join(root, 'asset/gate-browser.js'), 
 vm.runInContext(browserSource, ctx);
 let view = ctx.renderGateBrowser();
 assert.ok(view.includes('asset/battle/bg/gate_fire.webp') && view.includes('asset/battle/gate-boss/nidhogg.webp'));
-assert.ok(view.includes('再戰獎勵') && view.includes('首勝已領取') && view.includes('再次挑戰'));
+assert.ok(view.includes('再戰獎勵') && view.includes('✓ 已擊破') && view.includes('再次挑戰'));
 assert.ok(!view.includes('/ro/'), 'gate browser never uses tower artwork');
 ctx.selectGateDisplay('water'); view = ctx.renderGateBrowser();
 assert.ok(view.includes("enterBossGate('water')") && view.includes('首勝獎勵'));
@@ -52,6 +52,6 @@ const before = renders; ctx.selectGateDisplay('invalid'); assert.equal(renders, 
 for (const b of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new Function(b[1]);
 assert.match(html, /bossEntranceFreezesBattle\(\)\) \{ render\(\); return; \}/);
 assert.match(html, /function battleTick\(\) \{[\s\S]*?if \(bossEntranceFreezesBattle\(\)\) return;/);
-assert.ok(html.includes("gateOn() ? zone.name : '波利塔'"));
+assert.ok(html.includes('clock.style.display = gateOn() ? "none" : ""'));
 assert.ok(html.includes('gateOn() ? "試煉" : `第 ${stage} 層`'));
 console.log('PASS: independent tower/gate registries, four local boss/background assets, gate navigation, actual completion/rewards, cinematic stop hooks and tower floor label.');

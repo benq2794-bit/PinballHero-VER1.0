@@ -9,7 +9,7 @@ const ctx = { FEVER: { active: false, value: 0, maxValue: 1000, times: 0 }, FEVE
     $: () => node, setFlipperGold: value => { gold = value; }, spawnFeverPads: () => starts++,
     clearFeverPads: () => clears++, SFX: { feverStart() {} }, log() {},
     typeEffects: { feverStartGauge: () => 3 }, aliveMembers: () => [energyMember], queueReadySkill() {} };
-vm.createContext(ctx); vm.runInContext(functions, ctx);
+ctx.window=ctx; ctx.PF={}; vm.createContext(ctx); vm.runInContext(functions, ctx);
 assert.equal(ctx.feverAdd(18), 18); assert.equal(ctx.FEVER.value, 18); assert.equal(gold, .018);
 ctx.FEVER.value = 995; assert.equal(ctx.feverAdd(18), 5); assert.equal(starts, 1);
 assert.equal(ctx.FEVER.left, 10000); assert.equal(classes.has('fever-on'), true);

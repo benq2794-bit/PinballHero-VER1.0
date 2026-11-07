@@ -1,0 +1,28 @@
+#game-update-notice {
+    position:fixed; z-index:9000; right:max(14px,env(safe-area-inset-right));
+    top:max(14px,env(safe-area-inset-top)); width:min(325px,calc(100vw - 28px));
+    box-sizing:border-box; border:1px solid #c4a76b; border-top:3px solid #edce88;
+    border-radius:12px; padding:15px; background:linear-gradient(145deg,#382a53,#1d2034);
+    color:#fdf2d5; font:13px/1.6 sans-serif; box-shadow:0 6px 24px #07091680;
+}
+#game-update-notice[hidden] { display:none !important; }
+#game-update-notice .release-notice-heading { color:#f6dc9f; font-weight:800; margin-bottom:8px; }
+#game-update-notice > b { color:#fff5e7; font-size:15px; }
+#game-update-notice p { margin:7px 0; color:#e5dbef; font-size:12px; }
+#game-update-notice .release-notice-countdown { display:flex; align-items:center; justify-content:space-between; margin:12px 0 6px; color:#ddcdec; }
+#game-update-notice strong { color:#ffe2a1; font:700 27px/1.2 monospace; font-variant-numeric:tabular-nums; }
+#game-update-notice button { width:100%; min-height:38px; padding:8px; border:1px solid #ba914b; border-radius:7px; background:linear-gradient(#ffedb2,#d9ac56); color:#392716; font-weight:800; cursor:pointer; }
+#game-update-notice button:disabled { background:#4a4459; color:#d3c7df; border-color:#82748d; cursor:default; }
+#game-update-notice button:focus-visible { outline:3px solid #d5b7ff; outline-offset:3px; }
+#app-frame #release-notes-dialog { width:min(430px,calc(100vw - 28px)); max-height:calc(100dvh - 40px); overflow:auto; border:1px solid #ab8851; border-radius:10px; padding:14px; background:#f3f8fb; color:#17394a; }
+#app-frame #release-notes-dialog::backdrop { background:#101828a6; }
+#app-frame #release-notes-dialog .update-log-version b { color:#17394a; }
+#app-frame #release-notes-dialog .update-log-version time { color:#516b7a; }
+#app-frame #release-notes-dialog .update-log-label { color:#236e91; }
+#app-frame #release-notes-dialog .update-log-list { color:#263f4e; font-size:12px; }
+#app-frame #release-notes-dialog button { min-height:36px; width:100%; margin-top:12px; border-radius:5px; }
+html.ui-dark-mode #app-frame #release-notes-dialog { background:#253540; color:#edf5fb; }
+html.ui-dark-mode #app-frame #release-notes-dialog :is(.update-log-version b,.update-log-list) { color:#edf5fb; }
+html.ui-dark-mode #app-frame #release-notes-dialog .update-log-version time { color:#bdd0dd; }
+html.ui-dark-mode #app-frame #release-notes-dialog .update-log-label { color:#9bdafa; }
+@media (max-width:480px) { #game-update-notice { top:auto; bottom:max(84px,env(safe-area-inset-bottom)); right:10px; width:min(315px,calc(100vw - 20px)); } }

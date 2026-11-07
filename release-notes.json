@@ -1,0 +1,28 @@
+{
+  "content": [
+    "新增每 10 秒版本偵測、30 秒倒數與立即更新通知，戰鬥及重要操作期間延後更新。",
+    "重新載入前確認本機與雲端存檔完成；存檔失敗會停止自動更新並提供重試。",
+    "版本更新後自動顯示最新更新日誌，同版本只顯示一次，保留手動查閱及歷史內容。",
+    "新增唯一發布版本檔、資源快取更新與部署前檢查／正式網站驗證流程。"
+  ],
+  "files": [
+    "AGENTS.md",
+    "asset/game-update.js",
+    "asset/game-update.css",
+    "asset/supabase-cloud.js",
+    "index.html",
+    "package.json",
+    "vercel.json",
+    "scripts/check.cjs",
+    "scripts/deploy.cjs",
+    "scripts/build-release.cjs",
+    "tests/character-growth.test.cjs",
+    "tests/fever-feedback.test.cjs",
+    "tests/gate-scenes.test.cjs",
+    "tests/save-system.test.cjs",
+    "tests/game-update.test.cjs",
+    "tests/cloud-save-flush.test.cjs",
+    "tests/browser-update.cjs",
+    "release-notes.json"
+  ]
+}

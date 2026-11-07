@@ -160,7 +160,7 @@ const store = SaveSystem.createStore({ key, getStorage: () => storage });
 {
     let spawns = 0;
     Object.assign(ctx, {
-        SAVE_KEY: key, localStorage: storage, GATE_MODE: false, roster: copy(defaults),
+        BetaEvent: {normalize: value => value || {}}, BATTLE_PAID_BOOSTS: {}, SAVE_KEY: key, localStorage: storage, GATE_MODE: false, roster: copy(defaults),
         CHAR_IDS: ids, DEV_MODE: true,
         TITLE_TABLE: rules.titleIds.map(id => ({ id })),
         BOSS_STAGES: rules.gateIds.map(id => ({ id })), MAX_RANK: 150, TEAM_MAX: 3,

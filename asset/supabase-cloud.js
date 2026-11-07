@@ -18,18 +18,28 @@ window.SupabaseCloud = (() => {
     }
     async function flushSave(userId) {
         clearTimeout(saveTimer);
-        if (!queuedSnapshot || !client) return flushPromise;
-        const snapshot = queuedSnapshot;
-        queuedSnapshot = null;
+        if (!client) {
+            if (userId) throw unavailable();
+            return flushPromise;
+        }
         flushPromise = flushPromise.catch(() => {}).then(async () => {
+            while (queuedSnapshot) {
+            const snapshot = queuedSnapshot;
+            queuedSnapshot = null;
+            try {
             const { data: { session }, error: sessionError } = await client.auth.getSession();
             if (sessionError) throw sessionError;
-            const id = userId || session?.user?.id;
-            if (!id) return;
+            const id = session?.user?.id;
+            if (!id || userId && userId !== id) throw new Error('雲端存檔帳號尚未確認');
             const { error } = await client.from('game_saves').upsert({
                 user_id: id, save_data: snapshot, updated_at: new Date().toISOString()
             }, { onConflict: 'user_id' });
-            if (error) { queuedSnapshot = snapshot; throw error; }
+            if (error) throw error;
+            } catch (error) {
+                if (!queuedSnapshot) queuedSnapshot = snapshot;
+                throw error;
+            }
+            }
         });
         return flushPromise;
     }

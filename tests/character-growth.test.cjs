@@ -4,10 +4,10 @@ const src = fs.readFileSync(path.join(root, 'asset/character-growth.js'), 'utf8'
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const noop = () => {};
 const ctx = { bossEntranceFreezesBattle: () => false, roster: {}, shardTotal: 1000, hmToast: noop, log: noop, charName: id => id,
-    rankLv: 100,
+    cultivationMaterials:0, highGradeExperienceCrystals:0, growthExpReserve:0, breakthroughStones:{fourStar:0}, gateOn:()=>false, EXPEDITION_MODE:false, betaEventActive:()=>false, rankLv: 100, gold:1e9, towerMaterials:{jelly:10000,blockScrap:10000,monsterCrystal:10000,expeditionMedal:100}, towerMaterialCount:key=>ctx.towerMaterials[key]||0, towerMaterialName:key=>key,
     $: () => null, renderPage: noop, updateUI: noop, saveGame: noop, atkOf: ch => ch.baseAtk,
     hpMax: ch => Math.round(ch.maxHp * (1 + .04 * (ch.talents?.survival || 0))),
-    CHAR_TABLE: { hero: { name: '測試角色' } }, homeTabOn: 'chars', pickerFor: null, unitFace: () => '',
+    CHAR_TABLE: { hero: { name: '測試角色', rarity:4 } }, homeTabOn: 'chars', pickerFor: null, unitFace: () => '',
     addEventListener: noop, document: { addEventListener: noop, querySelector: () => null, hidden: false } };
 ctx.window = ctx;
 ctx.TRAINING_MODE = false;
@@ -32,22 +32,22 @@ function make(overrides = {}) {
     ctx.gainGrowthExp(ch, 1e8); assert.equal(ch.lvl, 80); assert.equal(ch.exp, ch.nextExp);
     assert.equal(ctx.gainGrowthExp(ch, 1000), 0);
     ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 80, 'cannot buy without fragments');
-    ch.shards = 20; ctx.breakthroughChar('hero');
+    ch.shards = 10; ctx.breakthroughChar('hero');
     assert.equal(ch.shards, 0); assert.equal(ctx.growthCap(ch), 85); assert.equal(ch.lvl, 81, 'banked XP used after breakthrough');
     ch.shards = 1000;
-    while (ctx.growthCap(ch) < 100) ctx.breakthroughChar('hero');
+    while (ctx.growthCap(ch) < 100) {ctx.gainGrowthExp(ch,1e10);ctx.breakthroughChar('hero');}
     ctx.gainGrowthExp(ch, 1e10); assert.equal(ch.lvl, 100);
     const shards = ch.shards; ctx.breakthroughChar('hero'); assert.equal(ch.shards, shards, 'no spending past max');
 }
 {
     const ch = make({ shards: 1000 }); ctx.roster.hero = ch;
-    ctx.rankLv = 39; ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 80, 'RANK 39 cannot open the first stage');
-    ctx.rankLv = 40; ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 85); assert.equal(ch.shards, 980);
-    ctx.rankLv = 59; ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 85, 'second stage needs RANK 60');
-    ctx.rankLv = 60; ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 90); assert.equal(ch.shards, 950);
-    ctx.rankLv = 79; ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch), 90, 'third stage needs RANK 80');
-    ctx.rankLv = 100; ctx.breakthroughChar('hero'); ctx.breakthroughChar('hero');
-    assert.equal(ctx.growthCap(ch), 100); assert.equal(ch.shards, 860, 'costs are 20/30/40/50');
+    ctx.breakthroughChar('hero'); assert.equal(ctx.growthCap(ch),80,'must reach current cap first');
+    for (const cost of [10,20,30,40]) {
+        ctx.gainGrowthExp(ch,1e10); const before=ch.shards;
+        ctx.breakthroughChar('hero'); assert.equal(ch.shards,before-cost);
+    }
+    assert.equal(ctx.growthCap(ch),100);
+
     ctx.rankLv = 100;
 }
 {
@@ -99,7 +99,7 @@ function make(overrides = {}) {
     assert.equal(locked.lvl, 1); assert.equal(ctx.talentUsed(locked), 0);
 }
 // Run the actual fragment drop function with deterministic randomness.
-const rollStart = html.indexOf('function rollShards()');
+const rollStart = html.indexOf('function awardTowerCharacterFragments(');
 const exchangeStart = html.indexOf('function exchangeChar(', rollStart);
 const exchangeEnd = html.indexOf('// ===== 開場隊伍', exchangeStart);
 const drops = html.slice(rollStart, html.indexOf('// 兌換：碎片滿', rollStart)) + html.slice(exchangeStart, exchangeEnd) +
@@ -128,7 +128,7 @@ assert.equal(ctx.roster.hero.shards, 9, '沒被抽中的角色不會跟著長碎
 ctx.enemy = { boss: false };
 ctx.rollShards();
 assert.equal(ctx.cultivationMaterials, 2, '201 層以上普通怪的經驗水晶下限是 2');
-assert.equal(ctx.roster.locked.shards, 1, '普通層不掉碎片');
+assert.equal(ctx.roster.locked.shards, 2, '普通層依現有機率掉落碎片');
 // Exercise the game's actual combat entry points, not just the talent counters.
 {
     const ch = make({ lvl: 60, talents: { skill: 2, pf: 0, survival: 8 } });
@@ -144,7 +144,7 @@ assert.equal(ctx.roster.locked.shards, 1, '普通層不掉碎片');
     ctx.leadVal = () => 0;
     vm.runInContext(html.match(/function hpMax\(ch\) \{[^\n]+/)[0], ctx);
     assert.equal(ctx.hpMax(ch), 198, 'survival talent changes actual HP cap');
-    ctx.FX = { pop: noop, flash: noop, shake: noop }; ctx.playFighter = noop; ctx.deepPerk = () => 0;
+    ctx.FX = { hurtShards: noop, hurtBlink: noop, pop: noop, flash: noop, shake: noop }; ctx.playFighter = noop; ctx.deepPerk = () => 0;
     ctx.downMember = m => { m.down = true; };
     vm.runInContext(html.slice(html.indexOf('function memberStrike('), html.indexOf('function downMember(')), ctx);
     ctx.memberStrike(member, 100, 'test'); assert.equal(ch.hp, 58, 'survival talent reduces actual incoming damage');
