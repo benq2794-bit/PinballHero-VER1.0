@@ -15,7 +15,7 @@
 
 /* Panels and cards use a compact stone frame and stepped shadow instead of soft glass. */
 .panel, .pgc, .bsg, #team .fm-panel, #team .fm-unit,
-#team .rcard, .slot, .pp-box, .hm-status-card, .hm-rank, .hm-energy-card,
+.slot, .pp-box, .hm-status-card, .hm-rank, .hm-energy-card,
 .dex-cell, .eq-cell, .gate-challenge-card {
     border: 2px solid var(--ui-stone) !important;
     border-radius: 4px !important;
@@ -34,7 +34,7 @@
 
 /* Raised stone buttons with a bright top edge and a distinct pressed state. */
 .btn, .btn-ghost, .mini-btn, .pg button, .pp-box button, .dex-tab button,
-.dex-bar .clr, .slot .out, .gate-top .gx, .pg-head .bk, .pg-head .tm-go,
+.dex-bar .clr, .slot .out, .gate-top .gx, .pg-head .bk,
 .tower-tree-header .tt-reset, .tower-tree-detail .mini-btn, .pf-hud .hud-sq,
 .pf-hud .mchip, .pt-start, .pg .mi, .gate-challenge, #team .fm-cap-btn,
 #team .fm-out, .bsg .go {
@@ -116,8 +116,6 @@
 #team .fm-unit.lead { border-color:#b79546 !important; border-left-color:#f2ca62 !important;
     background:linear-gradient(180deg,#4a4328,#1e2d20) !important; }
 #team .fm-unit.empty { border-color:#58694b !important; background:#101a14 !important; }
-#team .rcard { border-color:#526849 !important; background:linear-gradient(180deg,#263a2c,#142219) !important; }
-#team .rcard.onfield { border-color:#b9c36b !important; background:linear-gradient(180deg,#3b4b2d,#213323) !important; }
 .pp-box { border:3px solid #637b50 !important; border-radius:4px !important;
     background:linear-gradient(180deg,#263c2d,#101b15) !important; box-shadow:4px 5px 0 rgba(0,0,0,.72) !important; }
 .pp-t { color:#ffdf78 !important; }
@@ -188,22 +186,11 @@
 #team .fm-member-art img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
 #team .fm-member-name { max-width:100%; overflow:hidden; color:#f4e8c5; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
 #team .fm-member > small { color:#a8bed1; font-size:7px; }
-#team .fm-member-actions { display:flex; gap:3px; width:100%; margin-top:2px; }
-#team .fm-member-actions button { flex:1; min-width:0; padding:2px 1px; color:#ffe27c; background:#173b59; border:1px solid #62859e; border-bottom:2px solid #0a1421; border-radius:2px; font-family:inherit; font-size:7px; font-weight:800; line-height:1.2; cursor:pointer; }
+#team .fm-slot-actions { display:flex; gap:3px; width:100%; margin-top:2px; }
+#team .fm-slot-actions button { flex:1; min-width:0; padding:2px 1px; color:#ffe27c; background:#173b59; border:1px solid #62859e; border-bottom:2px solid #0a1421; border-radius:2px; font-family:inherit; font-size:7px; font-weight:800; line-height:1.2; cursor:pointer; }
 #team .fm-a11y-data { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
 #team .fm-summary { display:flex; justify-content:space-between; margin-top:7px; padding:5px 6px; color:#a9c1d3; background:#0b1b2b; border:1px solid #34556d; font-size:8px; }
 #team .fm-summary b { color:#ffe27c; font-size:10px; }
-#team .fm-roster-panel h2 { display:flex; flex-wrap:wrap; align-items:baseline; gap:5px; }
-#team .fm-roster-panel h2 .hint { color:#9ab5cb; font-size:8px; font-weight:400; }
-#team .fm-roster-grid { grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:5px; }
-#team .fm-roster-card { min-width:0; min-height:78px; padding:4px 2px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-    color:#eef6fb; background:linear-gradient(150deg,#173c57,#0b1b2d); border:1px solid #416780; border-radius:4px; box-shadow:2px 2px 0 #050b13; cursor:pointer; }
-#team .fm-roster-card .sp { width:42px; height:42px; border-radius:3px; border-color:#668eaa; background:#081421; }
-#team .fm-roster-card > b { max-width:100%; overflow:hidden; color:#f7ebcb; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
-#team .fm-roster-card > small { color:#a6bdce; font-size:7px; }
-#team .fm-roster-state { color:#80d9c4; font-size:7px; }
-#team .fm-roster-card.onfield { border-color:#ffe16b; background:linear-gradient(150deg,#40536a,#172d43); box-shadow:inset 0 0 0 1px rgba(255,225,107,.24),2px 2px 0 #050b13; }
-#team .fm-roster-card:not(.onfield) .fm-roster-state { color:#9ab5cb; }
 .hm-profile-info { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
 .hm-profile-title { display:flex; align-items:center; justify-content:space-between; gap:5px; min-width:0; }
 .hm-profile-title > b { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; font-weight:900;

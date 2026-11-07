@@ -22,10 +22,6 @@
 
 #app-frame #team .fm-unit,
 
-#app-frame #team .rcard,
-
-#app-frame #team .fm-roster-card,
-
 #app-frame .slot,
 
 #app-frame .pp-box,
@@ -90,7 +86,6 @@
 #app-frame .slot .out,
 #app-frame .gate-top .gx,
 #app-frame .pg-head .bk,
-#app-frame .pg-head .tm-go,
 #app-frame .tower-tree-header .tt-reset,
 #app-frame .tower-tree-detail .mini-btn:not(.gold),
 #app-frame .pf-hud .hud-sq,
@@ -139,8 +134,6 @@
 #app-frame button.on,
 #app-frame button.active,
 #app-frame button.selected,
-#app-frame .rcard.onfield,
-#app-frame .fm-roster-card.onfield,
 #app-frame .dex-tab button.on { border-color:#d9dfe3 !important; background:linear-gradient(180deg,#737d84,#434b51) !important; color:#fff !important; }
 
 /* 金色主要行動按鈕不受灰白通用按鈕影響 */
@@ -310,10 +303,6 @@
 
 #app-frame #team .fm-unit,
 
-#app-frame #team .rcard,
-
-#app-frame #team .fm-roster-card,
-
 #app-frame .slot,
 
 #app-frame .pp-box,
@@ -407,8 +396,6 @@
 #app-frame button.on,
 #app-frame button.active,
 #app-frame button.selected,
-#app-frame .rcard.onfield,
-#app-frame .fm-roster-card.onfield,
 #app-frame .dex-tab button.on,
 #app-frame .hm-tabs .tb.on {
     border-color:#f0d58b !important;
@@ -504,8 +491,6 @@
 #app-frame .bsg,
 #app-frame #team .fm-panel,
 #app-frame #team .fm-unit,
-#app-frame #team .rcard,
-#app-frame #team .fm-roster-card,
 #app-frame .slot,
 #app-frame .pp-box,
 #app-frame .dex-cell,
@@ -553,8 +538,6 @@
 }#app-frame button.on,
 #app-frame button.active,
 #app-frame button.selected,
-#app-frame .rcard.onfield,
-#app-frame .fm-roster-card.onfield,
 #app-frame .dex-tab button.on,
 #app-frame .hm-dock-tabs .hm-action.active {
     border-color:#159bd1 !important;
@@ -603,34 +586,38 @@
 .char-directory-tools { flex:none; display:flex; flex-direction:column; gap:5px; }
 .char-directory-search { display:grid; grid-template-columns:minmax(0,1fr) 48px; gap:5px; }
 .char-directory-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
-.char-directory-tools input,.char-directory-tools select { min-width:0; height:31px; padding:4px 7px; border:1px solid #8fb1c2 !important; border-radius:4px; background:#fff !important; color:#263238 !important; font-family:inherit; font-size:10px; font-weight:600; }
+/* 兩段 id：搜尋框若不加，會被 #app-frame .pg input 那條暗色漸層壓成黑底，跟旁邊白篩選器不一致。 */
+#app-frame #pg-body .char-directory-tools input,#app-frame #pg-body .char-directory-tools select { min-width:0; height:31px; padding:4px 7px; border:1px solid #8fb1c2 !important; border-radius:4px; background:#fff !important; color:#263238 !important; font-family:inherit; font-size:10px; font-weight:600; }
+#app-frame #pg-body .char-directory-tools input::placeholder { color:#7d8f99 !important; }
 .char-directory-tools button { min-width:0; padding:3px 5px; border:1px solid #6fa9c4 !important; border-radius:4px; background:linear-gradient(#fff,#e3f0f5) !important; color:#244858 !important; font-family:inherit; font-size:10px; font-weight:800; }
-.char-directory-grid { min-height:0; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); grid-auto-rows:max-content; gap:5px; }
-.char-directory-grid .char-card { position:relative; min-width:0; min-height:0; margin:0; padding:2px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:1px; overflow:hidden;
+.char-directory-grid { min-height:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:max-content; gap:6px; }
+.char-directory-grid .char-card { position:relative; min-width:0; min-height:0; margin:0; padding:4px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:1px; overflow:hidden;
     border:1px solid #a8c2ce !important; border-radius:5px; background:linear-gradient(160deg,#fff,#eef3f5) !important; box-shadow:0 1px 3px rgba(38,69,83,.14) !important; }
 .char-directory-grid .char-card.locked { opacity:.78; }
-.char-card-art { width:30px; height:30px; flex:none; display:grid; place-items:center; overflow:hidden; border:1px solid #c3d5dd; border-radius:4px; background:#e9f1f4; }
+.char-card-art { width:44px; height:44px; flex:none; display:grid; place-items:center; overflow:hidden; border:1px solid #c3d5dd; border-radius:4px; background:#e9f1f4; }
 .char-card-art img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
 .char-card-info { width:100%; min-width:0; text-align:center; }
-.char-directory-grid .char-card .nm { display:block; overflow:hidden; color:#1c3542 !important; font-size:10px; line-height:1.2; font-weight:900; text-overflow:ellipsis; white-space:nowrap; }
-.char-card-tags { min-height:13px; display:flex; align-items:center; justify-content:center; gap:2px; overflow:hidden; }
-.char-directory-grid .char-card .tag2 { flex:none; padding:1px 3px; border-radius:3px; color:#fff !important; font-size:7px; line-height:1.25; font-weight:800; }
-.char-directory-grid .char-card .summon-tag { flex:none; padding:1px 3px; border:1px solid #8599a2; border-radius:3px; color:#344a54; background:linear-gradient(#f7fafb,#dfe8eb); font-size:7px; line-height:1.25; font-weight:800; }
+.char-directory-grid .char-card .nm { display:block; overflow:hidden; color:#1c3542 !important; font-size:11px; line-height:1.25; font-weight:900; text-overflow:ellipsis; white-space:nowrap; }
+.char-card-tags { min-height:14px; display:flex; align-items:center; justify-content:center; gap:2px; overflow:hidden; }
+.char-directory-grid .char-card .tag2 { flex:none; padding:1px 3px; border-radius:3px; color:#fff !important; font-size:8px; line-height:1.25; font-weight:800; }
+.char-directory-grid .char-card .summon-tag { flex:none; padding:1px 3px; border:1px solid #8599a2; border-radius:3px; color:#344a54; background:linear-gradient(#f7fafb,#dfe8eb); font-size:8px; line-height:1.25; font-weight:800; }
 .char-directory-grid .char-card .summon-tag.limited { border-color:#c19b43; color:#684c0b; background:linear-gradient(#fff1bf,#f2d778); }
 .dex-cell.summon-limited .rl { color:#79570d; background:#fff0bb; border-color:#c49b3b; }
 .dex-cell.summon-permanent .rl { color:#344a54; background:#e5edf0; border-color:#9aafb8; }
-.char-directory-grid .char-card .sub { margin-top:2px; overflow:hidden; color:#465b65 !important; font-size:8px; line-height:1.2; white-space:nowrap; text-overflow:ellipsis; }
-.char-card-stat,.char-card-skill { overflow:hidden; color:#354b56; font-size:8px; line-height:1.2; white-space:nowrap; text-overflow:ellipsis; }
+.char-directory-grid .char-card .sub { margin-top:2px; overflow:hidden; color:#465b65 !important; font-size:9px; line-height:1.25; white-space:nowrap; text-overflow:ellipsis; }
+.char-card-stat,.char-card-skill { overflow:hidden; color:#354b56; font-size:9px; line-height:1.25; white-space:nowrap; text-overflow:ellipsis; }
 .char-card-skill { color:#51656f; }
-.char-field-tag { color:#087ead; }
 .char-directory-grid .char-card .bar { width:92%; height:4px; margin-top:3px; }
 .char-directory-empty { grid-column:1/-1; display:grid; place-items:center; color:#455a64; font-size:12px; }@media(max-height:700px) {
     .char-directory { gap:4px; }
-    .char-directory-tools input,.char-directory-tools select { height:27px; }
-    .char-directory-grid { gap:4px; }
-    .char-card-art { width:30px; height:30px; }
-    .char-directory-grid .char-card { padding:2px; }
+    .char-directory-tools input,.char-directory-tools select { height:29px; }
+    .char-directory-grid { gap:5px; }
+    .char-card-art { width:40px; height:40px; }
+    .char-directory-grid .char-card { padding:3px; }
     .char-directory-grid { grid-auto-rows:max-content; }
+}
+@media(max-width:380px) {
+    .char-directory-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 
 
@@ -1024,7 +1011,6 @@ html:not(.ui-dark-mode) #app-frame #home .hm-dock-tabs > .hm-dock-toggle[aria-ex
 
 /* 屬性徽章在淺底上仍要撐住白字（其餘編成文字由檔案末尾的淺色編成總pass 負責）。 */
 #app-frame #team .fm-captain-name .element-badge { color:#fff !important;text-shadow:0 1px 1px rgba(0,0,0,.65) !important; }
-#app-frame #team .fm-roster-section .element-badge { color:#fff !important;text-shadow:0 1px 1px rgba(0,0,0,.65) !important; }
 
 /* 天賦樹視覺聚焦：背景安靜，節點狀態一眼可辨。 */
 
@@ -1362,8 +1348,7 @@ html:not(.ui-dark-mode) #app-frame #home .hm-dock-tabs > .hm-dock-toggle[aria-ex
 
 /* 立繪板依屬性變色：底色走 --slot-el，上面壓一层半透白把它變成粉彩，點陣角色才不會被吃掉。 */
 #app-frame #team .fm-captain-art,
-#app-frame #team .fm-member-art,
-#app-frame #team .fm-roster-card .sp {
+#app-frame #team .fm-member-art {
     border-color:var(--slot-el,#8eafc1) !important;
     background-color:var(--slot-el,#eef4f7) !important;
     background-image:linear-gradient(165deg,rgba(255,255,255,.93) 0%,rgba(255,255,255,.74) 48%,rgba(255,255,255,.6) 100%) !important;
@@ -1390,10 +1375,10 @@ html:not(.ui-dark-mode) #app-frame #home .hm-dock-tabs > .hm-dock-toggle[aria-ex
 #app-frame #team .fm-mini-gauge > i.energy b { background:linear-gradient(90deg,#2f9fd0,#7fe3f5) !important; }
 #app-frame #team .fm-mini-gauge small { color:#263238 !important; }
 
-/* 隊友卡與下場／隊長按鈕 */
+/* 隊友卡與選取／替換／卸下按鈕 */
 #app-frame #team .fm-member-name { color:#17394a !important; }
 #app-frame #team .fm-member > small { color:#586a73 !important; }
-#app-frame #team .fm-member-actions button {
+#app-frame #team .fm-slot-actions button {
     border:1px solid #7daec6 !important;
     border-bottom:2px solid #5d8ba6 !important;
     background:linear-gradient(180deg,#ffffff 0%,#edf4f7 54%,#dce8ed 100%) !important;
@@ -1401,7 +1386,7 @@ html:not(.ui-dark-mode) #app-frame #home .hm-dock-tabs > .hm-dock-toggle[aria-ex
     text-shadow:0 1px 0 #fff !important;
     box-shadow:none !important;
 }
-#app-frame #team .fm-member-actions button:hover {
+#app-frame #team .fm-slot-actions button:hover {
     border-color:#159bd1 !important;
     background:linear-gradient(180deg,#ffffff,#dff7ff) !important;
     color:#17394a !important;
@@ -1420,7 +1405,7 @@ html:not(.ui-dark-mode) #app-frame #home .hm-dock-tabs > .hm-dock-toggle[aria-ex
     background:linear-gradient(160deg,#ffffff 0%,#f5f7fa 58%,#e8eef1 100%) !important;
     box-shadow:inset 0 1px 0 #fff,0 2px 5px rgba(48,77,91,.16) !important;
 }
-#app-frame #team .fm-lead > span {
+#app-frame #team .fm-lead-toggle > span {
     color:#38240e !important;
     background:linear-gradient(180deg,#fff0a4,#f6c34e 55%,#e0a23a) !important;
     border-color:#ffe4a0 !important;
@@ -1428,50 +1413,43 @@ html:not(.ui-dark-mode) #app-frame #home .hm-dock-tabs > .hm-dock-toggle[aria-ex
 }
 #app-frame #team .fm-lead p { color:#263238 !important; }
 
-/* 下方角色名冊 */
-#app-frame #team .fm-roster-panel h2 { color:#17394a !important; }
-#app-frame #team .fm-roster-panel h2 .hint { color:#586a73 !important; }
-#app-frame #team .roster-filterbar {
-    display:grid; grid-template-columns:minmax(68px,.85fr) minmax(72px,.9fr) minmax(96px,1.65fr) auto;
-    gap:5px; align-items:center; margin:0 0 8px;
+/* 角色管理：持有角色列表的編隊按鈕與隊長／隊員標記。
+   兩段 id 是為了打贏 #app-frame button:not(.gold):not(.hm-go):not(.go) 那條全域按鈕皮。 */
+#app-frame #pg-body .char-card-actions { width:100%; display:flex; justify-content:center; margin-top:3px; }
+#app-frame #pg-body .char-act {
+    box-sizing:border-box; width:100%; min-height:28px; padding:3px 4px;
+    border:1px solid #7daec6 !important; border-bottom:2px solid #5d8ba6 !important; border-radius:4px !important;
+    background:linear-gradient(180deg,#fff 0%,#edf4f7 54%,#dce8ed 100%) !important;
+    color:#263238 !important; text-shadow:0 1px 0 #fff !important; font-size:11px; font-weight:800;
+    box-shadow:none !important; cursor:pointer; touch-action:manipulation;
 }
-#app-frame #team .roster-filterbar select,
-#app-frame #team .roster-filterbar input {
-    box-sizing:border-box; width:100%; min-width:0; height:32px; padding:0 7px;
-    border:1px solid #9eb7c3; border-radius:5px;
-    background:linear-gradient(180deg,#fff 0%,#eef3f6 100%); color:#203b49;
-    font-family:inherit; font-size:11px; font-weight:600;
-    box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(28,60,76,.12);
+#app-frame #pg-body .char-act:hover { border-color:#159bd1 !important; background:linear-gradient(180deg,#fff,#dff7ff) !important; }
+#app-frame #pg-body .char-act.join { border-color:#63a37f !important; border-bottom-color:#3f7d5c !important; color:#12472f !important;
+    background:linear-gradient(180deg,#fff 0%,#e3f6e9 54%,#c9ecd6 100%) !important; }
+#app-frame #pg-body .char-act.swap { border-color:#c8a24a !important; border-bottom-color:#a37f2c !important; color:#5c4310 !important;
+    background:linear-gradient(180deg,#fff 0%,#fdf3d6 54%,#f3e0a8 100%) !important; }
+#app-frame #pg-body .char-act.out { border-color:#b98d8d !important; border-bottom-color:#956a6a !important; color:#6a2f2f !important;
+    background:linear-gradient(180deg,#fff 0%,#fbecec 54%,#f2d8d8 100%) !important; }
+#app-frame #pg-body .char-role { position:absolute; z-index:2; top:4px; left:4px; padding:1px 4px; border-radius:3px;
+    font-size:8px; line-height:1.4; font-weight:800; text-shadow:none !important; }
+#app-frame #pg-body .char-role.lead { color:#5c4310 !important; background:linear-gradient(#fff1bf,#f2d778); border:1px solid #c19b43; }
+#app-frame #pg-body .char-role.mate { color:#17485e !important; background:linear-gradient(#e3f5ff,#b9e2f5); border:1px solid #7daec6; }
+#app-frame #pg-body .char-role.field { color:#12472f !important; background:linear-gradient(#e3f6e9,#c9ecd6); border:1px solid #63a37f; }
+
+/* 隊伍特性收合列 */
+#app-frame #team .fm-lead-toggle { width:100%; min-height:34px; padding:5px 7px !important; box-sizing:border-box;
+    border:0 !important; border-radius:0 !important; color:#263238 !important; background:none !important; box-shadow:none !important; }
+#app-frame #team .fm-lead-toggle > i { color:#586a73 !important; font-style:normal; }
+#app-frame #team .fm-replace { border-color:#c8a24a !important; background:#fff8e6 !important; color:#3a2c10 !important; }
+#app-frame #team .fm-replace-head span { color:#38240e !important; background:linear-gradient(180deg,#fff0a4,#f6c34e) !important; }
+#app-frame #team .fm-replace-head b { color:#17394a !important; }
+#app-frame #team .fm-replace-head button,
+#app-frame #team .fm-replace-picks button {
+    border:1px solid #b9a06a !important; border-bottom:2px solid #957c46 !important;
+    background:linear-gradient(180deg,#fff,#fdf3d6) !important; color:#4a3a12 !important; text-shadow:0 1px 0 #fff !important;
 }
-#app-frame #team .roster-filterbar input::placeholder { color:#71838b; opacity:1; }
-#app-frame #team .roster-filterbar .roster-filter-clear {
-    min-width:40px; height:32px; padding:0 8px; border:1px solid #9eb7c3 !important;
-    border-radius:5px !important; background:linear-gradient(180deg,#fff 0%,#e7edf0 100%) !important;
-    color:#244555 !important; text-shadow:none !important; font-size:11px; font-weight:700;
-    box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(28,60,76,.12) !important;
-}
-#app-frame #team .roster-filterbar .roster-filter-clear:hover { background:#e2f2f8 !important; border-color:#76a9bd !important; }
-#app-frame #team .roster-filter-count { margin:-3px 2px 6px; color:#586a73; font-size:10px; text-align:right; }
-#app-frame #team .roster-filter-empty { grid-column:1/-1; padding:16px 8px; text-align:center; color:#586a73; font-size:12px; }
-#app-frame #team .fm-roster-card {
-    border-color:#a9c1ce !important;
-    background:linear-gradient(160deg,#ffffff 0%,#f5f7fa 58%,#e8eef1 100%) !important;
-    color:#263238 !important;
-    box-shadow:inset 0 1px 0 #fff,0 2px 4px rgba(48,77,91,.14) !important;
-}
-#app-frame #team .fm-roster-card:hover { border-color:#7daec6 !important; }
-#app-frame #team .fm-roster-card > b { color:#17394a !important; }
-#app-frame #team .fm-roster-card > small { color:#586a73 !important; }
-#app-frame #team .fm-roster-card.onfield {
-    border-color:#159bd1 !important;
-    background:linear-gradient(180deg,#dff7ff,#9ee5f7) !important;
-    color:#17394a !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 2px 4px rgba(21,110,148,.24) !important;
-}
-#app-frame #team .fm-roster-state { color:#1b7f5a !important; }
-#app-frame #team .fm-roster-card:not(.onfield) .fm-roster-state { color:#586a73 !important; }
-#app-frame #team .fm-roster-section { color:#17394a !important; }
-#app-frame #team .fm-roster-section .rsec-n { color:#586a73 !important; }
+#app-frame #team .fm-replace-head button:hover,
+#app-frame #team .fm-replace-picks button:hover { border-color:#159bd1 !important; background:linear-gradient(180deg,#fff,#dff7ff) !important; color:#17394a !important; }
 
 /* 主頁頂部帳號條 B 版：平白浮動卡（去漸層、去厚框）、EXP 條全寬當卡底、
    屬性加成搬到頭像角、體力直接把回復倒數攤在卡面上，只有結晶掛 ＋（去花結晶的招募頁）。 */

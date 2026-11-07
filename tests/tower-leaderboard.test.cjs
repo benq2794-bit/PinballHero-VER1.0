@@ -72,77 +72,35 @@ for (const [iso, expect] of [
     same(ctx.towerLbRows(), [{ name: "見習勇者", floor: 84, at: "", me: true }], "生涯那格讀 towerBestStage");
 }
 
-// 版面分支：≤3 筆走資料源說明（不鋪假名字），>3 筆才出現榜單與釘底的自己。
+// 共用幻想排行榜：真實資料、模式選單、週期、空榜、自己的紀錄與完整列表。
 {
-    const single = setup({ weekFloor: 84, weekAt: "18:42" }).ctx.pageTowerLeaderboard();
-    assert.ok(single.includes("榜單目前只有你這一筆"), "一筆時要講資料源現況");
-    assert.ok(!single.includes("lb-self"), "只有你時不再重複列一次自己");
-    assert.equal((single.match(/lb-pod p\d void/g) || []).length, 2, "2、3 名留空位");
-    assert.ok(single.includes("見習勇者") && single.includes("18:42 抵達"));
-    assert.ok(single.includes("lb-cta") && single.includes("繼續挑戰波利塔"));
+    const single=setup({weekFloor:84,weekAt:'18:42'}).ctx.pageTowerLeaderboard();
+    assert.ok(single.includes('榮耀排行榜')&&single.includes('<select aria-label="挑戰模式"'));
+    assert.ok(!single.includes('lb-modes'));
+    assert.ok(single.includes('lb-self')&&single.includes('我的排名'));
+    assert.equal((single.match(/lb-pod p[123] void/g)||[]).length,2);
+    assert.ok(single.includes('18:42 抵達')&&single.includes('showTowerModePicker()'));
+    const empty=setup().ctx.pageTowerLeaderboard();
+    assert.equal((empty.match(/lb-pod p[123] void/g)||[]).length,3);
+    assert.ok(empty.includes('本週還沒上塔')&&!empty.includes('18:42'));
+    const c=setup().ctx;c.towerLbRows=()=>Array.from({length:13},(_,i)=>({name:'勇者'+(i+1),floor:150-i,at:'18:20',me:i===11}));
+    const many=c.pageTowerLeaderboard();assert.ok(many.includes('勇者13')&&many.includes('我的最佳紀錄'));
+    assert.ok(many.includes('lb-self is-me'));
+    c.setTowerLbScope('life');const life=c.pageTowerLeaderboard();assert.ok(!life.includes('本週倒數'));assert.ok(life.includes('生涯前段'));
+    c.setTowerLbMode('rogue');const rogue=c.pageTowerLeaderboard();
+    assert.ok(rogue.includes('value="rogue" selected'));
+    assert.ok(rogue.includes('本週還沒有地獄模式成績')&&rogue.includes('本週倒數'));
+    assert.ok(rogue.includes('disabled title="無限連擊目前僅有本週地獄模式紀錄"'));
+    assert.ok(rogue.includes('showExpeditionModePicker()'));
+    c.expeditionTime=seconds=>String(seconds)+' 秒';
+    c.expeditionHellWeekRecord=()=>({week:c.towerWeekStart(),rows:[{name:'本機測試紀錄',seconds:120,count:12,clear:false}]});
+    const localRogue=c.pageTowerLeaderboard();assert.ok(localRogue.includes('本機測試紀錄')&&localRogue.includes('lb-self is-me'),'local best is highlighted without writing player data');
 
-    const none = setup().ctx.pageTowerLeaderboard();
-    assert.ok(none.includes("本週還沒上塔"), "本週空榜的引導文案");
-    assert.equal((none.match(/lb-pod p\d void/g) || []).length, 3);
-    assert.ok(!none.includes("18:42"), "空榜不殘留時間戳");
-
-    const many = setup({ weekFloor: 84, weekAt: "18:42" }).ctx;
-    many.towerLbRows = () => Array.from({ length: 13 }, (_, i) => ({ name: `勇者${i + 1}`, floor: 150 - i * 6, at: "18:20", me: i === 11 }));
-    const board = many.pageTowerLeaderboard();
-    assert.ok(board.includes("lb-board") && board.includes("lb-dots"), "超過 10 筆要有榜單與省略號");
-    assert.ok(board.includes('<span class="rk">12</span>'), "自己那一列的名次取實際位置");
-    assert.ok(board.includes("勇者12"), "自己那一列照名字原樣輸出，不再加前綴");
-    assert.ok(!board.includes("lb-note"), "有榜單時不再顯示資料源說明");
-}
-
-// 無盡遠征（地獄模式）那塊板：本週沒成績就明講空榜，不鋪台子、不假裝有榜單。
-{
-    const { ctx } = setup({ weekFloor: 84, weekAt: "18:42" });
-    ctx.setTowerLbMode("rogue");
-    const rogue = ctx.pageTowerLeaderboard();
-    assert.ok(rogue.includes('class="on" onclick="setTowerLbMode(\'rogue\')"'), "遠征那顆要亮起來");
-    assert.ok(rogue.includes("本週還沒有地獄模式成績"), "空榜要講清楚是還沒跑過");
-    assert.ok(rogue.includes("lb-clock") && rogue.includes("本週倒數"), "遠征榜同样掛本週倒數");
-    assert.equal((rogue.match(/lb-pod p\d/g) || []).length, 0, "遠征榜不鋪前三名台子");
-    assert.ok(!rogue.includes("lb-tabs"), "遠征榜沒有本週／生涯分頁");
-    assert.ok(!rogue.includes("lb-board") && !rogue.includes("lb-self"), "空榜不鋪榜單與自己那一列");
-    assert.ok(rogue.includes("每週一 00:00 結算") && rogue.includes("前往出發冒險"), "要給結算規則與既有入口");
-
-    ctx.setTowerLbMode("tower");
-    const back = ctx.pageTowerLeaderboard();
-    assert.ok(back.includes('class="on" onclick="setTowerLbMode(\'tower\')"'), "選中的模式要掛 on");
-    assert.ok(back.includes("lb-clock") && back.includes("lb-tabs") && back.includes("見習勇者"), "切回波利塔要恢復原本的版面");
-    assert.equal((back.match(/lb-pod p\d void/g) || []).length, 2, "波利塔仍只缺 2、3 名");
-
-    ctx.setTowerLbMode("gate");
-    assert.ok(ctx.pageTowerLeaderboard().includes("本週前段"), "不認識的模式退回波利塔");
-
-    // 選中那一顆的底色必須由這支樣式檔搶回來，否則會被 theme 的 `button:not(.gold)` 壓回白漸層。
-    const css = fs.readFileSync(path.resolve(__dirname, "../asset/tower-leaderboard.css"), "utf8");
-    for (const sel of [".lb-modes button.on", ".lb-tabs button.on"]) {
-        assert.ok(css.includes(sel), `排行榜樣式缺 ${sel}`);
-    }
-    assert.ok(/button\.on[\s\S]{0,240}background:linear-gradient\(180deg,#dff7ff,#9ee5f7\) !important/.test(css), "選中分頁的青色要帶 !important");
-}
-
-// 本週倒數只屬於本週榜，而且掛在小節標題右側，不再多佔一列。
-{
-    const { ctx } = setup({ weekFloor: 84, weekAt: "18:42" });
-    const week = ctx.pageTowerLeaderboard();
-    assert.ok(/<h3>本週前段・[\d/–]+<\/h3><span class="lb-clock"/.test(week), "倒數要掛在小節標題右側");
-    assert.ok(!week.includes("lb-top"), "模式分頁那一列不再塞倒數");
-    ctx.setTowerLbScope("life");
-    const life = ctx.pageTowerLeaderboard();
-    assert.ok(!life.includes("本週倒數") && !life.includes("lb-clock"), "生涯不掛週期");
-    assert.ok(life.includes("<span>本機紀錄</span>"), "生涯那格留資料源");
-}
-
-// 帳號名要逃過 HTML 注入。
-{
-    const { ctx } = setup({ weekFloor: 30, weekAt: "09:05", name: `<script>"&'` });
-    const page = ctx.pageTowerLeaderboard();
-    assert.ok(page.includes("&lt;script&gt;"), "名字裡的尖括號被轉義");
-    assert.ok(!page.includes("<script>"), "不會長出真的 script 標籤");
+    c.setTowerLbMode('gate');assert.ok(c.pageTowerLeaderboard().includes('value="tower" selected'));
+    c.pickHomeTab=(tab,mode)=>{assert.equal(tab,'leaderboard');assert.equal(mode,'rogue')};c.openHomeLeaderboard('rogue');
+    c.pickHomeTab=(tab,mode)=>assert.equal(mode,'tower');c.openHomeLeaderboard();
+    const unsafe=setup({weekFloor:30,name:'<script>"&'}).ctx.pageTowerLeaderboard();assert.ok(unsafe.includes('&lt;script&gt;')&&!unsafe.includes('<script>'));
+    assert.ok(!single.includes('隊伍戰力')&&!single.includes('最快通關時間'),'missing historical data never invented');
 }
 
 // 全服榜的同步守門：進榜單那頁就補送、雲端較高不覆寫、查不到基準寧可不送。
@@ -232,7 +190,7 @@ function cloudSetup({ weekFloor = 40, best = 40, name = "測試勇者", own = {}
     ] }`, guest.ctx);
     const guestMarkup = guest.ctx.pageTowerLeaderboard();
     assert.ok(guestMarkup.includes("玩家丁"));
-    assert.ok(guestMarkup.includes("目前尚無你的本週成績"), "尚未上榜的訪客也能讀取全服榜單");
+    assert.ok(guestMarkup.includes("尚無你的上榜紀錄"), "尚未上榜的訪客也能讀取全服榜單");
 
     console.log("tower-leaderboard: 週起始／本週紀錄／版面分支／模式切換／轉義／雲端同步守門 全部通過");
 })().catch(error => { console.error(error); process.exit(1); });

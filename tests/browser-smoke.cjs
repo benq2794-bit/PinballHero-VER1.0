@@ -63,7 +63,7 @@ class CDP {
             tutorialSeen = true;
             $('account-setup').classList.remove('on'); pickStarter('doctor_pirate');
             setPaused(false); showScreen('home');`);
-        const tabs = await page.evaluate("['team', ...Object.keys(PAGES), 'home']");
+        const tabs = await page.evaluate("[...Object.keys(PAGES), 'home']");
         for (const tab of tabs) {
             const result = await page.evaluate(`pickHomeTab('${tab}'); ({ tab: homeTabOn, route: uiRouter.current() })`);
             assert.equal(result.tab, tab);

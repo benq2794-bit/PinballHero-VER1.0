@@ -106,15 +106,6 @@
         .slot .uni.none .u-tag { color: #4d5568; }
 
         /* ===== 名冊 ===== */
-        .roster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .rcard { background: #12121a; border: 1px solid #26263a; border-radius: 8px; padding: 7px; cursor: pointer; display: flex; gap: 7px; align-items: center; font-family: inherit; color: inherit; text-align: left; }
-        .rcard:hover { border-color: #3d4d6b; background: #171722; }
-        .rcard.onfield { border-color: rgba(53,224,255,.75); box-shadow: 0 0 10px rgba(53,224,255,.22); }
-        .rcard .sp { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #3a3a52; flex: none; font-size: 11px; }
-        .rcard .sp img { object-fit: contain; image-rendering: pixelated; image-rendering: crisp-edges; }
-        .rcard .b { flex: 1; min-width: 0; }
-        .rcard .nm { font-size: 11px; color: #dfe6f5; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .rcard .sub { font-size: 9px; color: #8fa0c0; }
         #pg-body .inventory-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:8px 0; }
         #pg-body .inventory-filters { display:flex; gap:5px; margin:8px 0; }
         #pg-body .inventory-filters .mini-btn { flex:1; min-width:0; padding:6px 3px; }
@@ -1339,12 +1330,6 @@
             font-family: inherit; font-size: 11px; cursor: pointer; }
         .pt-skip:hover { color: #fff; }
         .pt-note { margin: 8px 0 0; text-align: center; color: #8393ad; font-size: 10px; }
-        /* 編成頁右上角的出發按鈕 */
-        .pg-head .tm-go { border: none; background: #ffd93d; color: #4a3800; font-size: 12px; font-weight: 800;
-            padding: 7px 13px; border-radius: 14px; cursor: pointer; font-family: inherit; letter-spacing: 1px; }
-        .pg-head .tm-go:hover { background: #ffe875; }
-        #team .pg-body > .panel + .panel { margin-top: 10px; }
-        #team .pg-body > .panel { padding: 12px; }
         /* 編成頁：先看出戰名單，再看角色數值與隊長效果。 */
         #team .fm-panel { padding:10px; border-color:#284968; background:linear-gradient(180deg,rgba(15,33,52,.98),rgba(7,17,30,.98)); }
         #team .fm { display:flex; flex-direction:column; gap:6px; }
@@ -1394,19 +1379,6 @@
         #team .fm-powerrow { display:flex; justify-content:flex-end; }
         #team .fm-power { display:flex; align-items:baseline; gap:5px; padding:2px 6px; color:#9fb5c9; font-size:9px; background:#101e2c; border:1px solid #263e53; border-radius:4px; }
         #team .fm-power strong { color:#ffe27c; font-size:11px; }
-        #team .fm-lead { padding:6px 7px; color:#cad9e8; background:linear-gradient(90deg,rgba(80,59,25,.42),rgba(16,27,39,.72)); border:1px solid rgba(227,185,86,.42); border-left:3px solid #e6bd61; border-radius:4px; }
-        #team .fm-lead > span { color:#241503; font-size:9px; font-weight:900; text-shadow:none; }
-        #team .fm-lead p { margin:3px 0 0; color:#d9e4ef; font-size:9px; line-height:1.4; }
-        #team .fm-lead p span { color:#9cb8d0; }
-        #team .roster-grid { grid-template-columns:1fr 1fr; }
-        #team .rcard { min-height:50px; padding:5px; gap:5px; background:linear-gradient(145deg,#172a3e,#0c1725); border-color:#324e68; border-radius:5px; }
-        #team .rcard.onfield { border-color:#69d7bb; background:linear-gradient(145deg,#174138,#10262c); box-shadow:inset 0 0 0 1px rgba(105,215,187,.18); }
-        #team .rcard .sp { width:28px; height:28px; border-radius:4px; border-color:#6687a0; background:#08111c; }
-        #team .rcard .nm { color:#f1f6fb; font-size:11px; }
-        #team .rcard .sub { margin-top:3px; color:#a8bed1; }
-        #team .rcard.onfield .sub:first-of-type { color:#79e7c9; font-weight:800; }
-        #team .fm-panel + .panel h2 { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px; }
-        #team .fm-panel + .panel h2 .hint { color:#9ab5cb; font-size:9px; font-weight:400; }
         .foe-bar .foe-k { color: #b9c4dd; font-size: 9px; white-space: nowrap; }
         .foe-bar .foe-k b { color: #fff; font-size: 10px; }
 
@@ -2766,10 +2738,6 @@
                 <path fill="currentColor" opacity=".23" d="M2 6h12v7H2z"/>
                 <path fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" d="M2 13V6l2-3h8l2 3v7zM2 7h12m-7.5 0v3h3V7"/>
               </symbol>
-              <symbol id="dock-icon-shield" viewBox="0 0 16 16">
-                <path fill="currentColor" opacity=".24" d="M8 2 13 4v4c0 3-2 4-5 6-3-2-5-3-5-6V4z"/>
-                <path fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" d="M8 2 13 4v4c0 3-2 4-5 6-3-2-5-3-5-6V4zM8 5v5M6 7h4"/>
-              </symbol>
               <symbol id="dock-icon-book" viewBox="0 0 16 16">
                 <path fill="currentColor" opacity=".24" d="M2 3c2-1 4 0 6 1 2-1 4-2 6-1v9c-2-1-4 0-6 1-2-1-4-2-6-1z"/>
                 <path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M2 3c2-1 4 0 6 1 2-1 4-2 6-1v9c-2-1-4 0-6 1-2-1-4-2-6-1zM8 4v9M4 6l2 .5M10 6.5l2-.5"/>
@@ -2805,11 +2773,10 @@
                     <button type="button" onclick="pickHomeTab('exchange')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-trade"/></svg></span>角色交換所</button>
                     <button type="button" onclick="pickHomeTab('items')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-chest"/></svg></span>道具統計</button>
                 </div>
-                <button class="hm-action hm-dock-toggle" type="button" aria-expanded="false" aria-controls="hm-team-panel" onclick="toggleHomeDockMenu(this)"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-formation"/></svg></span><span class="hm-action-label">角色編成</span></button>
-                <div class="hm-dock-panel" id="hm-team-panel" role="group" aria-label="角色編成入口" hidden>
-                    <button type="button" onclick="showScreen('team')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-shield"/></svg></span>隊伍編成</button>
-                    <button type="button" onclick="pickHomeTab('book')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-book"/></svg></span>圖鑑</button>
-                    <button type="button" onclick="pickHomeTab('chars')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-roster"/></svg></span>角色名冊</button>
+                <button class="hm-action hm-dock-toggle" type="button" aria-expanded="false" aria-controls="hm-team-panel" onclick="toggleHomeDockMenu(this)"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-formation"/></svg></span><span class="hm-action-label">角色</span></button>
+                <div class="hm-dock-panel" id="hm-team-panel" role="group" aria-label="角色管理入口" hidden>
+                    <button type="button" onclick="pickHomeTab('chars')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-roster"/></svg></span>角色管理</button>
+                    <button type="button" onclick="pickHomeTab('book')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-book"/></svg></span>角色圖鑑</button>
                 </div>
             </nav>
 
@@ -3035,44 +3002,6 @@
         </div>
     </div>
 
-    <!-- ===== 編成：獨立一頁，跟主頁／分頁共用同一個框 ===== -->
-    <div id="team" class="pg" style="display:none">
-            <div class="pg-head">
-                <button class="bk" onclick="showScreen('home')">‹ 主頁</button>
-                <div class="tt">隊伍編成</div>
-                <button class="tm-go" onclick="openAdventureEntry()">選擇冒險</button>
-            </div>
-            <div class="pg-body">
-                <div class="panel fm-panel">
-                    <div id="team-slots"></div>
-                </div>
-
-                <div class="panel fm-roster-panel" id="owned-roster">
-                    <h2>已持有角色 <span class="hint">連點兩下加入隊伍；場上的角色連點兩下換下場</span></h2>
-                    <div class="roster-filterbar" aria-label="篩選已持有角色">
-                        <select id="roster-filter-element" aria-label="依屬性篩選已持有角色">
-                            <option value="">屬性全部</option>
-                            <option value="fire">火</option><option value="water">水</option>
-                            <option value="thunder">雷</option><option value="wind">風</option>
-                        </select>
-                        <select id="roster-filter-type" aria-label="依職業篩選已持有角色">
-                            <option value="">職業全部</option>
-                            <option value="knight">劍士</option><option value="fighter">格鬥</option>
-                            <option value="ranger">射擊</option><option value="supporter">輔助</option><option value="special">特殊</option>
-                        </select>
-                        <input id="roster-filter-query" type="search" placeholder="搜尋角色名稱" aria-label="搜尋已持有角色名稱">
-                        <button id="roster-filter-clear" type="button" class="roster-filter-clear">清空</button>
-                    </div>
-                    <div id="roster-filter-count" class="roster-filter-count" aria-live="polite"></div>
-                    <div id="roster-grid" class="roster-grid fm-roster-grid"></div>
-                    <p style="margin:8px 0 0; font-size:12px; color:#586a73;">已解鎖角色: <span id="char-unlocked">0/0</span>｜累計虹彩石: <span id="shard-total">0</span></p>
-                </div>
-
-            </div>
-            <div class="hm-tabs" id="team-tabs"></div>
-            <div class="hm-toast" id="team-toast"></div>
-        </div>
-
         <div id="adventure" class="pg adventure-screen" style="display:none">
             <div class="pg-head">
                 <button class="bk" type="button" onclick="showScreen('home')">‹ 主頁</button>
@@ -3212,7 +3141,7 @@
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.5";
+const GAME_VERSION = "v0.1.0-alpha.6";
 const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
@@ -3264,6 +3193,7 @@ function watchPowerState() {
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
+    {"version":"v0.1.0-alpha.6","date":"2026-11-08","content":["隊伍編成、角色名冊與角色培養合併為「角色管理」單一頁面：上方保留出戰隊伍、配隊切換與隊伍戰力，下方持有角色列表維持搜尋與篩選。","點選持有角色開啟詳情，檢視能力、技能與隊長特性全文，並直接進行升級、突破等原有養成操作；返回鍵回到角色管理列表。","編隊改為明確按鈕操作：選取、替換、卸下，替換列可取消；角色卡標示隊長／隊員，不再依賴雙擊。","隊伍特性預設收合，點擊展開完整說明；手機直立版面加大槽內按鈕並消除橫向溢出，深色模式對比同步補齊。","角色圖鑑維持獨立收藏頁：持有／未持有預覽、角色資料、收藏進度與成就獎勵不變，且不重複養成操作。","排行榜換上榮耀新版版面：挑戰模式改下拉選單、前三名改徽章舞台，榜單整合我的排名列。"]},
     {"version":"v0.1.0-alpha.5","date":"2026-11-08","content":["修正波利塔全隊死亡時誤觸全滅視窗：全隊自動以 50% 最大生命復活並重試當前樓層。","波利塔自動循環開關會保留上次設定；開啟時超時直接循環，關閉時保留原有超時手動流程。","更新波利塔循環與復活提示，明確區分全滅重試當層及超時返回起始層；其他模式與獎勵規則維持原樣。"]},
     {"version":"v0.1.0-alpha.4","date":"2026-11-08","content":["新增每 10 秒版本偵測、30 秒倒數與立即更新通知，戰鬥及重要操作期間延後更新。","重新載入前確認本機與雲端存檔完成；存檔失敗會停止自動更新並提供重試。","版本更新後自動顯示最新更新日誌，同版本只顯示一次，保留手動查閱及歷史內容。","新增唯一發布版本檔、資源快取更新與部署前檢查／正式網站驗證流程。"]},
     { version: "v0.1.0-alpha.3", date: "2026-11-07", content: [
@@ -9587,12 +9517,14 @@ function viewSquad(i) {
     squads[squadView] = editIds.slice(0, TEAM_MAX);
     squadView = Math.max(0, Math.min(SQUAD_COUNT - 1, Math.floor(+i) || 0));
     editIds = (squads[squadView] || []).slice(0, TEAM_MAX);
+    squadReplaceFor = null;
     updateUI();
 }
 
 // 點金色徽章：把正在編輯的這一隊設成實戰隊伍。
 function useSquad() {
     if (!editIds.length) { log(`⚠️ ${squadLabel(squadView)} 還沒有人上場，先放一位角色。`); return; }
+    squadReplaceFor = null;
     squads[squadView] = editIds.slice(0, TEAM_MAX);
     squadOn = squadView;
     teamIds = squads[squadOn].slice();
@@ -9652,26 +9584,45 @@ function toggleTeam(id) {
     updateUI();
 }
 
-// 換人改成雙擊：第一下只把卡片「上膛」（金色外框），350ms 內同一張再點一次才真的上下場。
-// 沒用 dblclick 事件，是因為手機雙拍不保證補發 dblclick；自己計時桌面與觸控都吃得同套節奏。
-let tapArm = { key: "", at: 0, timer: 0 };
-function tapTwice(key, el, action) {
-    const now = performance.now();
-    clearTimeout(tapArm.timer);
-    if (tapArm.key === key && now - tapArm.at < 350) {
-        // 第二下：先把金框收掉再換人。動作可能被擋（最後一人、隊伍已滿），留著框會像卡住。
-        document.querySelectorAll("#team .armed").forEach(n => n.classList.remove("armed"));
-        tapArm = { key: "", at: 0, timer: 0 };
-        action();
-        return;
-    }
-    document.querySelectorAll("#team .armed").forEach(n => n.classList.remove("armed"));
-    if (el) el.classList.add("armed");
-    tapArm = { key, at: now, timer: setTimeout(() => {
-        if (el) el.classList.remove("armed");
-        tapArm = { key: "", at: 0, timer: 0 };
-    }, 350) };
+// 編隊走明確操作：選取＝加入、替換＝隊伍已滿時先指定誰下場、卸下＝退場。
+// 角色卡本身只開詳情，編隊一律走卡上那顆按鈕，不再依賴雙擊。
+let squadReplaceFor = null;
+let squadLeadOpen = false;
+
+function squadJoin(id) {
+    if (!roster[id]?.unlocked || editIds.includes(id)) return;
+    if (editIds.length >= TEAM_MAX) { openSquadReplace(id); return; }
+    squadReplaceFor = null;
+    toggleTeam(id);
 }
+
+function squadLeave(id) {
+    squadReplaceFor = null;
+    if (editIds.includes(id)) toggleTeam(id);
+}
+
+function openSquadReplace(id) {
+    if (!roster[id]?.unlocked || editIds.includes(id)) return;
+    if (editIds.length < TEAM_MAX) { squadJoin(id); return; }
+    squadReplaceFor = id;
+    renderPage();   // 從名冊點替換後回到頁首，替換列就在出戰隊伍正上方
+}
+
+function cancelSquadReplace() { squadReplaceFor = null; buildSlots(); }
+
+function replaceSquadMember(index, id) {
+    const out = editIds[index];
+    if (!out || out === id || !roster[id]?.unlocked || editIds.includes(id)) { cancelSquadReplace(); return; }
+    squadReplaceFor = null;
+    editIds[index] = id;
+    const u = unisonMap[out];
+    delete unisonMap[out];
+    commitSquad();
+    log(`🔁 <b>${charName(id)}</b> 替換 <b>${charName(out)}</b> 上場${u ? `，合擊搭檔 <b>${charName(u)}</b> 一同退回名冊` : ""}。`);
+    updateUI();
+}
+
+function toggleSquadLead() { squadLeadOpen = !squadLeadOpen; buildSlots(); }
 
 // ===== 隊長：editIds[0] 就是實質隊長，隊長特性只加攻擊與暴擊率 =====
 function setCaptain(id) {
@@ -9709,6 +9660,7 @@ function teamPower() {
 
 function buildSlots() {
     const box = $("team-slots");
+    if (!box) return;
     // 只有編輯實戰那一隊時才掛 slot-* 欄位 id：那些 id 是 updateUI 逐幀餵戰場即時數值用的，
     // 餵到別隊的卡框會顯示錯人。
     const live = squadView === squadOn;
@@ -9717,8 +9669,8 @@ function buildSlots() {
     for (let i = 0; i < TEAM_MAX; i++) {
         const id = editIds[i];
         if (!id) {
-            lineup += `<button class="fm-slot fm-slot-empty" onclick="tapTwice('slot:${i}',this,() => focusOwnedRoster())" aria-label="空角色槽：連點兩下前往角色名冊選人">
-                <span class="fm-slot-plus">＋</span><span>空角色槽</span><small>從下方選擇角色</small>
+            lineup += `<button class="fm-slot fm-slot-empty" type="button" onclick="focusOwnedRoster()" aria-label="空角色槽：前往持有角色列表選人">
+                <span class="fm-slot-plus">＋</span><span>空角色槽</span><small>從下方選取角色</small>
             </button>`;
             continue;
         }
@@ -9726,8 +9678,10 @@ function buildSlots() {
         const el = EL_COLOR[d.element] || "#8fa0c0";
         const cd = Math.round((SKILL_CD[d.type] || 15) * SKILL_CHARGE_TIME);
         const head = i === 0;
+        const open = `role="button" tabindex="0" title="點擊查看 ${d.name} 詳情" aria-label="點擊查看 ${d.name} 詳情" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openGrowth('${id}')}" onclick="openGrowth('${id}')"`;
+        const outBtn = `<button type="button" onclick="event.stopPropagation();squadLeave('${id}')" aria-label="讓 ${d.name} 卸下">卸下</button>`;
         if (head) {
-            lineup += `<article class="fm-slot fm-captain" style="--slot-el:${el}" role="button" tabindex="0" title="雙擊換下場：${d.name}" aria-label="雙擊換下場：${d.name}" onkeydown="if(event.key==='Enter')this.click()" onclick="tapTwice('out:${id}',this,() => toggleTeam('${id}'))">
+            lineup += `<article class="fm-slot fm-captain" style="--slot-el:${el}" ${open}>
                 <div class="fm-captain-art" id="slot-sp-${i}"></div>
                 <div class="fm-captain-info">
                     <div class="fm-slot-kicker">隊長・隊長特性生效</div>
@@ -9737,13 +9691,14 @@ function buildSlots() {
                     <div class="fm-mini-gauge"><span>HP</span><i class="hp"><b${sid("hp", i)} style="width:${clampPct(roster[id].hp / hpMax(roster[id]))}"></b></i><small${sid("hpnum", i)}>${roster[id].hp}</small></div>
                     <div class="fm-mini-gauge"><span>技能</span><i class="energy"><b${sid("gauge", i)} style="width:${clampPct(roster[id].gauge / 100)}"></b></i><small${sid("en", i)}>${Math.round(roster[id].gauge)}%</small></div>
                     ${un ? `<div class="fm-captain-unison">・合擊 ${CHAR_TABLE[un].name}</div>` : ""}
+                    <div class="fm-slot-actions cap">${outBtn}</div>
                 </div>
             </article>`;
         } else {
-            lineup += `<article class="fm-slot fm-member" style="--slot-el:${el}" role="button" tabindex="0" title="雙擊換下場：${d.name}" aria-label="雙擊換下場：${d.name}" onkeydown="if(event.key==='Enter')this.click()" onclick="tapTwice('out:${id}',this,() => toggleTeam('${id}'))">
+            lineup += `<article class="fm-slot fm-member" style="--slot-el:${el}" ${open}>
                 <div class="fm-member-art" id="slot-sp-${i}"></div>
                 <b class="fm-member-name">${d.name}</b><small>Lv.${roster[id].lvl}・${ELEMENTS[d.element].label}</small>
-                <div class="fm-member-actions"><button onclick="event.stopPropagation();setCaptain('${id}')">隊長</button></div>
+                <div class="fm-slot-actions"><button type="button" onclick="event.stopPropagation();setCaptain('${id}')" aria-label="讓 ${d.name} 當隊長">隊長</button>${outBtn}</div>
                 <span class="fm-a11y-data"${sid("lv", i)}>${roster[id].lvl}</span><span class="fm-a11y-data"${sid("atk", i)}>${atkOf(roster[id])}</span>
                 <i class="fm-a11y-data"${sid("hp", i)} style="width:${clampPct(roster[id].hp / hpMax(roster[id]))}"></i><span class="fm-a11y-data"${sid("hpnum", i)}>${roster[id].hp}</span>
                 <i class="fm-a11y-data"${sid("gauge", i)} style="width:${clampPct(roster[id].gauge / 100)}"></i><span class="fm-a11y-data"${sid("en", i)}>${Math.round(roster[id].gauge)}%</span>
@@ -9755,21 +9710,30 @@ function buildSlots() {
         .map(id => `${CHAR_TABLE[id].name} ${leadTagsFor(id) || "無加成"}`).join("／");
     const leadNote = cap
         ? `<b style="color:#8a5a12">${cap.name}</b>：${cap.lead}${mates ? `<br><span style="color:#1f6d94">隊友吃到：${mates}</span>` : ""}`
-        : "還沒有人上場，到下方名冊雙擊一位。";
+        : "還沒有人上場，從下方持有角色列表選取一位。";
     const typeName = cap ? (TYPE_INFO[cap.type] || TYPE_INFO.knight).n : "未編成";
     const prev = (squadView + SQUAD_COUNT - 1) % SQUAD_COUNT, next = (squadView + 1) % SQUAD_COUNT;
     const dots = Array.from({ length: SQUAD_COUNT }, (_, i) => `<i${i === squadView ? ' class="on"' : ''}></i>`).join("");
+    const replace = squadReplaceFor && CHAR_TABLE[squadReplaceFor] ? `<div class="fm-replace" role="group" aria-label="選擇要替換下場的角色">
+        <div class="fm-replace-head"><span>替換上場</span><b>${CHAR_TABLE[squadReplaceFor].name}</b><button type="button" onclick="cancelSquadReplace()">取消</button></div>
+        <p>隊伍已滿 ${TEAM_MAX} 人，點選要下場的角色：</p>
+        <div class="fm-replace-picks">${editIds.map((mid, i) => `<button type="button" onclick="replaceSquadMember(${i},'${squadReplaceFor}')">${i === 0 ? "隊長・" : ""}${CHAR_TABLE[mid].name}</button>`).join("")}</div>
+    </div>` : "";
     box.innerHTML = `<div class="fm">
-        <div class="fm-head"><div><small>連點兩下才換人：場上角色換下場，名冊角色換上場</small><b>出戰隊伍</b></div>
+        <div class="fm-head"><div><small>點角色看詳情；編隊用選取／替換／卸下</small><b>出戰隊伍</b></div>
             <div class="fm-squad">
                 <button class="sq-nav" onclick="viewSquad(${prev})" aria-label="前一隊">◀</button>
                 <button class="fm-count sq-chip${live ? " live" : ""}" onclick="useSquad()" title="${live ? "這一隊正在實戰" : "點一下讓這一隊上場實戰"}"><i>${squadLabel(squadView)}</i><u>${typeName}</u></button>
                 <button class="sq-nav" onclick="viewSquad(${next})" aria-label="下一隊">▶</button>
             </div></div>
         <div class="fm-squad-dots" aria-label="目前編輯 ${squadLabel(squadView)}">${dots}</div>
+        ${replace}
         <div class="fm-lineup">${lineup}</div>
         <div class="fm-summary"><span>隊伍戰力 <b>${teamPower().toLocaleString()}</b></span><span>${squadLabel(squadView)}・最多 ${TEAM_MAX} 人</span></div>
-        <div class="fm-lead"><span>隊長特性</span><p>${leadNote}</p></div>
+        <div class="fm-lead${squadLeadOpen ? " open" : ""}">
+            <button type="button" class="fm-lead-toggle" onclick="toggleSquadLead()" aria-expanded="${squadLeadOpen}"><span>隊伍特性</span><i>${squadLeadOpen ? "收合 ▲" : "展開 ▼"}</i></button>
+            ${squadLeadOpen ? `<p>${leadNote}</p>` : ""}
+        </div>
     </div>`;
     for (let i = 0; i < TEAM_MAX; i++) {
         const id = editIds[i];
@@ -9781,68 +9745,6 @@ function buildSlots() {
 function focusOwnedRoster() {
     const rosterPanel = $("owned-roster");
     rosterPanel?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function buildRoster() {
-    const box = $("roster-grid");
-    if (!box) return;
-    const elementFilter = $("roster-filter-element")?.value || "";
-    const typeFilter = $("roster-filter-type")?.value || "";
-    const query = ($("roster-filter-query")?.value || "").trim().toLocaleLowerCase();
-    const ownedIds = CHAR_IDS.filter(id => roster[id]?.unlocked);
-    const filteredIds = ownedIds.filter(id => {
-        const d = CHAR_TABLE[id];
-        return (!elementFilter || d.element === elementFilter)
-            && (!typeFilter || d.type === typeFilter)
-            && (!query || `${d.name} ${d.title || ""} ${TYPE_INFO[d.type]?.n || ""}`.toLocaleLowerCase().includes(query));
-    });
-    const count = $("roster-filter-count");
-    if (count) count.textContent = `顯示 ${filteredIds.length} / ${ownedIds.length} 位`;
-    const sec = (ic, label, note, color) =>
-        `<div class="rsec fm-roster-section" style="grid-column:1/-1"><span class="element-badge ${color}" style="margin-right:5px">${ic}</span>${label}<span class="rsec-n">${note}</span></div>`;
-    let html = "";
-    OPEN_EL.forEach(elKey => {
-        const ids = filteredIds.filter(id => CHAR_TABLE[id].element === elKey);
-        if (!ids.length) return;
-        html += sec(ELEMENTS[elKey].label, ELEMENTS[elKey].label + "屬性", `${ids.length} 隻`, ELEMENTS[elKey].cls);
-        html += ids.map(rosterCard).join("");
-    });
-    if (!html) {
-        const hasOwned = ownedIds.length > 0;
-        html = `<div class="rsec roster-filter-empty" style="grid-column:1/-1">${hasOwned ? "沒有符合篩選條件的角色。" : "還沒有兌換的角色——到「角色」頁用 10 片碎片兌換。"}</div>`;
-    }
-    box.innerHTML = html;
-    CHAR_IDS.forEach(id => {
-        const node = $("rc-sp-" + id);
-        if (!node) return;
-        paintSprite(node, "hero", id, "idle", CHAR_TABLE[id].name.slice(0, 1));
-    });
-}
-
-function clearRosterFilters() {
-    $("roster-filter-element").value = "";
-    $("roster-filter-type").value = "";
-    $("roster-filter-query").value = "";
-    buildRoster();
-}
-
-function bindRosterFilters() {
-    const element = $("roster-filter-element");
-    const type = $("roster-filter-type");
-    const query = $("roster-filter-query");
-    const clear = $("roster-filter-clear");
-    element?.addEventListener("change", buildRoster);
-    type?.addEventListener("change", buildRoster);
-    query?.addEventListener("input", buildRoster);
-    clear?.addEventListener("click", clearRosterFilters);
-}
-
-function rosterCard(id) {
-    const ch = roster[id], d = CHAR_TABLE[id], on = editIds.indexOf(id) >= 0;
-    const joinHint = on ? "已編入・雙擊換下場" : editIds.length >= TEAM_MAX ? "隊伍已滿" : "雙擊加入隊伍";
-    return `<button class="rcard fm-roster-card ${on ? "onfield" : ""}" style="--slot-el:${EL_COLOR[d.element] || "#8fa0c0"}" onclick="tapTwice('in:${id}',this,() => toggleTeam('${id}'))" title="${joinHint}：${d.name}" aria-label="${joinHint}：${d.name}">
-        <span class="sprite-placeholder sp" id="rc-sp-${id}"></span><b>${d.name}</b><small>Lv.${ch.lvl}・${ELEMENTS[d.element].label}</small>
-        <span class="fm-roster-state">${on ? "出戰中" : "加入隊伍"}</span></button>`;
 }
 
 function buildHudTeam() {
@@ -9882,7 +9784,7 @@ function updateUI() {
         editIds.map(id => `${roster[id].lvl}:${roster[id].baseAtk}:${roster[id].maxHp}`).join(",") + "#" + Math.min(20, kills);
     if (slotsSig !== sSig) { slotsSig = sSig; buildSlots(); }
     const rSig = CHAR_IDS.map(id => roster[id].unlocked ? "1" : "0").join("") + "|" + sSig + "|" + CHAR_IDS.map(id => roster[id].lvl + ":" + roster[id].shards).join(",");
-    if (rosterSig !== rSig) { rosterSig = rSig; buildRoster(); }
+    if (rosterSig !== rSig) { rosterSig = rSig; buildCharGrid(); }
     const hSig = PF.members.map(m => m.ch.id).join(",");
     if (hudSig !== hSig) { hudSig = hSig; buildHudTeam(); }
 
@@ -10015,8 +9917,10 @@ function updateUI() {
 
     paintFeverFlippers();
 
-    $("shard-total").textContent = shardTotal;
-    $("char-unlocked").textContent = `${OPEN_CHAR_IDS.filter(id => roster[id].unlocked).length}/${OPEN_CHAR_IDS.length}`;
+    // 這兩個計數只在角色管理頁存在（名冊併進培養頁後，其他分頁沒有這些節點）。
+    const shardNode = $("shard-total"), unlockedNode = $("char-unlocked");
+    if (shardNode) shardNode.textContent = shardTotal;
+    if (unlockedNode) unlockedNode.textContent = `${OPEN_CHAR_IDS.filter(id => roster[id].unlocked).length}/${OPEN_CHAR_IDS.length}`;
     paintHome();
 }
 
@@ -10219,11 +10123,10 @@ function renderTabs() {
     ).join("");
     $("hm-tabs").innerHTML = html;
     $("pg-tabs").innerHTML = html;
-    $("team-tabs").innerHTML = html;
     $("adventure-tabs").innerHTML = html;
 }
 
-const SCREENS = { home: 'home', page: 'page', battle: 'pf-frame', team: 'team', adventure: 'adventure' };
+const SCREENS = { home: 'home', page: 'page', battle: 'pf-frame', adventure: 'adventure' };
 function setHomeDockMenuOpen(toggle, open) {
     $(toggle.getAttribute("aria-controls")).hidden = !open;
     toggle.setAttribute("aria-expanded", String(open));
@@ -10252,7 +10155,7 @@ function openHomeDungeonPicker(mode) {
 }
 const uiRouter = UIRouter.create({
     screens: SCREENS, getElement: $, getPages: () => PAGES,
-    setTab: tab => { homeTabOn = tab; },
+    setTab: tab => { homeTabOn = tab; if (tab !== "chars") squadReplaceFor = null; },
     paintHome: () => { homeSig = ''; paintHome(); }, paintAdventure: paintAdventureEntry, renderPage, renderTabs,
     onBattle: () => { PF.last = performance.now(); },
     onHomeParty: active => {
@@ -10293,7 +10196,7 @@ function rememberUiLocation() {
         }));
     } catch (_) {}
 }
-function pickHomeTab(k) { uiRouter.select(k); rememberUiLocation(); }
+function pickHomeTab(k, leaderboardMode = "tower") { if (k === "leaderboard") towerLbMode = leaderboardMode === "rogue" ? "rogue" : "tower"; uiRouter.select(k); rememberUiLocation(); }
 function toggleBottomTab(tab) {
     const route = uiRouter.current();
     const alreadyOpen = tab === "team" ? route === "adventure" : route === "page" && homeTabOn === tab;
@@ -10324,7 +10227,7 @@ function restoreUiLocation() {
         uiRouter.show("page");
         const scrollTop = Math.max(0, Number(saved.scrollTop) || 0);
         requestAnimationFrame(() => { const body = $("pg-body"); if (body) body.scrollTop = scrollTop; });
-    } else if (["team", "battle", "adventure"].includes(route)) {
+    } else if (["battle", "adventure"].includes(route)) {
         uiRouter.show(route);
     } else {
         uiRouter.show("home");
@@ -10395,9 +10298,7 @@ function finishBattleTutorial() {
 }
 
 function hmToast(msg) {
-    const t = $("page").style.display !== "none" ? $("pg-toast")
-        : $("team").style.display !== "none" ? $("team-toast")
-        : $("hm-toast");
+    const t = $("page").style.display !== "none" ? $("pg-toast") : $("hm-toast");
     if (!t) return;
     t.textContent = msg;
     t.classList.add("on");
@@ -10913,7 +10814,7 @@ function claimDailyCheckin() {
 }
 
 let charDirectoryElement = "all";
-let charDirectoryOwnership = "all";
+let charDirectoryOwnership = "owned";
 let charDirectorySummonCategory = "all";
 let charDirectoryType = "all";
 let charDirectoryQuery = "";
@@ -10939,10 +10840,11 @@ const fn = { chars: pageChars, boss: pageBoss, shop: pageShop, exchange: pageCha
     body.innerHTML = fn();
     body.classList.toggle("char-directory-page", homeTabOn === "chars" && !growthFor);
     body.classList.toggle("type-talent-page", homeTabOn === "talents");
+    if (homeTabOn === "chars" && !growthFor) buildSlots();
     if (homeTabOn === "talents") startTypeTalentMapFlow(); else stopTypeTalentMapFlow();
 }
 
-// ---- 角色名冊 ----
+// ---- 角色管理：上方隊伍編成，下方持有角色名冊，點卡片進培養詳情 ----
 function pageChars() {
     if (growthFor) return renderGrowthPage();
     const query = charDirectoryQuery.trim().toLocaleLowerCase();
@@ -10957,7 +10859,7 @@ function pageChars() {
             && (charDirectoryType === "all" || d.type === charDirectoryType)
             && (!query || `${d.name} ${d.title} ${TYPE_INFO[d.type].n}`.toLocaleLowerCase().includes(query));
     });
-    const unlocked = ids.filter(id => roster[id].unlocked).length;
+    const ownedCount = OPEN_CHAR_IDS.filter(id => roster[id].unlocked).length;
     const elementOptions = `<option value="all" ${charDirectoryElement === "all" ? "selected" : ""}>全部屬性</option>`
         + OPEN_EL.map(key => `<option value="${key}" ${charDirectoryElement === key ? "selected" : ""}>${ELEMENTS[key].label}</option>`).join("");
     const ownershipOptions = `<option value="all" ${charDirectoryOwnership === "all" ? "selected" : ""}>全部角色</option><option value="owned" ${charDirectoryOwnership === "owned" ? "selected" : ""}>已持有角色</option><option value="unowned" ${charDirectoryOwnership === "unowned" ? "selected" : ""}>未持有角色</option>`;
@@ -10965,10 +10867,31 @@ function pageChars() {
     const typeOptions = `<option value="all" ${charDirectoryType === "all" ? "selected" : ""}>全部職業</option>`
         + Object.entries(TYPE_INFO).map(([key, info]) => `<option value="${key}" ${charDirectoryType === key ? "selected" : ""}>${info.n}</option>`).join("");
     return `<div class="char-directory">
-        <div class="char-directory-head"><div><b>角色名冊</b><small>已持有 ${unlocked} 位</small></div><span>${ids.length} 位符合條件</span></div>
+        <div id="team" class="cm-formation"><div class="panel fm-panel"><div id="team-slots"></div></div></div>
+        <div class="char-directory-head" id="owned-roster"><div><b>持有角色</b><small>已持有 ${ownedCount} 位</small></div><span>${ids.length} 位符合條件</span></div>
         <div class="char-directory-tools"><div class="char-directory-search"><input id="char-directory-query" type="search" value="${charDirectoryQuery.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;")}" placeholder="搜尋角色名稱" onkeydown="if(event.key==='Enter'){applyCharDirectorySearch()}"><button type="button" onclick="applyCharDirectorySearch()">搜尋</button></div><div class="char-directory-filters"><select aria-label="依屬性篩選" onchange="setCharDirectoryElement(this.value)">${elementOptions}</select><select aria-label="依持有狀態篩選" onchange="setCharDirectoryOwnership(this.value)">${ownershipOptions}</select><select aria-label="依獎池分類篩選" onchange="setCharDirectorySummonCategory(this.value)">${summonOptions}</select><select aria-label="依職業篩選" onchange="setCharDirectoryType(this.value)">${typeOptions}</select></div></div>
-        ${charSkillHoverHTML()}<div class="char-directory-grid">${ids.map(charRow).join("") || `<div class="char-directory-empty">沒有符合條件的角色</div>`}</div>
+        ${charSkillHoverHTML()}<div class="char-directory-grid" id="char-directory-grid">${ids.map(charRow).join("") || `<div class="char-directory-empty">沒有符合條件的角色</div>`}</div>
+        <p class="char-directory-foot">已解鎖角色: <span id="char-unlocked">${ownedCount}/${OPEN_CHAR_IDS.length}</span>｜累計虹彩石: <span id="shard-total">${shardTotal}</span></p>
     </div>`;
+}
+
+// 名冊卡片點一下開詳情；編隊只走卡片上那顆明確的按鈕，不再依賴雙擊。
+function buildCharGrid() {
+    const box = $("char-directory-grid");
+    if (!box || growthFor || homeTabOn !== "chars") return;
+    const query = charDirectoryQuery.trim().toLocaleLowerCase();
+    const ids = OPEN_CHAR_IDS.filter(id => {
+        const d = CHAR_TABLE[id];
+        return !CHAR_NO_SPRITE.has(d.unit)
+            && (charDirectoryElement === "all" || d.element === charDirectoryElement)
+            && (charDirectoryOwnership === "all"
+                || (charDirectoryOwnership === "owned" && roster[id].unlocked)
+                || (charDirectoryOwnership === "unowned" && !roster[id].unlocked))
+            && (charDirectorySummonCategory === "all" || d.summonCategory === charDirectorySummonCategory)
+            && (charDirectoryType === "all" || d.type === charDirectoryType)
+            && (!query || `${d.name} ${d.title} ${TYPE_INFO[d.type].n}`.toLocaleLowerCase().includes(query));
+    });
+    box.innerHTML = ids.map(charRow).join("") || `<div class="char-directory-empty">沒有符合條件的角色</div>`;
 }
 
 function applyCharDirectorySearch() {
@@ -10987,9 +10910,18 @@ function charRow(id) {
             <img class="card-element-icon" src="asset/ui/element-${d.element}.svg" alt="${ELEMENTS[d.element].label}屬性" title="${ELEMENTS[d.element].label}屬性"><div class="char-card-info"><div class="nm">${d.name}</div><div class="char-card-tags"><span class="tag2">${TYPE_INFO[d.type].n}</span><span class="summon-tag ${d.summonCategory}">${characterSourceLabel(d)}</span></div>
             <div class="sub">碎片 ${ch.shards}/${d.need}</div><div class="bar"><i style="width:${Math.min(100, ch.shards / d.need * 100).toFixed(0)}%"></i></div></div></article>`;
     }
-    return `<article class="pgc char-card cultivable" data-character="${id}" role="button" tabindex="0" aria-label="${d.name}角色資料" title="點擊角色卡查看資料" onmouseenter="charSkillHover('${id}',event)" onmousemove="charSkillHover('${id}',event)" onmouseleave="dexHide()" onclick="openGrowth('${id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGrowth('${id}')}" onfocus="charSkillHover('${id}',event)" onblur="dexHide()"><div class="char-card-art">${unitFace(d.unit, d.rarity, "walk_front", d.name.slice(0, 1))}</div>
-        <img class="card-element-icon" src="asset/ui/element-${d.element}.svg" alt="${ELEMENTS[d.element].label}屬性" title="${ELEMENTS[d.element].label}屬性"><div class="char-card-info"><div class="nm">${d.name}</div><div class="char-card-tags"><span class="tag2">${TYPE_INFO[d.type].n}</span><span class="summon-tag ${d.summonCategory}">${characterSourceLabel(d)}</span></div>
-        ${breakthroughStarsMarkup(ch)}<div class="sub">Lv.${ch.lvl}/${growthCap(ch)}　${teamIds.indexOf(id) >= 0 ? '<b class="char-field-tag">出戰中</b>' : ""}</div><div class="char-card-stat">攻 ${atkOf(ch)}　HP ${hpMax(ch)}</div></div></article>`;
+    const slot = editIds.indexOf(id);
+    const role = slot === 0 ? "隊長" : slot > 0 ? "隊員" : teamIds.indexOf(id) >= 0 ? "出戰中" : "";
+    const roleCls = slot === 0 ? "lead" : slot > 0 ? "mate" : "field";
+    const action = slot >= 0
+        ? `<button type="button" class="char-act out" onclick="event.stopPropagation();squadLeave('${id}')" aria-label="讓 ${d.name} 卸下">卸下</button>`
+        : editIds.length >= TEAM_MAX
+            ? `<button type="button" class="char-act swap" onclick="event.stopPropagation();openSquadReplace('${id}')" aria-label="替換 ${d.name} 上場">替換</button>`
+            : `<button type="button" class="char-act join" onclick="event.stopPropagation();squadJoin('${id}')" aria-label="選取 ${d.name} 上場">選取</button>`;
+    return `<article class="pgc char-card cultivable${slot >= 0 ? " onfield" : ""}" data-character="${id}" role="button" tabindex="0" aria-label="${d.name}角色資料" title="點擊角色卡查看詳情" onmouseenter="charSkillHover('${id}',event)" onmousemove="charSkillHover('${id}',event)" onmouseleave="dexHide()" onclick="openGrowth('${id}')" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openGrowth('${id}')}" onfocus="charSkillHover('${id}',event)" onblur="dexHide()"><div class="char-card-art">${unitFace(d.unit, d.rarity, "walk_front", d.name.slice(0, 1))}</div>
+        <img class="card-element-icon" src="asset/ui/element-${d.element}.svg" alt="${ELEMENTS[d.element].label}屬性" title="${ELEMENTS[d.element].label}屬性">${role ? `<b class="char-role ${roleCls}">${role}</b>` : ""}<div class="char-card-info"><div class="nm">${d.name}</div><div class="char-card-tags"><span class="tag2">${TYPE_INFO[d.type].n}</span><span class="summon-tag ${d.summonCategory}">${characterSourceLabel(d)}</span></div>
+        ${breakthroughStarsMarkup(ch)}<div class="sub">Lv.${ch.lvl}/${growthCap(ch)}</div><div class="char-card-stat">攻 ${atkOf(ch)}　HP ${hpMax(ch)}</div></div>
+        <div class="char-card-actions">${action}</div></article>`;
 }
 // ---- BOSS戰：四道境界領域（各自一個獨立戰場）----
 function pageBoss() {
@@ -10997,7 +10929,7 @@ function pageBoss() {
 }
 
 function openShopSection(section = "gacha") {
-    if (section === "leaderboard") { pickHomeTab("leaderboard"); return; }
+    if (section === "leaderboard") { openHomeLeaderboard("tower"); return; }
     summonShopView = section === "ticket-exchange" ? "ticket-exchange" : "recruit";
     pickHomeTab("shop");
 }
@@ -11321,64 +11253,42 @@ function syncTowerScoresToCloud() {
     }
 }
 function openHomeLeaderboard(mode) {
-    towerLbMode = mode;
-    pickHomeTab("leaderboard");
+    towerLbMode = mode === "rogue" ? "rogue" : "tower";
+    pickHomeTab("leaderboard", towerLbMode);
 }
 
 function pageTowerLeaderboard() {
     requestTowerLeaderboard();
     syncTowerScoresToCloud();
-    const esc = value => String(value).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;", "'":"&#39;" }[ch]));
-    const isRogue = towerLbMode === "rogue";
-    const rows = isRogue ? [] : towerLbRows();
-    const medal = rank => `<img class="medal" src="asset/ui/rank-medals/rank-${rank}-${{ 1: "gold", 2: "silver", 3: "bronze" }[rank]}.png" alt="第 ${rank} 名" width="48" height="25">`;
-    const voidPod = rank => `<div class="lb-pod p${rank} void">${medal(rank)}<span class="flo">—</span><span class="sub">尚無資料</span></div>`;
+    const esc = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const icon = (name, cls = '') => `<svg class="lb-icon ${cls}" aria-hidden="true" viewBox="0 0 100 100"><use href="asset/ui/leaderboard-emblems.svg#${name}"/></svg>`;
+    const rogue = towerLbMode === 'rogue', life = !rogue && towerLbScope === 'life';
+    const week = rogue ? expeditionHellWeekRecord() : towerWeekRecord();
+    const rows = rogue ? hellLbRows(week).map((row, i) => towerLbOnline() ? row : { ...row, me:i === 0 }) : towerLbRows();
+    const me = rows.find(row => row.me);
+    const score = row => rogue ? row.clear ? '通關' : expeditionTime(row.seconds) : `${row.floor} 層`;
+    const detail = row => rogue ? `擊倒 ${row.count} 隻` : row.at ? `${esc(row.at)} 抵達` : '生涯最佳';
+    const badge = rank => `<span class="lb-badge">${icon('shield')}<b>${rank}</b></span>`;
     const podium = rank => {
-        const e = rows[rank - 1];
-        if (!e) return voidPod(rank);
-        return `<div class="lb-pod p${rank}">${medal(rank)}<span class="who">${esc(e.name)}</span>`
-            + `<span class="flo">${e.floor} 層</span><span class="sub">${e.at ? `${e.at} 抵達` : towerLbOnline() ? "生涯最佳" : "本機紀錄"}</span></div>`;
+        const row = rows[rank - 1];
+        return `<article class="lb-pod p${rank}${row ? '' : ' void'}${row?.me ? ' is-me' : ''}">
+            <div class="lb-pod-emblem">${icon('laurel','lb-wreath')}${icon(rank === 1 ? 'crown' : 'gem','lb-regalia')}<b>${rank}</b></div>
+            <div class="lb-pod-plaque"><span class="who">${row ? esc(row.name) : '虛位以待'}</span><strong class="flo">${row ? score(row) : '—'}</strong><small class="sub">${row ? detail(row) : '尚無資料'}</small></div>
+            <div class="lb-plinth">${icon('gem')}<i></i></div></article>`;
     };
-    const modes = `<nav class="lb-modes" role="tablist">
-            <button type="button" role="tab" aria-selected="${!isRogue}" class="${isRogue ? "" : "on"}" onclick="setTowerLbMode('tower')">波利塔</button>
-            <button type="button" role="tab" aria-selected="${isRogue}" class="${isRogue ? "on" : ""}" onclick="setTowerLbMode('rogue')">巴風特的無限連擊</button>
-        </nav>`;
-    if (isRogue) {
-        const hellWeek = expeditionHellWeekRecord();
-        const hellRows = hellLbRows(hellWeek);
-        return `<section class="lbv">${modes}
-        <div class="lb-panel"><div class="lb-sec"><h3>地獄模式・本週 ${towerWeekLabel(hellWeek.week)}</h3>
-            <span class="lb-clock" title="每週一 00:00 結算並清空本週榜">本週倒數 <b>${towerWeekCountdown(hellWeek.week)}</b></span></div>
-        ${hellRows.length ? `<div class="lb-board"><div class="lb-head"><span>名次</span><span>冒險者</span><span>成績</span><span>擊倒</span></div>
-        ${hellRows.map((row, i) => `<div class="lb-row"><span class="rk">${i+1}</span><span class="nm">${esc(row.name)}</span><span class="fl">${row.clear ? "通關" : expeditionTime(row.seconds)}</span><span class="tm">${row.count}</span></div>`).join("")}</div>` : `<p class="lb-note">${towerLbCloud.state === "loading" ? "全服榜單讀取中，稍後會自動更新。" : "本週還沒有地獄模式成績。"}</p>`}
-        <p class="lb-note">${towerLbOnline() ? "全服榜單" : "本機紀錄"}・每週一 00:00 結算</p></div>
-        <button class="mini-btn gold lb-cta" type="button" onclick="openAdventureEntry()">前往出發冒險 ›</button>
-    </section>`;
-    }
-    const life = towerLbScope === "life";
-    const week = towerWeekRecord();
-    const me = rows.find(e => e.me);
-    const tail = rows.length > 3
-        ? `<div class="lb-board"><div class="lb-head"><span>名次</span><span>冒險者</span><span>最高層</span><span>抵達</span></div>`
-            + rows.slice(3, 10).map((e, i) => `<div class="lb-row"><span class="rk">${i + 4}</span><span class="nm">${esc(e.name)}</span>`
-                + `<span class="fl">${e.floor} 層</span><span class="tm">${e.at || "—"}</span></div>`).join("")
-            + (rows.length > 10 ? `<div class="lb-dots">⋯</div>` : "") + `</div>`
-            + (me ? `<div class="lb-self"><span class="rk">${rows.indexOf(me) + 1}</span><span class="nm">${esc(me.name)}</span>`
-                + `<span class="fl">${me.floor} 層</span><span class="tm">${me.at || "—"}</span>`
-                + `<span class="tag">個人最佳・${life ? "生涯紀錄" : "本週紀錄"}</span></div>`
-                : '<p class="lb-note">目前尚無你的本週成績；登入帳號並挑戰後即可上榜。</p>')
-        : `<p class="lb-note">${rows.length ? towerLbSourceNote()
-            : "本週還沒上塔：在波利塔爬過任何一層，這裡就會留下你的紀錄。"}</p>`;
-    return `<section class="lbv">${modes}
-        <nav class="lb-tabs" role="tablist">
-            <button type="button" role="tab" aria-selected="${!life}" class="${life ? "" : "on"}" onclick="setTowerLbScope('week')">本週排行</button>
-            <button type="button" role="tab" aria-selected="${life}" class="${life ? "on" : ""}" onclick="setTowerLbScope('life')">生涯最高</button>
-        </nav>
-        <div class="lb-panel"><div class="lb-sec"><h3>${life ? "生涯前段" : `本週前段・${towerWeekLabel(week.week)}`}</h3>`
-        + (life ? `<span>${towerLbOnline() ? "全服最佳" : "本機紀錄"}</span>` : `<span class="lb-clock" title="每週一 00:00 結算並清空本週榜">本週倒數 <b>${towerWeekCountdown(week.week)}</b></span>`) + `</div>
-            <div class="lb-podium">${podium(2)}${podium(1)}${podium(3)}</div></div>
-        ${tail}
-        <button class="mini-btn gold lb-cta" type="button" onclick="enterBattle()">繼續挑戰波利塔 ›</button>
+    const rowMarkup = (row, rank, own = false) => `<div class="${own ? 'lb-self' : 'lb-row'}${row.me ? ' is-me' : ''}"><span class="rk">${badge(rank)}</span><span class="nm">${esc(row.name)}${own ? '<small>我的最佳紀錄</small>' : ''}</span><strong class="fl">${score(row)}</strong><span class="tm">${detail(row)}</span></div>`;
+    return `<section class="lbv" aria-label="全服排行榜">
+        <header class="lb-hero"><img class="lb-guardian left" src="asset/character/couette/pixelart/animated/walk.gif" alt="" aria-hidden="true"><img class="lb-guardian right" src="asset/character/theo/pixelart/animated/walk.gif" alt="" aria-hidden="true">
+            <div class="lb-title-crest">${icon('laurel')}${icon('crown')}</div><small class="lb-eyebrow">PINBALL REALMS · HALL OF GLORY</small>
+            <div class="lb-title-row"><h2>榮耀排行榜</h2><label class="lb-mode-select"><span class="lb-sr-only">挑戰模式</span><select aria-label="挑戰模式" onchange="setTowerLbMode(this.value)"><option value="tower" ${rogue ? '' : 'selected'}>波利塔</option><option value="rogue" ${rogue ? 'selected' : ''}>無限連擊</option></select></label></div>
+            <p>以勇氣登頂，讓榮耀留下名字</p><div class="lb-hero-rule">${icon('gem')}</div></header>
+        <nav class="lb-tabs" aria-label="排行週期"><button type="button" class="${life ? '' : 'on'}" aria-pressed="${!life}" onclick="setTowerLbScope('week')">本週排行</button><button type="button" class="${life ? 'on' : ''}" aria-pressed="${life}" ${rogue ? 'disabled title="無限連擊目前僅有本週地獄模式紀錄"' : 'onclick="setTowerLbScope(\'life\')"'}>生涯最高</button></nav>
+        <div class="lb-panel"><div class="lb-sec"><h3>${rogue ? '地獄模式' : life ? '生涯前段' : '本週前段'}${life ? '' : '・'+towerWeekLabel(week.week)}</h3>${life ? `<span>${towerLbOnline() ? '全服最佳' : '本機紀錄'}</span>` : `<span class="lb-clock">本週倒數 <b>${towerWeekCountdown(week.week)}</b></span>`}</div>
+            <div class="lb-podium">${podium(2)}${podium(1)}${podium(3)}</div><div class="lb-stage-caption">${rogue ? '地獄模式 · 通關優先，其次生存時間與擊倒數' : '波利塔 · 依最高層紀錄排名'}</div></div>
+        ${rows.length > 3 ? `<div class="lb-board"><div class="lb-head"><span>排名</span><span>冒險者</span><span>${rogue ? '成績' : '最高層'}</span><span>${rogue ? '擊倒' : '紀錄時間'}</span></div>${rows.slice(3).map((row,i)=>rowMarkup(row,i+4)).join('')}</div>` : ''}
+        ${me ? `<div class="lb-self-wrap"><span class="lb-self-label">${icon('gem')}我的排名</span>${rowMarkup(me,rows.indexOf(me)+1,true)}</div>` : `<p class="lb-note">${rows.length ? '尚無你的上榜紀錄。完成挑戰後即可留下成績。' : rogue ? '本週還沒有地獄模式成績。' : '本週還沒上塔：完成挑戰後即可留下紀錄。'}</p>`}
+        <p class="lb-source">${towerLbOnline() ? '全服榜單 · 已載入 '+rows.length+' 筆，排名依已載入紀錄計算' : towerLbCloud.state === 'loading' ? '全服榜單讀取中，稍後會自動更新。' : '目前顯示本機紀錄 · 連線並登入後可同步成績'}${life ? '' : ' · 每週一 00:00 結算'}</p>
+        <button class="lb-cta gold" type="button" onclick="${rogue ? 'showExpeditionModePicker()' : 'showTowerModePicker()'}">${icon('swords')}<span>挑戰${rogue ? '無限連擊' : '波利塔'}</span>${icon('gem')}</button>
     </section>`;
 }
 
@@ -13959,7 +13869,6 @@ bindInput();
 syncTeamField();
 spawnFoe();
 applyStageBg();
-bindRosterFilters();
 updateUI();
 syncSfxLabel();
 syncShakeLabel();

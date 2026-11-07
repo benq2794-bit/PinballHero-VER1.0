@@ -103,16 +103,19 @@ function settlement(training = false, gate = null) {
     assert.equal(stale.events.some(e => e.name === 'gateVictory'), false);
 }
 {
-    const elements = Object.fromEntries(['home', 'page', 'team', 'battle'].map(id => [id, { style: {} }]));
+    const elements = Object.fromEntries(['home', 'page', 'battle', 'adventure'].map(id => [id, { style: {} }]));
     const calls = []; let tab = 'home', embedded = false;
-    const router = UIRouter.create({ screens: { home: 'home', page: 'page', team: 'team', battle: 'battle' },
-        getElement: id => elements[id], getPages: () => ({ chars: '角色', talents: '天賦' }),
-        setTab: value => { tab = value; }, paintHome: () => {}, renderPage: () => calls.push(tab), renderTabs: () => {},
+    const router = UIRouter.create({ screens: { home: 'home', page: 'page', battle: 'battle', adventure: 'adventure' },
+        getElement: id => elements[id], getPages: () => ({ chars: '角色管理', talents: '天賦' }),
+        setTab: value => { tab = value; }, paintHome: () => {}, paintAdventure: () => {}, renderPage: () => calls.push(tab), renderTabs: () => {},
         onBattle: () => {}, onHomeParty: () => {}, onLeave: () => {},
         closeOverlays: () => calls.push('close'), closeEmbeddedGate: () => embedded,
         leaveGateContext: () => calls.push('leave'), resume: () => calls.push('resume') });
     router.select('chars'); assert.equal(tab, 'chars'); assert.equal(elements.page.style.display, '');
-    assert.equal(elements.home.style.display, 'none'); router.select('team'); assert.equal(tab, 'team');
+    // 編成已併進角色管理頁，team 不再是獨立畫面，舊入口一律退回主頁。
+    assert.equal(elements.home.style.display, 'none'); router.select('team');
+    assert.equal(tab, 'home'); assert.equal(router.current(), 'home');
+    router.select('chars');
     router.home(); assert.equal(tab, 'home'); assert.deepEqual(calls.slice(-3), ['close', 'leave', 'resume']);
     router.select('talents'); embedded = true; router.home(); assert.equal(tab, 'talents');
     embedded = false; router.select('unknown'); assert.equal(router.current(), 'home');

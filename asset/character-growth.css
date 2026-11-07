@@ -149,6 +149,17 @@
 #app-frame #pg-body .growth-eff { font-size:9.5px; font-weight:800; line-height:1.5; padding:0 2px;
     color:var(--gk-sub) !important; text-shadow:none !important; }
 
+/* ---------- 角色技能與稱號：詳情頁沿用圖鑑同一份資料，純文字不鋪底板 ---------- */
+#app-frame #pg-body .growth-info { flex:none; min-height:auto; display:flex; flex-direction:column; gap:4px;
+    margin-top:8px; padding-top:7px; border-top:1px solid var(--gk-edge); overflow:visible; }
+#app-frame #pg-body .growth-info .growth-sec-title { display:flex; align-items:baseline; gap:6px; min-width:0; padding:0 2px; }
+#app-frame #pg-body .growth-info .growth-sec-title b { font-size:13px; font-weight:900; color:var(--gk-ink) !important; text-shadow:none !important; }
+#app-frame #pg-body .growth-info .growth-sec-title span { font-size:10px; font-weight:800; color:var(--gk-sub) !important; text-shadow:none !important; }
+#app-frame #pg-body .growth-info-row { display:grid; grid-template-columns:62px minmax(0,1fr); gap:6px; align-items:start; padding:0 2px; }
+#app-frame #pg-body .growth-info-row b { font-size:10px; font-weight:900; line-height:1.5; color:var(--gk-sub) !important; text-shadow:none !important; }
+#app-frame #pg-body .growth-info-row span { min-width:0; font-size:10.5px; font-weight:700; line-height:1.55;
+    color:var(--gk-ink) !important; text-shadow:none !important; overflow-wrap:anywhere; }
+
 /* 角色等級操作：返還經驗與批次培養直接排列在原有水晶操作上方。 */
 #app-frame #pg-body .growth-batch-acts { display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:6px; margin:2px 0 8px; }
 #app-frame #pg-body .growth-batch-acts > button {

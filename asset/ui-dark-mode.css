@@ -50,7 +50,7 @@ html.ui-dark-mode #app-frame #avatar-picker .avatar-frame-choice.locked { backgr
 html.ui-dark-mode #app-frame { color:#e8eef3 !important; }
 html.ui-dark-mode #app-frame .pg { border-color:#52616b !important; background:linear-gradient(180deg,#202a31,#11181e 70%,#0c1217) !important; color:#e8eef3 !important; }
 html.ui-dark-mode #app-frame .pg-head { border-color:#5a6b75 !important; background:linear-gradient(180deg,#34424a,#202a31) !important; color:#f0f4f6 !important; }
-html.ui-dark-mode #app-frame :is(.panel,.pgc,.bsg,.fm-panel,.fm-unit,.rcard,.fm-roster-card,.slot,.pp-box,.dex-cell,.eq-cell,.hm-profile-card,.hm-status-card,.hm-rank,.hm-energy-card,.hm-chip,.gate-challenge-card,.battle-log-panel,.as-panel,.as-stat,.as-summary,.as-derived,.as-available,.help-guide) {
+html.ui-dark-mode #app-frame :is(.panel,.pgc,.bsg,.fm-panel,.fm-unit,.slot,.pp-box,.dex-cell,.eq-cell,.hm-profile-card,.hm-status-card,.hm-rank,.hm-energy-card,.hm-chip,.gate-challenge-card,.battle-log-panel,.as-panel,.as-stat,.as-summary,.as-derived,.as-available,.help-guide) {
     border-color:#536570 !important;
     background:linear-gradient(155deg,#303b43 0%,#222c33 55%,#182128 100%) !important;
     color:#e8eef3 !important;
@@ -74,7 +74,7 @@ html.ui-dark-mode #app-frame .hm-dock-tabs > *:not(.on) {
     text-shadow:0 1px 2px #000 !important;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 2px 4px rgba(0,0,0,.3) !important;
 }
-html.ui-dark-mode #app-frame :is(button.on,button.active,button.selected,.rcard.onfield,.fm-roster-card.onfield,.dex-tab button.on,.hm-tabs .tb.on,.hm-dock-tabs .hm-action.active) {
+html.ui-dark-mode #app-frame :is(button.on,button.active,button.selected,.char-card.onfield,.dex-tab button.on,.hm-tabs .tb.on,.hm-dock-tabs .hm-action.active) {
     border-color:#d8b85f !important;
     background:linear-gradient(180deg,#806b38,#514322) !important;
     color:#fff4cf !important;
@@ -154,19 +154,43 @@ html.ui-dark-mode #app-frame #team .fm-captain { background:linear-gradient(145d
 html.ui-dark-mode #app-frame #team :is(.fm-captain-name,.fm-member-name,.fm-name,.fm-slot-kicker,.fm-position,.fm-lv,.fm-resource,.fm-resource b,.fm-type,.fm-main,.fm-sub,.fm-sub span,.fm-meta span,.fm-lead p,.fm-summary,.fm-power,.fm-power span,.fm-power strong) { color:#edf3f6 !important; text-shadow:0 1px 2px #0008 !important; }
 html.ui-dark-mode #app-frame #team :is(.fm-captain-sub,.fm-captain-unison,.fm-head small,.fm-lead p span,.fm-count:not(.sq-chip) u) { color:#c5d2d8 !important; }
 html.ui-dark-mode #app-frame #team .fm-lead { background:linear-gradient(110deg,#3c3525,#202b31) !important; border-color:#8a7441 !important; }
-html.ui-dark-mode #app-frame #team .fm-lead > span { color:#30230a !important; text-shadow:none !important; }
+html.ui-dark-mode #app-frame #team .fm-lead-toggle > span { color:#30230a !important; text-shadow:none !important; }
+html.ui-dark-mode #app-frame #team .fm-lead-toggle > i { color:#c5d2d8 !important; }
 html.ui-dark-mode #app-frame #team .fm-count.sq-chip { color:#fff1c2 !important; }
 html.ui-dark-mode #app-frame #team .fm-count.sq-chip :is(i,u) { color:#fff1c2 !important; }
-html.ui-dark-mode #app-frame .char-directory-grid .char-card,
-html.ui-dark-mode #app-frame #team .fm-roster-card,
-html.ui-dark-mode #app-frame #team .rcard { color:#edf3f6 !important; background:linear-gradient(150deg,#35434b,#202b32) !important; border-color:#637984 !important; }
-html.ui-dark-mode #app-frame .char-directory-grid .char-card :is(.nm,.sub,.char-card-stat,.char-card-skill,.char-card-info),
-html.ui-dark-mode #app-frame #team .fm-roster-card :is(b,small,.fm-roster-state),
-html.ui-dark-mode #app-frame #team .rcard :is(b,small,span) { color:#e8eef2 !important; }
+/* 編成併進角色管理後，標題／數值列／戰力列在深底也要讀得到（淺色 pass 只設 color 沒設 background）。 */
+html.ui-dark-mode #app-frame #team :is(.fm-head b,.fm-mini-stat,.fm-mini-stat b,.fm-mini-gauge,.fm-mini-gauge small) { color:#dfe9ee !important; text-shadow:0 1px 2px #0008 !important; }
+/* 內層 span／small 會被 #app-frame .pg :is(…span,small…) 那條淺色字壓回深色，要點名才贏。 */
+html.ui-dark-mode #app-frame #team :is(.fm-mini-stat span,.fm-mini-gauge span,.fm-summary span,.fm-member > small) { color:#dfe9ee !important; text-shadow:0 1px 2px #0008 !important; }
+html.ui-dark-mode #app-frame #team .fm-summary { background:linear-gradient(150deg,#2c3a42,#1b262e) !important; border-color:#617782 !important; }
+html.ui-dark-mode #app-frame #team .fm-summary b { color:#ffd98a !important; }
+/* 搜尋／篩選在淺色頁改白底後，深色模式要跟著改回深底（兩段 id 的淺色規則會贏過泛用深色規則）。 */
+html.ui-dark-mode #app-frame #pg-body .char-directory-tools input,
+html.ui-dark-mode #app-frame #pg-body .char-directory-tools select { border-color:#637780 !important; background:#151e24 !important; color:#edf3f6 !important; color-scheme:dark !important; }
+html.ui-dark-mode #app-frame #pg-body .char-directory-tools input::placeholder { color:#8b9aa3 !important; }
+html.ui-dark-mode #app-frame .char-directory-grid .char-card { color:#edf3f6 !important; background:linear-gradient(150deg,#35434b,#202b32) !important; border-color:#637984 !important; }
+html.ui-dark-mode #app-frame .char-directory-grid .char-card :is(.nm,.sub,.char-card-stat,.char-card-skill,.char-card-info) { color:#e8eef2 !important; }
 html.ui-dark-mode #app-frame .char-directory-grid .char-card .summon-tag { color:#e3ecef !important; background:linear-gradient(#46565e,#303d44) !important; border-color:#748790 !important; }
 html.ui-dark-mode #app-frame .char-directory-grid .char-card .summon-tag.limited { color:#3a2b0e !important; background:linear-gradient(#ffe8a4,#d6b04e) !important; border-color:#d5b65e !important; }
-html.ui-dark-mode #app-frame #team .fm-roster-card.onfield,
-html.ui-dark-mode #app-frame #team .rcard.onfield { color:#fff0bd !important; background:linear-gradient(150deg,#5a4e31,#34332a) !important; border-color:#d7b95e !important; }
+html.ui-dark-mode #app-frame #pg-body .char-directory-grid .char-card.onfield { color:#fff0bd !important; background:linear-gradient(150deg,#5a4e31,#34332a) !important; border-color:#d7b95e !important; }
+
+/* 編隊明確操作：槽內按鈕、卡片編隊鈕、替換列與收合列在深底仍要讀得清楚。 */
+html.ui-dark-mode #app-frame #team :is(.fm-slot-actions,.fm-replace-picks) button,
+html.ui-dark-mode #app-frame #team .fm-replace-head button,
+html.ui-dark-mode #app-frame #pg-body .char-act {
+    color:#eaf2f6 !important; text-shadow:0 1px 2px #0009 !important;
+    border-color:#7d949e !important; border-bottom-color:#54686f !important;
+    background:linear-gradient(180deg,#3d4d55,#26333a) !important; box-shadow:none !important;
+}
+html.ui-dark-mode #app-frame #pg-body .char-act.join { color:#d8f5e2 !important; border-color:#6fa886 !important; border-bottom-color:#43765a !important; background:linear-gradient(180deg,#2f4d3c,#1d3227) !important; }
+html.ui-dark-mode #app-frame #pg-body .char-act.swap { color:#ffeec2 !important; border-color:#c8a24a !important; border-bottom-color:#8f7128 !important; background:linear-gradient(180deg,#4d4227,#332c19) !important; }
+html.ui-dark-mode #app-frame #pg-body .char-act.out { color:#ffdcdc !important; border-color:#b98d8d !important; border-bottom-color:#7d5a5a !important; background:linear-gradient(180deg,#4a3232,#312222) !important; }
+html.ui-dark-mode #app-frame #pg-body .char-role.lead { color:#ffe9a8 !important; background:#5a4a1c !important; border-color:#d7b95e !important; }
+html.ui-dark-mode #app-frame #pg-body .char-role.mate { color:#cfeeff !important; background:#22485c !important; border-color:#7daec6 !important; }
+html.ui-dark-mode #app-frame #pg-body .char-role.field { color:#d8f5e2 !important; background:#254936 !important; border-color:#6fa886 !important; }
+html.ui-dark-mode #app-frame #team .fm-replace { color:#ffeec2 !important; background:linear-gradient(110deg,#3c3525,#202b31) !important; border-color:#c8a24a !important; }
+html.ui-dark-mode #app-frame #team .fm-replace-head b { color:#fff3cf !important; }
+html.ui-dark-mode #app-frame #team .fm-slot-empty { color:#c5d2d8 !important; background:linear-gradient(150deg,#26333a,#18222a) !important; border-color:#637984 !important; }
 
 /* 招募頁：精選角色、保底條、獎池與分頁採深底＋高對比文字；角色圖本身不套濾鏡。 */
 html.ui-dark-mode #app-frame #pg-body :is(.gacha-shop,.summon-head,.summon-banner,.summon-featured-stage,.summon-pity,.summon-rates,.summon-info-panel,.summon-info-content,.summon-pool-content,.summon-pool-section,.summon-pool-materials,.summon-history-row,.summon-pity-rule) {
@@ -234,7 +258,7 @@ html.ui-dark-mode #app-frame #pg-body .char-directory-grid .char-card .char-card
     background:linear-gradient(145deg,#17232b,#0d171d) !important;
     border-color:#8b9ba2 !important;
 }
-html.ui-dark-mode #app-frame #pg-body .char-directory-grid .char-card :is(.nm,.sub,.char-card-stat,.char-card-skill,.char-card-info,.char-field-tag) {
+html.ui-dark-mode #app-frame #pg-body .char-directory-grid .char-card :is(.nm,.sub,.char-card-stat,.char-card-skill,.char-card-info) {
     color:#f0f5f7 !important;
     text-shadow:0 1px 2px rgba(0,0,0,.75) !important;
 }

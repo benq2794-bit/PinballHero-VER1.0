@@ -1,14 +1,29 @@
 {
   "content": [
-    "修正波利塔全隊死亡時誤觸全滅視窗：全隊自動以 50% 最大生命復活並重試當前樓層。",
-    "波利塔自動循環開關會保留上次設定；開啟時超時直接循環，關閉時保留原有超時手動流程。",
-    "更新波利塔循環與復活提示，明確區分全滅重試當層及超時返回起始層；其他模式與獎勵規則維持原樣。"
+    "隊伍編成、角色名冊與角色培養合併為「角色管理」單一頁面：上方保留出戰隊伍、配隊切換與隊伍戰力，下方持有角色列表維持搜尋與篩選。",
+    "點選持有角色開啟詳情，檢視能力、技能與隊長特性全文，並直接進行升級、突破等原有養成操作；返回鍵回到角色管理列表。",
+    "編隊改為明確按鈕操作：選取、替換、卸下，替換列可取消；角色卡標示隊長／隊員，不再依賴雙擊。",
+    "隊伍特性預設收合，點擊展開完整說明；手機直立版面加大槽內按鈕並消除橫向溢出，深色模式對比同步補齊。",
+    "角色圖鑑維持獨立收藏頁：持有／未持有預覽、角色資料、收藏進度與成就獎勵不變，且不重複養成操作。",
+    "排行榜換上榮耀新版版面：挑戰模式改下拉選單、前三名改徽章舞台，榜單整合我的排名列。"
   ],
   "files": [
     "index.html",
-    "tests/tower-wipe.test.cjs",
-    "tests/tower-auto-loop.test.cjs",
-    "tests/browser-tower.cjs",
-    "release-notes.json"
+    "release-notes.json",
+    "asset/character-growth.css",
+    "asset/character-growth.js",
+    "asset/game-data.js",
+    "asset/pixel-buttons.css",
+    "asset/pixel-rpg-ui.css",
+    "asset/team-formation.css",
+    "asset/tower-leaderboard.css",
+    "asset/ui-dark-mode.css",
+    "asset/ui-metal-theme.css",
+    "asset/ui-router.js",
+    "asset/ui/leaderboard-emblems.svg",
+    "tests/battle-flow.test.cjs",
+    "tests/browser-smoke.cjs",
+    "tests/squad-swap.test.cjs",
+    "tests/tower-leaderboard.test.cjs"
   ]
 }

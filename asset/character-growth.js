@@ -369,8 +369,12 @@ function renderGrowthPage() {
     // 圓台與徽章都取自角色自己的屬性，沒有對應素材時退回風屬性的圓台。
     const el = GROWTH_DAIS_EL.includes(d.element) ? d.element : 'wind', elInfo = GROWTH_ELEMENTS[el];
     const skill = talentRank(ch, 'skill'), pf = talentRank(ch, 'pf'), survival = talentRank(ch, 'survival');
+    // 詳情頁的技能說明沿用圖鑑同一份資料；測試沙箱沒有 SKILLS／TYPE_INFO 時整段略過。
+    const sk = typeof SKILLS !== 'undefined' ? SKILLS[ch.id] : null;
+    const typeName = typeof TYPE_INFO !== 'undefined' ? (TYPE_INFO[d.type]?.n || '') : '';
+    const infoRow = (label, text) => text ? `<div class="growth-info-row"><b>${label}</b><span>${text}</span></div>` : '';
     return `<div class="growth-who">
-        <button class="mini-btn gray growth-back" onclick="closeGrowth()">‹ 返回角色</button></div>
+        <button class="mini-btn gray growth-back" onclick="closeGrowth()">‹ 返回角色管理</button></div>
     <div class="growth-stage">
         <div class="growth-halo"></div>
         <img class="growth-dais" src="asset/ui/growth-dais/${el}.png" alt="${elInfo.label}屬性圓台">
@@ -405,7 +409,11 @@ function renderGrowthPage() {
                 <button class="growth-reset" ${used ? '' : 'disabled'} onclick="resetTalents('${ch.id}')">重置 · 返還 ${used} 點</button></div>
             ${Object.entries(GROWTH_PATHS).map(([key, p]) => { const rank = talentRank(ch, key); return `<div class="growth-path"><div><b>${p.icon} ${p.name}<u>${rank}</u></b><div class="sub">${p.desc}</div></div>
                 <button class="growth-talent-plus" aria-label="${p.name}天賦加一點" title="消耗 1 點天賦點" ${used >= budget ? 'disabled' : ''} onclick="upgradeTalent('${ch.id}','${key}')">＋</button></div>`; }).join('')}
-            <div class="growth-eff" title="天賦點隨等級與${breakAction}增加；PF 效果以隊長天賦為準。">目前：技能傷害 +${skill * 6}%／治療 +${skill * 2}%・PF 效果 +${pf * 8}%・生命 +${survival * 4}%／減傷 ${survival}%</div></div></div>`;
+            <div class="growth-eff" title="天賦點隨等級與${breakAction}增加；PF 效果以隊長天賦為準。">目前：技能傷害 +${skill * 6}%／治療 +${skill * 2}%・PF 效果 +${pf * 8}%・生命 +${survival * 4}%／減傷 ${survival}%</div></div>
+        <div class="growth-info">
+            <div class="growth-sec-title"><b>角色技能</b><span>${typeName}</span></div>
+            ${infoRow('稱號', d.title)}${infoRow('技能名稱', sk?.name)}${infoRow('特性', sk ? `${sk.trait?.label || ''}（${sk.tag || ''}）` : '')}${infoRow('技能效果', sk?.desc)}${infoRow('隊長特性', d.lead)}
+        </div></div>`;
 }
 function normalizeGrowthLedger(ch) {
     const ledger = ch.growthLedger;

@@ -1,5 +1,7 @@
-/* 編成頁：參考世界彈珠編成畫面，三直欄角色卡 → 彈珠台底座 → 戰力 → 數值欄 → 隊長特性 */
-#team .pg-body > .fm-panel { padding: 8px 8px 12px; }
+/* 角色管理頁上半部：出戰隊伍（三直欄角色卡 → 戰力 → 隊伍特性）。
+   編成区块掛在 #pg-body 裡的 #team.cm-formation，沿用同一套 #team 選擇器。 */
+#team .fm-panel { padding: 8px 8px 12px; }
+#team.cm-formation { flex: none; min-width: 0; }
 
 .fm { position: relative; }
 
@@ -140,19 +142,37 @@
 .fm-squad-dots i { width: 6px; height: 6px; border-radius: 50%; background: #b6c8d2; box-shadow: inset 0 0 0 1px rgba(70, 95, 110, .55); }
 .fm-squad-dots i.on { width: 16px; border-radius: 3px; background: #e0a23a; }
 
-/* ---- 雙擊換人：整張角色卡（含空槽）就是按鈕，第一下只亮金框 ---- */
+/* ---- 明確編隊操作：整張角色卡點一下開詳情，卸下／隊長走卡內按鈕 ---- */
 #app-frame #team .fm-captain,
 #app-frame #team .fm-member,
-#app-frame #team .fm-slot-empty,
-#app-frame #team .rcard { cursor: pointer; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
-#app-frame #team .fm-slot.armed,
-#app-frame #team .rcard.armed { outline: 2px solid #e0a23a !important; outline-offset: 2px; }
-#app-frame #team .fm-member-actions { justify-content: center; }
+#app-frame #team .fm-slot-empty { cursor: pointer; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+#app-frame #team .fm-slot-actions { display: flex; justify-content: center; gap: 4px; width: 100%; margin-top: 4px; }
+#app-frame #team .fm-slot-actions button {
+    flex: 1; min-width: 0; min-height: 28px; padding: 3px 4px; box-sizing: border-box;
+    font-family: inherit; font-size: 10px; font-weight: 800; line-height: 1.2; cursor: pointer; touch-action: manipulation;
+}
+#app-frame #team .fm-slot-actions.cap { justify-content: flex-end; }
+#app-frame #team .fm-slot-actions.cap button { flex: none; min-width: 62px; }
+/* 隊員槽只有 93px 寬，兩顆併排各剩 38px；改上下兩顆讓手指點得到整顆。 */
+#app-frame #team .fm-member .fm-slot-actions { flex-direction: column; gap: 3px; }
 
-/* ---- 隊長特性 ---- */
-.fm-lead { display: flex; align-items: center; gap: 7px; margin-top: 8px; padding: 5px 7px;
-    border: 2px solid #050a13; background: #101d31;
+/* ---- 隊伍已滿時的替換列：先點名冊的「替換」，再選一位下場 ---- */
+#team .fm-replace { margin: 0 0 7px; padding: 6px 7px; border: 1px solid #d58a29; border-left: 3px solid #e0a23a; border-radius: 4px; background: #fff8e6; }
+#team .fm-replace-head { display: flex; align-items: center; gap: 6px; min-width: 0; }
+#team .fm-replace-head > span { flex: none; padding: 2px 6px; color: #38240e; font-size: 9px; font-weight: 900; background: linear-gradient(180deg,#fff0a4,#f6c34e); border-radius: 3px; }
+#team .fm-replace-head > b { flex: 1; min-width: 0; overflow: hidden; color: #17394a; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+#team .fm-replace-head > button { flex: none; min-height: 28px; padding: 3px 10px; font-family: inherit; font-size: 10px; font-weight: 800; cursor: pointer; }
+#team .fm-replace p { margin: 5px 0; color: #586a73; font-size: 10px; }
+#team .fm-replace-picks { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 5px; }
+#team .fm-replace-picks button { min-width: 0; min-height: 34px; padding: 4px 3px; box-sizing: border-box; overflow: hidden;
+    font-family: inherit; font-size: 10px; font-weight: 800; line-height: 1.25; text-overflow: ellipsis; cursor: pointer; }
+
+/* ---- 隊伍特性：預設收合，點標題列才展開完整說明 ---- */
+.fm-lead { margin-top: 8px; padding: 0; border: 2px solid #050a13; background: #101d31;
     box-shadow: inset 2px 2px 0 #22334e, 3px 3px 0 #04070d; }
-.fm-lead > span { flex: none; padding: 2px 6px; font-size: 8px; letter-spacing: 1px; color: #241503;
+.fm-lead-toggle { display: flex; align-items: center; justify-content: space-between; gap: 7px; width: 100%; min-height: 34px;
+    padding: 5px 7px; box-sizing: border-box; border: 0; background: transparent; font-family: inherit; cursor: pointer; touch-action: manipulation; }
+.fm-lead-toggle > span { flex: none; padding: 3px 7px; font-size: 10px; font-weight: 900; letter-spacing: 1px; color: #241503;
     background: linear-gradient(180deg, #ffd15c, #e79a2b); border: 1px solid #050a13; box-shadow: 1px 1px 0 #04070d; }
-.fm-lead p { margin: 0; font-size: 9px; line-height: 1.45; color: #a9c0d8; }
+.fm-lead-toggle > i { font-style: normal; font-size: 10px; font-weight: 800; color: #586a73; }
+.fm-lead p { margin: 0; padding: 0 8px 8px; font-size: 11px; line-height: 1.5; color: #a9c0d8; }

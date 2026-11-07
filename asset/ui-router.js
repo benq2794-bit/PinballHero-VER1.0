@@ -13,7 +13,6 @@ window.UIRouter = Object.freeze({
             }
             if (route === 'home') { setTab('home'); paintHome(); }
             else if (route === 'page') renderPage();
-            else if (route === 'team') setTab('team');
             else if (route === 'adventure') { setTab('team'); paintAdventure(); }
             else if (route === 'battle') onBattle();
             onHomeParty(route === 'home');
@@ -22,7 +21,7 @@ window.UIRouter = Object.freeze({
         return Object.freeze({
             show,
             select(tab) {
-                if (tab === 'home' || tab === 'team') { show(tab); return; }
+                if (tab === 'home') { show(tab); return; }
                 if (Object.hasOwn(getPages(), tab)) { setTab(tab); show('page'); return; }
                 show('home');
             },
