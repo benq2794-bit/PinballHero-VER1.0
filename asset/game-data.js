@@ -287,8 +287,11 @@ window.GAME_DATA.titles = [
     { id:"roster-40", name:"群星策展人", category:"蒐集", tier:4, desc:"解鎖 40 位角色", requirement:{type:"unlockedCharacters",value:40}, bonus:{skillDamage:.005} },
     { id:"roster-50", name:"羈絆大師", category:"蒐集", tier:5, desc:"解鎖 50 位角色", requirement:{type:"unlockedCharacters",value:50}, bonus:{atk:.0075,hp:.0075} },
     { id:"hexa", name:"四象共鳴", category:"蒐集", tier:2, desc:"名冊收集火、水、雷、風四種屬性", requirement:{type:"unlockedElements",value:4}, bonus:{crit:.0025} },
-    { id:"penta", name:"全能編隊", category:"蒐集", tier:3, desc:"名冊收集五種攻擊型態", requirement:{type:"unlockedTypes",value:5}, bonus:{powerFlipDamage:.01} }
+    { id:"penta", name:"全能編隊", category:"蒐集", tier:3, desc:"名冊收集五種攻擊型態", requirement:{type:"unlockedTypes",value:5}, bonus:{powerFlipDamage:.01} },
+    { id:"beta-founder", name:"創世見證者", category:"封測限定", tier:5, desc:"領取異界開拓祭全部四項封測任務獎勵；正式開服保留", requirement:{type:"betaSouvenir",value:"beta-founder"}, bonus:{} }
 ];
+// 正式開服發布時才切換為 launch；同一 launchVersion 的清檔只會執行一次。
+window.GAME_DATA.betaEvent = { phase:"beta", launchVersion:"launch-1" };
 window.GAME_DATA.progression = {
     characterGrowth: {
         paths: {

@@ -1,0 +1,24 @@
+彈射之境／異界開拓祭美術紀錄
+製作方式：OpenAI 內建 image_gen；未使用 CLI。2026-11-07。
+參考原圖：使用者提供的「彈射之境14天封測狂歡祭.png」，保存在 event-poster.png。
+美術文字與領取按鈕皆由 HTML/CSS 即時排版。
+
+event-hero-v2.png
+提示詞：
+Create ONE production game-event hero background illustration based on the attached reference poster, 1536x1024 landscape. Preserve the visual identity of the lavender-haired youthful adult fantasy adventurer woman with red jewel eyes and ornate purple white gold costume in the left of the reference. Show her smiling and extending one open gloved hand toward the viewer, upper body on the LEFT 40% of the image. Rich polished anime mobile RPG illustration, beautifully painted silver lavender hair, amethyst ribbons and gold filigree, floating fantasy castle far in background, violet evening sky and subtle gold sparks. The RIGHT 60% must be a calm spacious deep indigo-purple sky with faint architectural silhouettes and very few particles so HTML text can be overlaid there. This is a BACKGROUND ART asset only. Remove ALL existing poster typography, logos, numbers, banners, borders, UI panels, button shapes, tickets, embedded screenshots and reward lists. No text, no letters, no logos, no UI. Landscape composition specifically suitable for a small premium fantasy event header, clear facial silhouette at thumbnail scale.
+
+pioneer-frame-v2.png
+提示詞：
+One premium fantasy mobile RPG PLAYER AVATAR FRAME game asset, square 1024x1024. A precisely circular open ring centered on canvas with its CENTER GENUINELY TRANSPARENT to insert an avatar. Outer frame occupies 88% of square, inner circular transparent hole diameter about 57% of square. Exquisite finely detailed polished champagne gold filigree laurel leaves, symmetric amethyst crystal clusters, luminous pale violet accents. At twelve o'clock a small elegant faceted violet spearhead gemstone, bottom graceful sweeping gold feathers and tiny amethyst teardrop, symmetrical balanced ornamentation. Sophisticated royal craftsmanship, painterly 2D game UI, sharp readable silhouette, fine engraved metal, rich restrained highlights, cohesive lavender and gold. Floating isolated cutout on transparent background with also the center transparent. No text, letters, portrait, character, square backing plate or dark disk in the central hole. No massive outward glow. This will be used at 90x90 pixels, make filigree separated and readable.
+
+pioneer-badge-v2.png
+提示詞：
+One premium fantasy mobile RPG commemorative BADGE icon, square 1024x1024 transparent image. Centered vertical hanging royal medal named pioneer (NO text). Complex finely engraved champagne gold compass rose with a faceted pale lavender central star crystal and two balanced gold laurel branches forming a wreath. Elegant short purple satin split-tail hanging ribbons below, detailed woven trim and polished gold tassel. Tiny amethyst cabochons, engraved edge bevels, layered royal metalwork. Exquisite painterly game icon similar to high-end fantasy gacha event awards, cohesive lavender and champagne gold palette, clearly distinct from an avatar frame, readable primary star silhouette at 72 pixels. Full medal visible, occupies central 85%, completely isolated on genuine transparent background. No background disk outside medal, no mockup, no text, no letters, no numbers, no huge glow.
+
+founder-title-v2.png
+提示詞：
+One premium fantasy mobile RPG TITLE RIBBON decorative UI asset, very WIDE horizontal landscape banner, 1536x512 transparent image. Central long EMPTY dark indigo velvet nameplate occupies at least 50% of width, thick exquisite champagne gold bevel and fine line engraving. Symmetric sweeping gold laurel feather wings at left and right, small violet faceted gems centered on their bases, flowing short amethyst satin ribbon tails tucked behind. Tiny gold crown centered above middle, subtle lilac jewel drop at bottom center. Craftsmanship extremely detailed but readable at 240x60px. Entire ribbon isolated on genuinely transparent background, nothing cropped. Central nameplate must be empty and legible dark indigo for HTML white text overlay. Cohesive royal purple and champagne gold fantasy event reward collection. NO text, no lettering, no numbers, no mockup, no large circular medallion, no character.
+
+five-star-ticket.svg、stamina.svg、material-chest.svg
+製作方式：專案原生 SVG，以金屬漸層、寶石與可縮放輪廓繪製。
+透明度檢查：頭像框中心 alpha=0；徽章、稱號飄帶外圍透明，已於遊戲實際尺寸檢視。

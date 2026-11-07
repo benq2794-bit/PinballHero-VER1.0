@@ -60,6 +60,9 @@ window.BattleSettlement = Object.freeze({
                     expeditionMedal: Math.random() < 0.10 ? 1 : 0,
                     bossMaterial: Math.random() < 0.03 ? 1 : 0
                 };
+                if (typeof betaEventActive === "function" && betaEventActive()) {
+                    for (const key of ["breakthrough", "experience", "highExperience", "expeditionMedal", "bossMaterial"]) drops[key] *= 2;
+                }
                 // 結算的「分」是把實打傷害、時間剩下的額度、結晶與首通疊起來；
                 // par（速度滿分線）由關卡表給，評級也照它算，才不會每道門都拿同一把尺量。
                 const parMs = Math.max(1, (gate.par || 60) * 1000);

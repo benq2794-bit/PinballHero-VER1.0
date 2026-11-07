@@ -2585,6 +2585,7 @@
 <link rel="stylesheet" href="asset/tower-leaderboard.css">
 <link rel="stylesheet" href="asset/character-exchange.css">
 <link rel="stylesheet" href="asset/ui-dark-mode.css">
+<link rel="stylesheet" href="asset/beta-event.css">
 <link rel="stylesheet" href="asset/summon-jackpot.css">
 <link rel="stylesheet" href="asset/boss-mech-fx.css">
 <script>
@@ -2654,6 +2655,7 @@
                     <div class="hm-identity-row">
                         <span class="hm-avatar-rank" aria-label="帳號 RANK">RANK <i id="hm-rank">1</i></span>
                         <b id="hm-name">冒險者</b>
+                        <img id="hm-beta-badge" class="beta-profile-badge" src="asset/ui/beta/pioneer-badge-v2.png" alt="封測先行者徽章" title="封測先行者 · 永久紀念" hidden>
                         <span class="wf-title-plate" id="hm-display-title" data-tier="1"><span class="wf-title-text">見習勇者</span></span>
                         <button class="hm-account-bonus" id="hm-account-bonus" type="button" aria-label="查看全隊總加成" aria-expanded="false" aria-controls="hm-bonus-details" title="查看全隊總加成" onclick="toggleHomeAccountBonus()">+0.1%</button>
                     </div>
@@ -2755,6 +2757,7 @@
             <nav class="hm-dock-tabs" aria-label="主頁快捷選單">
                 <button class="hm-action hm-dock-toggle" type="button" aria-expanded="false" aria-controls="hm-checkin-panel" onclick="toggleHomeDockMenu(this)"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-calendar"/></svg></span><span class="hm-action-label">每日系統</span></button>
                 <div class="hm-dock-panel" id="hm-checkin-panel" role="group" aria-label="每日系統入口" hidden>
+                    <button type="button" onclick="pickHomeTab('beta')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16"><use href="#dock-icon-calendar"/></svg></span>封測活動</button>
                     <button type="button" onclick="pickHomeTab('checkin')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-check"/></svg></span>每日簽到</button>
                     <button type="button" onclick="pickHomeTab('pass')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-ticket"/></svg></span>通行證</button>
                     <button type="button" onclick="pickHomeTab('offline')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-chest"/></svg></span>離線收益</button>
@@ -3167,6 +3170,7 @@
 <script src="asset/home-party.js"></script>
 <script src="asset/skill-system.js"></script>
 <script src="asset/save-system.js"></script>
+<script src="asset/beta-event.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="asset/supabase-cloud.js"></script>
 <script src="asset/battle-lifecycle.js"></script>
@@ -3178,7 +3182,7 @@
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.1";
+const GAME_VERSION = "v0.1.0-alpha.2";
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
 const DEV_MODE = (() => {
@@ -3197,9 +3201,48 @@ let AUTO_SKILLS_ENABLED = (() => { try { return localStorage.getItem(AUTO_SKILLS
 if (DEV_MODE) {
     try { DEV_PF_ALWAYS = localStorage.getItem(DEV_PF_ALWAYS_KEY) === "1"; } catch (_) {}
 }
+// ===== 選項：畫面幀率／技能動畫／自動省電 =====
+// 三項都只存本機 localStorage（跟深色模式、音效音量同一套），不進存檔 schema，換裝置不會動到雲端進度。
+const GAME_OPTION_KEYS = { fps: "wf_fps_target", skillAnim: "wf_skill_anim", powerSave: "wf_auto_powersave" };
+const FPS_CHOICES = [60, 30];
+const SKILL_ANIM_CHOICES = ["full", "lite", "skip"];
+const SKILL_ANIM_TEXT = { full: "完整", lite: "簡化", skip: "跳過" };
+const GAME_OPTIONS = {
+    fps: (() => { try { return localStorage.getItem(GAME_OPTION_KEYS.fps) === "30" ? 30 : 60; } catch (_) { return 60; } })(),
+    skillAnim: (() => { try { const v = localStorage.getItem(GAME_OPTION_KEYS.skillAnim); return SKILL_ANIM_CHOICES.includes(v) ? v : "full"; } catch (_) { return "full"; } })(),
+    powerSave: (() => { try { return localStorage.getItem(GAME_OPTION_KEYS.powerSave) === "true"; } catch (_) { return false; } })()
+};
+// 自動省電只看電源：改用電池供電、或電量掉到 20% 以下才降載。桌上型電腦查不到電池，開了也不會有任何變化。
+const POWER_STATE = { detected: false, onBattery: false, lowLevel: false };
+function powerSaveEngaged() { return GAME_OPTIONS.powerSave && POWER_STATE.detected && (POWER_STATE.onBattery || POWER_STATE.lowLevel); }
+function activeFps() { return powerSaveEngaged() ? 30 : GAME_OPTIONS.fps; }
+function activeSkillAnim() { return powerSaveEngaged() ? "lite" : GAME_OPTIONS.skillAnim; }
+function watchPowerState() {
+    if (!navigator.getBattery) return;
+    navigator.getBattery().then(battery => {
+        const sync = () => {
+            POWER_STATE.detected = true;
+            POWER_STATE.onBattery = !battery.charging;
+            POWER_STATE.lowLevel = Number(battery.level) <= .2;
+            syncGameOptionLabels();
+        };
+        battery.addEventListener("chargingchange", sync);
+        battery.addEventListener("levelchange", sync);
+        sync();
+    }).catch(() => {});
+}
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
-    { version: GAME_VERSION, date: "2026-11-04", content: [
+    { version: GAME_VERSION, date: "2026-11-07", content: [
+        "每日系統新增「異界開拓祭」14 日封測活動，提供每日十連、首次 20 抽與任務合計 30 抽。",
+        "累積登入第 7、14 天各可領取常駐五星召喚券，優先獲得未擁有角色，不影響一般卡池保底。",
+        "加入 14 日金幣、體力與養成素材獎勵、每日額外 120 體力補給，以及一鍵領取功能。",
+        "封測期間啟用角色培養經驗與指定戰鬥金幣、素材數量加倍。",
+        "新增封測先行者徽章、異界開拓者頭像框與創世見證者稱號，可預覽、收藏和套用。",
+        "重製封測活動橫幅與五個分類頁，調整明暗模式配色、手機排版及領獎狀態。",
+        "加入領獎存檔失敗還原及跨頁面重複領取檢查，保留舊版已領獎勵紀錄。"
+    ] },
+    { version: "v0.1.0-alpha.1", date: "2026-11-04", content: [
         "加入遊戲帳號登入與遊戲名稱設定流程。",
         "支援雲端存檔，並整理主帳號頭像與稱號展示。",
         "移除選單中重複的角色圖鑑入口。"
@@ -3276,7 +3319,7 @@ function dungeonRewards(cfg) {
         ? { gold: cfg.clearGold, shard: cfg.bossRainbow }
         : { experience: cfg.clearExperience, highExperience: cfg.clearHighExperience, shard: cfg.bossRainbow });
     return Object.entries(table)
-        .map(([key, amount]) => ({ key, amount: Math.max(0, Math.floor(+amount) || 0), ...(DUNGEON_REWARD_META[key] || {}) }))
+        .map(([key, amount]) => ({ key, amount: Math.max(0, Math.floor(+amount) || 0) * (key !== "shard" && betaEventActive() ? 2 : 1), ...(DUNGEON_REWARD_META[key] || {}) }))
         .filter(row => row.name && row.amount > 0);
 }
 function dungeonRewardText(cfg) {
@@ -3423,7 +3466,7 @@ const SKILL_CHAIN_FRAME_COUNT = 11;
 const SKILL_CHAIN_FRAME_MS = 60;
 const SKILL_CHAIN_SHEET = new Image();
 SKILL_CHAIN_SHEET.src = "asset/fx/skill-chain-core.png";
-const SKILL_CINEMATIC = { active: false, startedAt: 0, until: 0, canvas: null, ctx: null, specialImage: null, skillCard: null, hiddenFace: null, faceVisibility: "", caster: null, target: null, particles: [], raf: 0, shaken: false, impactFired: false, onImpact: null };
+const SKILL_CINEMATIC = { active: false, startedAt: 0, until: 0, canvas: null, ctx: null, specialImage: null, skillCard: null, hiddenFace: null, faceVisibility: "", caster: null, target: null, particles: [], raf: 0, shaken: false, impactFired: false, onImpact: null, animMode: "full", timeScale: 1 };
 
 // ==========================================================
 // 攻擊型態定位（技能演出由 SKILL_CAST 負責，這裡只放顯示用的名稱）
@@ -3478,6 +3521,7 @@ function titleRequirementMet(requirement) {
     const unlocked = CHAR_IDS.filter(id => roster[id]?.unlocked);
     switch (requirement.type) {
         case "always": return true;
+        case "betaSouvenir": return betaOwns(requirement.value);
         case "kills": return kills >= value;
         case "stage": return stage >= value;
         case "rank": return rankLv >= value;
@@ -4428,6 +4472,42 @@ function syncShakeLabel() {
     if (p) { p.textContent = FX.shakeOn ? "開" : "關"; p.classList.toggle("off", !FX.shakeOn); }
 }
 
+// 三列選項都靠同一組同步函式就地改字，點一次不需要重渲染整個選單頁。
+function gameOptionTexts() {
+    const saving = powerSaveEngaged();
+    return {
+        fps: `${activeFps()} FPS${saving ? "（省電）" : ""}`,
+        skillAnim: `${SKILL_ANIM_TEXT[activeSkillAnim()]}${saving ? "（省電）" : ""}`,
+        powerSave: GAME_OPTIONS.powerSave ? "開" : "關"
+    };
+}
+function syncGameOptionLabels() {
+    const texts = gameOptionTexts();
+    const set = (id, text) => { const node = $(id); if (node) node.textContent = text; };
+    set("menu-fps-state", texts.fps);
+    set("menu-skill-anim-state", texts.skillAnim);
+    const state = $("menu-power-save-state");
+    if (state) { state.textContent = texts.powerSave; state.classList.toggle("off", !GAME_OPTIONS.powerSave); }
+    const button = $("menu-power-save-btn");
+    if (button) button.setAttribute("aria-pressed", String(GAME_OPTIONS.powerSave));
+}
+function cycleFpsTarget() {
+    GAME_OPTIONS.fps = FPS_CHOICES[(FPS_CHOICES.indexOf(GAME_OPTIONS.fps) + 1) % FPS_CHOICES.length];
+    try { localStorage.setItem(GAME_OPTION_KEYS.fps, String(GAME_OPTIONS.fps)); } catch (_) {}
+    syncGameOptionLabels();
+}
+function cycleSkillAnimMode() {
+    const modes = SKILL_ANIM_CHOICES;
+    GAME_OPTIONS.skillAnim = modes[(modes.indexOf(GAME_OPTIONS.skillAnim) + 1) % modes.length];
+    try { localStorage.setItem(GAME_OPTION_KEYS.skillAnim, GAME_OPTIONS.skillAnim); } catch (_) {}
+    syncGameOptionLabels();
+}
+function toggleAutoPowerSave() {
+    GAME_OPTIONS.powerSave = !GAME_OPTIONS.powerSave;
+    try { localStorage.setItem(GAME_OPTION_KEYS.powerSave, String(GAME_OPTIONS.powerSave)); } catch (_) {}
+    syncGameOptionLabels();
+}
+
 // 暫停：戰鬥中唯一的開關，暫停時物理與規則迴圈都不走，計時也停
 function togglePause() {
     if (EXPEDITION_MODE && (!expedition || expedition.choices || expedition.ended || expedition.speedConfirmOpen)) return;
@@ -4856,6 +4936,7 @@ let limitedSummonCount = 0;
 let summonFeaturedCharacterId = "";
 let limitedFeaturedGuaranteed = false;
 let summonTicketSingle = 0, summonTicketTen = 0;
+let betaEventState = BetaEvent.normalize(null);
 let summonShopView = "recruit";
 let pendingSummonExchange = null;
 let inventoryFilter = "all";
@@ -7462,6 +7543,7 @@ const battleSettlement = BattleSettlement.create({
         resetTraining: trainingResetBoss, gainRankExp, gateVictory,
         dungeonWaveVictory: specialDungeonWaveVictory,
         settleTower() {
+            recordBetaEventBattle();
             kills += enemy.groupSize || 1;
             rollShards();
             const defeatedDeepBoss = enemy.boss;
@@ -7595,15 +7677,23 @@ function outholeBite() {
     }
 }
 
-// 所有稀有度共用大型 skill_ready GIF 展示；傷害數字仍照常顯示。
+// 技能演出依選項分成完整／簡化／跳過三級；無論哪一級，傷害數字都照常顯示。
 function startSkillCinematic(m, onImpact) {
     const c = SKILL_CINEMATIC;
+    // 技能動畫分三級，模式由呼叫端（castSkill）寫進 animMode；沒帶模式時一律當「完整」，跟以前行為相同。
+    const mode = c.animMode === "lite" || c.animMode === "skip" ? c.animMode : "full";
+    const lite = mode === "lite";
+    if (mode === "skip") {
+        // 跳過＝不進演出、也不凍結戰鬥那 1.5 秒；傷害與連擊在施放當下直接結算，收尾對施放者的反彈一併省去。
+        if (onImpact) onImpact();
+        return;
+    }
     if (c.raf) cancelAnimationFrame(c.raf);
     if (c.specialImage) c.specialImage.remove();
     if (c.skillCard) c.skillCard.remove();
     if (c.hiddenFace) { c.hiddenFace.style.visibility = c.faceVisibility; c.hiddenFace = null; }
     c.active = true; c.startedAt = performance.now(); c.lastFrameAt = c.startedAt; c.hitStopUntil = 0;
-    c.caster = m; c.target = PF.foe; c.until = c.startedAt + 1500; c.shaken = false; c.hitBurst = false; c.impactFired = false; c.onImpact = onImpact; c.particles = [];
+    c.caster = m; c.target = PF.foe; c.timeScale = lite ? 2.5 : 1; c.until = c.startedAt + 1500 / c.timeScale; c.shaken = false; c.hitBurst = false; c.impactFired = false; c.onImpact = onImpact; c.particles = [];
     const skill = SKILLS[m.ch.id];
     const character = CHAR_TABLE[m.ch.id];
     const ref = artRef("hero", m.ch.id);
@@ -7614,15 +7704,18 @@ function startSkillCinematic(m, onImpact) {
         c.canvas = document.createElement("canvas"); c.canvas.className = "skill-cine";
         c.canvas.width = W; c.canvas.height = H; PF.vfx.appendChild(c.canvas); c.ctx = c.canvas.getContext("2d");
     }
-    const dir = ref ? `${CDN_BASE}rarity${ref.rarity}/${ref.unit}` : "";
-    const specialImage = document.createElement("img");
-    specialImage.className = "skill-special";
-    specialImage.alt = "";
-    specialImage.style.opacity = "0";
-    specialImage.onerror = () => { specialImage.hidden = true; };
-    specialImage.dataset.skillReadyUrl = `${dir}/skill_ready.gif`;
-    PF.vfx.appendChild(specialImage);
-    c.specialImage = specialImage;
+    if (lite) c.specialImage = null;   // 簡化＝不載入也不停撥全場大小的 skill_ready GIF，省掉解碼與合成。
+    else {
+        const dir = ref ? `${CDN_BASE}rarity${ref.rarity}/${ref.unit}` : "";
+        const specialImage = document.createElement("img");
+        specialImage.className = "skill-special";
+        specialImage.alt = "";
+        specialImage.style.opacity = "0";
+        specialImage.onerror = () => { specialImage.hidden = true; };
+        specialImage.dataset.skillReadyUrl = `${dir}/skill_ready.gif`;
+        PF.vfx.appendChild(specialImage);
+        c.specialImage = specialImage;
+    }
     c.canvas.width = W; c.canvas.height = H;
     const ctx = c.ctx; ctx.imageSmoothingEnabled = false;
     const draw = now => {
@@ -7639,7 +7732,7 @@ function startSkillCinematic(m, onImpact) {
             c.hitStopUntil = 0;
         }
         c.lastFrameAt = now;
-        const t = now - c.startedAt, b = m.body, target = c.target || b;
+        const t = (now - c.startedAt) * c.timeScale, b = m.body, target = c.target || b;
         // 施法標題與素材位置都使用同一組插值座標；需先計算，避免首次繪製標題時讀到尚未宣告的 x/y。
         const launch = b || target;
         const travel = Math.min(1, Math.max(0, (t - 390) / 520));
@@ -7702,7 +7795,7 @@ function startSkillCinematic(m, onImpact) {
                 // 抵達敵人時只觸發一次：像素星爆＋十字斬線＋描邊方塊粒子。
                 if (t >= 900 && !c.hitBurst) {
                     c.hitBurst = true; c.burstAt = 900; c.burstX = target.x; c.burstY = target.y;
-                    c.particles = Array.from({ length: 28 }, () => {
+                    c.particles = lite ? [] : Array.from({ length: 28 }, () => {
                         const a = Math.random() * Math.PI * 2, speed = 70 + Math.random() * 260;
                         return { x: target.x, y: target.y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed - 45,
                             size: 3 + Math.random() * 5, life: .38 + Math.random() * .35, color: colors[(Math.random() * colors.length) | 0] };
@@ -7779,7 +7872,7 @@ function startSkillCinematic(m, onImpact) {
                         ctx.fillStyle = q.color; ctx.fillRect(Math.round(px), Math.round(py), Math.ceil(size), Math.ceil(size));
                     }
                 }
-                if (t >= 900 && !c.shaken) { c.shaken = true; FX.shake(); }
+                if (t >= 900 && !c.shaken) { c.shaken = true; if (!lite) FX.shake(); }
                 if (c.specialImage && !c.specialImage.hidden) {
                     const image = c.specialImage;
                     const reveal = Math.min(1, Math.max(0, (t - 390) / 140));
@@ -7823,6 +7916,7 @@ function castSkill(m) {
     const d = CHAR_TABLE[m.ch.id], sk = SKILLS[m.ch.id];
     const col = ELEMENTS[d.element].color;
     const skillSeq = PF.foeSeq;
+    SKILL_CINEMATIC.animMode = activeSkillAnim();
     startSkillCinematic(m, () => {
         if (PF.foeSeq !== skillSeq || m.down || !PF.foe || enemy.hp <= 0) return;
         const damageCapture = { total: 0, until: performance.now() + 1800 };
@@ -8262,6 +8356,10 @@ function render() {
 
 function pfLoop(ts) {
     requestAnimationFrame(pfLoop);   // 先排下一幀：單一幀內丟例外不會讓整個遊戲停止運轉
+    // 幀率選項用「跳幀」實作，不放大 dt：沒排到下一幀就整幀跳過，
+    // 被處理的那一幀仍拿到累計回來的真實 delta，所以模擬速度不受幀率影響。
+    if (ts < (PF.nextFrameAt || 0)) return;
+    PF.nextFrameAt = Math.max(ts + 1, (PF.nextFrameAt || 0) + 1000 / activeFps());
     const frameDelta = Math.max(0, (ts - PF.last) / 1000 || 0);
     const dt = Math.min(0.033, frameDelta);
     PF.last = ts;
@@ -8628,6 +8726,7 @@ addEventListener("message", ev => {
         if (!cfg || cfg.id !== gateBattleId || dungeonReceipts.has(cfg.id) || d.clear !== true ||
             dungeonWaveReceipts.size !== dungeonWaveTotal(cfg) - 1) return;
         dungeonReceipts.add(cfg.id);
+        recordBetaEventBattle();
         dungeonRewards(cfg).forEach(row => grantDungeonReward(row.key, row.amount));
         saveGame(); paintHome();
         const rewardText = dungeonRewardText(cfg);
@@ -8641,15 +8740,16 @@ addEventListener("message", ev => {
         const shards = Math.max(0, Math.min(9999, Math.floor(+d.shards) || 0));
         const rawDrops = d.drops && typeof d.drops === "object" ? d.drops : {};
         const first = !!d.first;
+        const betaDropMultiplier = betaEventActive() ? 2 : 1;
         const drops = {
-            breakthrough: Math.max(1, Math.min(3, Math.floor(+rawDrops.breakthrough) || 0)),
+            breakthrough: Math.max(1, Math.min(3 * betaDropMultiplier, Math.floor(+rawDrops.breakthrough) || 0)),
             rainbow: Math.max(0, Math.min(3, Math.floor(+rawDrops.rainbow) || 0)),
-            experience: 10,
-            highExperience: Math.max(1, Math.min(3, Math.floor(+rawDrops.highExperience) || 1)),
+            experience: 10 * betaDropMultiplier,
+            highExperience: Math.max(1, Math.min(3 * betaDropMultiplier, Math.floor(+rawDrops.highExperience) || 1)),
             singleTicket: Math.max(0, Math.min(1, Math.floor(+rawDrops.singleTicket) || 0)),
             tenTicket: Math.max(0, Math.min(1, Math.floor(+rawDrops.tenTicket) || 0)),
-            expeditionMedal: Math.max(0, Math.min(1, Math.floor(+rawDrops.expeditionMedal) || 0)),
-            bossMaterial: Math.max(0, Math.min(1, Math.floor(+rawDrops.bossMaterial) || 0))
+            expeditionMedal: Math.max(0, Math.min(betaDropMultiplier, Math.floor(+rawDrops.expeditionMedal) || 0)),
+            bossMaterial: Math.max(0, Math.min(betaDropMultiplier, Math.floor(+rawDrops.bossMaterial) || 0))
         };
         const bossMaterialByGate = { fire: 'dragonWing', water: 'shellfishTail', wind: 'garudaBeak', thunder: 'thunderCore' };
         let newlyDroppedAvatarFrame = null;
@@ -8662,6 +8762,7 @@ addEventListener("message", ev => {
         const win = Math.max(0, Math.floor(+d.win) || 0);
         const gName = (typeof d.gateName === "string" && d.gateName ? d.gateName : g.gate).slice(0, 40);
         bossWin[g.id] = Math.max(bossWin[g.id] || 0, win);
+        recordBetaEventBattle();
         shardTotal += shards + drops.rainbow;
         breakthroughStones.fourStar += drops.breakthrough;
         towerMaterials.expeditionMedal += drops.expeditionMedal;
@@ -9118,7 +9219,7 @@ function battleTick() {
 
 // ===== 經驗與角色碎片掉落 =====
 function addExp(ch, amount) {
-    const levels = gainGrowthExp(ch, amount);
+    const levels = gainGrowthExp(ch, amount * (betaEventActive() ? 2 : 1));
     if (levels) log(`🌟 <b style='color:#f3b942'>${charName(ch.id)} 升級！</b> Lv.${ch.lvl}/${growthCap(ch)}｜攻擊 +${growthGainText(growthStatGain(ch, 'atk') * levels)}、生命上限 +${growthGainText(growthStatGain(ch, 'hp') * levels)}`);
 }
 
@@ -9202,7 +9303,7 @@ function rollShards() {
             showTowerLoot("虹彩石", crystals, "crystal");
             log(`💎 虹彩石 +${crystals}（持有 ${shardTotal}）`);
         }
-        const coins = RewardFormulas.towerEnemyGold(stage);
+        const coins = RewardFormulas.towerEnemyGold(stage) * (betaEventActive() ? 2 : 1);
         gold = Math.min(9999999999, gold + coins);
         showTowerLoot("金幣", coins, "gold");
         log(`🪙 金幣 +${coins}（持有 ${gold.toLocaleString("zh-TW")}）`);
@@ -9212,27 +9313,28 @@ function rollShards() {
             ["monsterCrystal", "魔物結晶", "monster-crystal.svg"]
         ];
         for (const [key, name] of materialDrops) {
-            const count = RewardFormulas.towerEnemyMaterial(key);
+            const count = RewardFormulas.towerEnemyMaterial(key) * (betaEventActive() ? 2 : 1);
             if (!count) continue;
             towerMaterials[key] += count;
             showTowerLoot(name, count, key);
             log(`🎒 ${name} +${count}（持有 ${towerMaterials[key]}）`);
         }
-        const fragmentDrop = RewardFormulas.towerEnemyCharacterFragment();
+        const fragmentDrop = RewardFormulas.towerEnemyCharacterFragment() * (betaEventActive() ? 2 : 1);
         if (fragmentDrop && awardTowerCharacterFragments(fragmentDrop)) {
             saveGame();
         }
         return;
     }
 
-    const bossGold = RewardFormulas.towerBossGold(stage);
+    const bossGold = RewardFormulas.towerBossGold(stage) * (betaEventActive() ? 2 : 1);
     gold = Math.min(9999999999, gold + bossGold);
     showTowerLoot("金幣", bossGold, "gold");
     log(`🪙 王關金幣 +${bossGold}（持有 ${gold.toLocaleString("zh-TW")}）`);
     if (RewardFormulas.towerBossAdventureMedal()) {
-        towerMaterials.adventureMedal++;
-        showTowerLoot("塔王的冒險勳章", 1, "adventureMedal");
-        log(`🏅 塔王的冒險勳章 +1（持有 ${towerMaterials.adventureMedal}）`);
+        const amount = betaEventActive() ? 2 : 1;
+        towerMaterials.adventureMedal += amount;
+        showTowerLoot("塔王的冒險勳章", amount, "adventureMedal");
+        log(`🏅 塔王的冒險勳章 +${amount}（持有 ${towerMaterials.adventureMedal}）`);
     }
     const rules = GAME_DATA.rewards.towerBossDrop;
     const categories = [...rules.categories];
@@ -9249,12 +9351,13 @@ function rollShards() {
             showTowerLoot("虹彩石", amount, "crystal");
             log(`💎 虹彩石 +${amount}（持有 ${shardTotal}）`);
         } else if (kind === "characterFragment") {
-            const amount = RewardFormulas.towerBossCharacterFragments();
+            const amount = RewardFormulas.towerBossCharacterFragments() * (betaEventActive() ? 2 : 1);
             awardTowerCharacterFragments(amount);
         } else if (kind === "highGradeExperienceCrystal") {
-            highGradeExperienceCrystals++;
-            showTowerLoot("高階經驗水晶", 1, "highMaterial");
-            log(`✨ 高階經驗水晶 +1（持有 ${highGradeExperienceCrystals}）`);
+            const amount = betaEventActive() ? 2 : 1;
+            highGradeExperienceCrystals += amount;
+            showTowerLoot("高階經驗水晶", amount, "highMaterial");
+            log(`✨ 高階經驗水晶 +${amount}（持有 ${highGradeExperienceCrystals}）`);
         }
     }
 }
@@ -9791,7 +9894,7 @@ function saveGame() {
             tutorialSeen, stage, towerBestStage, towerFirstBossRecoveryUsed, rankLv, rankExp, kills, floorWins, deepTimeLeft, shardTotal, gold, towerMaterials, stamina, staminaTickAt, staminaOverflowResetDate,
             teamIds, squads, squadOn, unisonMap, titleOn, bossWin, gateRecord, cultivationMaterials, highGradeExperienceCrystals, breakthroughStones,
             battleBoostMs: { speed: BATTLE_PAID_BOOSTS.speed, attack: BATTLE_PAID_BOOSTS.attack, crit: BATTLE_PAID_BOOSTS.crit }, battleBoostSavedAt: Date.now(),
-            limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, collectionAchievementClaims,
+            limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, betaEventState, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, collectionAchievementClaims,
             passSeason, passExp, passPremium, passClaimedFree, passClaimedPremium, passCosmetics, passDailyDate, passDailyCheckinAwarded, passDailyStamina, passDailyFloors, passWeeklyDate, passWeeklyWeakHits, passWeeklyExpeditionClears,
             shakeOn: FX.shakeOn, roster
         }, CHAR_IDS);
@@ -9815,15 +9918,25 @@ function loadGame() {
             normalFloorSeconds: NORMAL_FLOOR_SECONDS, rankExpNeed, staminaMaxAtRank,
             normalizeTalentRanks: normalizeTypeTalentRanks,
             talentSpent: ranks => typeTalentSpent(null, ranks),
-            normalizeCharacterGrowth
+            normalizeCharacterGrowth, newCharacter: id => newChar(id, false)
         });
+        const launchVersion = GAME_DATA.betaEvent?.launchVersion || "launch-1";
+        const betaBefore = BetaEvent.normalize(result.data.betaEventState);
+        const launching = GAME_DATA.betaEvent?.phase === "launch" && betaBefore.start && betaBefore.launchVersion !== launchVersion;
+        if (launching) {
+            const keys = [SUMMON_HISTORY_KEY, TOWER_WEEK_KEY, EXPEDITION_HELL_WEEK_KEY, OfflineEarnings.KEY];
+            const auxiliary = Object.fromEntries(keys.map(key => [key, localStorage.getItem(key)]));
+            localStorage.setItem(SAVE_KEY + "_before_" + launchVersion, JSON.stringify({ save:result.data, auxiliary }));
+            keys.forEach(key => localStorage.removeItem(key));
+            summonHistory = [];
+        }
         // 所有資料完成轉換才套用，避免失敗時留下半份進度。
         ({ starterPicked, accountCreated, accountName, accountAvatarId, accountAvatarFrameId, avatarFramesOwned,
             typeTalentRanks, tutorialSeen, kills, stage, towerBestStage, towerFirstBossRecoveryUsed, rankLv, rankExp, stamina, staminaTickAt, staminaOverflowResetDate,
             typeTalentPoints, floorWins, deepTimeLeft, shardTotal, gold, towerMaterials, roster, teamIds,
             squads, squadOn,
             unisonMap, titleOn, bossWin, gateRecord,
-            cultivationMaterials, highGradeExperienceCrystals, breakthroughStones, limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, collectionAchievementClaims,
+            cultivationMaterials, highGradeExperienceCrystals, breakthroughStones, limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, betaEventState, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, collectionAchievementClaims,
             passSeason, passExp, passPremium, passClaimedFree, passClaimedPremium, passCosmetics, passDailyDate, passDailyCheckinAwarded, passDailyStamina, passDailyFloors, passWeeklyDate, passWeeklyWeakHits, passWeeklyExpeditionClears } = restored);
         Object.assign(BATTLE_PAID_BOOSTS, restored.battleBoostMs || { speed: 0, attack: 0, crit: 0 });
         FX.shakeOn = restored.shakeOn;
@@ -10129,6 +10242,7 @@ function spawnMotes() {
 
 // 由 updateUI 每幀呼叫，內容沒變就不碰 DOM
 function paintHome() {
+    recordBetaEventLogin();
     if ($("home").style.display === "none") return;
     const staminaState = syncStamina();
     // 這張卡顯示 RANK 目前這一級的經驗進度，不是角色經驗
@@ -10146,7 +10260,7 @@ function paintHome() {
     const regenNode = $("hm-stamina-regen");
     const regenText = nextRegenMs ? `${Math.floor(nextRegenMs / 60000)}分${Math.floor(nextRegenMs % 60000 / 1000)}秒後 +1` : "體力已滿";
     if (regenNode && regenNode.textContent !== regenText) regenNode.textContent = regenText;
-    const sig = [stage, floorWins, deepTimeLeft, shardTotal, stamina, staminaState.max, kills, titleOn, titleName(), titleFrameTier(), rankLv, Math.floor(rankExp), need, leadId, bonusPct, critBonusPct, accountName, accountAvatarId, accountAvatarFrameId, avatarFramesOwned.join(","), passCosmetics.includes("frontier-frame")].join("|");
+    const sig = [stage, floorWins, deepTimeLeft, shardTotal, stamina, staminaState.max, kills, titleOn, titleName(), titleFrameTier(), rankLv, Math.floor(rankExp), need, leadId, bonusPct, critBonusPct, accountName, accountAvatarId, accountAvatarFrameId, avatarFramesOwned.join(","), passCosmetics.includes("frontier-frame"), betaOwns("beta-pioneer"), betaEventState?.badgeEquipped].join("|");
     if (sig === homeSig) return;
     homeSig = sig;
     const accountAvatar = $("hm-avatar");
@@ -10173,10 +10287,12 @@ function paintHome() {
     $("hm-account-bonus").textContent = `+${bonusPct}%`;
     $("hm-account-bonus").setAttribute("aria-label", `查看全隊總加成（攻擊 +${bonusPct}%）`);
     $("hm-name").textContent = accountName || "冒險者";
+    $("hm-beta-badge").hidden = !betaOwns("beta-pioneer") || betaEventState.badgeEquipped === false;
     const displayedTitle = equippedTitle();
     const titleBadge = $("hm-display-title");
     titleBadge.querySelector(".wf-title-text").textContent = displayedTitle.n;
     titleBadge.dataset.tier = displayedTitle.tier;
+    titleBadge.classList.toggle("beta-founder-title", displayedTitle.id === "beta-founder");
     const bonusDetails = $("hm-bonus-details");
     if (!bonusDetails.hidden) bonusDetails.innerHTML = accountBonusHTML();
     $("hm-energy-pct").textContent = rankCapped ? "MAX" : `${expPct}%`;
@@ -10197,6 +10313,7 @@ function paintHome() {
 // 分頁：角色／商店／圖鑑／頭銜／選單
 // ==========================================================
 const PAGES = GAME_DATA.ui.pages;
+PAGES.beta = "封測活動";
 
 const DAILY_CHECKIN_REWARDS = Object.freeze([
     { type:"rainbow", amount:40, name:"虹彩石 ×40", icon:'<img src="asset/items/crystal.png" alt="虹彩石">' },
@@ -10641,7 +10758,7 @@ function renderPage() {
         : (PAGES[homeTabOn] || "主頁");
     $("pg-res").textContent = shardTotal;
     body.scrollTop = 0;
-const fn = { chars: pageChars, boss: pageBoss, shop: pageShop, exchange: pageCharacterExchange, leaderboard: pageTowerLeaderboard, book: pageBook, title: pageTitles, talents: pageTypeTalents, menu: pageMenu, items: pageItems, checkin: pageDailyCheckin, offline: pageOfflineEarnings, goldExchange: pageGoldExchange, pass: pagePass }[homeTabOn] || pageChars;
+const fn = { chars: pageChars, boss: pageBoss, shop: pageShop, exchange: pageCharacterExchange, leaderboard: pageTowerLeaderboard, book: pageBook, title: pageTitles, talents: pageTypeTalents, menu: pageMenu, items: pageItems, checkin: pageDailyCheckin, offline: pageOfflineEarnings, goldExchange: pageGoldExchange, pass: pagePass, beta: pageBetaEvent }[homeTabOn] || pageChars;
     body.innerHTML = fn();
     body.classList.toggle("char-directory-page", homeTabOn === "chars" && !growthFor);
     body.classList.toggle("type-talent-page", homeTabOn === "talents");
@@ -11663,7 +11780,7 @@ function titleCollectionHTML() {
             onpointerleave="if(event.pointerType !== 'touch') hideTitleHover()" onfocus="if(this.matches(':focus-visible')) showTitleHover(this, '${t.id}')" onblur="hideTitleHover()">
             ${titleBadgeHTML(t.tier, TITLE_BADGE_SYMBOLS[t.category])}
             <span class="title-entry-copy">
-                <span class="wf-title-plate" data-tier="${t.tier}"><span class="wf-title-text">${esc(t.n)}</span></span>
+                <span class="wf-title-plate${t.id === "beta-founder" ? " beta-founder-title" : ""}" data-tier="${t.tier}"><span class="wf-title-text">${esc(t.n)}</span></span>
                 <small class="title-entry-meta">${t.category}・${rarity.name}</small>
             </span>
             <div class="title-entry-actions">
@@ -11751,9 +11868,9 @@ function accountAvatarImageHTML(id = accountAvatarCharacterId()) {
 
 function avatarFrameMarkup(frameId, avatarHTML, isPreview = false, variant = "") {
     const elemental = ELEMENTAL_AVATAR_FRAMES[frameId];
-    const tierClass = frameId === "frontier-frame" ? "frontier" : elemental ? `element-${elemental.element}` : `title-frame-${titleFrameTier()}`;
+    const tierClass = frameId === "beta-frame" ? "beta-avatar-frame" : frameId === "frontier-frame" ? "frontier" : elemental ? `element-${elemental.element}` : `title-frame-${titleFrameTier()}`;
     const shellClass = isPreview ? "avatar-frame-preview" : `avatar-frame-display ${variant === "home" ? "home-avatar-frame" : "account-avatar-frame"}`;
-    const artFile = frameId === "frontier-frame" ? FRONTIER_AVATAR_FRAME_ART : elemental?.file;
+    const artFile = frameId === "beta-frame" ? "asset/ui/beta/pioneer-frame-v2.png" : frameId === "frontier-frame" ? FRONTIER_AVATAR_FRAME_ART : elemental?.file;
     const frameArt = artFile ? `<img class="avatar-frame-art" src="${artFile}" alt="" aria-hidden="true">`
         : frameId === "title" ? titleBadgeHTML(titleFrameTier()) : "";
     const editMark = isPreview || variant === "home" ? "" : `<i aria-hidden="true">✎</i>`;
@@ -11777,6 +11894,7 @@ function openAvatarPicker(mode = "avatars") {
         const frameChoices = [
             frameChoice("title", "稱號階級框", "依目前展示稱號階級變化", true),
             frameChoice("frontier-frame", "境界遠征者", "通行證進階獎勵", passCosmetics.includes("frontier-frame")),
+            frameChoice("beta-frame", "異界開拓者", "異界開拓祭封測限定 · 正式開服保留", betaOwns("beta-frame")),
             ...Object.entries(ELEMENTAL_AVATAR_FRAMES).map(([id, frame]) => frameChoice(id, `${ELEMENTS[frame.element].label}之環`, "取得方式：四屬性 BOSS 通關｜0.1% 隨機掉落，不重複", avatarFramesOwned.includes(id)))
         ].join("");
         box.innerHTML = `<section class="avatar-picker-card" role="dialog" aria-modal="true" aria-labelledby="avatar-picker-title">
@@ -11815,7 +11933,8 @@ function setAccountAvatar(id) {
     if (homeTabOn === "title") renderPage();
 }
 function setAccountAvatarFrame(id) {
-    if (id !== "title" && id !== "frontier-frame" && !ELEMENTAL_AVATAR_FRAMES[id]) return;
+    if (id !== "title" && id !== "frontier-frame" && id !== "beta-frame" && !ELEMENTAL_AVATAR_FRAMES[id]) return;
+    if (id === "beta-frame" && !betaOwns("beta-frame")) return;
     if (id === "frontier-frame" && !passCosmetics.includes("frontier-frame")) return;
     if (ELEMENTAL_AVATAR_FRAMES[id] && !avatarFramesOwned.includes(id)) return;
     accountAvatarFrameId = id;
@@ -11941,6 +12060,10 @@ function pageMenu() {
         <button class="mi" id="menu-dark-mode-btn" aria-pressed="${document.documentElement.classList.contains("ui-dark-mode")}" onclick="toggleDarkMode()"><span class="k">🌙 深色模式</span><span class="v${document.documentElement.classList.contains("ui-dark-mode") ? "" : " off"}" id="menu-dark-mode-state">${document.documentElement.classList.contains("ui-dark-mode") ? "開" : "關"}</span></button>
         <button class="mi" onclick="toggleShake()"><span class="k">✦ 畫面晃動</span>
             <span class="v${FX.shakeOn ? "" : " off"}" id="menu-shake-state">${FX.shakeOn ? "開" : "關"}</span></button>
+        <button class="mi" onclick="cycleFpsTarget()"><span class="k">▣ 畫面幀率</span><span class="v" id="menu-fps-state">${gameOptionTexts().fps}</span></button>
+        <button class="mi" onclick="cycleSkillAnimMode()"><span class="k">✧ 技能動畫</span><span class="v" id="menu-skill-anim-state">${gameOptionTexts().skillAnim}</span></button>
+        <button class="mi" id="menu-power-save-btn" aria-pressed="${GAME_OPTIONS.powerSave}" onclick="toggleAutoPowerSave()"><span class="k">🔋 自動省電</span>
+            <span class="v${GAME_OPTIONS.powerSave ? "" : " off"}" id="menu-power-save-state">${GAME_OPTIONS.powerSave ? "開" : "關"}</span></button>
         <button class="mi" id="menu-help-btn" aria-expanded="false" onclick="toggleHelp()"><span class="k">❔ 操作說明</span><span class="v" id="menu-help-state">查看</span></button>
         <div class="pgc help-guide" id="menu-help" hidden>
             <section><h4>操作方式</h4><p>點擊戰鬥畫面左／右側，或按鍵盤 <strong>←／→</strong> 揮動對應彈板。按 <strong>P</strong> 或點畫面上的暫停鍵開啟暫停選單；暫停時可調整自動彈板與音效音量。</p></section>
@@ -12497,7 +12620,10 @@ function recordExpedition(data) {
     const seconds = Math.min(EXPEDITION_LIMIT, Math.max(0, Math.floor(Number(data.seconds) || 0)));
     const count = Math.min(99999, Math.max(0, Math.floor(Number(data.count) || 0)));
     const clear = data.clear === true && seconds === EXPEDITION_LIMIT;
-    if (clear) recordPassExpeditionClear();
+    if (clear) {
+        recordPassExpeditionClear();
+        recordBetaEventBattle();
+    }
     if (expeditionRunMode === "normal") {
         if (clear) {
             const firstClear = expeditionNormalClearCount === 0;
@@ -13597,6 +13723,7 @@ else if (GATE_MODE) enterBossGate(GATE_MODE);   // 版面對齊後才開門，�
 
 PF.ready = true;
 PF.last = performance.now();
+watchPowerState();   // 自動省電要的那顆電源監聽：插拔電源或電量跨過 20% 時才重算標籤
 requestAnimationFrame(pfLoop);
 battleTimer = setInterval(() => {
     battleTick();

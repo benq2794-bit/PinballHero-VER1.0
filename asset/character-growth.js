@@ -243,15 +243,16 @@ function cultivateGrowthChar(id, event) {
     const oldLevel = ch.lvl;
     const oldAttack = atkOf(ch), oldHealth = hpMax(ch);
     cultivationMaterials--;
-    const levels = gainGrowthExp(ch, 100);
+    const amount = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(100) : 100;
+    const levels = gainGrowthExp(ch, amount);
     const change = levels ? `｜攻擊 ${oldAttack} → ${atkOf(ch)}｜生命 ${oldHealth} → ${hpMax(ch)}` : '';
-    log(`🧪 ${charName(id)} 培養完成，角色經驗 +100${levels ? `，升級 ${levels} 級` : ''}${change}。`);
+    log(`🧪 ${charName(id)} 培養完成，角色經驗 +${amount}${levels ? `，升級 ${levels} 級` : ''}${change}。`);
     refreshGrowthAfterPurchase();
     if (sourceRect && targetRect) playGrowthEffect(sourceRect, targetRect, {
         colors:['#f0ffe8','#b8ff8a','#6cdb62','#d9ffd1','#ffffff'],
         ringColor:'#a8ff83', textColor:'#caffad',
         title:levels ? `培養成功　Lv.${oldLevel} → ${ch.lvl}` : '培養成功',
-        subtitle:change ? change.slice(1) : '角色經驗 +100'
+        subtitle:change ? change.slice(1) : `角色經驗 +${amount}`
     });
 }
 
@@ -265,15 +266,16 @@ function cultivateGrowthCharWithHighCrystal(id, event) {
     const oldLevel = ch.lvl;
     const oldAttack = atkOf(ch), oldHealth = hpMax(ch);
     highGradeExperienceCrystals--;
-    const levels = gainGrowthExp(ch, 1000);
+    const amount = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(1000) : 1000;
+    const levels = gainGrowthExp(ch, amount);
     const change = levels ? `｜攻擊 ${oldAttack} → ${atkOf(ch)}｜生命 ${oldHealth} → ${hpMax(ch)}` : '';
-    log(`💎 ${charName(id)} 使用高階經驗水晶，角色經驗 +1,000${levels ? `，升級 ${levels} 級` : ''}${change}。`);
+    log(`💎 ${charName(id)} 使用高階經驗水晶，角色經驗 +${amount.toLocaleString('zh-TW')}${levels ? `，升級 ${levels} 級` : ''}${change}。`);
     refreshGrowthAfterPurchase();
     if (sourceRect && targetRect) playGrowthEffect(sourceRect, targetRect, {
         colors:['#fff0ff','#e2b8ff','#a66eff','#d8c7ff','#ffffff'],
         ringColor:'#d8b5ff', textColor:'#edcaff',
         title:levels ? `強化成功　Lv.${oldLevel} → ${ch.lvl}` : '高階培養成功',
-        subtitle:change ? change.slice(1) : '角色經驗 +1,000'
+        subtitle:change ? change.slice(1) : `角色經驗 +${amount.toLocaleString('zh-TW')}`
     });
 }
 
@@ -374,6 +376,8 @@ function renderGrowthPage() {
         : !capped ? `先升至 Lv.${cap}｜${breakCostText}` : breakCostText;
     const materials = typeof cultivationMaterials === 'number' ? cultivationMaterials : 0;
     const highMaterials = typeof highGradeExperienceCrystals === 'number' ? highGradeExperienceCrystals : 0;
+    const normalExp = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(100) : 100;
+    const highExp = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(1000) : 1000;
     // 圓台與徽章都取自角色自己的屬性，沒有對應素材時退回風屬性的圓台。
     const el = GROWTH_DAIS_EL.includes(d.element) ? d.element : 'wind', elInfo = GROWTH_ELEMENTS[el];
     const skill = talentRank(ch, 'skill'), pf = talentRank(ch, 'pf'), survival = talentRank(ch, 'survival');
@@ -399,13 +403,13 @@ function renderGrowthPage() {
             <div class="growth-exp-head"><b>${capped ? (maxed ? '已達最高等級' : `已達等級上限，請先${breakAction}`) : `經驗 ${Math.floor(ch.exp)} / ${ch.nextExp}`}</b><span>每級 攻擊 +${growthGainText(growthStatGain(ch, 'atk'))}｜生命 +${growthGainText(growthStatGain(ch, 'hp'))}</span></div>
             <div class="growth-track"><i class="growth-fill${capped ? ' full' : ''}" style="width:${Math.min(100, ch.exp / ch.nextExp * 100)}%"></i></div></div>
         <div class="growth-acts">
-            <button class="growth-act gold" ${!materials || capped ? 'disabled' : ''} onpointerdown="startGrowthContinuous(event,'${ch.id}','normal')" onclick="growthClickFallback(event,'${ch.id}','normal')" title="按住左鍵連續強化，放開停止"><b>經驗水晶強化</b><small>${capped ? `需先${breakAction}` : `+100 經驗｜持有 ${materials}｜按住連續強化`}</small></button>
-            <button class="growth-act high-crystal" ${!highMaterials || capped ? 'disabled' : ''} onpointerdown="startGrowthContinuous(event,'${ch.id}','high')" onclick="growthClickFallback(event,'${ch.id}','high')" title="按住左鍵連續強化，放開停止"><b>高階水晶強化</b><small>${capped ? `需先${breakAction}` : `+1,000 經驗｜持有 ${highMaterials}｜按住連續強化`}</small></button>
+            <button class="growth-act gold" ${!materials || capped ? 'disabled' : ''} onpointerdown="startGrowthContinuous(event,'${ch.id}','normal')" onclick="growthClickFallback(event,'${ch.id}','normal')" title="按住左鍵連續強化，放開停止"><b>經驗水晶強化</b><small>${capped ? `需先${breakAction}` : `+${normalExp.toLocaleString('zh-TW')} 經驗｜持有 ${materials}｜按住連續強化`}</small></button>
+            <button class="growth-act high-crystal" ${!highMaterials || capped ? 'disabled' : ''} onpointerdown="startGrowthContinuous(event,'${ch.id}','high')" onclick="growthClickFallback(event,'${ch.id}','high')" title="按住左鍵連續強化，放開停止"><b>高階水晶強化</b><small>${capped ? `需先${breakAction}` : `+${highExp.toLocaleString('zh-TW')} 經驗｜持有 ${highMaterials}｜按住連續強化`}</small></button>
             <button class="growth-act breakthrough" ${breakDisabled ? 'disabled' : ''} onclick="breakthroughChar('${ch.id}',event)"><b>${breakAction}</b><small>${breakHint}</small></button></div>
         <div class="growth-talents">
             <div class="growth-sec"><div class="growth-sec-title"><b>角色天賦</b><span>${used} / ${budget} 點</span></div>
                 <button class="growth-reset" ${used ? '' : 'disabled'} onclick="resetTalents('${ch.id}')">重置 · 返還 ${used} 點</button></div>
             ${Object.entries(GROWTH_PATHS).map(([key, p]) => { const rank = talentRank(ch, key); return `<div class="growth-path"><div><b>${p.icon} ${p.name}<u>${rank}</u></b><div class="sub">${p.desc}</div></div>
                 <button class="growth-talent-plus" aria-label="${p.name}天賦加一點" title="消耗 1 點天賦點" ${used >= budget ? 'disabled' : ''} onclick="upgradeTalent('${ch.id}','${key}')">＋</button></div>`; }).join('')}
-            <div class="growth-eff">目前：技能傷害 +${skill * 6}%／治療 +${skill * 2}%・PF 效果 +${pf * 8}%・生命 +${survival * 4}%／減傷 ${survival}%。天賦點隨等級與${breakAction}增加，PF 以隊長天賦為準。</div></div></div>`;
+            <div class="growth-eff" title="天賦點隨等級與${breakAction}增加；PF 效果以隊長天賦為準。">目前：技能傷害 +${skill * 6}%／治療 +${skill * 2}%・PF 效果 +${pf * 8}%・生命 +${survival * 4}%／減傷 ${survival}%</div></div></div>`;
 }

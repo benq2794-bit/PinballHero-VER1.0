@@ -8,7 +8,7 @@ window.SaveSystem = (() => {
         'tutorialSeen', 'stage', 'towerBestStage', 'towerFirstBossRecoveryUsed', 'rankLv', 'rankExp', 'kills',
         'floorWins', 'deepTimeLeft', 'shardTotal', 'gold', 'towerMaterials', 'stamina', 'staminaTickAt', 'staminaOverflowResetDate', 'teamIds', 'squads', 'squadOn', 'unisonMap', 'titleOn',
         'bossWin', 'gateRecord', 'cultivationMaterials', 'highGradeExperienceCrystals', 'breakthroughStones', 'battleBoostMs', 'battleBoostSavedAt', 'limitedSummonCount', 'summonFeaturedCharacterId', 'limitedFeaturedGuaranteed', 'summonTicketSingle', 'summonTicketTen', 'expeditionHellEntryDay', 'expeditionHellEntriesUsed', 'expeditionNormalClearCount', 'expeditionNormalRewardDay', 'expeditionNormalRewardedToday', 'dailyCheckinDate', 'dailyCheckinStreak', 'dailyCheckinTotal', 'staminaSupplyDate', 'staminaSupplyNoonAmount', 'staminaSupplyEveningAmount', 'specialDungeonRunDate', 'specialDungeonRuns', 'collectionAchievementClaims', 'shakeOn',
-        'passSeason', 'passExp', 'passPremium', 'passClaimedFree', 'passClaimedPremium', 'passCosmetics', 'passDailyDate', 'passDailyCheckinAwarded', 'passDailyStamina', 'passDailyFloors', 'passWeeklyDate', 'passWeeklyWeakHits', 'passWeeklyExpeditionClears'
+        'betaEventState', 'passSeason', 'passExp', 'passPremium', 'passClaimedFree', 'passClaimedPremium', 'passCosmetics', 'passDailyDate', 'passDailyCheckinAwarded', 'passDailyStamina', 'passDailyFloors', 'passWeeklyDate', 'passWeeklyWeakHits', 'passWeeklyExpeditionClears'
     ];
     const CHARACTER_FIELDS = [
         'unlocked', 'shards', 'lvl', 'exp', 'nextExp', 'baseAtk', 'maxHp',
@@ -60,6 +60,15 @@ window.SaveSystem = (() => {
     }
 
     function restore(p, initialRoster, rules) {
+        const betaConfig = typeof GAME_DATA !== "undefined" ? GAME_DATA.betaEvent : null;
+        if (typeof BetaEvent !== "undefined" && betaConfig?.phase === "launch") {
+            const migrated = BetaEvent.prepareLaunchSave(p, betaConfig.launchVersion || "launch-1");
+            if (migrated !== p) {
+                if (!rules.newCharacter) throw new Error("正式開服遷移缺少初始角色資料");
+                initialRoster = Object.fromEntries(rules.characterIds.map(id => [id, rules.newCharacter(id)]));
+                p = migrated;
+            }
+        }
         const {
             characterIds, characters, titleIds, gateIds,
             maxRank, teamMax, bossEvery, normalFloorWaves, bossFloorSeconds, normalFloorSeconds,
@@ -74,7 +83,9 @@ window.SaveSystem = (() => {
             && characterIds.includes(p.accountAvatarId)
             && p.roster && p.roster[p.accountAvatarId] && p.roster[p.accountAvatarId].unlocked
             ? p.accountAvatarId : '';
-        state.accountAvatarFrameId = p.accountAvatarFrameId === 'frontier-frame' ? 'frontier-frame' : 'title';
+        const beta = typeof BetaEvent !== "undefined" ? BetaEvent.normalize(p.betaEventState) : null;
+        state.accountAvatarFrameId = p.accountAvatarFrameId === 'beta-frame' && beta?.souvenirs.includes('beta-frame')
+            ? 'beta-frame' : p.accountAvatarFrameId === 'frontier-frame' ? 'frontier-frame' : 'title';
         state.avatarFramesOwned = Array.isArray(p.avatarFramesOwned)
             ? [...new Set(p.avatarFramesOwned.filter(id => typeof id === 'string' && ['element-fire', 'element-water', 'element-wind', 'element-thunder'].includes(id)))]
             : [];
@@ -142,6 +153,7 @@ window.SaveSystem = (() => {
         state.specialDungeonRuns = Object.fromEntries(['gold-easy', 'gold-normal', 'gold-hard', 'exp-easy', 'exp-normal', 'exp-hard'].map(id => [id, Math.max(0, Math.min(3, Math.floor(+savedDungeonRuns[id]) || 0))]));
         const savedCollectionClaims = Array.isArray(p.collectionAchievementClaims) ? p.collectionAchievementClaims : [];
         state.collectionAchievementClaims = [...new Set(savedCollectionClaims.filter(id => typeof id === 'string' && ['ach_1', 'ach_2', 'ach_3'].includes(id)))];
+        state.betaEventState = typeof BetaEvent !== "undefined" ? BetaEvent.normalize(p.betaEventState) : null;
         state.passSeason = typeof p.passSeason === 'string' && /^\d{4}-\d{2}$/.test(p.passSeason) ? p.passSeason : '';
         state.passExp = Math.max(0, Math.min(30000, Math.floor(+p.passExp) || 0));
         state.passPremium = !!p.passPremium;
