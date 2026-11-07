@@ -1,5 +1,9 @@
 const BETA_SOUVENIRS = ["beta-pioneer", "beta-frame", "beta-founder"];
 const BETA_DAILY_STAMINA = 120;
+const BETA_EVENT_HOURS = 336;
+const BETA_EVENT_TOTAL_MS = BETA_EVENT_HOURS * 60 * 60 * 1000;
+const BETA_EVENT_DAY_MS = 24 * 60 * 60 * 1000;
+const BETA_DATE_KEY = /^\d{4}-\d{2}-\d{2}$/;
 const BETA_LOGIN_REWARDS = [
     { name: "開拓見面禮", gold: 50000 },
     { name: "探索補給", stamina: 200 },
@@ -17,11 +21,26 @@ const BETA_LOGIN_REWARDS = [
     { name: "常駐五星召喚券", tickets: 1 }
 ];
 
+// 時間戳是唯一的啟動依據：日期欄位只是它的鏡像，供正式開服遷移判定使用。
+function betaLegacyStartMs(start) {
+    if (!BETA_DATE_KEY.test(String(start || ""))) return null;
+    const [year, month, day] = String(start).split("-").map(Number);
+    // 舊存檔只有日期、沒有精確時間，一律對到該日台灣 00:00：寧可少給幾小時，也不能重發 14 天。
+    return Date.UTC(year, month - 1, day) - 8 * 60 * 60 * 1000;
+}
+function betaDateKeyFrom(ms) {
+    const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(new Date(ms)).map(part => [part.type, part.value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
 window.BetaEvent = Object.freeze({
     normalize(raw) {
         const source = raw && typeof raw === "object" ? raw : {};
+        // 只留最近 32 筆：截太早會把「今天」那筆擠掉，等於讓玩家同一日再領一次。
         const dates = value => [...new Set((Array.isArray(value) ? value : [])
-            .filter(day => typeof day === "string" && /^\d{4}-\d{2}-\d{2}$/.test(day)))].sort().slice(0, 14);
+            .filter(day => BETA_DATE_KEY.test(day)))].sort().slice(-32);
         const allowed = ["welcome", "memorial", ...Array.from({ length:14 }, (_, i) => "login" + (i + 1)),
             ...Array.from({ length:4 }, (_, i) => "mission" + i)];
         const claimed = [...new Set((Array.isArray(source.claimed) ? source.claimed : []).filter(id => allowed.includes(id)))];
@@ -31,9 +50,12 @@ window.BetaEvent = Object.freeze({
             souvenirs.add("beta-frame");
         }
         if ([0,1,2,3].every(i => claimed.includes("mission" + i))) souvenirs.add("beta-founder");
+        const stored = Math.floor(Number(source.startedAt));
+        const startedAt = Number.isFinite(stored) && stored > 0 ? stored : betaLegacyStartMs(source.start);
+        const start = BETA_DATE_KEY.test(String(source.start || "")) ? source.start : (startedAt === null ? "" : betaDateKeyFrom(startedAt));
         return {
-            start: typeof source.start === "string" && /^\d{4}-\d{2}-\d{2}$/.test(source.start) ? source.start : "",
-            logins: dates(source.logins), daily: dates(source.daily), supply: dates(source.supply), claimed,
+            start, startedAt,
+            daily: dates(source.daily), supply: dates(source.supply), claimed,
             tickets: Math.max(0, Math.min(2, Math.floor(Number(source.tickets) || 0))),
             battles: Math.max(0, Math.min(10, Math.floor(Number(source.battles) || 0))),
             baseline: source.baseline && typeof source.baseline === "object" ? source.baseline : null,
@@ -43,6 +65,29 @@ window.BetaEvent = Object.freeze({
             lastSummon: typeof source.lastSummon === "string" ? source.lastSummon.slice(0, 100) : ""
         };
     },
+    startMs(state) {
+        const stored = Math.floor(Number(state && state.startedAt));
+        return Number.isFinite(stored) && stored > 0 ? stored : betaLegacyStartMs(state && state.start);
+    },
+    elapsedMs(state, now) {
+        const start = this.startMs(state);
+        return start === null ? null : Math.max(0, now - start);
+    },
+    remainingMs(state, now) {
+        const elapsed = this.elapsedMs(state, now);
+        return elapsed === null ? null : Math.max(0, BETA_EVENT_TOTAL_MS - elapsed);
+    },
+    isActive(state, now) { return (this.remainingMs(state, now) ?? 0) > 0; },
+    // 第 N 天由倒數進度決定，不再看「今天有沒有開啟遊戲」。
+    dayNumber(state, now) {
+        const elapsed = this.elapsedMs(state, now);
+        return elapsed === null ? 0 : Math.min(14, Math.floor(elapsed / BETA_EVENT_DAY_MS) + 1);
+    },
+    countdownText(ms) {
+        const seconds = Math.max(0, Math.floor(ms / 1000));
+        const pad = value => String(value).padStart(2, "0");
+        return `${Math.floor(seconds / 86400)} 天 ${pad(Math.floor(seconds / 3600) % 24)}:${pad(Math.floor(seconds / 60) % 60)}:${pad(seconds % 60)}`;
+    },
     pick(pool, owned, random = Math.random()) {
         const missing = pool.filter(id => !owned.has(id));
         const candidates = missing.length ? missing : pool;
@@ -50,72 +95,68 @@ window.BetaEvent = Object.freeze({
     },
     prepareLaunchSave(save, version) {
         const state = this.normalize(save.betaEventState);
-        if (!state.start || state.launchVersion === version) return save;
+        if (state.startedAt === null || state.launchVersion === version) return save;
         return {
             v:save.v, picked:false, accountCreated:save.accountCreated, accountName:save.accountName,
             accountAvatarFrameId:state.souvenirs.includes("beta-frame") ? "beta-frame" : "title",
             titleOn:state.souvenirs.includes("beta-founder") ? "beta-founder" : "novice",
             shakeOn:save.shakeOn,
-            betaEventState:this.normalize({ start:state.start, souvenirs:state.souvenirs,
+            betaEventState:this.normalize({ start:state.start, startedAt:state.startedAt, souvenirs:state.souvenirs,
                 badgeEquipped:state.badgeEquipped, launchVersion:version })
         };
     }
 });
 
 let betaEventBusy = false;
-let betaEventLoginAttempt = "";
 let betaEventTab = "overview";
 
 function betaEventPhase() { return GAME_DATA.betaEvent?.phase || "beta"; }
 function betaOwns(id) { return BetaEvent.normalize(betaEventState).souvenirs.includes(id); }
-function betaEventActive() {
-    if (betaEventPhase() !== "beta" || !betaEventState?.start) return false;
-    const days = checkinDateGap(betaEventState.start, taipeiDateKey());
-    return days >= 0 && days < 14;
+// 打開頁面、登入、看獎勵都不算開始；只有領下第 1 天登入獎勵那一刻才寫時間戳。
+function betaEventStarted() { return BetaEvent.startMs(betaEventState) !== null; }
+// 336 小時一到：領取入口與全部 ×2 加成同時失效，已入帳的資源、角色與紀念品留著。
+function betaEventActive() { return betaEventPhase() === "beta" && betaEventStarted() && BetaEvent.isActive(betaEventState, Date.now()); }
+function betaEventExpired() { return betaEventPhase() === "beta" && betaEventStarted() && !BetaEvent.isActive(betaEventState, Date.now()); }
+function betaEventDay() { return betaEventStarted() ? BetaEvent.dayNumber(betaEventState, Date.now()) : 0; }
+function betaEventStatusText() {
+    if (betaEventPhase() !== "beta") return "封測活動已結束";
+    if (!betaEventStarted()) return "尚未啟動";
+    const remaining = BetaEvent.remainingMs(betaEventState, Date.now());
+    return remaining > 0 ? `剩餘 ${BetaEvent.countdownText(remaining)}` : "封測活動已結束";
+}
+// 倒數啟動只這一條路：時間戳、日期鏡像、任務基準同一次寫入，之後換裝置也不會重置。
+function betaEventStart() {
+    const now = Date.now();
+    betaEventState.startedAt = now;
+    betaEventState.start = betaDateKeyFrom(now);
+    betaEventState.baseline = betaEventBaseline();
 }
 function betaExperienceAmount(amount) { return amount * (betaEventActive() ? 2 : 1); }
 function recordBetaEventBattle() {
     if (!GATE_MODE && betaEventActive()) betaEventState.battles = Math.min(10, (betaEventState.battles || 0) + 1);
-}
-function recordBetaEventLogin() {
-    const today = taipeiDateKey();
-    if (GATE_MODE || !betaEventState?.start || !betaEventActive() ||
-        betaEventState.logins.includes(today) || betaEventLoginAttempt === today) return;
-    betaEventLoginAttempt = today;
-    betaEventVisit();
 }
 function betaEventBaseline() {
     return { kills, bosses:Object.values(bossWin).reduce((sum, n) => sum + n, 0),
         expedition:expeditionNormalClearCount,
         levels:Object.fromEntries(CHAR_IDS.map(id => [id, roster[id].lvl])) };
 }
+// 只負責比對其他分頁有沒有動過存檔；這頁本身不再寫入任何活動進度。
 function betaEventVisit() {
     if (GATE_MODE || betaEventPhase() !== "beta") return true;
     const saved = saveStore.read();
     if (saved.ok && JSON.stringify(BetaEvent.normalize(saved.data.betaEventState)) !== JSON.stringify(BetaEvent.normalize(betaEventState))) return false;
-    const previous = structuredClone(betaEventState);
     betaEventState = BetaEvent.normalize(betaEventState);
-    if (!betaEventState.start) {
-        betaEventState.start = taipeiDateKey();
-        betaEventState.baseline = betaEventBaseline();
-    }
-    const today = taipeiDateKey();
-    if (betaEventActive() && !betaEventState.logins.includes(today)) betaEventState.logins.push(today);
-    if (JSON.stringify(previous) === JSON.stringify(betaEventState)) return true;
-    if (!saveGame()) {
-        betaEventState = previous;
-        hmToast("活動進度儲存失敗，請稍後再試。");
-        return false;
-    }
     return true;
 }
 function betaEventMissions() {
     const baseline = betaEventState?.baseline || betaEventBaseline();
+    // 倒數還沒啟動前不把既有成果算進任務，否則一開始就頂滿進度。
+    const progress = value => betaEventStarted() ? Math.max(0, value) : 0;
     return [
-        { name:"完成 10 次戰鬥", detail:"波利塔每波／副本通關皆計入", value:betaEventState?.battles || 0, goal:10, draws:5 },
-        { name:"擊破 1 次境界 BOSS", detail:"四屬性境界任選一位", value:Math.max(0, Object.values(bossWin).reduce((sum, n) => sum + n, 0) - baseline.bosses), goal:1, draws:5 },
-        { name:"完成普通巴風特連擊", detail:"成功通關 1 次", value:Math.max(0, expeditionNormalClearCount - baseline.expedition), goal:1, draws:10 },
-        { name:"培養 1 名角色至 Lv.20", detail:"已達等級的角色也符合資格", value:Math.max(0, ...CHAR_IDS.filter(id => roster[id].unlocked).map(id => roster[id].lvl)), goal:20, draws:10 }
+        { name:"完成 10 次戰鬥", detail:"波利塔每波／副本通關皆計入", value:progress(betaEventState?.battles || 0), goal:10, draws:5 },
+        { name:"擊破 1 次境界 BOSS", detail:"四屬性境界任選一位", value:progress(Object.values(bossWin).reduce((sum, n) => sum + n, 0) - baseline.bosses), goal:1, draws:5 },
+        { name:"完成普通巴風特連擊", detail:"成功通關 1 次", value:progress(expeditionNormalClearCount - baseline.expedition), goal:1, draws:10 },
+        { name:"培養 1 名角色至 Lv.20", detail:"已達等級的角色也符合資格", value:progress(Math.max(0, ...CHAR_IDS.filter(id => roster[id].unlocked).map(id => roster[id].lvl))), goal:20, draws:10 }
     ];
 }
 function betaRewardLines(reward) {
@@ -137,6 +178,16 @@ function betaRewardIcon(reward) {
 function betaClaimButton(id, text, ready, done = false) {
     return `<button type="button" class="beta-claim${done ? " is-claimed" : ""}" onclick="claimBetaEvent('${id}')" ${!ready || betaEventBusy ? "disabled" : ""}>${done ? "已領取" : text}</button>`;
 }
+// 不能領的時候要講是哪一種：還沒啟動，還是 336 小時已經跑完。
+function betaGateLabel(text) {
+    if (betaEventActive()) return text;
+    return betaEventPhase() === "beta" && !betaEventStarted() ? "啟動後可領" : "活動已結束";
+}
+function betaLoginReady(day) {
+    if (betaEventPhase() !== "beta" || betaEventState.claimed.includes("login" + day)) return false;
+    if (!betaEventStarted()) return day === 1;
+    return betaEventActive() && BetaEvent.dayNumber(betaEventState, Date.now()) >= day;
+}
 function setBetaEventTab(tab) {
     if (!["overview", "login", "missions", "memorial", "rules"].includes(tab)) return;
     betaEventTab = tab;
@@ -144,16 +195,19 @@ function setBetaEventTab(tab) {
     document.querySelector('.beta-nav [aria-selected="true"]')?.focus({ preventScroll:true });
 }
 function betaEventLoginHTML() {
-    const state = betaEventState, active = betaEventActive();
-    return `<div class="beta-section-heading"><div><small>LOGIN REWARDS</small><h3>14 日登入獎勵</h3></div><b>${state.logins.length} / 14 天</b></div>
-        <p class="beta-copy">每日十連另行領取；第 7、14 天各有一張常駐五星券。</p>
+    const started = betaEventStarted(), active = betaEventActive(), day = betaEventDay();
+    return `<div class="beta-section-heading"><div><small>LOGIN REWARDS</small><h3>14 日登入獎勵</h3></div><b>第 ${day} / 14 天</b></div>
+        <p class="beta-copy">${started ? "各天依 336 小時倒數依次解鎖，離線也照常推進。" : "領取第 1 天獎勵即啟動每位玩家獨立的 336 小時倒數。"}每日十連另行領取；第 7、14 天各有一張常駐五星券。</p>
         <div class="beta-login-grid">${BETA_LOGIN_REWARDS.map((reward, i) => {
-            const day = i + 1, done = state.claimed.includes("login" + day), ready = active && state.logins.length >= day && !done;
+            const number = i + 1, done = betaEventState.claimed.includes("login" + number), ready = betaLoginReady(number);
+            const text = ready ? (number === 1 && !started ? "領取並啟動倒數" : "領取獎勵")
+                : betaEventPhase() !== "beta" || (started && !active) ? "活動已結束"
+                : started ? `第 ${number} 天解鎖` : "啟動後解鎖";
             return `<article class="beta-day${reward.tickets ? " is-special" : ""}${ready ? " is-ready" : ""}${done ? " is-claimed" : ""}">
-                <div class="beta-day-top"><b>DAY ${String(day).padStart(2, "0")}</b><span>${done ? "✓" : reward.tickets ? "五星保證" : ""}</span></div>
+                <div class="beta-day-top"><b>DAY ${String(number).padStart(2, "0")}</b><span>${done ? "✓" : reward.tickets ? "五星保證" : ""}</span></div>
                 <img src="${betaRewardIcon(reward)}" alt="" loading="lazy"><h4>${reward.name}</h4>
                 <div class="beta-reward-lines">${betaRewardLines(reward).map(line => `<span>${line}</span>`).join("")}</div>
-                ${betaClaimButton("login" + day, ready ? "領取獎勵" : "待登入", ready, done)}
+                ${betaClaimButton("login" + number, text, ready, done)}
             </article>`;
         }).join("")}</div>`;
 }
@@ -190,30 +244,29 @@ function betaEventMemorialHTML() {
 function pageBetaEvent() {
     if (betaEventVisit() === false) return '<p>活動進度無法同步。請確認儲存空間，並重新載入遊戲後再開啟活動。</p>';
     const state = betaEventState, today = taipeiDateKey(), active = betaEventActive();
-    const remaining = active ? Math.max(0, 14 - checkinDateGap(state.start, today)) : 0;
     const dailyDone = state.daily.includes(today), supplyDone = state.supply.includes(today);
     const phase = betaEventPhase();
     const overview = `<section class="beta-overview">
         <div class="beta-daily"><div><small>DAILY FREE SUMMON</small><h3>每日免費十連</h3><p>今天的冒險，從十位夥伴開始。</p></div><img src="asset/items/summon-ticket-ten.svg" alt="十抽招募券 ×1">
-            ${betaClaimButton("daily", "領取今日十連", active && !dailyDone, dailyDone)}</div>
+            ${betaClaimButton("daily", betaGateLabel("領取今日十連"), active && !dailyDone, dailyDone)}</div>
         <div class="beta-quick-rewards">
-            <article><img src="asset/ui/beta/material-chest.svg" alt=""><div><h4>首次參加贈禮</h4><p>十抽招募券 ×2</p></div>${betaClaimButton("welcome", "領取 20 抽", active && !state.claimed.includes("welcome"), state.claimed.includes("welcome"))}</article>
-            <article><img src="asset/ui/beta/stamina.svg" alt=""><div><h4>每日體力補給</h4><p>額外體力 ×${BETA_DAILY_STAMINA}</p></div>${betaClaimButton("supply", "領取補給", active && !supplyDone, supplyDone)}</article>
+            <article><img src="asset/ui/beta/material-chest.svg" alt=""><div><h4>首次參加贈禮</h4><p>十抽招募券 ×2</p></div>${betaClaimButton("welcome", betaGateLabel("領取 20 抽"), active && !state.claimed.includes("welcome"), state.claimed.includes("welcome"))}</article>
+            <article><img src="asset/ui/beta/stamina.svg" alt=""><div><h4>每日體力補給</h4><p>額外體力 ×${BETA_DAILY_STAMINA}</p></div>${betaClaimButton("supply", betaGateLabel("領取補給"), active && !supplyDone, supplyDone)}</article>
         </div>
-        <div class="beta-buff-strip"><span><b>×2</b>培養經驗</span><span><b>×2</b>戰鬥金幣</span><span><b>×2</b>素材數量</span><small>${active ? "封測加成生效中" : "封測加成已結束"}</small></div>
+        <div class="beta-buff-strip"><span><b>×2</b>培養經驗</span><span><b>×2</b>戰鬥金幣</span><span><b>×2</b>素材數量</span><small>${active ? "封測加成生效中" : betaEventStarted() ? "封測加成已結束" : "尚未啟動，領獎後生效"}</small></div>
         <div class="beta-section-heading"><div><small>FIVE-STAR GUARANTEE</small><h3>把新的五星夥伴帶回家</h3></div></div>
         <div class="beta-ticket-panel"><img src="asset/ui/beta/five-star-ticket.svg" alt="常駐五星召喚券"><div><h4>常駐五星召喚券</h4><p>優先未擁有 · 均等機率 · 排除限定</p><small>第 7、14 天各一張 · 持有 ${state.tickets} 張</small></div>
             <button type="button" class="beta-claim" onclick="useBetaFiveStarTicket()" ${!state.tickets || betaEventBusy || phase !== "beta" ? "disabled" : ""}>使用一張</button></div>
         ${state.lastSummon ? `<p class="beta-summon-result" role="status">${esc(state.lastSummon)}</p>` : ""}
         ${betaEventLoginHTML()}
     </section>`;
-    const rules = `<section class="beta-rules"><h3>活動規則</h3><p>首次開啟活動頁起算 14 個台灣日曆日，之後每日進入主頁登記累積登入。每日十連與體力補給於台灣時間 00:00 更新，需手動領取，未領取的每日獎勵不累積。</p><p>十連共 140 抽、首次 20 抽、任務合計 30 抽。14 日登入資源與兩張五星券另計。已領過的舊版五星券及十連進度會保留。</p><h3>封測加成</h3><p>使用經驗水晶的角色培養經驗 ×2；波利塔金幣、角色碎片與素材、境界 BOSS 素材、資源副本通關金幣及經驗素材數量 ×2。虹彩石、招募券、商店售價及活動發獎不翻倍。</p><h3>五星券規則</h3><p>未持有常駐五星優先，池內均等機率；全部集齊才抽取重複五星並依原有規則補償。不影響一般卡池保底。活動結束仍可使用已領券，正式開服重置後封測券不保留。</p><h3>正式開服資料處理</h3><p>正式開服版本啟用時，封測角色、抽卡、金幣、素材與關卡進度會重置。已解鎖的紀念徽章、異界開拓者頭像框與創世見證者稱號隨帳號保留。封測期間不執行清檔。</p></section>`;
+    const rules = `<section class="beta-rules"><h3>活動規則</h3><p>領取第 1 天登入獎勵的那一刻起算 336 小時（14 天），每位玩家各自計算；只打開活動頁、登入遊戲或查看獎勵都不會啟動倒數。倒數啟動後離線、未登入、未領獎都照常推進，重新整理、重新登入或換裝置都不會重置。</p><p>336 小時一到活動立即結束，未領取的每日十連、體力補給、登入獎勵、挑戰任務與紀念獎勵全部失效，之後也不能再度啟動；已入帳的資源、角色與紀念品保留，已取得的常駐五星召喚券仍可依原本規則使用。</p><p>每日十連與體力補給於台灣時間 00:00 更新，需手動領取，未領取的每日獎勵不累積。各天登入獎勵依本人倒數進度依次解鎖。</p><p>十連共 140 抽、首次 20 抽、任務合計 30 抽。14 日登入資源與兩張五星券另計。已領過的舊版五星券及十連進度會保留。</p><h3>封測加成</h3><p>使用經驗水晶的角色培養經驗 ×2；波利塔金幣、角色碎片與素材、境界 BOSS 素材、資源副本通關金幣及經驗素材數量 ×2。虹彩石、招募券、商店售價及活動發獎不翻倍。加成只在本人倒數的 336 小時內生效，結束即刻恢復正常倍率。</p><h3>五星券規則</h3><p>未持有常駐五星優先，池內均等機率；全部集齊才抽取重複五星並依原有規則補償。不影響一般卡池保底。活動結束仍可使用已領券，正式開服重置後封測券不保留。</p><h3>正式開服資料處理</h3><p>正式開服版本啟用時，封測角色、抽卡、金幣、素材與關卡進度會重置。已解鎖的紀念徽章、異界開拓者頭像框與創世見證者稱號隨帳號保留。封測期間不執行清檔。</p></section>`;
     const panels = { overview, login:betaEventLoginHTML(), missions:betaEventMissionsHTML(), memorial:betaEventMemorialHTML(), rules };
     return `<section class="beta-event">
         <header class="beta-hero"><div class="beta-hero-copy"><small>PINBALL REALMS · CLOSED BETA</small><span class="beta-season-tag">${phase === "beta" ? "14 日封測限定" : "開服紀念典藏"}</span><h2>異界開拓祭</h2><p>一起成為異界的開拓者</p><div class="beta-hero-total"><strong>190</strong><span>抽招募機會<br>＋2 張常駐五星券</span></div></div>
-            <div class="beta-hero-status"><span>${active ? `尚餘 ${remaining} 個活動日` : "封測領獎期已結束"}</span><b>累積登入 ${state.logins.length} / 14</b></div></header>
+            <div class="beta-hero-status"><span id="beta-countdown">${betaEventStatusText()}</span><b>${betaEventStarted() ? `已進行第 ${betaEventDay()} / 14 天` : "倒數尚未啟動"}</b></div></header>
         <nav class="beta-nav" role="tablist" aria-label="封測活動分類">${[["overview","活動總覽"],["login","14 日登入"],["missions","挑戰任務"],["memorial","限定紀念"],["rules","活動說明"]].map(([id, label]) => `<button type="button" role="tab" id="beta-tab-${id}" aria-selected="${betaEventTab === id}" aria-controls="beta-panel" onclick="setBetaEventTab('${id}')">${label}</button>`).join("")}</nav>
-        <div class="beta-toolbar"><span>${active ? "準備好領取今天的驚喜了嗎？" : "已收藏的紀念品可繼續套用"}</span><button type="button" class="beta-claim" onclick="claimAllBetaEventRewards()" ${!active || betaEventBusy ? "disabled" : ""}>一鍵領取</button></div>
+        <div class="beta-toolbar"><span>${active ? "準備好領取今天的驚喜了嗎？" : betaEventStarted() ? "已收藏的紀念品可繼續套用" : "先領第 1 天登入獎勵，336 小時倒數隨即開始。"}</span><button type="button" class="beta-claim" onclick="claimAllBetaEventRewards()" ${phase !== "beta" || (!active && betaEventStarted()) || betaEventBusy ? "disabled" : ""}>一鍵領取</button></div>
         <div class="beta-content" id="beta-panel" role="tabpanel" aria-labelledby="beta-tab-${betaEventTab}">${panels[betaEventTab]}</div>
     </section>`;
 }
@@ -268,8 +321,12 @@ function grantBetaLoginReward(reward) {
     }
 }
 function grantBetaEventClaim(id) {
-    if (!betaEventActive()) return false;
+    // 336 小時一到，未領取項目全部失效；直接丟錯，舊分頁上的按鈕不會按了沒反應，還讓人以為卡住。
+    if (betaEventExpired()) throw new Error("封測活動已結束，未領取的獎勵已失效。");
+    if (betaEventPhase() !== "beta") return false;
     const state = betaEventState, today = taipeiDateKey();
+    // 從「尚未啟動」跨進倒數的唯一入口，就是第 1 天登入獎勵本身；一鍵領取也繞不過這條判定。
+    if (!betaEventStarted() && !(id === "login1" && !state.claimed.includes("login1"))) return false;
     if (id === "daily" || id === "supply") {
         const dates = id === "daily" ? state.daily : state.supply;
         if (dates.includes(today)) return false;
@@ -282,7 +339,8 @@ function grantBetaEventClaim(id) {
     if (id === "welcome") summonTicketTen += 2;
     else if (/^login([1-9]|1[0-4])$/.test(id)) {
         const day = Number(id.slice(5));
-        if (state.logins.length < day) return false;
+        if (!betaEventStarted()) betaEventStart();
+        else if (BetaEvent.dayNumber(state, Date.now()) < day) return false;
         grantBetaLoginReward(BETA_LOGIN_REWARDS[day - 1]);
     } else if (/^mission[0-3]$/.test(id)) {
         const mission = betaEventMissions()[Number(id.slice(7))];
@@ -294,7 +352,11 @@ function grantBetaEventClaim(id) {
     return true;
 }
 function claimBetaEvent(id) {
-    return runBetaEventAction(() => grantBetaEventClaim(id) ? "封測獎勵已領取並保存。" : "");
+    return runBetaEventAction(() => {
+        const wasStarted = betaEventStarted();
+        if (!grantBetaEventClaim(id)) return "";
+        return !wasStarted && betaEventStarted() ? "第 1 天獎勵已入帳，336 小時倒數正式開始。" : "封測獎勵已領取並保存。";
+    });
 }
 function claimAllBetaEventRewards() {
     return runBetaEventAction(() => {

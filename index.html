@@ -3262,13 +3262,14 @@ function watchPowerState() {
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
     { version: GAME_VERSION, date: "2026-11-07", content: [
-        "每日系統新增「異界開拓祭」14 日封測活動，提供每日十連、首次 20 抽與任務合計 30 抽。",
-        "累積登入第 7、14 天各可領取常駐五星召喚券，優先獲得未擁有角色，不影響一般卡池保底。",
+        "每日系統新增「異界開拓祭」封測活動，領取下第 1 天登入獎勵那一刻起算每人獨立 336 小時，提供每日十連、首次 20 抽與任務合計 30 抽。",
+        "第 7、14 天各可領取常駐五星召喚券，優先獲得未擁有角色，不影響一般卡池保底。",
         "加入 14 日金幣、體力與養成素材獎勵、每日額外 120 體力補給，以及一鍵領取功能。",
         "封測期間啟用角色培養經驗與指定戰鬥金幣、素材數量加倍。",
         "新增封測先行者徽章、異界開拓者頭像框與創世見證者稱號，可預覽、收藏和套用。",
         "重製封測活動橫幅與五個分類頁，調整明暗模式配色、手機排版及領獎狀態。",
-        "加入領獎存檔失敗還原及跨頁面重複領取檢查，保留舊版已領獎勵紀錄。"
+        "加入領獎存檔失敗還原及跨頁面重複領取檢查，保留舊版已領獎勵紀錄。",
+        "活動頁顯示精確剩餘天時分秒；倒數結束即失效未領獎勵並恢復正常倍率，舊版只存日期的進度自動換算時間戳、不重發 14 天。"
     ] },
     { version: "v0.1.0-alpha.1", date: "2026-11-04", content: [
         "加入遊戲帳號登入與遊戲名稱設定流程。",
@@ -10382,7 +10383,6 @@ function spawnMotes() {
 
 // 由 updateUI 每幀呼叫，內容沒變就不碰 DOM
 function paintHome() {
-    recordBetaEventLogin();
     if ($("home").style.display === "none") return;
     const staminaState = syncStamina();
     // 這張卡顯示 RANK 目前這一級的經驗進度，不是角色經驗
@@ -13901,6 +13901,13 @@ if (GATE_MODE) {
 if (!GATE_MODE) window.setInterval(() => {
     if (!document.hidden) grantDailyStaminaSupplies();
 }, 60 * 1000);
+// 封測活動的剩餘時間每秒都在變，但活動頁只在開頁時重繪，所以這條只改那一行文字。
+if (!GATE_MODE) window.setInterval(() => {
+    const node = document.getElementById("beta-countdown");
+    if (!node || document.hidden) return;
+    const text = betaEventStatusText();
+    if (node.textContent !== text) node.textContent = text;
+}, 1000);
 // 離線收益：分頁隱藏或關掉瀏覽器才算離線；回到前台先入帳，開著遊戲時每 30 秒只推時鐘。
 if (!GATE_MODE) {
     const offlineBoot = syncOfflineEarnings();
