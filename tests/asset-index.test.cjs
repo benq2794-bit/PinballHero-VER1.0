@@ -5,8 +5,9 @@ const { render, OUTPUT, ROOTS } = require('../scripts/build-asset-index.cjs');
 
 (async () => {
     const { code } = await render();
-    const committed = fs.readFileSync(path.join(root, OUTPUT), 'utf8');
-    assert.equal(committed, code, 'asset/asset-index.js 過期，請重跑 node scripts/build-asset-index.cjs');
+    const normalizeLineEndings = text => text.replace(/\r\n/g, '\n');
+    const committed = normalizeLineEndings(fs.readFileSync(path.join(root, OUTPUT), 'utf8'));
+    assert.equal(committed, normalizeLineEndings(code), 'asset/asset-index.js 過期，請重跑 node scripts/build-asset-index.cjs');
 
     const box = { window: {} };
     vm.runInNewContext(committed, box);

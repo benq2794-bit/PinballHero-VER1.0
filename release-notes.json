@@ -1,21 +1,12 @@
 {
   "content": [
-    "設定頁改分類導覽：畫面與效能、音效設定、遊戲操作、遊戲說明、資料管理五個分類；更新日誌與素材授權改收合顯示。",
-    "商店與限定招募頁皆新增「招募紀錄」入口；紀錄顯示角色名稱與星等，資訊面板可一鍵關閉。",
-    "輔助型被動於 FEVER 期間產生跟隨光環，結束自動清除；被動特效統一在換波或跟隨對象離場時清理，避免殘影。",
-    "修復天賦節點按壓回饋位移點擊熱區的問題；招募頁按鈕版面適配窄螢幕。",
-    "修復獨立戰場啟動順序：錯誤門名不再生成主頁怪物，啟動畫面於戰場自身初始化完成後才釋放。"
+    "角色圖鑑特寫改為依角色資料顯示原版初始與覺醒完整立繪，支援放大檢視，未解鎖角色以灰階呈現。",
+    "修正素材索引測試，使其比對時忽略 LF/CRLF 換行差異。"
   ],
   "files": [
     "index.html",
-    "release-notes.json",
-    "asset/settings-menu.css",
-    "asset/fx/power-flip.js",
-    "asset/summon-jackpot.css",
-    "asset/type-talents.css",
-    "tests/fever-feedback.test.cjs",
-    "tests/browser-settings-menu.cjs",
-    "tests/browser-three-fixes.cjs",
-    "tests/browser-type-talent-click.cjs"
+    "tests/browser-collection.cjs",
+    "tests/asset-index.test.cjs",
+    "release-notes.json"
   ]
 }
