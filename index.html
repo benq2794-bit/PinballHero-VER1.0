@@ -404,7 +404,7 @@
         .pf-fx.passive-wind-gif { background-size:100% 100%; image-rendering:auto; mix-blend-mode:screen;
             filter:drop-shadow(0 0 7px rgba(142,91,255,.62)); }
         .pf-fx.passive-gif { background-size:100% 100%; image-rendering:auto; mix-blend-mode:screen; }
-        .pf-fx.passive-gif-mage { filter:drop-shadow(0 0 8px rgba(94,177,255,.72)); }
+        .pf-fx.passive-gif-slow { filter:drop-shadow(0 0 8px rgba(94,177,255,.72)); }
         .pf-fx.passive-gif-pierce { filter:drop-shadow(0 0 7px rgba(120,196,255,.7)); }
         .pf-fx.passive-gif-shock { filter:drop-shadow(0 0 7px rgba(190,75,255,.72)); }
         .boss-special-gif { position:absolute; z-index:4; transform:translate(-50%,-50%); object-fit:contain; pointer-events:none;
@@ -2569,6 +2569,7 @@
     </style>
 <link rel="stylesheet" href="asset/gate-browser.css">
 <link rel="stylesheet" href="asset/type-talents.css">
+<link rel="stylesheet" href="asset/settings-menu.css">
 <link rel="stylesheet" href="asset/team-formation.css">
 <link rel="stylesheet" href="asset/pixel-buttons.css">
 <link rel="stylesheet" href="asset/ui-bottom-tabs.css">
@@ -3159,7 +3160,7 @@
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.7";
+const GAME_VERSION = "v0.1.0-alpha.8";
 const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
@@ -3211,6 +3212,7 @@ function watchPowerState() {
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
+    {"version":"v0.1.0-alpha.8","date":"2026-11-09","content":["設定頁改分類導覽：畫面與效能、音效設定、遊戲操作、遊戲說明、資料管理五個分類；更新日誌與素材授權改收合顯示。","商店與限定招募頁皆新增「招募紀錄」入口；紀錄顯示角色名稱與星等，資訊面板可一鍵關閉。","輔助型被動於 FEVER 期間產生跟隨光環，結束自動清除；被動特效統一在換波或跟隨對象離場時清理，避免殘影。","修復天賦節點按壓回饋位移點擊熱區的問題；招募頁按鈕版面適配窄螢幕。","修復獨立戰場啟動順序：錯誤門名不再生成主頁怪物，啟動畫面於戰場自身初始化完成後才釋放。"]},
     {"version":"v0.1.0-alpha.7","date":"2026-11-08","content":["無限波利塔修復離開戰鬥頁後的 Boss 演出與樓層推進，進行中可返回原戰鬥；入口支援輸入樓層、失敗回退與穩定刷塔設定保存。","帳號收藏進度及收藏成就升級：新增分類、培養與屬性目標、一鍵領取及傳說收藏大師榮譽，保留舊獎勵領取紀錄與待領途徑。","四屬性 Boss 整合五階強化、同屬性四星碎片及階級獎勵；每次再戰驗證並扣除體力，補強母頁結算、防重複發獎與存檔失敗重試。","波利塔普通怪物虹彩石掉落率調整為 10%，每次 1 顆；離線收益保留原設定。","素材副本結算圖片限制尺寸並適配手機；六個難度成功通關後可掃蕩當日剩餘次數，與正常挑戰共用每日額度，儲存失敗還原。舊存檔未記錄成功通關者須再通關解鎖。","無限連擊入口移至活動副本，停用其排行榜讀寫並保留歷史及個人紀錄；傷害跳字改為玩家右上、受傷左上，調整一般與暴擊動畫。","首頁 EXP 下方新增已登入帳號在線標籤，使用現有 Supabase 即時連線每 30 秒更新，同帳號合併計算，連線異常顯示 --。","新增手動更新補償入口與固定批次：虹彩石 100、金幣 10,000、限定單抽券 1、經驗水晶 100、高階經驗水晶 10；不含體力。保存領取紀錄，加入連點防護、存檔失敗還原及雲端紀錄比對，部署不自動建立批次。"]},
     {"version":"v0.1.0-alpha.6","date":"2026-11-08","content":["隊伍編成、角色名冊與角色培養合併為「角色管理」單一頁面：上方保留出戰隊伍、配隊切換與隊伍戰力，下方持有角色列表維持搜尋與篩選。","點選持有角色開啟詳情，檢視能力、技能與隊長特性全文，並直接進行升級、突破等原有養成操作；返回鍵回到角色管理列表。","編隊改為明確按鈕操作：選取、替換、卸下，替換列可取消；角色卡標示隊長／隊員，不再依賴雙擊。","隊伍特性預設收合，點擊展開完整說明；手機直立版面加大槽內按鈕並消除橫向溢出，深色模式對比同步補齊。","角色圖鑑維持獨立收藏頁：持有／未持有預覽、角色資料、收藏進度與成就獎勵不變，且不重複養成操作。","排行榜換上榮耀新版版面：挑戰模式改下拉選單、前三名改徽章舞台，榜單整合我的排名列。"]},
     {"version":"v0.1.0-alpha.5","date":"2026-11-08","content":["修正波利塔全隊死亡時誤觸全滅視窗：全隊自動以 50% 最大生命復活並重試當前樓層。","波利塔自動循環開關會保留上次設定；開啟時超時直接循環，關閉時保留原有超時手動流程。","更新波利塔循環與復活提示，明確區分全滅重試當層及超時返回起始層；其他模式與獎勵規則維持原樣。"]},
@@ -5006,6 +5008,10 @@ function feverStart() {
         FeverRush.start(PF.vfx, { x: b ? b.x : W / 2, y: b ? b.y : H * 0.72, field: PF.field });
     }
     spawnFeverPads();
+    if (typeEffects.active('supporter')) {
+        const body = aliveMembers().find(m => m.body)?.body;
+        if (body) showPassiveFX('supporter', body.x, body.y, { follow:body, ms:FEVER_MS, behind:true });
+    }
     // 共鳴脈衝：直接補原始點數，不吃技能蓄能的各種倍率。
     const feverGauge = typeEffects.feverStartGauge();
     if (feverGauge > 0) {
@@ -5019,6 +5025,7 @@ function feverStart() {
     log(`🔥 <b style='color:#ffd34a'>FEVER！</b>球速 ×2、黃金防線啟動；場上追擊箭頭可推球靠近 BOSS，角色偶爾會短暫追怪導向；撞怪有 25% 機率額外反彈（每位角色冷卻 0.75 秒），另有 15% 機率短暫貫穿（每位角色冷卻 2.5 秒）。`);
 }
 function feverEnd() {
+    clearPassiveFX('supporter');
     FEVER.active = false;
     FEVER.left = 0;
     FEVER.value = 0;
@@ -6721,14 +6728,20 @@ function skillVfx(m, type, opt = {}) {
 
 // 型態被動點陣特效：跟 PF_FX 同一套橫條，差別是這些會跟著目標跑（光環類）。
 // wind＝劍士型浮游時的風渦（插在球後面，不蓋臉）、slow＝特殊型推條時的時空鐘、shock＝格鬥型補的衝擊環。
-const PASSIVE_FX = GAME_DATA.assets.passiveFx;
+const PASSIVE_FX = { ...GAME_DATA.assets.passiveFx, supporter: GAME_DATA.assets.powerFlipFx.supporter };
+function clearPassiveFX(key, owner) {
+    for (const n of [...FX.sprites]) if (n._passiveKey === key && (!owner || n._passiveOwner === owner)) n._disposePassive?.();
+}
 function showPassiveFX(key, x, y, opt = {}) {
     if (!PF.vfx) return;
     const sheet = PASSIVE_FX[key];
     if (!sheet) return;
     const ms = opt.ms || sheet.ms;
-    const k = (opt.scale || 1) * (sheet.scale || 1);
-    const n = el("div", "pf-fx");
+    const k = 1.5 * (opt.scale || 1) * (sheet.scale || 1);
+    const owner = opt.follow || opt.owner || null;
+    if (owner) clearPassiveFX(key, owner);
+    const n = el("div", "pf-fx passive-effect");
+    n._passiveKey = key; n._passiveOwner = owner; n._passiveSeq = PF.foeSeq;
     n.style.cssText = `left:${x}px;top:${y}px;background-image:url(${sheet.src});` +
         `--sx:${k.toFixed(3)};--sy:${k.toFixed(3)};--fw:${sheet.fw}px;--fh:${sheet.fh}px;--r:${opt.rot || 0}rad`;
     if (sheet.gif) n.classList.add("passive-gif", key === "wind" ? "passive-wind-gif" : `passive-gif-${key}`);
@@ -6740,13 +6753,14 @@ function showPassiveFX(key, x, y, opt = {}) {
     if (opt.follow) {
         n._followBody = opt.follow; n._followDx = opt.dx || 0; n._followDy = opt.dy || 0;
         n._followRotate = !!opt.rotateWithBody;
-        FX.sprites.push(n);
     }
-    n._timer = setTimeout(() => {
-        n.remove();
+    FX.sprites.push(n);
+    n._disposePassive = () => {
+        clearTimeout(n._timer); n.getAnimations().forEach(a => a.cancel()); n.remove();
         const i = FX.sprites.indexOf(n);
         if (i >= 0) FX.sprites.splice(i, 1);
-    }, ms + 40);
+    };
+    n._timer = setTimeout(n._disposePassive, ms + 40);
 }
 
 // 技能蓄能：時間只是保底，撞擊才是主要來源
@@ -8477,7 +8491,9 @@ function render() {
     }
     for (const g of [...PF.extraFoes, ...PF.summonedFoes]) { if (!enemyUnitAlive(g)) continue; enforceBattleCeiling(g); g.node.style.transform = `translate(${g.x}px, ${g.y}px)`; syncElementStatusFx(g, now); setHpBar(g, g.hp / g.maxHp); }
     // 衝刺特效每幀跟著角色球心更新，不再留在起跑位置。
-    for (const fx of FX.sprites) if (fx._followBody?.node?.isConnected) {
+    for (const fx of [...FX.sprites]) {
+        if (fx._passiveKey && (fx._passiveSeq !== PF.foeSeq || (fx._followBody && !fx._followBody.node?.isConnected))) { fx._disposePassive(); continue; }
+        if (!fx._followBody?.node?.isConnected) continue;
         fx.style.left = fx._followBody.x + (fx._followDx || 0) + "px";
         fx.style.top = fx._followBody.y + (fx._followDy || 0) + "px";
         if (fx._followRotate) fx.style.setProperty("--r", `${Math.atan2(fx._followBody.vy, fx._followBody.vx)}rad`);
@@ -10065,7 +10081,7 @@ function loadGame() {
         Object.assign(BATTLE_PAID_BOOSTS, restored.battleBoostMs || { speed: 0, attack: 0, crit: 0 });
         FX.shakeOn = restored.shakeOn;
         if (typeof migrateCollectionAchievements === "function") { collectionLegacyPending = null; migrateCollectionAchievements(); }
-        spawnEnemy();
+        if (!GATE_MODE) spawnEnemy();
         return true;
     } catch (err) { saveNote = SaveSystem.parseFailure; return false; }
 }
@@ -11553,7 +11569,7 @@ function performSummon(count) {
     const prizes = Array.from({ length: amount }, () => grantSummonPrize(rollSummonPrize(gachaPoolType)));
     summonHistory.unshift({
         at: new Date().toISOString(), count: amount, cost, ticketType,
-        prizes: prizes.map(prize => ({ name: prize.name || (prize.kind === "highMaterial" ? "高階經驗水晶" : prize.kind === "breakthroughStone" ? "限定突破石" : "經驗水晶"), note: prize.note || "", grand: !!prize.grandPrize || (!!prize.id && CHAR_TABLE[prize.id]?.rarity === 5 && CHAR_TABLE[prize.id]?.summonCategory === "limited") }))
+        prizes: prizes.map(prize => ({ characterName: CHAR_TABLE[summonJackpotId(prize)]?.name || "", rarity: CHAR_TABLE[summonJackpotId(prize)]?.rarity || null, name: prize.name || (prize.kind === "highMaterial" ? "高階經驗水晶" : prize.kind === "breakthroughStone" ? "限定突破石" : "經驗水晶"), note: prize.note || "", grand: !!prize.grandPrize || (!!prize.id && CHAR_TABLE[prize.id]?.rarity === 5 && CHAR_TABLE[prize.id]?.summonCategory === "limited") }))
     });
     summonHistory = summonHistory.slice(0, 20);
     try { localStorage.setItem(SUMMON_HISTORY_KEY, JSON.stringify(summonHistory)); } catch (_) {}
@@ -11654,6 +11670,7 @@ let summonInfoDrawer = false;
 function openSummonFocused() { summonFocusedView = true; summonInfoDrawer = false; renderPage(); }
 function closeSummonFocused() { summonFocusedView = false; summonInfoDrawer = false; renderPage(); }
 function toggleSummonInfoDrawer() { summonInfoDrawer = !summonInfoDrawer; renderPage(); }
+function openSummonHistory() { summonInfoTab = "history"; summonInfoDrawer = true; renderPage(); }
 
 function summonPrizeMarkup(prize) {
     const hero = prize.id && CHAR_TABLE[prize.id];
@@ -11694,7 +11711,7 @@ function pageGachaShop() {
     const poolCharacters = SUMMON_FOUR_STAR_IDS.slice(0, 6).map(id => { const d = CHAR_TABLE[id]; return `<div class="summon-pool-unit">${unitFace(d.unit,d.rarity,"walk_front",d.name.slice(0,1))}<small>${d.name}</small></div>`; }).join("");
     const poolPanel = `<div class="summon-pool-content"><div class="summon-pool-section"><b>本期限定五星角色</b><div class="summon-pool-lineup">${eligible.map(id => heroCard(id)).join("")}</div><small>火、水、雷、風各一位；角色每週輪替</small></div><div class="summon-pool-section"><b>四星完整角色</b><div class="summon-pool-unit-list">${poolCharacters}${SUMMON_FOUR_STAR_IDS.length > 6 ? `<span class="summon-pool-more">＋${SUMMON_FOUR_STAR_IDS.length - 6} 位</span>` : ""}</div></div><div class="summon-pool-materials"><span><img src="asset/items/breakthrough-stone-four.png" alt="">限定突破石</span><span><img src="asset/items/high-grade-experience-crystal.png" alt="">高階經驗水晶</span><span><img src="asset/items/experience-crystal.png" alt="">經驗水晶</span><span>四星角色碎片</span></div></div>`;
     const ratesPanel = `<div class="summon-rates"><h3>獎項機率</h3>${rates}<small>四星完整角色重複時轉成 10 片；已持有的限定五星再次抽中時，改得限定突破石 ×10。角色碎片滿 10 片會自動解鎖。</small></div>`;
-    const historyPanel = `<div class="summon-history-list">${summonHistory.length ? summonHistory.map(row => `<article class="summon-history-row"><header><b>${row.count} 次招募</b><time>${new Date(row.at).toLocaleString("zh-TW", { month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", hour12:false })}</time><span>${row.ticketType ? `使用 ${row.ticketType === "ten" ? "十抽招募券 ×1" : "單抽招募券 ×1"}` : `消耗 ${row.cost} 虹彩石`}</span></header><p>${row.prizes.map(prize => { const wasGrand = prize.grand || Object.values(CHAR_TABLE).some(ch => ch.rarity === 5 && ch.summonCategory === "limited" && ch.name === prize.name); return `<span class="${wasGrand ? "summon-history-prize-grand" : ""}">${esc(prize.name)}${prize.note ? `（${esc(prize.note)}）` : ""}</span>`; }).join("、")}</p></article>`).join("") : `<div class="summon-history-empty">還沒有招募紀錄<br><small>完成招募後，最近 20 筆結果會顯示在這裡。</small></div>`}</div>`;
+    const historyPanel = `<div class="summon-history-list">${summonHistory.length ? summonHistory.map(row => `<article class="summon-history-row"><header><b>${row.count} 次招募</b><time>${new Date(row.at).toLocaleString("zh-TW", { month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", hour12:false })}</time><span>${row.ticketType ? `使用 ${row.ticketType === "ten" ? "十抽招募券 ×1" : "單抽招募券 ×1"}` : `消耗 ${row.cost} 虹彩石`}</span></header><p>${row.prizes.map(prize => { const wasGrand = prize.grand || Object.values(CHAR_TABLE).some(ch => ch.rarity === 5 && ch.summonCategory === "limited" && ch.name === prize.name); return `<span class="${wasGrand ? "summon-history-prize-grand" : ""}">${esc(prize.characterName || prize.name)}${prize.rarity ? ` · ${prize.rarity}★` : ""}${prize.note ? `（${esc(prize.note)}）` : ""}</span>`; }).join("、")}</p></article>`).join("") : `<div class="summon-history-empty">還沒有招募紀錄<br><small>完成招募後，最近 20 筆結果會顯示在這裡。</small></div>`}</div>`;
     const infoContent = summonInfoTab === "rates" ? ratesPanel : summonInfoTab === "history" ? historyPanel : poolPanel;
     const infoTabs = `<div class="summon-info-tabs" role="tablist" aria-label="招募資訊"><button type="button" role="tab" aria-selected="${summonInfoTab === "pool"}" class="${summonInfoTab === "pool" ? "active" : ""}" onclick="setSummonInfoTab('pool')">獎池內容</button><button type="button" role="tab" aria-selected="${summonInfoTab === "rates"}" class="${summonInfoTab === "rates" ? "active" : ""}" onclick="setSummonInfoTab('rates')">機率說明</button><button type="button" role="tab" aria-selected="${summonInfoTab === "history"}" class="${summonInfoTab === "history" ? "active" : ""}" onclick="setSummonInfoTab('history')">招募紀錄</button></div>`;
     // 大獎揭曉特效層：只在抽出限定五星、且 3.1s 節奏還在跑的期間掛進彈窗（滾動定格＋壓軸炸開）
@@ -11718,9 +11735,9 @@ function pageGachaShop() {
     const focusedOwned = `<div class="sumfull-owned"><b>擁有道具</b><span><img src="asset/items/summon-ticket-single.svg" alt="">單抽券 ×${summonTicketSingle}</span><span><img src="asset/items/summon-ticket-ten.svg" alt="">十抽券 ×${summonTicketTen}</span><span><img src="asset/items/crystal.png" alt="">虹彩石 ${shardTotal.toLocaleString("zh-TW")}</span><button type="button" class="sumfull-owned-plus" aria-label="兌換招募券" onclick="closeSummonFocused();openShopSection('ticket-exchange')">＋</button></div>`;
     const focusedPity = `<div class="sumfull-pity"><header><span>限定保底</span><b>${limitedSummonCount} / ${SUMMON_LIMITED_PITY}</b></header><div class="sumfull-pity-track"><i style="width:${Math.min(100, limitedSummonCount / SUMMON_LIMITED_PITY * 100)}%"></i></div>${limitedFeaturedGuaranteed ? '<em class="sumfull-guarantee">下次限定五星：指定角色保證</em>' : ""}<small>第 ${SUMMON_LIMITED_SOFT_PITY_START} 抽起機率提升；限定五星首次 50% 為指定角色，若未中，下次限定五星必定指定。第 ${SUMMON_LIMITED_PITY} 抽必出限定五星。</small></div>`;
     const focusedActions = `<div class="sumfull-actions"><button class="mini-btn" ${summonTicketSingle < 1 || animation?.busy ? "disabled" : ""} onclick="performSummon(1)"><b>單次招募</b><small><img src="asset/items/summon-ticket-single.svg" alt="">單抽券 ×1（持有 ${summonTicketSingle}）</small></button><button class="mini-btn gold" ${summonTicketTen < 1 || animation?.busy ? "disabled" : ""} onclick="performSummon(10)"><b>十次招募</b><small><img src="asset/items/summon-ticket-ten.svg" alt="">十抽券 ×1（持有 ${summonTicketTen}）</small></button></div>`;
-    const focusedInfo = summonInfoDrawer ? `<section class="sumfull-info">${infoTabs}<div class="summon-info-content">${infoContent}</div></section>` : "";
+    const focusedInfo = summonInfoDrawer ? `<section class="sumfull-info"><button type="button" class="sumfull-chip summon-info-close" onclick="toggleSummonInfoDrawer()" aria-label="關閉招募資訊">關閉資訊 ✕</button>${infoTabs}<div class="summon-info-content">${infoContent}</div></section>` : "";
     const focusedMarkup = summonFocusedView ? `<div class="sumfull-overlay" role="dialog" aria-modal="true" aria-label="限定招募"><div class="sumfull-page">
-        <header class="sumfull-head"><button type="button" class="sumfull-back" aria-label="返回轉蛋商店" onclick="closeSummonFocused()">‹</button><div class="sumfull-title"><small>四屬精選五星招募</small><h2>限定招募</h2></div><div class="sumfull-ops"><button type="button" class="sumfull-chip sumfull-chip${summonInfoDrawer ? " active" : ""}" aria-pressed="${summonInfoDrawer}" onclick="toggleSummonInfoDrawer()">機率說明</button><button type="button" class="sumfull-chip sumfull-close" aria-label="關閉限定招募" onclick="closeSummonFocused()">✕</button></div></header>
+        <header class="sumfull-head"><button type="button" class="sumfull-back" aria-label="返回轉蛋商店" onclick="closeSummonFocused()">‹</button><div class="sumfull-title"><small>四屬精選五星招募</small><h2>限定招募</h2></div><div class="sumfull-ops"><button type="button" class="sumfull-chip" onclick="openSummonHistory()">招募紀錄</button><button type="button" class="sumfull-chip sumfull-chip${summonInfoDrawer ? " active" : ""}" aria-pressed="${summonInfoDrawer}" onclick="toggleSummonInfoDrawer()">機率說明</button><button type="button" class="sumfull-chip sumfull-close" aria-label="關閉限定招募" onclick="closeSummonFocused()">✕</button></div></header>
         <div class="sumfull-period">◷ ${weekFmt(weekStart)} ～ ${weekFmt(weekStart + 7 * 864e5)} 輪替・剩餘 ${towerWeekCountdown(weekStart)}</div>
         ${focusedStage}
         <section class="sumfull-fours"><h3>四星完整角色<span>招募中一併取得</span></h3><div class="sumfull-four-row">${focusedFour}${SUMMON_FOUR_STAR_IDS.length > 6 ? `<span class="sumfull-four-more">＋${SUMMON_FOUR_STAR_IDS.length - 6} 位</span>` : ""}</div></section>
@@ -11734,6 +11751,8 @@ function pageGachaShop() {
     return `<section class="gacha-shop"><header class="summon-head"><button type="button" class="summon-back" aria-label="返回主頁" onclick="pickHomeTab('home')">‹</button><div class="summon-head-title"><small>四屬精選五星招募</small><h2>限定招募</h2><p>使用招募券進行招募；虹彩石可在兌換頁換取招募券。</p></div><div class="summon-currency"><img src="asset/items/crystal.png" alt=""><b>${shardTotal.toLocaleString("zh-TW")}</b><small>虹彩石</small><button type="button" onclick="openShopSection('ticket-exchange')" aria-label="兌換招募券">＋</button></div></header>
         ${featuredStage}
         <button type="button" class="sumfull-enter" onclick="openSummonFocused()"><b>進入限定招募</b><small>指定角色・保底・獎池與機率</small></button>
+        <button type="button" class="mini-btn summon-history-open" onclick="openSummonHistory()">招募紀錄</button>
+        ${focusedInfo}
         <p class="summon-acquisition-note">四星角色可抽取完整角色或角色碎片；碎片集滿 10 片自動解鎖。</p>
         </section>${charSkillHoverHTML()}${animationMarkup}${focusedMarkup}`;
 }
@@ -12357,11 +12376,28 @@ function renderUpdateLogEntry(entry) {
     return '<article class="pgc update-log-card"><div class="update-log-version"><b>彈射之境 '+escape(entry.version)+'</b><time>'+escape(entry.date)+'</time></div><div class="update-log-label">更新內容</div><ul class="update-log-list">'+entry.content.map(item=>'<li>'+escape(item)+'</li>').join('')+'</ul></article>';
 }
 // ---- 選單 ----
+const SETTINGS_CATEGORIES = Object.freeze([
+    {id:'display',name:'畫面與效能',note:'深色模式、畫面晃動、幀率與省電',icon:'▣'},
+    {id:'sound',name:'音效設定',note:'調整遊戲音效音量',icon:'♫'},
+    {id:'controls',name:'遊戲操作',note:'彈板、鍵盤與暫停操作說明',icon:'✥'},
+    {id:'guide',name:'遊戲說明',note:'戰鬥機制、更新日誌與素材授權',icon:'▤'},
+    {id:'data',name:'資料管理',note:'登入介面與本機存檔管理',icon:'◇'}
+]);
+let settingsCategory = '';
+function openSettingsCategory(id = '') {
+    settingsCategory = SETTINGS_CATEGORIES.some(c=>c.id===id) ? id : '';
+    if(homeTabOn === 'menu')renderPage();
+}
+function settingsMenuNavigation() {
+    const category=SETTINGS_CATEGORIES.find(c=>c.id===settingsCategory);
+    if(category)return '<header class="settings-heading"><button class="mini-btn settings-back" type="button" onclick="openSettingsCategory()">‹ 返回設定</button><h2>'+category.name+'</h2></header>';
+    return '<nav class="settings-categories" aria-label="設定分類">'+SETTINGS_CATEGORIES.map(c=>'<button type="button" class="mi settings-category" onclick="openSettingsCategory(\''+c.id+'\')"><span class="settings-symbol" aria-hidden="true">'+c.icon+'</span><span class="settings-category-copy"><b>'+c.name+'</b><small>'+c.note+'</small></span><span aria-hidden="true">›</span></button>').join('')+'</nav>';
+}
 function pageMenu() {
     const devCharacterId = [growthFor, ...teamIds, ...CHAR_IDS].find(id => id && roster[id] && CHAR_TABLE[id]) || "";
     const devCharacterOptions = CHAR_IDS.map(id => `<option value="${id}" ${id === devCharacterId ? "selected" : ""}>${charName(id)}｜${CHAR_TABLE[id].rarity}★ ${ELEMENTS[CHAR_TABLE[id].element]?.label || ""}</option>`).join("");
     const updateEntries = UPDATE_LOG.map(renderUpdateLogEntry).join("");
-    return `${DEV_MODE ? `<div class="pg-sec dev-tools-title">開發者模式｜DEV BUILD ${DEV_BUILD_VERSION}</div>
+    return `<div class="settings-menu">${settingsMenuNavigation()}<section data-settings-panel="data" ${settingsCategory === "data" ? "" : "hidden"}>${DEV_MODE ? `<div class="pg-sec dev-tools-title">開發者模式｜DEV BUILD ${DEV_BUILD_VERSION}</div>
         <section class="pgc dev-tools" aria-label="開發者測試工具">
             <p class="dev-tools-note">正式遊戲 ${GAME_VERSION}｜此模式使用獨立本機存檔，不登入、不同步雲端，也不寫入正式週排行榜。</p>
             <div class="dev-tools-grid">
@@ -12379,9 +12415,10 @@ function pageMenu() {
                 <small class="dev-tools-hint">只作用於選取角色，不消耗培養素材或突破素材。</small>
             </div>
         </section>` : ""}
-        <div class="pg-sec">設定</div>
+        </section><section data-settings-panel="sound" ${settingsCategory === "sound" ? "" : "hidden"}><div class="pg-sec">音效設定</div>
         <label class="mi mi-volume" for="menu-sfx-volume"><span class="k">🔊 音效音量</span><b id="menu-sfx-volume-value">${Math.round(SFX.masterVolume * 100)}%</b>
             <input id="menu-sfx-volume" type="range" min="0" max="100" value="${Math.round(SFX.masterVolume * 100)}" oninput="setSfxVolume(this.value)" aria-label="音效音量百分比"></label>
+        </section><section data-settings-panel="display" ${settingsCategory === "display" ? "" : "hidden"}><div class="pg-sec">畫面與效能</div>
         <button class="mi" id="menu-dark-mode-btn" aria-pressed="${document.documentElement.classList.contains("ui-dark-mode")}" onclick="toggleDarkMode()"><span class="k">🌙 深色模式</span><span class="v${document.documentElement.classList.contains("ui-dark-mode") ? "" : " off"}" id="menu-dark-mode-state">${document.documentElement.classList.contains("ui-dark-mode") ? "開" : "關"}</span></button>
         <button class="mi" onclick="toggleShake()"><span class="k">✦ 畫面晃動</span>
             <span class="v${FX.shakeOn ? "" : " off"}" id="menu-shake-state">${FX.shakeOn ? "開" : "關"}</span></button>
@@ -12389,10 +12426,12 @@ function pageMenu() {
         <button class="mi" onclick="cycleSkillAnimMode()"><span class="k">✧ 技能動畫</span><span class="v" id="menu-skill-anim-state">${gameOptionTexts().skillAnim}</span></button>
         <button class="mi" id="menu-power-save-btn" aria-pressed="${GAME_OPTIONS.powerSave}" onclick="toggleAutoPowerSave()"><span class="k">🔋 自動省電</span>
             <span class="v${GAME_OPTIONS.powerSave ? "" : " off"}" id="menu-power-save-state">${GAME_OPTIONS.powerSave ? "開" : "關"}</span></button>
+        </section><section data-settings-panel="controls" ${settingsCategory === "controls" ? "" : "hidden"}><div class="pg-sec">遊戲操作</div>
         <button class="mi" id="menu-help-btn" aria-expanded="false" onclick="toggleHelp()"><span class="k">❔ 操作說明</span><span class="v" id="menu-help-state">查看</span></button>
         <div class="pgc help-guide" id="menu-help" hidden>
             <section><h4>操作方式</h4><p>點擊戰鬥畫面左／右側，或按鍵盤 <strong>←／→</strong> 揮動對應彈板。按 <strong>P</strong> 或點畫面上的暫停鍵開啟暫停選單；暫停時可調整自動彈板與音效音量。</p></section>
         </div>
+        </section><section data-settings-panel="guide" ${settingsCategory === "guide" ? "" : "hidden"}><div class="pg-sec">遊戲說明</div>
         <button class="mi" id="menu-combat-help-btn" aria-expanded="false" onclick="toggleCombatHelp()"><span class="k">⚔️ 戰鬥機制說明</span><span class="v" id="menu-combat-help-state">查看</span></button>
         <div class="pgc help-guide" id="menu-combat-help" hidden>
             <section><h4>戰鬥機制</h4><p>角色碰撞敵人會造成傷害並累積技能能量，能量滿後自動施放技能。連續命中可累積 Combo；撞到彈板時會依目前 Combo 觸發 PF。FEVER 能量由命中敵人累積，滿格後持續 <strong>10 秒</strong>，球速 ×2，並啟用場上的追擊星。Boss 蓄力時撞擊弱點可打斷招式；全數擊破會使 Boss BREAK。</p></section>
@@ -12400,19 +12439,19 @@ function pageMenu() {
             <section><h4>技能連擊｜絕境超負荷：OVERFLOW</h4><p>三名不同角色在 <strong>6 秒</strong>內依序命中技能，即觸發全場六段爆發；每段間隔 <strong>0.05 秒</strong>，並使敵人 DOWN <strong>1.5 秒</strong>。六段基礎總傷害為三名角色本次技能實際總傷害的 <strong>1／3</strong>，再以必定暴擊（×1.5）結算；完整命中時，合計約為三人技能總傷害的一半。</p></section>
             <section><h4>傷害算法</h4><p><strong>一般撞擊：</strong>角色攻擊 × 屬性倍率 × 暈眩加成（有暈眩時 ×1.25）× Combo 加成（每 Combo +1%，最多 +50%）× 直接傷害加成 × 暴擊倍率（基礎 ×1.5）。<br><strong>技能：</strong>攻擊 × 技能倍率 × 技能天賦（每級 +6%）× 帳號技能加成 × 屬性倍率 × 暴擊倍率。<br><strong>PF：</strong>攻擊 × PF 招式倍率 × PF／天賦加成 × 屬性倍率 × 暴擊倍率。以上再套用戰鬥傷害倍率、Boss BREAK 易傷與其他適用加成。玩家攻擊屬性克制為 ×1.5；遭敵人屬性抗性時為 ×0.9。</p></section>
         </div>
-        <div class="pg-sec">移動</div>
+        </section><section data-settings-panel="data" ${settingsCategory === "data" ? "" : "hidden"}><div class="pg-sec">資料管理</div>
         ${DEV_MODE ? "" : '<button class="mi" onclick="returnToLoginScreen()"><span class="k">↩ 返回登入介面</span><span class="v">返回 ›</span></button>'}
         <button class="mi" onclick="resetSave()"><span class="k">🗑️ 重置當地存檔</span><span class="v off">重新開始</span></button>
-        <div class="pg-sec">更新日誌</div>
+        </section><section data-settings-panel="guide" ${settingsCategory === "guide" ? "" : "hidden"}><details class="settings-fold"><summary>更新日誌</summary>
         ${updateEntries || '<div class="pg-empty">目前沒有更新紀錄</div>'}
-        <div class="pg-sec">授權</div>
+        </details><details class="settings-fold"><summary>素材授權</summary>
         <div class="pg-credit">
             <div class="credit-group"><b>角色與屬性圖像</b><br>使用中的《World Flipper》角色／遊戲素材來源；原作 © Cygames, Inc. / Citail。</div>
             <div class="credit-group"><b>戰鬥特效</b><br>PF、空間撕裂與 Boss 特效：pixelfx（MIT，Patch / Hugo Duprez）。<br>打擊特效：IceMaan《FREE PIXEL VFX ESSENTIALS》。<br>狀態特效：NogitsuneGurl《Elemental Spellcraft》（可用於免費或商業遊戲，作者鼓勵標示）。<br>技能煙霧：BDragon1727《Free Smoke Fx Pixel 2》。 </div>
             <div class="credit-group"><b>傷害字體</b><br>Riclmbr《Pixel Floating Text &amp; Damage Numbers》（CC0 1.0）。</div>
             <div class="credit-group"><b>戰鬥音效</b><br>目前使用的陷洞／暴擊取樣音：Fupi《Erase / Escape》（OpenGameArt，CC0）。</div>
             <div class="credit-owner">其餘設計 皆為 彈射之境 作者版權</div>
-        </div>`;
+        </div></details></section></div>`;
 }
 
 // ===== 輸入 =====
@@ -13259,6 +13298,7 @@ function startExpedition(snapshot) {
     battleLifecycle.setRunning(true);
     setPaused(false);
     paintExpedition();
+    document.documentElement.classList.remove("ui-booting");
     window.parent.postMessage({ type: "wf-expedition-ready" }, GATE_TARGET);
 }
 
@@ -13966,15 +14006,20 @@ function finishExpedition(title, clear = false) {
 
 
 // ===== 啟動 =====
+const validDungeonMode = DUNGEON_MODE && SPECIAL_DUNGEONS.some(d => d.id === DUNGEON_MODE && d.id === GATE_MODE);
+if (DUNGEON_MODE && !validDungeonMode) DUNGEON_MODE = null;
+if (GATE_MODE && !EXPEDITION_MODE && !BOSS_STAGES.find(s => s.id === GATE_MODE) && !validDungeonMode) {
+    GATE_MODE = null;   // hash 打錯門名：當一般分頁開，別把玩家困在沒有按鈕的戰場
+}
 const resumed = loadGame();
 ensurePlayableAccount();
 migrateCollectionAchievements();
 syncSquadView();   // 存檔有配隊欄位就沿用，沒有則把開場隊伍鋪進配隊1
 if (resumed) saveGame(); // 將舊版「尚未完成開場引導」存檔平滑轉成可直接遊玩的狀態。
 if (!resumed) {
-    stage = 1; spawnEnemy();
+    if (!GATE_MODE) { stage = 1; spawnEnemy(); }
     if (!saveNote) saveGame();   // 球要到 PF.field 取得後才建（下方 syncTeamField），這裡提前建球會整段啟動崩掉
-    log(`🌅 <b>彈射之境</b>：無限波利塔 1，${enemy.name} 出現。`);
+    if (!GATE_MODE) log(`🌅 <b>彈射之境</b>：無限波利塔 1，${enemy.name} 出現。`);
 } else {
     log(`📖 讀取存檔：深層 ${stage}｜擊殺 ${kills}｜上場 ${teamIds.length} 人`);
 }
@@ -13994,18 +14039,11 @@ Object.values(SMOKE_SHEETS).forEach(s => { const im = new Image(); im.src = "ass
 buildField();
 bindInput();
 syncTeamField();
-spawnFoe();
-applyStageBg();
-updateUI();
+if (!GATE_MODE) { spawnFoe(); applyStageBg(); updateUI(); }
 syncSfxLabel();
 syncShakeLabel();
 
 // 主頁初始化：開場落在主頁，點「無限波利塔」才進場；戰鬥在背景照常跑
-const validDungeonMode = DUNGEON_MODE && SPECIAL_DUNGEONS.some(d => d.id === DUNGEON_MODE && d.id === GATE_MODE);
-if (DUNGEON_MODE && !validDungeonMode) DUNGEON_MODE = null;
-if (GATE_MODE && !EXPEDITION_MODE && !BOSS_STAGES.find(s => s.id === GATE_MODE) && !validDungeonMode) {
-    GATE_MODE = null;   // hash 打錯門名：當一般分頁開，別把玩家困在沒有按鈕的戰場
-}
 if (GATE_MODE) {
     // 門的實例：只留戰場，關卡強度對齊母頁當下的深層（存檔可能落後一兩次擊殺）
     document.body.classList.add("gate-mode");
@@ -14050,7 +14088,7 @@ if (!GATE_MODE) {
     window.setInterval(() => { if (!document.hidden) touchOfflineClock(); }, 30 * 1000);
 }
 // 隱藏啟動畫面直到存檔路由與登入狀態都恢復，避免重新整理時短暫露出主頁。
-if (GATE_MODE) document.documentElement.classList.remove("ui-booting");
+// Standalone routes release the existing boot state only after their own initialization.
 
 // 整組只有一個 430×760 的框，寬或高哪邊先裝不下就照哪邊縮；大螢幕一路放大到 2.2 倍。
 // bindInput 的 localX 是拿 getBoundingClientRect 換算的，縮過之後點位照樣對得上物理座標。
@@ -14081,6 +14119,7 @@ if (EXPEDITION_MODE) {
 } else if (validDungeonMode) startSpecialDungeonBattle(SPECIAL_DUNGEONS.find(d => d.id === DUNGEON_MODE));
 else if (GATE_MODE) enterBossGate(GATE_MODE);   // 版面對齊後才開門，量測與閃爍動畫才落在正確位置
 
+if (GATE_MODE && !EXPEDITION_MODE) document.documentElement.classList.remove("ui-booting");
 PF.ready = true;
 PF.last = performance.now();
 watchPowerState();   // 自動省電要的那顆電源監聽：插拔電源或電量跨過 20% 時才重算標籤

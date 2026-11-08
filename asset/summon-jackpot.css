@@ -133,3 +133,8 @@
 #app-frame #pg-body .jk-spark { animation: jkSpark 620ms ease-out both; }
 #app-frame #pg-body .jk-roll { animation: jkRollOut 300ms linear both; animation-delay: 2300ms; }
 #app-frame #pg-body .summon-animation.jackpot > .summon-results-grid { animation: jkGrid 420ms ease-out both; animation-delay: 2600ms; }
+/* Reuse the existing information drawer in both recruitment layouts. */
+#app-frame #pg-body .summon-history-open { width:100%; min-height:40px; margin:0 0 12px; }
+#app-frame #pg-body .summon-info-close { display:block; margin:0 0 8px auto; min-height:32px; }
+#app-frame #pg-body .sumfull-ops { flex-wrap:wrap; justify-content:flex-end; gap:5px; }
+#app-frame #pg-body .sumfull-ops .sumfull-chip { padding:6px; font-size:10px; }

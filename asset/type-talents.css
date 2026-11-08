@@ -77,6 +77,10 @@
 .tt-node.maxed { --tt-line:#b7842f; --tt-face:linear-gradient(150deg,#fff8dd,#eed899);
     --tt-shadow:inset 0 1px 0 #fffdf2,0 0 7px rgba(183,132,47,.45),0 2px 0 rgba(140,105,30,.4); }
 .tt-node.selected { z-index:6; transform:translate(-50%,-50%) scale(1.12); outline:2px solid #159bd1; outline-offset:2px; }
+/* Shared .pg button:active replaces transform with translateY(3px), moving the
+   absolute node away from the press location. Keep its hit area stationary. */
+#app-frame #pg-body .tt-node:active { transform:translate(-50%,-50%); }
+#app-frame #pg-body .tt-node.selected:active { transform:translate(-50%,-50%) scale(1.12); }
 .tt-node:hover { z-index:7; filter:brightness(1.08); }
 .tt-node:focus-visible { outline:2px solid #159bd1; outline-offset:2px; }
 .tt-hover-tooltip { position:fixed; z-index:10000; display:none; box-sizing:border-box; width:max-content; max-width:min(270px,calc(100vw - 20px));

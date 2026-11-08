@@ -1,0 +1,21 @@
+#app-frame #pg-body .settings-menu { min-width:0; }
+#app-frame #pg-body .settings-menu [data-settings-panel][hidden] { display:none !important; }
+#app-frame #pg-body .settings-categories { display:grid; gap:10px; }
+#app-frame #pg-body .settings-category { display:flex; width:100%; min-height:70px; margin:0; align-items:center; gap:12px; padding:12px; box-sizing:border-box; text-align:left; }
+#app-frame #pg-body .settings-symbol { flex:0 0 32px; height:32px; display:grid; place-items:center; font-size:23px; color:#567b99; }
+#app-frame #pg-body .settings-category-copy { flex:1; min-width:0; display:grid; gap:5px; }
+#app-frame #pg-body .settings-category-copy b { font-size:14px; }
+#app-frame #pg-body .settings-category-copy small { font-size:10px; line-height:1.5; white-space:normal; overflow-wrap:anywhere; }
+#app-frame #pg-body .settings-heading { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+#app-frame #pg-body .settings-heading h2 { font-size:15px; margin:0; min-width:0; }
+#app-frame #pg-body .settings-back { flex:none; min-height:38px; padding:8px 12px; }
+#app-frame #pg-body .settings-menu [data-settings-panel] > .mi { width:100%; min-height:48px; box-sizing:border-box; margin:0 0 9px; padding:10px 12px; gap:8px; }
+#app-frame #pg-body .settings-menu .mi .k { min-width:0; white-space:normal; overflow-wrap:anywhere; }
+#app-frame #pg-body .settings-menu .mi .v { flex:none; }
+#app-frame #pg-body .settings-menu .mi-volume { min-height:84px; }
+#app-frame #pg-body .settings-menu .mi-volume input { min-width:0; max-width:100%; }
+.ui-dark-mode #app-frame #pg-body .settings-symbol { color:#c4ddf1; }
+@media(max-width:360px) { #app-frame #pg-body .settings-category { gap:8px; padding:10px; min-height:66px; } }
+#app-frame #pg-body .settings-fold { margin-top:10px; border:1px solid #a4b8c8; border-radius:8px; overflow:hidden; }
+#app-frame #pg-body .settings-fold summary { padding:14px 12px; min-height:46px; box-sizing:border-box; font-weight:800; cursor:pointer; }
+#app-frame #pg-body .settings-fold > :not(summary) { margin:8px; }

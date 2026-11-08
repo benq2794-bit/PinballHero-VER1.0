@@ -59,6 +59,7 @@ function rangerPierceActive(member, now = performance.now()) {
 function clearRangerPierce(member) {
     const b = member && member.body;
     if (!b) return;
+    if (typeof clearPassiveFX === 'function') clearPassiveFX('pierce', b);
     b._rangerPierceUntil = 0;
     b._rangerPierceActive = false;
     b._rangerPierceSeq = -1;
@@ -93,7 +94,7 @@ function triggerFighterShockwave(ch, target) {
     const radius = typeEffects.shockRadius();
     powerFlipWeakCircle(target.x, target.y, radius, { seq: PF.foeSeq, source: ch });
     // 被動專屬的衝擊環：半徑跟實際判定同步，不再借用爆裂型的爆炸。
-    showPassiveFX('shock', target.x, target.y, { scale: radius / 90 });
+    showPassiveFX('shock', target.x, target.y, { scale: radius / 90, owner: ch });
     for (const splash of powerFlipTargets()) {
         if (splash === target || Math.hypot(splash.x - target.x, splash.y - target.y) > radius + splash.r) continue;
         const shockCrit = rollCrit(ch, 'shockwave');

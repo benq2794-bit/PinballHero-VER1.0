@@ -8,7 +8,7 @@ const ctx = { FEVER: { active: false, value: 0, maxValue: 1000, times: 0 }, FEVE
     FEVER_BASE: 1000, FEVER_STEP: 500, FEVER_CAP: 3000, feverCombo: 0,
     $: () => node, setFlipperGold: value => { gold = value; }, spawnFeverPads: () => starts++,
     clearFeverPads: () => clears++, SFX: { feverStart() {} }, log() {},
-    typeEffects: { feverStartGauge: () => 3 }, aliveMembers: () => [energyMember], queueReadySkill() {} };
+    clearPassiveFX() {}, typeEffects: { active: () => false, feverStartGauge: () => 3 }, aliveMembers: () => [energyMember], queueReadySkill() {} };
 ctx.window=ctx; ctx.PF={}; vm.createContext(ctx); vm.runInContext(functions, ctx);
 assert.equal(ctx.feverAdd(18), 18); assert.equal(ctx.FEVER.value, 18); assert.equal(gold, .018);
 ctx.FEVER.value = 995; assert.equal(ctx.feverAdd(18), 5); assert.equal(starts, 1);
@@ -20,4 +20,5 @@ ctx.feverUpdate(4000); assert.equal(ctx.FEVER.left, 6000); assert.equal(gold, .6
 ctx.feverUpdate(6000); assert.equal(ctx.FEVER.active, false); assert.equal(ctx.FEVER.value, 0);
 assert.equal(ctx.FEVER.maxValue, 1500); assert.equal(clears, 1); assert.equal(classes.has('fever-on'), false);
 ctx.FEVER.times = 99; ctx.feverEnd(); assert.equal(ctx.FEVER.maxValue, 3000);
+let supportStarts=0,supportStops=0;ctx.typeEffects.active=type=>type==='supporter';energyMember.body={x:50,y:100};ctx.showPassiveFX=(key,x,y,opt)=>{assert.equal(key,'supporter');assert.equal(opt.follow,energyMember.body);assert.equal(opt.ms,10000);supportStarts++;};ctx.clearPassiveFX=key=>{if(key==='supporter')supportStops++;};ctx.feverStart();assert.equal(supportStarts,1);ctx.feverEnd();assert.equal(supportStops,1);
 console.log('PASS: FEVER credit, threshold activation, start energy, flipper feedback, countdown, cleanup and capped next threshold.');
