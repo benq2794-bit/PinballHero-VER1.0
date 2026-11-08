@@ -779,6 +779,63 @@
             from { transform: scale(1); filter: brightness(1) drop-shadow(0 0 14px rgba(255,180,50,.9)); }
             to { transform: scale(1.09); filter: brightness(1.25) drop-shadow(0 0 22px rgba(255,200,70,1)); }
         }
+
+        /* FEVER 能量條：青白色像素風，位於金色 FEVER 字下方 */
+        .pf-center .fever-gauge {
+            position: absolute; left: 50%; top: 208px;
+            width: 176px; height: 12px;
+            transform: translateX(-50%);
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+        .pf-center .fever-bar-frame {
+            position: relative; width: 100%; height: 100%;
+            background: #041019;
+            border: 2px solid #a5f3fc;
+            outline: 2px solid #04111d;
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.45), inset 0 2px 3px rgba(0, 0, 0, 0.9);
+            box-sizing: border-box;
+            overflow: hidden;
+            image-rendering: pixelated;
+        }
+        .pf-center .fever-bar-fill {
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 0%;
+            background: linear-gradient(180deg, #e0faff 0%, #38bdf8 36%, #0284c7 78%, #0369a1 100%);
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.65);
+            transition: width 0.25s cubic-bezier(0.2, 0.8, 0.3, 1);
+            overflow: hidden;
+        }
+        .pf-center .fever-gauge.active-fever .fever-bar-fill {
+            background: linear-gradient(180deg, #ffffff 0%, #67e8f9 32%, #00e5ff 72%, #0284c7 100%);
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.95), 0 0 4px #ffffff;
+            transition: width 0.08s linear;
+        }
+        .pf-center .fever-bar-glint {
+            position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%);
+            background-size: 55px 100%;
+            background-repeat: no-repeat;
+            animation: feverGlint 1.8s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes feverGlint {
+            0% { background-position: -55px 0; }
+            100% { background-position: calc(100% + 55px) 0; }
+        }
+        .pf-center .fever-bar-flash {
+            position: absolute; left: -6px; top: -6px; right: -6px; bottom: -6px;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.95) 0%, rgba(56,189,248,0.7) 50%, transparent 80%);
+            opacity: 0; pointer-events: none;
+        }
+        .pf-center .fever-gauge.flash .fever-bar-flash {
+            animation: feverGaugeBurst 0.4s ease-out forwards;
+        }
+        @keyframes feverGaugeBurst {
+            0% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0; transform: scale(1.2); }
+        }
         /* FEVER 字下面接一起算的連擊：只有 Fever 期間才有這個數字 */
         .pf-center .fever-combo { position: absolute; left: 0; right: 0; top: 10px;
             opacity: 0; transform: scale(.86); transform-origin: 50% 0;
@@ -2891,6 +2948,14 @@
 
             <div class="pf-center" id="pf-center">
                 <div class="fever" id="pf-fever">FEVER</div>
+                <div class="fever-gauge" id="pf-fever-gauge" aria-label="FEVER 能量槽">
+                    <div class="fever-bar-frame">
+                        <div class="fever-bar-fill" id="pf-fever-bar-fill" style="width: 0%">
+                            <div class="fever-bar-glint"></div>
+                        </div>
+                    </div>
+                    <div class="fever-bar-flash" id="pf-fever-bar-flash"></div>
+                </div>
                 <div class="fever-combo" id="pf-fever-combo">COMBO x0</div>
             </div>
 
@@ -4996,6 +5061,13 @@ function paintFeverFlippers() {
     const pct = FEVER.active ? Math.max(0, Math.min(100, FEVER.left / FEVER_MS * 100)) : Math.min(100, FEVER.value / FEVER.maxValue * 100);
     // 彈板顏色就是 FEVER 能量：蓄能逐漸轉金，啟動後隨倒數逐漸退回紅色。
     setFlipperGold(pct / 100);
+    paintFeverBar(pct);
+}
+function paintFeverBar(pct) {
+    const bar = $("pf-fever-bar-fill");
+    if (!bar || !bar.style) return;
+    const clamped = Math.max(0, Math.min(100, pct));
+    bar.style.width = clamped.toFixed(1) + "%";
 }
 function feverAdd(n) {
     if (FEVER.active) return 0;
@@ -5013,6 +5085,12 @@ function feverStart() {
     FEVER.times++;
     const pf = $("pf"); if (pf) pf.classList.add("fever-on");
     const badge = $("pf-fever"); if (badge) badge.classList.add("on");
+    const gauge = $("pf-fever-gauge");
+    if (gauge && gauge.classList) {
+        gauge.classList.add("active-fever");
+        gauge.classList.add("flash");
+        if (typeof setTimeout === "function") setTimeout(() => { if (gauge && gauge.classList) gauge.classList.remove("flash"); }, 400);
+    }
     feverCombo = 0;
     const fc = $("pf-fever-combo"); if (fc) fc.classList.remove("on", "bump");
     // 速度感：速度線＋霓虹粒子＋鏡頭震動，起點用球的位置
@@ -5045,6 +5123,11 @@ function feverEnd() {
     clearFeverPads();
     FEVER.maxValue = Math.min(FEVER_CAP, FEVER_BASE + FEVER.times * FEVER_STEP);
     setFlipperGold(0);
+    const gauge = $("pf-fever-gauge");
+    if (gauge && gauge.classList) {
+        gauge.classList.remove("active-fever");
+        gauge.classList.remove("flash");
+    }
     paintFeverFlippers();
     const pf = $("pf"); if (pf) pf.classList.remove("fever-on");
     const badge = $("pf-fever"); if (badge) badge.classList.remove("on");
