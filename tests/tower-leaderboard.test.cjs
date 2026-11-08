@@ -88,16 +88,11 @@ for (const [iso, expect] of [
     assert.ok(many.includes('lb-self is-me'));
     c.setTowerLbScope('life');const life=c.pageTowerLeaderboard();assert.ok(!life.includes('本週倒數'));assert.ok(life.includes('生涯前段'));
     c.setTowerLbMode('rogue');const rogue=c.pageTowerLeaderboard();
-    assert.ok(rogue.includes('value="rogue" selected'));
-    assert.ok(rogue.includes('本週還沒有地獄模式成績')&&rogue.includes('本週倒數'));
-    assert.ok(rogue.includes('disabled title="無限連擊目前僅有本週地獄模式紀錄"'));
-    assert.ok(rogue.includes('showExpeditionModePicker()'));
-    c.expeditionTime=seconds=>String(seconds)+' 秒';
-    c.expeditionHellWeekRecord=()=>({week:c.towerWeekStart(),rows:[{name:'本機測試紀錄',seconds:120,count:12,clear:false}]});
-    const localRogue=c.pageTowerLeaderboard();assert.ok(localRogue.includes('本機測試紀錄')&&localRogue.includes('lb-self is-me'),'local best is highlighted without writing player data');
-
+    assert.ok(!rogue.includes('value="rogue"'));
+    assert.ok(rogue.includes('showTowerModePicker()')&&!rogue.includes('showExpeditionModePicker()'));
+    assert.equal(c.towerLbScopeKey(),'tower_life');
     c.setTowerLbMode('gate');assert.ok(c.pageTowerLeaderboard().includes('value="tower" selected'));
-    c.pickHomeTab=(tab,mode)=>{assert.equal(tab,'leaderboard');assert.equal(mode,'rogue')};c.openHomeLeaderboard('rogue');
+    c.pickHomeTab=(tab,mode)=>{assert.equal(tab,'leaderboard');assert.equal(mode,'tower')};c.openHomeLeaderboard('rogue');
     c.pickHomeTab=(tab,mode)=>assert.equal(mode,'tower');c.openHomeLeaderboard();
     const unsafe=setup({weekFloor:30,name:'<script>"&'}).ctx.pageTowerLeaderboard();assert.ok(unsafe.includes('&lt;script&gt;')&&!unsafe.includes('<script>'));
     assert.ok(!single.includes('隊伍戰力')&&!single.includes('最快通關時間'),'missing historical data never invented');

@@ -1,0 +1,65 @@
+/* 收藏成就 2.0：保留圖鑑三分頁與角色特寫，只裝飾收藏區。 */
+#app-frame #pg-body .collection-details{margin-top:8px;padding:7px;border:1px solid #bdd9e8;border-radius:7px;background:#edf7fd;color:#284e68}
+#app-frame #pg-body .collection-details summary{cursor:pointer;font-size:11px;font-weight:bold;list-style:none}
+#app-frame #pg-body #dex-rewards{display:grid;gap:9px;color:#244b67}
+#app-frame #pg-body #dex-rewards *{box-sizing:border-box}
+#app-frame #pg-body #dex-rewards :is(p,span,b,strong,small,h3){color:inherit!important;text-shadow:none!important}
+#app-frame #pg-body .collection-hero{display:flex;align-items:center;gap:10px;padding:15px 10px;border:1px solid #90c5e8;border-radius:12px;background:radial-gradient(ellipse at top right,#fff,#b9e3ff55 70%),linear-gradient(110deg,#e1f4ff,#b9dbf5);box-shadow:inset 0 0 0 3px #ffffff88,0 3px 6px #3668921a;color:#254e76}
+#app-frame #pg-body .collection-hero>svg{width:65px;height:65px;flex:none;color:#4e8ac0}
+#app-frame #pg-body .collection-hero>div{flex:1;min-width:0}
+#app-frame #pg-body .collection-hero h3{font-size:20px;letter-spacing:2px;margin:0 0 3px;font-weight:900}
+#app-frame #pg-body .collection-hero p{font-size:10px;margin:0 0 6px}
+#app-frame #pg-body .collection-hero strong{font-size:12px}
+#app-frame #pg-body #dex-rewards progress{display:block;width:100%;height:9px;border:1px solid #82abc4;border-radius:8px;overflow:hidden;background:#d3e0e9;accent-color:#2caacd}
+#app-frame #pg-body #dex-rewards progress::-webkit-progress-bar{background:linear-gradient(#aec4d4,#d9e8f2)}
+#app-frame #pg-body #dex-rewards progress::-webkit-progress-value{border-radius:6px;background:linear-gradient(#72e7f4,#29afd3 49%,#1a92bd 51%,#3edccb);box-shadow:inset 0 1px 0 #e7ffff}
+#app-frame #pg-body .collection-hero progress{height:13px!important;margin-top:7px}
+#app-frame #pg-body .collection-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+#app-frame #pg-body .collection-filters button{min-width:0;min-height:33px;border:1px solid #a3c8e2!important;border-radius:6px!important;background:linear-gradient(#fff,#dceefa)!important;color:#2c5675!important;font-size:11px!important;font-weight:bold;padding:4px}
+#app-frame #pg-body .collection-filters button[aria-pressed=true]{background:linear-gradient(#55c5f2,#2366af)!important;border-color:#80cde9!important;color:#fff!important;box-shadow:inset 0 0 0 1px #c7efff,0 2px 5px #2c74ab33!important}
+#app-frame #pg-body #dex-rewards .collection-card{display:grid;grid-template-columns:42px minmax(0,1fr) 70px;gap:7px;align-items:center;min-height:92px;padding:9px 7px;border:1px solid #a8cce4;border-radius:9px;background:linear-gradient(125deg,#fbfeff,#e8f4fd);box-shadow:inset 0 1px 0 #fff,0 2px 3px #27597e14;color:#25445f}
+#app-frame #pg-body #dex-rewards .collection-card.high{border-color:#d8c18d;background:linear-gradient(130deg,#fffdf4,#fbf1d9)}
+#app-frame #pg-body #dex-rewards .collection-card.ready{border-color:#d5ab47;background:linear-gradient(110deg,#fff7d6,#fffdf2);box-shadow:inset 3px 0 #e6bd52,0 2px 5px #a1792524}
+#app-frame #pg-body #dex-rewards .collection-card.claimed{border-color:#98c8b4;background:linear-gradient(120deg,#f8fffc,#edf8f2)}
+#app-frame #pg-body .collection-medal{color:#679cc1;display:block}
+#app-frame #pg-body .collection-medal svg{width:42px;height:50px}
+#app-frame #pg-body .collection-card.high .collection-medal,#app-frame #pg-body .collection-card.ready .collection-medal{color:#b58b35}
+#app-frame #pg-body #dex-rewards .dex-achievement-head{font-size:12px;line-height:1.4;font-weight:900}
+#app-frame #pg-body #dex-rewards .dex-achievement-desc{font-size:10px;line-height:1.6;margin:3px 0 6px;color:#4d6c80!important}
+#app-frame #pg-body .collection-meter{display:flex;gap:5px;align-items:center}
+#app-frame #pg-body .collection-meter progress{flex:1;min-width:0}
+#app-frame #pg-body .collection-meter small{font-size:9px;white-space:nowrap;font-variant-numeric:tabular-nums}
+#app-frame #pg-body .collection-card-action{display:grid;justify-items:center;gap:6px}
+#app-frame #pg-body .collection-prize{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+#app-frame #pg-body .collection-prize img{width:21px;height:21px;object-fit:contain}
+#app-frame #pg-body #dex-rewards .dex-claim{min-height:29px;min-width:62px;border:1px solid #c69834!important;border-radius:6px!important;background:linear-gradient(#ffefaa,#dfad37)!important;color:#573706!important;font-weight:900;font-size:11px!important;padding:5px}
+#app-frame #pg-body #dex-rewards .dex-claim:disabled{background:#e1eaf0!important;border-color:#b3c5d0!important;color:#617989!important;opacity:1}
+#app-frame #pg-body #dex-rewards .claimed .dex-claim:disabled{background:#e5f7ed!important;border-color:#82b99d!important;color:#247148!important}
+#app-frame #pg-body .collection-master{position:relative;isolation:isolate;display:grid;grid-template-columns:76px minmax(0,1fr);gap:9px;padding:14px 10px;border:2px solid #d7b25e;border-radius:12px;background:radial-gradient(circle at 15% 25%,#fff9cc,transparent 48%),linear-gradient(125deg,#fffdf4,#f4df9d 55%,#fff5d5);box-shadow:inset 0 0 0 3px #fff8da,inset 0 0 0 4px #c19b46,0 3px 7px #81612833;color:#694a14}
+#app-frame #pg-body .collection-master:before,#app-frame #pg-body .collection-master:after{content:'✦';position:absolute;color:#d1a745;font-size:17px;top:2px;pointer-events:none}
+#app-frame #pg-body .collection-master:before{left:3px}#app-frame #pg-body .collection-master:after{right:3px}
+#app-frame #pg-body .collection-master>img{width:76px;height:90px;object-fit:contain;align-self:center;filter:drop-shadow(0 3px 4px #aa751d50)}
+#app-frame #pg-body #dex-rewards .collection-master small{font-size:8px;letter-spacing:1px}
+#app-frame #pg-body .collection-master h3{font-size:17px;letter-spacing:1px;margin:4px 0}
+#app-frame #pg-body .collection-master p{font-size:9px;line-height:1.8;margin:4px 0 7px}
+#app-frame #pg-body .collection-master>div>span{display:block;text-align:right;font-size:10px;margin-top:3px}
+#app-frame #pg-body .collection-master footer{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid #cda95166}
+#app-frame #pg-body .collection-honor{grid-column:1/-1;text-align:center;font-size:11px;color:#386d41!important;padding:5px;border:1px solid #afc38b;background:#ffffff80;border-radius:4px}
+#app-frame #pg-body #dex-rewards .collection-claim-all{min-height:43px;justify-self:center;width:min(240px,100%);border:2px solid #71caeb!important;border-radius:24px!important;background:linear-gradient(#3bbde9,#166bbe)!important;color:white!important;font-weight:900;font-size:14px!important;box-shadow:inset 0 0 0 2px #b4edff,0 3px 0 #255584!important;margin:5px 0 7px}
+#app-frame #pg-body #dex-rewards .collection-claim-all:disabled{background:#b4cbdc!important;box-shadow:inset 0 0 0 2px #ddebf4!important;color:#4b6d85!important}
+#app-frame #pg-body .collection-legacy{border-top:1px solid #b9d1e3;padding-top:9px;font-size:11px;display:grid;gap:7px}
+#app-frame #pg-body .collection-legacy summary{cursor:pointer;font-weight:bold;padding:6px}
+#app-frame #pg-body .collection-legacy>p,#app-frame #pg-body .collection-save-warning{font-size:10px;line-height:1.8}
+#app-frame #pg-body #dex-rewards :is(button,summary):focus-visible{outline:3px solid #2c95c8!important;outline-offset:2px}
+html.ui-dark-mode #app-frame #pg-body #dex-rewards{color:#dbeefa}
+html.ui-dark-mode #app-frame #pg-body #dex-rewards .collection-card{background:linear-gradient(125deg,#233b4c,#193140);border-color:#597e98;color:#e3f3ff}
+html.ui-dark-mode #app-frame #pg-body #dex-rewards .collection-card.high{background:#403b29;border-color:#a8925e}
+html.ui-dark-mode #app-frame #pg-body #dex-rewards .collection-card.ready{background:#443d24;border-color:#d7b45d}
+html.ui-dark-mode #app-frame #pg-body #dex-rewards .collection-card.claimed{background:#243f35;border-color:#629a80}
+html.ui-dark-mode #app-frame #pg-body #dex-rewards .dex-achievement-desc{color:#bcd4e3!important}
+html.ui-dark-mode #app-frame #pg-body #dex-rewards .collection-master{color:#694a14!important}
+html.ui-dark-mode #app-frame #pg-body #dex-rewards .collection-hero{color:#254e76!important}
+html.ui-dark-mode #app-frame #pg-body .collection-details{background:#233c4e;color:#daedf9;border-color:#5d829b}
+@media(max-width:360px){#app-frame #pg-body #dex-rewards .collection-card{grid-template-columns:32px minmax(0,1fr) 62px;gap:5px;padding:8px 5px}#app-frame #pg-body .collection-medal svg{width:32px;height:42px}#app-frame #pg-body #dex-rewards .dex-achievement-head{font-size:11px}#app-frame #pg-body .collection-master{grid-template-columns:58px minmax(0,1fr)}#app-frame #pg-body .collection-master>img{width:58px}#app-frame #pg-body .collection-master h3{font-size:15px}}
+#app-frame #pg-body #dex-rewards .dex-claim:disabled{filter:none!important;opacity:1!important}
+#app-frame #pg-body #dex-rewards .claimed .dex-claim:disabled{color:#247148!important;background:#e5f7ed!important;border-color:#82b99d!important}

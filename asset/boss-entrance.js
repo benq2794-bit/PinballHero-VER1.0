@@ -237,7 +237,9 @@ function updateBossEntrance(dtMs) {
     const frame = $('pf-frame');
     // 門戰不經 showScreen，inline display 一直是 none（靠 CSS !important 顯示），
     // 所以用實際版面判斷戰場有沒有在畫面上，不能只看 inline style
-    if (PF.paused || !PF.ready || !PF.running || (frame && !frame.offsetWidth)) return;
+    // 波利塔換到首頁／分頁仍在運作，不能讓隱藏的演出永久鎖住戰鬥與樓層計時。
+    const backgroundTower = !gateOn() && !GATE_MODE && !TRAINING_MODE && !EXPEDITION_MODE;
+    if (PF.paused || !PF.ready || !PF.running || (frame && !frame.offsetWidth && !backgroundTower)) return;
 
     if (BOSS_ENTRANCE.pending) {
         BOSS_ENTRANCE.pending = false;

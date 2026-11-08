@@ -41,3 +41,73 @@
 .gate-browser-note { text-align:center; color:#8ea5c0; font-size:10px; line-height:1.7; }
 
 .pg .gate-preview:focus-visible,.pg .gate-challenge:focus-visible { outline:2px solid #e9f8ff; outline-offset:2px; }
+
+/* 五階強化選擇器。
+   這裡的按鈕會被 pixel-rpg-ui 的 `.pg button` 與 ui-metal-theme 的 `#app-frame button:not(.gold)…`
+   兩條全域 !important 按鈕皮蓋掉，所以用兩段 id＋雙類別把權重墊高；深色版再加 html.ui-dark-mode。
+   選中態刻意叫 chosen 而不是 selected，避開 `#app-frame button.selected` 那條全域金色激活皮。 */
+.gate-enhance { margin-top:10px; padding-top:9px; border-top:1px solid #b9c9d4; }
+.gate-enhance-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+.gate-enhance-options { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:4px; margin-top:7px; }
+.gate-enhance-detail { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px 8px; margin:9px 0 0; }
+.gate-enhance-detail > div { min-width:0; }
+.gate-enhance-detail dt,.gate-enhance-detail dd { margin:0; }
+.gate-enhance-detail dd { margin-top:1px; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.gate-enhance-teaser { margin-top:10px; padding-top:8px; border-top:1px solid #b9c9d4; font-size:10px; line-height:1.65; }
+#app-frame #pg-body .gate-enhance-head b { color:#9a6500 !important; font-size:12px; letter-spacing:.6px; }
+#app-frame #pg-body .gate-enhance-head span { color:#4a626e !important; font-size:10px; font-weight:700; }
+#app-frame #pg-body .gate-enhance-detail dt { color:#5d7480 !important; font-size:9px; }
+#app-frame #pg-body .gate-enhance-detail dd { color:#183d50 !important; font-size:11px; font-weight:800; }
+#app-frame #pg-body .gate-enhance-teaser { color:#4f6672 !important; }
+#app-frame #pg-body .gate-enhance button.gate-tier.gate-tier {
+    position:relative; min-width:0; min-height:31px; margin:0; padding:5px 1px 4px;
+    border:1px solid #93aabb !important; border-bottom:3px solid #7d94a8 !important; border-radius:4px !important;
+    background:linear-gradient(180deg,#f6fafc,#d6e2ea) !important; color:#22404f !important;
+    font:800 10px/1.2 'Microsoft JhengHei',sans-serif !important; text-shadow:0 1px 0 #ffffffcc !important;
+    box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(24,61,80,.18) !important; cursor:pointer;
+}
+#app-frame #pg-body .gate-enhance button.gate-tier.gate-tier:hover { background:linear-gradient(180deg,#fff,#e2edf4) !important; }
+#app-frame #pg-body .gate-enhance button.gate-tier.gate-tier:active { transform:translateY(2px); border-bottom-width:1px !important; }
+#app-frame #pg-body .gate-enhance button.gate-tier.gate-tier.chosen {
+    border-color:#c08a2a !important; border-bottom-color:#96651a !important;
+    background:linear-gradient(180deg,#fff3b4,#f0bb45) !important; color:#3a2409 !important;
+    box-shadow:inset 0 1px 0 #fffbe0,0 0 0 1px #ffe9a8,0 2px 5px rgba(154,101,0,.35) !important;
+}
+#app-frame #pg-body .gate-enhance button.gate-tier.gate-tier:disabled {
+    filter:none !important; opacity:1 !important; cursor:not-allowed;
+    border-color:#b6bfc5 !important; border-bottom-color:#a3adb4 !important;
+    background:linear-gradient(180deg,#e6eaec,#d2d9dd) !important; color:#78858c !important;
+    text-shadow:0 1px 0 #ffffffaa !important; box-shadow:inset 0 1px 0 #f4f7f8 !important;
+}
+#app-frame #pg-body .gate-enhance button.gate-tier.locked::after {
+    content:"🔒"; position:absolute; top:-4px; right:-1px; font-size:8px; line-height:1; filter:grayscale(.35);
+}
+#app-frame #pg-body .gate-enhance button.gate-tier.gate-tier:focus-visible { outline:2px solid #183d50; outline-offset:2px; }
+html.ui-dark-mode #app-frame .gate-enhance,
+html.ui-dark-mode #app-frame .gate-enhance-teaser { border-top-color:#4a5a64; }
+html.ui-dark-mode #app-frame #pg-body .gate-enhance-head b { color:#ffdc73 !important; }
+html.ui-dark-mode #app-frame #pg-body .gate-enhance-head span { color:#a8bcc7 !important; }
+html.ui-dark-mode #app-frame #pg-body .gate-enhance-detail dt { color:#93a8b4 !important; }
+html.ui-dark-mode #app-frame #pg-body .gate-enhance-detail dd { color:#eaf3ff !important; }
+html.ui-dark-mode #app-frame #pg-body .gate-enhance-teaser { color:#a0b4c0 !important; }
+html.ui-dark-mode #app-frame #pg-body .gate-enhance button.gate-tier.gate-tier {
+    border-color:#5d707c !important; border-bottom-color:#485862 !important;
+    background:linear-gradient(180deg,#3d4c56,#25323a) !important; color:#dceaf2 !important;
+    text-shadow:0 1px 2px #000 !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.14) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .gate-enhance button.gate-tier.gate-tier:hover { background:linear-gradient(180deg,#485963,#2c3a43) !important; }
+html.ui-dark-mode #app-frame #pg-body .gate-enhance button.gate-tier.gate-tier.chosen {
+    border-color:#d8b85f !important; border-bottom-color:#a6853a !important;
+    background:linear-gradient(180deg,#fff0a4,#d9a53c) !important; color:#33210a !important;
+    text-shadow:0 1px 0 #fff3c4 !important; box-shadow:inset 0 1px 0 #fffbe0,0 0 7px rgba(255,206,90,.4) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .gate-enhance button.gate-tier.gate-tier:disabled {
+    border-color:#3f4a51 !important; border-bottom-color:#333d44 !important;
+    background:linear-gradient(180deg,#2b343a,#20282d) !important; color:#78868e !important;
+    text-shadow:none !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+html.ui-dark-mode #app-frame #pg-body .gate-enhance button.gate-tier.gate-tier:focus-visible { outline-color:#ffe080; }
+@media (max-width:380px) {
+    #app-frame #pg-body .gate-enhance button.gate-tier.gate-tier { font-size:9px !important; padding:5px 0 4px; }
+    .gate-enhance-detail { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}

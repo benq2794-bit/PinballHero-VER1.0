@@ -202,3 +202,16 @@
 .sc-cell.rare { border-color:rgba(255,208,96,.72); background:linear-gradient(145deg,#2a2011,#150d05); }
 .sc-cell.rare .v { color:#ffd257; }
 .sc-skip { color:#7a8ba6; }
+/* 四屬性 Boss 母頁確認存檔狀態；不影響其他結算卡片。 */
+#pf-result #gate-reward-save-retry[hidden]{display:none!important}
+#pf-result #gate-reward-status{white-space:normal;line-height:1.6;margin:8px 6px}
+#pf-result #gate-retry-button:disabled{opacity:.55;cursor:wait}
+/* 獨立戰場只照視窗高度放大，窄螢幕會把 402px 面板推出可見寬；用 100vw/--zk 換回未縮放寬度收進可視範圍。 */
+.sc { max-width: min(calc(100% - 12px), calc(100vw / var(--zk, 1) - 12px)); }
+/* 窄螢幕右欄變短，時間字與階級印章一起縮，避免印章蓋掉 CLEAR TIME。 */
+@media (max-width: 480px) {
+    .sc-time { font-size: 19px; letter-spacing: 0; }
+    .sc-stamp { width: 40px; height: 35px; top: 6px; right: 6px; }
+    .sc-stamp i { font-size: 19px; }
+    .sc-stamp small { font-size: 7px; }
+}

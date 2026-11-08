@@ -75,10 +75,13 @@ window.GateSettlement = (() => {
         }).join("");
 
         const drops = res.drops || {};
+        const firstBreak = Math.max(0, Math.floor(+res.firstBreak || 0));
+        const bonusStones = Math.max(0, Math.floor(+res.bonusStones || 0));
+        const rainbowTotal = Math.max(0, Math.floor(+res.shards || 0)) + Math.max(0, Math.floor(+drops.rainbow || 0)) + firstBreak;
         const bossMaterialName = ({ fire: '赤焰龍的翅膀', water: '蒼溟貝的尾巴', wind: '金鷺鷲的鳥喙', thunder: '玄雷機的核心' })[res.el];
         const dropSummary = [
-            `限定突破石 ×${comma(drops.breakthrough)}`,
-            `虹彩石 ×${comma(drops.rainbow)}`,
+            `限定突破石 ×${comma(drops.breakthrough)}${bonusStones ? `（含階級 +${bonusStones}）` : ""}`,
+            res.gold ? `金幣 ×${comma(res.gold)}` : "",
             `經驗水晶 ×${comma(drops.experience)}`,
             `高階經驗水晶 ×${comma(drops.highExperience)}`,
             drops.bossMaterial ? `${bossMaterialName} ×${comma(drops.bossMaterial)}` : "",
@@ -87,7 +90,8 @@ window.GateSettlement = (() => {
             drops.tenTicket ? `十抽招募券 ×${comma(drops.tenTicket)}` : ""
         ].filter(Boolean).join("　・　");
         const cells = [
-            { ic: '<img src="asset/items/crystal.png" alt="">', v: "×" + comma(res.shards), t: "通關虹彩石", rare: true },
+            { ic: '<img src="asset/items/crystal.png" alt="">', v: "×" + comma(rainbowTotal),
+              t: firstBreak ? `通關虹彩石・含階級首破 +${firstBreak}` : "通關虹彩石", rare: true },
             res.first ? { ic: "🏆", v: "首勝", t: "首次擊破獎勵", rare: true }
                       : { ic: "🔁", v: "第 " + comma(res.win) + " 次", t: "累計擊破", rare: false },
             { ic: "🎁", v: dropSummary, t: "額外戰利品", rare: false, wide: true },
@@ -105,7 +109,7 @@ window.GateSettlement = (() => {
             + `<div class="sc-band in"><b>${res.first ? "STAGE CLEAR" : "VICTORY"}</b>`
             + `<i class="replay">${res.first ? "FIRST KILL" : "第 " + comma(res.win) + " 次擊破"}</i>${sparks}</div>`
             + `<div class="sc-label">${esc(res.gate)}・${esc(res.boss)}</div>`
-            + `<div class="sc-sub">${esc(elLabel)}屬性｜${res.first ? "首次擊破" : "再度擊破"}</div>`
+            + `<div class="sc-sub">${esc(elLabel)}屬性｜${res.first ? "首次擊破" : "再度擊破"}｜${res.tier ? "強化 +" + res.tier : "Lv." + (res.level || 100)}</div>`
             + `<div class="sc-mid">`
             + `<div class="sc-team"><span class="sc-cap">本場輸出</span><div class="sc-figs">`
             + (figs || '<div class="sc-sub">全隊陣亡</div>') + `</div></div>`
@@ -120,9 +124,11 @@ window.GateSettlement = (() => {
             + `<div class="sc-stamp"><i>${esc(res.rating || "C")}</i><small>RANK</small></div>`
             + `</div></div>`
             + `<div class="sc-loot">${loot}</div>`
+            + (res.unlockedTier ? `<div class="sc-sub" style="color:#ffd257">🔓 已解鎖 ${esc(res.gate)} 強化 +${res.unlockedTier}</div>` : "")
+            + `<div id="gate-reward-status" class="sc-sub" role="status">確認獎勵儲存中…</div><button id="gate-reward-save-retry" class="mini-btn gold" type="button" hidden onclick="retryGateRewardSave()">重試儲存獎勵</button>`
             + `<div class="sc-btns">`
             + `<button class="mini-btn gray" onclick="gateExit()">返回大廳</button>`
-            + `<button class="mini-btn gold" onclick="gateRetry()">再挑戰一次</button></div>`
+            + `<button class="mini-btn gold" id="gate-retry-button" onclick="gateRetry()">再挑戰一次（${StaminaSystem.GATE_COST} 體力）</button></div>`
             + `<div class="sc-skip">點擊任意處・跳過動畫</div></div>`;
     }
 

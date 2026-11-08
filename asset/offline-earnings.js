@@ -25,7 +25,7 @@ window.OfflineEarnings = Object.freeze({
         return {
             gold: avg(tier(rewards.towerEnemyGold)),
             experience: avg(tier(rewards.towerEnemyExperience)),
-            rainbowCrystal: chance(rewards.towerEnemyRainbowCrystal),
+            rainbowCrystal: chance(rewards.offlineEnemyRainbowCrystal || rewards.towerEnemyRainbowCrystal),
             jelly: chance(materials.jelly),
             blockScrap: chance(materials.blockScrap),
             monsterCrystal: chance(materials.monsterCrystal)

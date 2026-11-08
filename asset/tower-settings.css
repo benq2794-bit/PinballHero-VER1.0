@@ -1,0 +1,17 @@
+/* 無限波利塔入口：僅調整設定面板與暫停選單，不改戰場美術。 */
+#tower-mode-picker{max-height:calc(100dvh - 28px);overflow:auto}
+#tower-mode-picker .tower-start-controls{display:grid;grid-template-columns:65px minmax(0,1fr) 65px;gap:8px;align-items:center;margin:7px 0 9px}
+#tower-mode-picker .tower-start-controls input{width:100%;min-width:0;min-height:42px;padding:7px;border:1px solid #c19e59;border-radius:6px;color:#ffe9b0;background:#111e32;font:bold 19px/1.2 monospace;text-align:center}
+#tower-mode-picker .tower-start-controls button{min-height:40px;font-weight:bold}
+#tower-mode-picker .tower-floor-options{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+#tower-mode-picker .tower-floor-options button{min-width:0;padding:7px 3px;font-size:11px}
+#tower-mode-picker .tower-floor-options button:disabled{opacity:.35;cursor:not-allowed}
+#tower-mode-picker .tower-advanced{margin-top:10px;padding:9px;border:1px solid #5a6d8a;border-radius:7px;background:#152238;color:#dfebf9}
+#tower-mode-picker .tower-advanced summary{font-size:12px;font-weight:bold;cursor:pointer;padding:2px}
+#tower-mode-picker .tower-advanced label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;margin-top:12px}
+#tower-mode-picker .tower-advanced select{min-height:32px;min-width:76px;padding:4px;background:#26374e;color:#ffe7ac;border:1px solid #a68d60;border-radius:4px}
+#tower-mode-picker .tower-advanced input[type=checkbox]{width:20px;height:20px;accent-color:#d1ad57}
+#tower-mode-picker .tower-advanced small{display:block;font-size:11px;line-height:1.8;color:#b7cee5;margin-top:9px}
+#pp-tower-stable[hidden]{display:none!important}
+#pp-tower-stable .pp-state{font-size:10px;white-space:nowrap}
+@media(max-width:360px){#tower-mode-picker .tower-start-controls{grid-template-columns:57px minmax(0,1fr) 57px;gap:5px}}

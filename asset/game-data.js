@@ -163,10 +163,10 @@ window.GAME_DATA.combatRules = {
 };
 window.GAME_DATA.encounters = {
     gates: [
-        { id: "thunder", el: "thunder", boss: "colossus_thunder", gate: "雷鳴禁域", zone: "ruin", mult: 9, amult: 1.2, shards: 50, replay: 5, par: 50, hint: "玄雷機・軋空盤踞在銳牙的戰場。風克雷——希薇在場上，撞擊和克制一起吃到。" },
-        { id: "wind", el: "wind", boss: "colossus_wind", gate: "翠風裂谷", zone: "gale", mult: 12, amult: 1.3, shards: 50, replay: 5, par: 65, hint: "金鬣鷲・掠雲的風壓很硬。火克風——羅爾夫是這道門的正解。" },
-        { id: "water", el: "water", boss: "colossus_water", gate: "蒼瀧深域", zone: "frost", mult: 16, amult: 1.5, shards: 50, replay: 5, par: 80, hint: "滄溟貝・溺音鎮守蒼瀧深域，是四道門裡最厚的一層。雷克水——讓斬鐵打頭陣。" },
-        { id: "fire", el: "fire", boss: "colossus_fire", gate: "紅蓮熔境", zone: "lava", mult: 6, amult: 1.1, shards: 50, replay: 5, par: 40, hint: "赤焰龍・焚原是門口的新手王。水克火——莉潔兒或尤維爾上場，別用火對噴。" }
+        { id: "thunder", el: "thunder", boss: "colossus_thunder", gate: "雷鳴禁域", zone: "ruin", mult: 9, amult: 1.2, shards: 50, par: 50, hint: "玄雷機・軋空盤踞在銳牙的戰場。風克雷——希薇在場上，撞擊和克制一起吃到。" },
+        { id: "wind", el: "wind", boss: "colossus_wind", gate: "翠風裂谷", zone: "gale", mult: 12, amult: 1.3, shards: 50, par: 65, hint: "金鬣鷲・掠雲的風壓很硬。火克風——羅爾夫是這道門的正解。" },
+        { id: "water", el: "water", boss: "colossus_water", gate: "蒼瀧深域", zone: "frost", mult: 16, amult: 1.5, shards: 50, par: 80, hint: "滄溟貝・溺音鎮守蒼瀧深域，是四道門裡最厚的一層。雷克水——讓斬鐵打頭陣。" },
+        { id: "fire", el: "fire", boss: "colossus_fire", gate: "紅蓮熔境", zone: "lava", mult: 6, amult: 1.1, shards: 50, par: 40, hint: "赤焰龍・焚原是門口的新手王。水克火——莉潔兒或尤維爾上場，別用火對噴。" }
     ],
     zones: [
         { id: "star_see", name: "精靈的樂園", hue: 0, sat: .80, bright: .34, tint: "rgba(16,22,40,.34)" },
@@ -177,7 +177,19 @@ window.GAME_DATA.encounters = {
         { id: "void", name: "大和之都", hue: 262, sat: .72, bright: .28, tint: "rgba(44,14,64,.38)" }
     ],
     zoneStageCount: 5,
-    towerFields: { normal: "polita-field-crystal-v2", boss: "polita-sky" }
+    towerFields: { normal: "polita-field-crystal-v2", boss: "polita-sky" },
+    // 五階強化：hp／atk 乘在「Lv.100 最終屬性」上（那個值已含關卡 mult／amult），不再重乘一次屬性倍率。
+    // stones 是階級額外突破石，不參加封測加倍；firstRainbow 每王每階只發一次。
+    gateEnhancement: {
+        anchorLevel: 100, step: 10,
+        tiers: [
+            { tier: 10, hp: 1.5, atk: 1.3, shardChance: .60, gold: 1200, stones: 1, firstRainbow: 5 },
+            { tier: 20, hp: 2.0, atk: 1.6, shardChance: .65, gold: 1400, stones: 1, firstRainbow: 10 },
+            { tier: 30, hp: 2.5, atk: 1.9, shardChance: .70, gold: 1600, stones: 2, firstRainbow: 15 },
+            { tier: 40, hp: 3.0, atk: 2.2, shardChance: .75, gold: 1800, stones: 2, firstRainbow: 20 },
+            { tier: 50, hp: 3.5, atk: 2.5, shardChance: 1.0, gold: 2000, stones: 3, firstRainbow: 30 }
+        ]
+    }
 };
 // 特殊副本以波利塔戰鬥為基底。金幣／經驗副本維持「四波小怪＋一波 Boss」；
 // 後面三條長副本改用 waves 逐波指定怪、強度與隻數，中途戰死不發獎，最後一波打完才結算。
@@ -328,7 +340,16 @@ window.GAME_DATA.progression = {
 };
 window.GAME_DATA.rewards = {
     towerEnemyExperience: { base: [0, 3], after100: [1, 4], after200: [2, 5] },
-    towerEnemyRainbowCrystal: { chance: 0.3, amount: 1 },
+    towerEnemyRainbowCrystal: { chance: 0.1, amount: 1 },
+    gateFourStarFragment: { amount: 1 },
+    // 四星碎片機率與額外金幣逐級成長；金幣不參加封測加倍，碎片每場最多 1 張。
+    gateLevelRewards: {
+        30: { shardChance: .30, gold: 0 }, 40: { shardChance: .30, gold: 200 },
+        50: { shardChance: .30, gold: 400 }, 60: { shardChance: .35, gold: 600 },
+        70: { shardChance: .40, gold: 800 }, 80: { shardChance: .45, gold: 1000 },
+        90: { shardChance: .50, gold: 1000 }, 100: { shardChance: .55, gold: 1000 }
+    },
+    offlineEnemyRainbowCrystal: { chance: 0.3, amount: 1 },
     towerEnemyCharacterFragment: { chance: 0.01, amount: 1 },
     towerEnemyGold: { base: [10, 20], after100: [20, 35], after200: [30, 50] },
     towerEnemyMaterials: {

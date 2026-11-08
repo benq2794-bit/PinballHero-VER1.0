@@ -5,9 +5,9 @@ window.SaveSystem = (() => {
     const STATE_FIELDS = [
         'picked', 'accountCreated', 'accountName', 'accountAvatarId', 'accountAvatarFrameId', 'avatarFramesOwned',
         'typeTalentPoints', 'typeTalentRanks',
-        'tutorialSeen', 'stage', 'towerBestStage', 'towerFirstBossRecoveryUsed', 'rankLv', 'rankExp', 'kills',
+        'tutorialSeen', 'stage', 'towerBestStage', 'towerFirstBossRecoveryUsed', 'towerStartFloor', 'towerAutoLoop', 'towerFallbackFloors', 'towerStableThreshold', 'towerStableEnabled', 'rankLv', 'rankExp', 'kills',
         'floorWins', 'deepTimeLeft', 'shardTotal', 'gold', 'towerMaterials', 'stamina', 'staminaTickAt', 'staminaOverflowResetDate', 'teamIds', 'squads', 'squadOn', 'unisonMap', 'titleOn',
-        'bossWin', 'gateRecord', 'cultivationMaterials', 'highGradeExperienceCrystals', 'breakthroughStones', 'battleBoostMs', 'battleBoostSavedAt', 'limitedSummonCount', 'summonFeaturedCharacterId', 'limitedFeaturedGuaranteed', 'summonTicketSingle', 'summonTicketTen', 'expeditionHellEntryDay', 'expeditionHellEntriesUsed', 'expeditionNormalClearCount', 'expeditionNormalRewardDay', 'expeditionNormalRewardedToday', 'dailyCheckinDate', 'dailyCheckinStreak', 'dailyCheckinTotal', 'staminaSupplyDate', 'staminaSupplyNoonAmount', 'staminaSupplyEveningAmount', 'specialDungeonRunDate', 'specialDungeonRuns', 'collectionAchievementClaims', 'shakeOn',
+        'bossWin', 'gateRecord', 'gateEnhance', 'cultivationMaterials', 'highGradeExperienceCrystals', 'breakthroughStones', 'battleBoostMs', 'battleBoostSavedAt', 'limitedSummonCount', 'summonFeaturedCharacterId', 'limitedFeaturedGuaranteed', 'summonTicketSingle', 'summonTicketTen', 'expeditionHellEntryDay', 'expeditionHellEntriesUsed', 'expeditionNormalClearCount', 'expeditionNormalRewardDay', 'expeditionNormalRewardedToday', 'dailyCheckinDate', 'dailyCheckinStreak', 'dailyCheckinTotal', 'staminaSupplyDate', 'staminaSupplyNoonAmount', 'staminaSupplyEveningAmount', 'specialDungeonRunDate', 'specialDungeonRuns', 'specialDungeonClears', 'updateCompensationClaims', 'collectionAchievementClaims', 'shakeOn',
         'growthExpReserve', 'betaEventState', 'passSeason', 'passExp', 'passPremium', 'passClaimedFree', 'passClaimedPremium', 'passCosmetics', 'passDailyDate', 'passDailyCheckinAwarded', 'passDailyStamina', 'passDailyFloors', 'passWeeklyDate', 'passWeeklyWeakHits', 'passWeeklyExpeditionClears'
     ];
     const CHARACTER_FIELDS = [
@@ -97,6 +97,11 @@ window.SaveSystem = (() => {
         state.stage = savedStage > 0 ? Math.min(999999, savedStage) : 1 + Math.floor(state.kills / 3);
         state.towerBestStage = Math.max(state.stage, Math.min(999999, Math.floor(+p.towerBestStage) || state.stage));
         state.towerFirstBossRecoveryUsed = p.towerFirstBossRecoveryUsed === true;
+        state.towerStartFloor = Math.max(1, Math.min(state.towerBestStage, Math.floor(Number(p.towerStartFloor)) || 1));
+        state.towerAutoLoop = typeof p.towerAutoLoop === 'boolean' ? p.towerAutoLoop : rules.towerAutoLoopDefault === true;
+        state.towerFallbackFloors = [5,10,20].includes(p.towerFallbackFloors) ? p.towerFallbackFloors : 10;
+        state.towerStableThreshold = [2,3,5].includes(p.towerStableThreshold) ? p.towerStableThreshold : 3;
+        state.towerStableEnabled = typeof p.towerStableEnabled === 'boolean' ? p.towerStableEnabled : true;
         // 舊資料缺少 Rank 時，沿用樓層；經驗可在讀取時補升級。
         state.rankLv = Math.max(1, Math.min(maxRank, Math.floor(+p.rankLv) || state.stage));
         state.rankExp = Math.max(0, Math.floor(+p.rankExp) || 0);
@@ -149,11 +154,14 @@ window.SaveSystem = (() => {
         state.staminaSupplyDate = typeof p.staminaSupplyDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(p.staminaSupplyDate) ? p.staminaSupplyDate : '';
         state.staminaSupplyNoonAmount = Math.max(0, Math.min(60, Math.floor(+p.staminaSupplyNoonAmount) || 0));
         state.staminaSupplyEveningAmount = Math.max(0, Math.min(60, Math.floor(+p.staminaSupplyEveningAmount) || 0));
+        // Keep all prior batch IDs, including batches no longer advertised. Never key claims to release IDs.
+        state.updateCompensationClaims = [...new Set((Array.isArray(p.updateCompensationClaims) ? p.updateCompensationClaims : []).filter(id => typeof id === 'string' && id.length > 0))];
         state.specialDungeonRunDate = typeof p.specialDungeonRunDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(p.specialDungeonRunDate) ? p.specialDungeonRunDate : '';
+        state.specialDungeonClears = Object.fromEntries(['gold-easy','gold-normal','gold-hard','exp-easy','exp-normal','exp-hard'].map(id => [id, p.specialDungeonClears?.[id] === true]));
         const savedDungeonRuns = p.specialDungeonRuns && typeof p.specialDungeonRuns === 'object' ? p.specialDungeonRuns : {};
         state.specialDungeonRuns = Object.fromEntries(['gold-easy', 'gold-normal', 'gold-hard', 'exp-easy', 'exp-normal', 'exp-hard'].map(id => [id, Math.max(0, Math.min(3, Math.floor(+savedDungeonRuns[id]) || 0))]));
         const savedCollectionClaims = Array.isArray(p.collectionAchievementClaims) ? p.collectionAchievementClaims : [];
-        state.collectionAchievementClaims = [...new Set(savedCollectionClaims.filter(id => typeof id === 'string' && ['ach_1', 'ach_2', 'ach_3'].includes(id)))];
+        state.collectionAchievementClaims = [...new Set(savedCollectionClaims.filter(id => typeof id === 'string' && (['ach_1', 'ach_2', 'ach_3', 'ca2_migrated', 'ca2_master', 'ca2_legacy_ach_1', 'ca2_legacy_ach_2', 'ca2_legacy_ach_3'].includes(id) || /^ca2_(owned_(3|6|10|25|50|100)|level_(40_3|60_3|80_3|80_6|90_1|100_1|100_3)|element_(2|3|all))$/.test(id))))];
         state.betaEventState = typeof BetaEvent !== "undefined" ? BetaEvent.normalize(p.betaEventState) : null;
         state.passSeason = typeof p.passSeason === 'string' && /^\d{4}-\d{2}$/.test(p.passSeason) ? p.passSeason : '';
         state.passExp = Math.max(0, Math.min(30000, Math.floor(+p.passExp) || 0));
@@ -217,6 +225,8 @@ window.SaveSystem = (() => {
                 score: Math.max(0, Math.min(999999999, Math.floor(+r.score) || 0)) }];
         }));
         state.shakeOn = p.shakeOn !== false;
+        // 五階強化逐王各自記解鎖／首破／選擇；舊檔沒有這欄時，用既有擊破數補回 Lv.100 的解鎖。
+        state.gateEnhance = GateEnhancement.normalize(p.gateEnhance, gateIds, state.bossWin);
         return state;
     }
 

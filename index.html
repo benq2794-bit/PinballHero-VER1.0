@@ -1229,7 +1229,7 @@
         .pf-result.on { display: flex; }
         .deep-clock { padding:2px 7px; border-radius:7px; color:#ffe08a; background:rgba(0,0,0,.35); font-size:11px; font-weight:900; }
         .deep-clock.warn { color:#ff7885; animation:warnBlink .5s infinite alternate; }
-        .rs-box { width: 296px; padding: 15px 16px 14px; border-radius: 15px; text-align: center;
+        .rs-box { width: 296px; max-width: min(calc(100% - 12px), calc(100vw / var(--zk, 1) - 12px)); padding: 15px 16px 14px; border-radius: 15px; text-align: center;
             background: linear-gradient(165deg, rgba(20,29,49,.82), rgba(5,7,13,.84)); border: 1px solid rgba(255,206,90,.55);
             backdrop-filter: blur(2px);
             box-shadow: 0 0 34px rgba(255,180,60,.22), 0 12px 30px rgba(0,0,0,.7); }
@@ -1239,6 +1239,11 @@
         .rs-gate { margin-top: 8px; font-size: 20px; font-weight: 800; letter-spacing: 2px; color: #ffce5a; }
         .rs-boss { margin-top: 3px; font-size: 12px; color: #8fa0c0; letter-spacing: 1px; }
         .rs-btns { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        /* 素材副本結算獎勵列：道具原圖最大 1254px，不鎖尺寸會把 296px 面板撐爆；固定小圖示＋置中單行。 */
+        .rs-rewards { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .rs-rewards span { display: flex; align-items: center; justify-content: center; gap: 6px;
+            font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #e8eefb; }
+        .rs-rewards img { width: 20px; height: 20px; object-fit: contain; flex: none; }
 
         /* ===== 暫停選單（戰鬥畫面內，照原作：只在這一層放功能按鈕） ===== */
         .pf-pause { position: absolute; inset: 0; z-index: 24; display: none; align-items: center; justify-content: center;
@@ -2579,6 +2584,10 @@
 <link rel="stylesheet" href="asset/wf-ui-mount.css">
 <link rel="stylesheet" href="asset/adventure-entry.css">
 <link rel="stylesheet" href="asset/tower-leaderboard.css">
+<link rel="stylesheet" href="asset/tower-settings.css">
+<link rel="stylesheet" href="asset/collection-achievements.css">
+<link rel="stylesheet" href="asset/dungeon-quality.css">
+<link rel="stylesheet" href="asset/update-compensation.css">
 <link rel="stylesheet" href="asset/character-exchange.css">
 <link rel="stylesheet" href="asset/ui-dark-mode.css">
 <link rel="stylesheet" href="asset/beta-event.css">
@@ -2667,6 +2676,8 @@
                     </div>
                     <div class="hm-exp-label"><span>EXP</span><div class="hm-energy-track"><i id="hm-energy-bar"></i></div><b id="hm-energy-pct">0%</b></div>
                     <div class="account-stats" id="hm-bonus-details" hidden></div>
+                    <button type="button" id="hm-update-compensation" class="hm-update-compensation" onclick="openUpdateCompensation()" hidden>🎁 更新補償</button>
+                    <span id="hm-online-count" class="hm-online-count" title="已登入帳號在線人數；同一帳號合併計算">🟢 在線：--</span>
                 </div>
             </div>
 
@@ -2764,7 +2775,6 @@
                 <button class="hm-action hm-dock-toggle" type="button" aria-expanded="false" aria-controls="hm-leaderboard-panel" onclick="toggleHomeDockMenu(this)"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-trophy"/></svg></span><span class="hm-action-label">排行榜</span></button>
                 <div class="hm-dock-panel" id="hm-leaderboard-panel" role="group" aria-label="排行榜入口" hidden>
                     <button type="button" onclick="openHomeLeaderboard('tower')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-tower"/></svg></span>波利塔</button>
-                    <button type="button" onclick="openHomeLeaderboard('rogue')"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-burst"/></svg></span>無限連擊</button>
                 </div>
                 <button class="hm-action hm-dock-toggle" type="button" aria-expanded="false" aria-controls="hm-exchange-panel" onclick="toggleHomeDockMenu(this)"><span class="hm-action-icon" aria-hidden="true"><svg viewBox="0 0 16 16" focusable="false"><use href="#dock-icon-market"/></svg></span><span class="hm-action-label">交換所</span></button>
                 <div class="hm-dock-panel" id="hm-exchange-panel" role="group" aria-label="交換所入口" hidden>
@@ -2885,7 +2895,7 @@
             <div class="pf-over wf-ui-text" id="pf-over">
                 <div id="pf-over-txt">隊伍全滅</div>
                 <div class="pf-over-note">全隊都已陣亡；重新挑戰會以 50% 生命回到戰場。</div>
-                <div class="pf-over-actions"><button class="primary" type="button" onclick="retryAfterPartyWipe()">重新挑戰</button><button type="button" onclick="leaveAfterPartyWipe()">返回主頁</button></div>
+                <div class="pf-over-actions"><button class="primary" type="button" id="pf-over-retry" onclick="retryAfterPartyWipe()">重新挑戰</button><button type="button" onclick="leaveAfterPartyWipe()">返回主頁</button></div>
             </div>
 
             <!-- ===== 境界領域結算面板：內容整層由 asset/gate-settlement.js 現-build ===== -->
@@ -2949,6 +2959,7 @@
                     <button class="pp-toggle" id="pp-auto-flippers" type="button" onclick="toggleAutoFlippers()" aria-pressed="true"><span>自動彈板</span><span class="pp-state">開</span></button>
                     <button class="pp-toggle" id="pp-auto-skills" type="button" onclick="toggleAutoSkills()" aria-pressed="true"><span>自動施放技能</span><span class="pp-state">開</span></button>
                     <button class="pp-toggle" id="pp-tower-auto" type="button" onclick="toggleTowerAutoLoop()" aria-pressed="false" hidden><span>自動循環爬塔</span><span class="pp-state">關</span></button>
+                    <button class="pp-toggle" id="pp-tower-stable" type="button" onclick="toggleTowerStable()" aria-pressed="true" hidden><span>穩定刷塔</span><span class="pp-state">待觸發</span></button>
                     <label class="pp-volume-control" for="pp-sfx-volume"><span>音效音量</span><b id="pp-sfx-volume-value">40%</b><input id="pp-sfx-volume" type="range" min="0" max="100" value="40" oninput="setSfxVolume(this.value)" aria-label="音效音量百分比"></label>
                     <button id="pp-home" onclick="backHome()">🏠 返回主頁</button>
                     <button id="pp-gate-exit" onclick="requestGateExit()">↩ 離開境界領域</button>
@@ -3025,13 +3036,6 @@
                     <div class="adventure-mode-meta"><span>首勝與再戰獎勵</span><b id="adventure-boss-cost">消耗 15 體力</b></div>
                     <button class="adventure-mode-action" type="button" onclick="pickHomeTab('boss')">點選進入</button>
                 </article>
-                <article class="adventure-mode-card rogue-mode-card">
-                    <div class="adventure-mode-heading"><span class="adventure-mode-icon" aria-hidden="true"><span class="adv-monster-strip" role="img" aria-label="混沌巴風特"></span></span><div><h2>巴風特的無限連擊</h2></div><button class="adventure-mode-help" type="button" onclick="openAdventureHelp('expedition')" aria-label="查看無盡連擊玩法與結算獎勵">? 說明</button></div>
-                    <p class="adventure-mode-desc">帶現有隊伍迎戰連續怪潮，擊倒敵人升級三選一，撐到 15 分鐘挑戰首領。</p>
-                    <div class="adventure-mode-meta"><span>普通首通 +50；首通後每日獎勵最多 +150</span><b>通關 <span id="adventure-normal-clear-count">0</span> 次</b></div>
-                    <button class="adventure-mode-action" type="button" onclick="showExpeditionModePicker()" aria-describedby="adventure-rogue-status">點選進入</button>
-                    <p id="adventure-rogue-status" class="adventure-mode-status">普通不限次；地獄每日 3 次，次數用完後關閉。使用現有隊伍，進場全員滿血。</p>
-                </article>
                 <article class="adventure-mode-card training-mode-card">
                     <div class="adventure-mode-heading"><span class="adventure-mode-icon training-entry-icon" aria-hidden="true">◎</span><div><h2>BOSS 訓練場</h2></div><span class="adventure-mode-tag">不耗體力</span></div>
                     <p class="adventure-mode-desc">依屬性挑選 BOSS，測試隊伍輸出與技能；不計戰績、不發放獎勵。</p>
@@ -3071,9 +3075,11 @@
 <dialog id="tower-mode-picker" aria-labelledby="tower-mode-title">
     <h2 id="tower-mode-title">無限波利塔</h2>
     <p class="tower-record" id="tower-mode-record">歷史最高紀錄：第 1 層</p>
-    <p class="tower-label">起始層</p>
+    <label class="tower-label" for="tower-start-floor">自訂起始樓層</label>
+    <div class="tower-start-controls"><button type="button" onclick="adjustTowerStartFloor(-10)">－10</button><input id="tower-start-floor" type="number" inputmode="numeric" min="1" step="1" value="1" onchange="selectTowerStartFloor(this.value)"><button type="button" onclick="adjustTowerStartFloor(10)">＋10</button></div>
     <div class="tower-floor-options" id="tower-mode-floors"></div>
-    <button class="tower-auto" id="tower-mode-auto" type="button" onclick="toggleTowerAutoLoop()" aria-pressed="false"><span>自動循環爬塔<small>勝利自動上樓；超時回到起始層。全滅以 50% 生命自動重試當層。</small></span><span class="pp-state">關</span></button>
+    <button class="tower-auto" id="tower-mode-auto" type="button" onclick="toggleTowerAutoLoop()" aria-pressed="false"><span>自動循環爬塔<small>勝利自動上樓；失敗依當層回退，全滅恢復 50% 生命。</small></span><span class="pp-state">關</span></button>
+    <details class="tower-advanced"><summary>進階設定</summary><label>失敗回退樓層<select id="tower-fallback" onchange="changeTowerAdvanced('fallback',this.value)"><option>5</option><option selected>10</option><option>20</option></select></label><label>穩定刷塔觸發次數<select id="tower-threshold" onchange="changeTowerAdvanced('threshold',this.value)"><option>2</option><option selected>3</option><option>5</option></select></label><label>穩定刷塔模式<input id="tower-stable-enabled" type="checkbox" checked onchange="changeTowerAdvanced('stable',this.checked)"></label><small id="tower-stable-status"></small></details>
     <button class="tower-go" type="button" onclick="startTowerRun()">進入波利塔</button>
     <form method="dialog"><button type="submit">取消</button></form>
 </dialog>
@@ -3082,7 +3088,14 @@
     <p id="special-dungeon-description">每個難度每日可進場 3 次。金幣／經驗副本為四波小怪加一波 Boss。</p>
     <section class="special-dungeon-group" data-dungeon-group="gold"><h3>🪙 金幣副本</h3><div class="special-dungeon-options" id="gold-dungeon-options"></div></section>
     <section class="special-dungeon-group" data-dungeon-group="experience"><h3>🎁 經驗副本</h3><div class="special-dungeon-options" id="experience-dungeon-options"></div></section>
-    <section class="special-dungeon-group" data-dungeon-group="event"><h3>🎪 活動副本</h3><div class="special-dungeon-options" id="event-dungeon-options"></div><p class="special-dungeon-note" id="event-dungeon-empty">目前沒有進行中的活動副本；活動開放時會出現在這裡。</p></section>
+    <section class="special-dungeon-group" data-dungeon-group="event"><h3>🎪 活動副本</h3><div class="special-dungeon-options" id="event-dungeon-options"></div>                <article class="adventure-mode-card rogue-mode-card">
+                    <div class="adventure-mode-heading"><span class="adventure-mode-icon" aria-hidden="true"><span class="adv-monster-strip" role="img" aria-label="混沌巴風特"></span></span><div><h2>巴風特的無限連擊</h2></div><button class="adventure-mode-help" type="button" onclick="openAdventureHelp('expedition')" aria-label="查看無盡連擊玩法與結算獎勵">? 說明</button></div>
+                    <p class="adventure-mode-desc">帶現有隊伍迎戰連續怪潮，擊倒敵人升級三選一，撐到 15 分鐘挑戰首領。</p>
+                    <div class="adventure-mode-meta"><span>普通首通 +50；首通後每日獎勵最多 +150</span><b>通關 <span id="adventure-normal-clear-count">0</span> 次</b></div>
+                    <button class="adventure-mode-action" type="button" onclick="$('special-dungeon-picker').close();showExpeditionModePicker()" aria-describedby="adventure-rogue-status">點選進入</button>
+                    <p id="adventure-rogue-status" class="adventure-mode-status">普通不限次；地獄每日 3 次，次數用完後關閉。使用現有隊伍，進場全員滿血。</p>
+                </article>
+<p class="special-dungeon-note" id="event-dungeon-empty">目前沒有進行中的活動副本；活動開放時會出現在這裡。</p></section>
     <section class="special-dungeon-group" data-dungeon-group="lab"><h3>🧪 生體研究所</h3><div class="special-dungeon-options" id="lab-dungeon-options"></div></section>
     <section class="special-dungeon-group" data-dungeon-group="rift"><h3>🌌 時空裂縫</h3><div class="special-dungeon-options" id="rift-dungeon-options"></div></section>
     <p class="special-dungeon-note" id="special-dungeon-note">各難度按鈕只顯示難度與今日剩餘場次；掉落與結算獎勵請查看右上角「? 說明」。</p>
@@ -3124,6 +3137,7 @@
 <script src="asset/fx/pixel-text.js"></script>
 <script src="asset/fx/black-hole.js"></script>
 <script src="asset/fx/fever-rush.js"></script>
+<script src="asset/gate-enhancement.js"></script>
 <script src="asset/gate-browser.js"></script>
 <script src="asset/home-party.js"></script>
 <script src="asset/skill-system.js"></script>
@@ -3131,17 +3145,21 @@
 <script src="asset/beta-event.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="asset/supabase-cloud.js"></script>
+<script src="asset/online-presence.js"></script>
 <script src="asset/battle-lifecycle.js"></script>
 <script src="asset/battle-settlement.js"></script>
 <script src="asset/gate-settlement.js"></script>
 <script src="asset/type-effects.js"></script>
 <script src="asset/stamina-system.js"></script>
 <script src="asset/ui-router.js"></script>
+<script src="asset/gate-session.js"></script>
+<script src="asset/material-sweep.js"></script>
+<script src="asset/update-compensation.js"></script>
 <script src="asset/game-update.js"></script>
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.6";
+const GAME_VERSION = "v0.1.0-alpha.7";
 const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
@@ -3193,6 +3211,7 @@ function watchPowerState() {
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
+    {"version":"v0.1.0-alpha.7","date":"2026-11-08","content":["無限波利塔修復離開戰鬥頁後的 Boss 演出與樓層推進，進行中可返回原戰鬥；入口支援輸入樓層、失敗回退與穩定刷塔設定保存。","帳號收藏進度及收藏成就升級：新增分類、培養與屬性目標、一鍵領取及傳說收藏大師榮譽，保留舊獎勵領取紀錄與待領途徑。","四屬性 Boss 整合五階強化、同屬性四星碎片及階級獎勵；每次再戰驗證並扣除體力，補強母頁結算、防重複發獎與存檔失敗重試。","波利塔普通怪物虹彩石掉落率調整為 10%，每次 1 顆；離線收益保留原設定。","素材副本結算圖片限制尺寸並適配手機；六個難度成功通關後可掃蕩當日剩餘次數，與正常挑戰共用每日額度，儲存失敗還原。舊存檔未記錄成功通關者須再通關解鎖。","無限連擊入口移至活動副本，停用其排行榜讀寫並保留歷史及個人紀錄；傷害跳字改為玩家右上、受傷左上，調整一般與暴擊動畫。","首頁 EXP 下方新增已登入帳號在線標籤，使用現有 Supabase 即時連線每 30 秒更新，同帳號合併計算，連線異常顯示 --。","新增手動更新補償入口與固定批次：虹彩石 100、金幣 10,000、限定單抽券 1、經驗水晶 100、高階經驗水晶 10；不含體力。保存領取紀錄，加入連點防護、存檔失敗還原及雲端紀錄比對，部署不自動建立批次。"]},
     {"version":"v0.1.0-alpha.6","date":"2026-11-08","content":["隊伍編成、角色名冊與角色培養合併為「角色管理」單一頁面：上方保留出戰隊伍、配隊切換與隊伍戰力，下方持有角色列表維持搜尋與篩選。","點選持有角色開啟詳情，檢視能力、技能與隊長特性全文，並直接進行升級、突破等原有養成操作；返回鍵回到角色管理列表。","編隊改為明確按鈕操作：選取、替換、卸下，替換列可取消；角色卡標示隊長／隊員，不再依賴雙擊。","隊伍特性預設收合，點擊展開完整說明；手機直立版面加大槽內按鈕並消除橫向溢出，深色模式對比同步補齊。","角色圖鑑維持獨立收藏頁：持有／未持有預覽、角色資料、收藏進度與成就獎勵不變，且不重複養成操作。","排行榜換上榮耀新版版面：挑戰模式改下拉選單、前三名改徽章舞台，榜單整合我的排名列。"]},
     {"version":"v0.1.0-alpha.5","date":"2026-11-08","content":["修正波利塔全隊死亡時誤觸全滅視窗：全隊自動以 50% 最大生命復活並重試當前樓層。","波利塔自動循環開關會保留上次設定；開啟時超時直接循環，關閉時保留原有超時手動流程。","更新波利塔循環與復活提示，明確區分全滅重試當層及超時返回起始層；其他模式與獎勵規則維持原樣。"]},
     {"version":"v0.1.0-alpha.4","date":"2026-11-08","content":["新增每 10 秒版本偵測、30 秒倒數與立即更新通知，戰鬥及重要操作期間延後更新。","重新載入前確認本機與雲端存檔完成；存檔失敗會停止自動更新並提供重試。","版本更新後自動顯示最新更新日誌，同版本只顯示一次，保留手動查閱及歷史內容。","新增唯一發布版本檔、資源快取更新與部署前檢查／正式網站驗證流程。"]},
@@ -3455,10 +3474,13 @@ const BOSS_EVERY = TOWER_RULES.bossEvery;
 const NORMAL_FLOOR_WAVES = TOWER_RULES.normalWaves;
 const NORMAL_FLOOR_SECONDS = TOWER_RULES.normalSeconds, BOSS_FLOOR_SECONDS = TOWER_RULES.bossSeconds;
 let floorWins = 0, deepTimeLeft = NORMAL_FLOOR_SECONDS;
-// 波利塔循環偏好獨立保存，不改動玩家存檔格式；起始層仍依本次進場選擇。
+// 舊版開關僅作遷移預設；新版設定沿用帳號存檔，卡關追蹤為本次挑戰狀態。
 const TOWER_AUTO_LOOP_KEY = DEV_MODE ? "wf_dev_tower_auto_loop_v1" : "wf_tower_auto_loop_v1";
 let towerAutoLoop = (() => { try { return localStorage.getItem(TOWER_AUTO_LOOP_KEY) === "true"; } catch { return false; } })(), towerStartFloor = 1;
+let towerFallbackFloors=10, towerStableThreshold=3, towerStableEnabled=true;
+let towerFailureState={floor:0,count:0,min:0,max:0};
 let towerFirstBossRecoveryUsed = false;
+let towerRunActive = false; // 僅記錄本次挑戰是否已進場，不更動存檔與樓層紀錄。
 const WEAK_DUR = TOWER_RULES.weakDurationMs;
 const BREAK_MS = TOWER_RULES.breakMs;
 const BREAK_TAKEN = TOWER_RULES.breakTaken;
@@ -4824,11 +4846,13 @@ function spendStamina(amount, purpose = "境界領域") {
         hmToast(`體力不足：${purpose}需要 ${cost} 點，約 ${Math.ceil(waitMs / 60000)} 分鐘後恢復足夠體力。`);
         return false;
     }
+    const before = { stamina, staminaTickAt, homeSig };
     stamina -= cost;
-    recordPassStamina(cost);
+
     if (current.value >= current.max) staminaTickAt = Date.now();
     homeSig = "";
-    saveGame();
+    if (!saveGame()) { ({ stamina, staminaTickAt, homeSig } = before); updateUI(); hmToast("體力扣除無法儲存，尚未進入戰鬥。"); return false; }
+    recordPassStamina(cost);
     updateUI();
     return true;
 }
@@ -4867,11 +4891,13 @@ function gainRankExp(amount) {
 // GATE：正在打的獨立關卡（境界領域）的 id。非 null 時場上只有那隻王，
 //   深層、kills、結算掉落全部暫停；打完走結算面板，不會自己接下一隻怪。
 // bossWin：各門擊破次數（進存檔，用來在關卡卡上蓋「已擊破」）
-const GATE = { id: null, t0: 0, dmg0: 0 };
+const GATE = { id: null, t0: 0, dmg0: 0, tier: 0, runId: "", runSeq: 0 };
 let DUNGEON_WAVE = 0;
 let bossWin = {};
 // 每道門各自的最佳用時／最高分（結算的 NEW RECORD 與評級比較基準都看它）
 let gateRecord = Object.fromEntries(BOSS_STAGES.map(g => [g.id, { ms: 0, score: 0 }]));
+// 五階強化逐王各自記解鎖、首破與目前選擇；母頁是唯一寫入者，門的實例只讀。
+let gateEnhance = GateEnhancement.normalize({}, BOSS_STAGES.map(g => g.id), bossWin);
 let shardTotal = 0;
 let gold = 0;
 let towerMaterials = { jelly: 0, blockScrap: 0, monsterCrystal: 0, adventureMedal: 0, expeditionMedal: 0, dragonWing: 0, shellfishTail: 0, garudaBeak: 0, thunderCore: 0, baphometHorn: 0 };
@@ -4906,7 +4932,8 @@ let cultivationMaterials = 0;
 let growthExpReserve = 0;
 let highGradeExperienceCrystals = 0;
 let dailyCheckinDate = "", dailyCheckinStreak = 0, dailyCheckinTotal = 0;
-let specialDungeonRunDate = "", specialDungeonRuns = {};
+let specialDungeonRunDate = "", specialDungeonRuns = {}, specialDungeonClears = {};
+let updateCompensationClaims = [];
 let passSeason = "", passExp = 0, passPremium = false, passClaimedFree = [], passClaimedPremium = [], passCosmetics = [];
 let passDailyDate = "", passDailyCheckinAwarded = false, passDailyStamina = 0, passDailyFloors = 0, passWeeklyDate = "", passWeeklyWeakHits = 0, passWeeklyExpeditionClears = 0;
 let specialDungeonPickerMode = "activity";
@@ -6061,6 +6088,17 @@ const FX = {
         // 純數字改用素材包點陣字；中文（灼燒、星脈…）維持原本的文字樣式
         // 傷害來源色由 CSS 控制；點陣字圖會蓋掉顏色，因此傷害數字保留文字渲染。
         const damageText = n.classList.contains("enemy-damage") || n.classList.contains("hurt");
+        if (damageText) {
+            const dir = n.classList.contains("hurt") ? -1 : 1;
+            const lane = this.pops.filter(p => p.damage && p.age < .35 && Math.abs(p.x - x) < 60).length % 4;
+            const half = Math.min(W / 2 - 5, n.offsetWidth * .75 + 4);
+            x = Math.max(half + (dir < 0 ? 35 : 0), Math.min(W - half - (dir > 0 ? 35 : 0), x));
+            y = Math.max(90, Math.min(H - 30, y - lane * 20));
+            n.style.left = x + "px"; n.style.top = y + "px";
+            n.style.transform = `translate(-50%, -50%) scale(${n.classList.contains("critical") ? .91 : .7})`;
+            this.pops.push({node:n, damage:true, x, dir, crit:n.classList.contains("critical"), age:0, life:n.classList.contains("critical") ? .8 : .65});
+            return;
+        }
         const pixel = damageText ? false : PIXEL_TEXT.paint(n, text, cls, scale);
         if (!pixel && scale && scale !== 1) n.style.fontSize = Math.round(parseFloat(getComputedStyle(n).fontSize) * scale) + "px";
         // 暴擊要「跳出來」：起跳更猛、衝過頭再落回比一般數字大一點的停留尺寸（RO 那味）。
@@ -6078,6 +6116,17 @@ const FX = {
         const k = Math.min(2, dt * 60);   // 以 60 幀為基準，掉幀時同樣的拋物線
         for (let i = this.pops.length - 1; i >= 0; i--) {
             const p = this.pops[i];
+            if (p.damage) {
+                p.age += dt;
+                const fadeAt = p.life - .2, drift = Math.max(0, Math.min(1, (p.age - .1) / (fadeAt - .1)));
+                const fade = Math.max(0, Math.min(1, (p.age - fadeAt) / .2));
+                const pop = p.age < .05 ? .7 + .45 * p.age / .05 : p.age < .1 ? 1.15 - .15 * (p.age - .05) / .05 : 1;
+                const size = pop * (p.crit ? 1.3 : 1) * (1 - .4 * fade);
+                p.node.style.transform = `translate(-50%, -50%) translate(${p.dir * 35 * drift}px,${-50 * drift}px) scale(${size})`;
+                p.node.style.opacity = String(1 - fade);
+                if (p.age >= p.life) { p.node.remove(); this.pops.splice(i, 1); }
+                continue;
+            }
             p.f += k;
             p.vy += 0.2 * k;
             if (p.vy > 0) p.vy *= 0.9;   // 回落收得住：停留拉長後才不會飄回怪物身上才淡掉
@@ -7595,6 +7644,7 @@ function feverContactBonus(member, target, hitFlags, now) {
 const battleSettlement = BattleSettlement.create({
     getState: () => ({ enemy, training: TRAINING_MODE, seq: PF.foeSeq, gate: GATE.id, dungeon: DUNGEON_MODE,
         gateDefinition: gateOf(), bossWin, gateRecord, now: performance.now(), startedAt: GATE.t0,
+        gateTier: GATE.tier, gateLevel: enemy.gateLevel || 0, gateEnhance,
         damage: dmgTotal, damageStart: GATE.dmg0 }),
     lifecycle: battleLifecycle,
     actions: {
@@ -7615,7 +7665,9 @@ const battleSettlement = BattleSettlement.create({
             else floorWins++;
             const floorCleared = defeatedDeepBoss || floorWins >= NORMAL_FLOOR_WAVES;
             if (floorCleared) {
-                stage++;
+                const completedFloor=stage;
+                towerRecordVictory(completedFloor);
+                stage=towerNextFloor(completedFloor);
                 if (stage === BOSS_EVERY && towerBestStage < stage) {
                     cultivationMaterials += 5;
                     highGradeExperienceCrystals++;
@@ -7629,7 +7681,7 @@ const battleSettlement = BattleSettlement.create({
                 deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
                 const healPct = 0.25;
                 PF.members.forEach(m => { m.ch.hp = Math.min(hpMax(m.ch), m.ch.hp + Math.ceil(hpMax(m.ch) * healPct)); });
-                log(`🏕️ 通過第 ${stage - 1} 層：全隊回復 ${Math.round(healPct * 100)}% 生命。`);
+                log(`🏕️ 通過第 ${completedFloor} 層：全隊回復 ${Math.round(healPct * 100)}% 生命。`);
             }
             saveGame();
             // 打滿一層才捲動；新的一層在黑帶蓋住畫面那一刻才生成，觀眾看到的是「上樓」不是「怪突然換一批」
@@ -7642,9 +7694,12 @@ const battleSettlement = BattleSettlement.create({
         applyGateReward(gate, result) {
             const drops = result.drops || {};
             bossWin[gate.id] = result.win;
-            shardTotal += result.shards + (drops.rainbow || 0);
+            GateEnhancement.recordClear(gateEnhance, gate.id, result.tier || 0, result.level || 0);
+            shardTotal += result.shards + (drops.rainbow || 0) + (result.firstBreak || 0);
+            gold = Math.min(9999999999, gold + (result.gold || 0));
             towerMaterials.expeditionMedal += drops.expeditionMedal || 0;
-            breakthroughStones.fourStar += drops.breakthrough || 0;
+            // 基礎突破石吃封測加倍，階級額外的那幾顆不跟著加倍。
+            breakthroughStones.fourStar += (drops.breakthrough || 0) + (result.bonusStones || 0);
             const bossMaterialKey = ({ fire: 'dragonWing', water: 'shellfishTail', wind: 'garudaBeak', thunder: 'thunderCore' })[gate.id];
             if (bossMaterialKey && drops.bossMaterial) towerMaterials[bossMaterialKey] += drops.bossMaterial;
             cultivationMaterials += drops.experience || 0;
@@ -7655,11 +7710,11 @@ const battleSettlement = BattleSettlement.create({
         recordGate(id, ms, score) { BattleSettlement.mergeRecord(gateRecord, id, ms, score); },
         showGateResult: renderGateResult, save: saveGame,
         publishGateResult(gate, result) {
-            if (GATE_MODE && window.parent !== window) window.parent.postMessage({
+            if (GATE_MODE && window.parent !== window) sendGateResultToParent({
                 type: 'wf-gate-result', gate: gate.id, gateName: gate.gate,
-                first: result.first, shards: result.shards, drops: result.drops, win: result.win,
+                first: result.first, shards: result.shards, drops: result.drops, win: result.win, tier: result.tier || 0, level: result.level || 0,
                 ms: result.ms, score: result.score
-            }, GATE_TARGET);
+            });
         }
     }
 });
@@ -8493,6 +8548,9 @@ function pfLoop(ts) {
 
 function showOver(txt) {
     document.getElementById("pf-over-txt").textContent = txt;
+    const retry = document.getElementById("pf-over-retry");
+    // 門的實例每一次重開都要再付一次體力，價碼直接寫在按鈕上。
+    if (retry) retry.textContent = gatePaidRun() ? `重新挑戰（${StaminaSystem.GATE_COST} 體力）` : "重新挑戰";
     document.getElementById("pf-over").classList.add("on");
 }
 function hideOver() { document.getElementById("pf-over").classList.remove("on"); }
@@ -8514,6 +8572,7 @@ function retryTowerAfterPartyWipe() {
     if (gateOn() || GATE_MODE || DUNGEON_MODE || TRAINING_MODE || EXPEDITION_MODE || expedition ||
         !PF.members.length || !PF.members.every(member => member.down)) return false;
     resetBattleTransient();
+    if (towerAutoLoop) stage=towerAutoFailureTarget(stage);
     floorWins = 0;
     deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
     tickCounter = 0;
@@ -8535,8 +8594,10 @@ function retryTowerAfterPartyWipe() {
 function retryAfterPartyWipe() {
     if (PF.running || !PF.members.length || !PF.members.every(member => member.down)) return;
     if (retryTowerAfterPartyWipe()) return;
-    restorePartyAfterWipe(false);
     const gate = gateOf();
+    // Boss 門的每一次重開都是一場新戰鬥：先跟母頁請款，確認扣到 15 體力才復活。
+    if (gate && BOSS_STAGES.some(row => row.id === gate.id)) { payGateRetry(() => reviveGateAfterWipe(gate)); return; }
+    restorePartyAfterWipe(false);
     if (gate) { GATE.t0 = performance.now(); GATE.dmg0 = dmgTotal; }
     else {
         floorWins = 0;
@@ -8547,6 +8608,17 @@ function retryAfterPartyWipe() {
     setPaused(false);
     updateUI();
     log('🔁 全隊重新整備，回到戰場再次挑戰。');
+}
+
+// 全滅後的再戰沿用原本 50% 生命復活，但錢一定要先扣；這一場的戰鬥時計與傷害也重新起算。
+function reviveGateAfterWipe(gate) {
+    restorePartyAfterWipe(false);
+    GATE.t0 = performance.now(); GATE.dmg0 = dmgTotal; markGateRun();
+    spawnEnemy(); spawnFoe();
+    applyBattlefieldBg();
+    setPaused(false);
+    updateUI();
+    log(`🔁 全隊以 50% 生命回到 <b>${gate.gate}</b>${GATE.tier ? `（強化 +${GATE.tier}）` : ''}。${gatePaidRun() ? `消耗 ${StaminaSystem.GATE_COST} 點體力。` : ''}`);
 }
 
 function leaveAfterPartyWipe() {
@@ -8676,14 +8748,18 @@ function gateOf() {
     if (GATE.id === EXPEDITION_ID) return { id: EXPEDITION_ID, gate: "巴風特的無限連擊", zone: STAGE_ZONES[0].id };
     return GATE.id ? BOSS_STAGES.find(s => s.id === GATE.id) : null; }
 // 境界領域使用獨立固定基準；不讀取波利塔 stage，出戰人數仍會影響隊伍規模平衡。
-function gateStats(g) {
+function gateStats(g, tier = GATE.tier) {
     const kills = Math.max(0, Number(bossWin[g.id]) || 0);
-    const level = Math.min(100, GATE_BASE_LEVEL + Math.floor(kills / 10) * 10);
+    const rule = GateEnhancement.tierRule(tier);
+    const level = rule ? GateEnhancement.anchorLevel() : Math.min(100, GATE_BASE_LEVEL + Math.floor(kills / 10) * 10);
     const base = foeStats(level, true);
-    return { level, hp: Math.round(base.hp * g.mult), atk: Math.round(base.atk * g.amult) };
+    // 先算出含關卡屬性倍率的最終值，階級倍率再乘上去；同一顆 mult／amult 絕不重乘第二次。
+    const hp = Math.round(base.hp * g.mult), atk = Math.round(base.atk * g.amult);
+    return { level, tier: rule ? rule.tier : 0, hp: rule ? Math.round(hp * rule.hp) : hp, atk: rule ? Math.round(atk * rule.atk) : atk };
 }
 
 function spawnEnemy() {
+    enemy.gateLevel = 0;
     enemy.battleSkinUrl = '';
     enemy.battleSkinFailed = false;
     enemy.battleSkinAlpha = false;
@@ -8726,6 +8802,7 @@ function spawnEnemy() {
         enemy.battleSkinLift = appearance.lift;
         enemy.boss = true;
         enemy.maxHp = st.hp; enemy.hp = st.hp; enemy.atk = st.atk;
+        enemy.gateLevel = st.level;
         // 境界領域採獨立戰利品表，不增加一般戰鬥 RANK 經驗。
         enemy.expReward = 0;
         return;
@@ -8754,34 +8831,37 @@ function enterBossGate(id) {
     if (GATE_MODE) {
         startGateBattle(g);              // iframe 裡：直接把門開在自己的戰場上
     }
-    else openGateBattle(g);              // 母頁：開窗
+    else openGateBattle(g, false, GateEnhancement.selectedTier(gateEnhance, id, bossWin));   // 母頁：開窗，沿用選定的強化階級
 }
 
 // ---- 母頁：開窗、暫停主戰場、收回結算 ----
-let gateBattleOpen = false, gatePrevPaused = false, gateBattleId = null;
+let gateBattleOpen = false, gatePrevPaused = false, gateBattleId = null, gateBattleTier = 0;
 const gateReceipts = new Map();
 const dungeonReceipts = new Set();
 const dungeonWaveReceipts = new Set();
-function openGateBattle(g, training = false) {
+function openGateBattle(g, training = false, tier = 0) {
     if (gateBattleOpen) return;
+    const chosen = training ? 0 : Math.floor(+tier || 0);
+    // 未解鎖的階級連體力都不扣：先擋在入口，免得玩家花了 15 點卻進不去。
+    if (!training && !GateEnhancement.isUnlocked(gateEnhance, g.id, chosen, bossWin)) { hmToast("這個強化階級尚未解鎖。"); return; }
     if (!training && !spendStamina(StaminaSystem.GATE_COST, g.gate)) return;
-    gateBattleOpen = true; gateBattleId = g.id; gateReceipts.clear();
+    gateBattleOpen = true; gateBattleId = g.id; gateBattleTier = chosen; gateReceipts.clear(); clearGateSession();
     gatePrevPaused = PF.paused;
     setPaused(true);                     // 深層全程凍結，門怎麼打都不推主線
     $("gate-veil").classList.add("on");
     const base = location.href.split("#")[0];
-    $("gate-frame").src = `${base}#gate=${encodeURIComponent(g.id)}${training ? "&training=1" : ""}&stage=${stage}&t=${Date.now()}`;
+    $("gate-frame").src = `${base}#gate=${encodeURIComponent(g.id)}${training ? "&training=1" : ""}&tier=${gateBattleTier}&stage=${stage}&t=${Date.now()}`;
     log(`🏰 打開 <b style='color:#ffce5a'>${g.gate}</b> 的獨立戰場（主戰場暫停）。`);
 }
 function openSpecialDungeon(id) {
-    if (gateBattleOpen) return;
+    if (gateBattleOpen || materialSweepBusy) return;
     const d = SPECIAL_DUNGEONS.find(item => item.id === id);
     if (!d) return;
     if (!teamIds.length) { hmToast("請先編成隊伍再進入副本。"); return; }
     refreshSpecialDungeonRuns();
     if ((specialDungeonRuns[d.id] || 0) >= 3) { hmToast(`${d.difficulty}難度今日 3 場已用完，明日重置。`); paintSpecialDungeonPicker(); return; }
     specialDungeonRuns[d.id] = (specialDungeonRuns[d.id] || 0) + 1;
-    saveGame();
+    if (!saveGame()) { specialDungeonRuns[d.id]--; hmToast("儲存失敗，未扣除次數，請稍後重試。"); return; }
     gateBattleOpen = true; gateBattleId = d.id; gateReceipts.clear(); dungeonReceipts.clear(); dungeonWaveReceipts.clear();
     gatePrevPaused = PF.paused;
     setPaused(true);
@@ -8792,8 +8872,10 @@ function openSpecialDungeon(id) {
     log(`🌀 進入 <b style='color:#ffce5a'>${d.name}・${d.difficulty}</b>（波利塔 ${d.level} 層強度）。`);
 }
 function closeGateBattle() {
+    if (gateHasPendingReward()) { hmToast("請先在結算畫面重試儲存獎勵，再返回主頁。"); return; }
     if (!gateBattleOpen) return;
-    gateBattleOpen = false; gateBattleId = null; gateReceipts.clear();
+    if (SPECIAL_DUNGEONS.some(d => d.id === gateBattleId && ['gold','experience'].includes(d.kind)) && dungeonReceipts.has(gateBattleId) && !saveGame()) { hmToast('獎勵儲存失敗，請再次按返回重試儲存。'); return; }
+    gateBattleOpen = false; gateBattleId = null; gateBattleTier = 0; gateReceipts.clear();
     $("gate-veil").classList.remove("on", "expedition-open");
     closeExpeditionFrameExitConfirm();
     $("gate-frame").title = "境界領域獨立戰場";
@@ -8841,62 +8923,16 @@ addEventListener("message", ev => {
             dungeonWaveReceipts.size !== dungeonWaveTotal(cfg) - 1) return;
         dungeonReceipts.add(cfg.id);
         recordBetaEventBattle();
+        if (cfg.kind === "gold" || cfg.kind === "experience") specialDungeonClears[cfg.id] = true;
         dungeonRewards(cfg).forEach(row => grantDungeonReward(row.key, row.amount));
         saveGame(); paintHome();
         const rewardText = dungeonRewardText(cfg);
         log(`🏆 <b style='color:#ffce5a'>${cfg.name}・${cfg.difficulty}通關</b>：${rewardText}。`);
         if (homeTabOn === "home" || homeTabOn === "adventure") renderPage();
     } else if (d.type === "wf-gate-result") {
-        // 虹彩石、擊破次數都由母頁入帳，門的實例自己不存檔
-        // 門 id 必須列得出來；獎勵欄位全部夾限，iframe 內被竄改也領不到天價
-        const g = BOSS_STAGES.find(s => s.id === d.gate);
-        if (!g || g.id !== gateBattleId || !BattleSettlement.acceptGateReceipt(gateReceipts, d)) return;
-        const shards = Math.max(0, Math.min(9999, Math.floor(+d.shards) || 0));
-        const rawDrops = d.drops && typeof d.drops === "object" ? d.drops : {};
-        const first = !!d.first;
-        const betaDropMultiplier = betaEventActive() ? 2 : 1;
-        const drops = {
-            breakthrough: Math.max(1, Math.min(3 * betaDropMultiplier, Math.floor(+rawDrops.breakthrough) || 0)),
-            rainbow: Math.max(0, Math.min(3, Math.floor(+rawDrops.rainbow) || 0)),
-            experience: 10 * betaDropMultiplier,
-            highExperience: Math.max(1, Math.min(3 * betaDropMultiplier, Math.floor(+rawDrops.highExperience) || 1)),
-            singleTicket: Math.max(0, Math.min(1, Math.floor(+rawDrops.singleTicket) || 0)),
-            tenTicket: Math.max(0, Math.min(1, Math.floor(+rawDrops.tenTicket) || 0)),
-            expeditionMedal: Math.max(0, Math.min(betaDropMultiplier, Math.floor(+rawDrops.expeditionMedal) || 0)),
-            bossMaterial: Math.max(0, Math.min(betaDropMultiplier, Math.floor(+rawDrops.bossMaterial) || 0))
-        };
-        const bossMaterialByGate = { fire: 'dragonWing', water: 'shellfishTail', wind: 'garudaBeak', thunder: 'thunderCore' };
-        let newlyDroppedAvatarFrame = null;
-        const unownedAvatarFrames = Object.keys(ELEMENTAL_AVATAR_FRAMES).filter(id => !avatarFramesOwned.includes(id));
-        if (unownedAvatarFrames.length && Math.random() < 0.001) {
-            const frameId = unownedAvatarFrames[Math.floor(Math.random() * unownedAvatarFrames.length)];
-            avatarFramesOwned.push(frameId);
-            newlyDroppedAvatarFrame = ELEMENTAL_AVATAR_FRAMES[frameId];
-        }
-        const win = Math.max(0, Math.floor(+d.win) || 0);
-        const gName = (typeof d.gateName === "string" && d.gateName ? d.gateName : g.gate).slice(0, 40);
-        bossWin[g.id] = Math.max(bossWin[g.id] || 0, win);
-        recordBetaEventBattle();
-        shardTotal += shards + drops.rainbow;
-        breakthroughStones.fourStar += drops.breakthrough;
-        towerMaterials.expeditionMedal += drops.expeditionMedal;
-        if (drops.bossMaterial) towerMaterials[bossMaterialByGate[g.id]] += drops.bossMaterial;
-        cultivationMaterials += drops.experience;
-        highGradeExperienceCrystals += drops.highExperience;
-        summonTicketSingle += drops.singleTicket;
-        summonTicketTen += drops.tenTicket;
-        // 最佳紀錄由母頁落地存檔：門的實例不寫 save，訊息欄位一樣全部夾限
-        const ms = Math.max(0, Math.min(86400000, Math.floor(+d.ms) || 0));
-        const score = Math.max(0, Math.min(999999999, Math.floor(+d.score) || 0));
-        BattleSettlement.mergeRecord(gateRecord, g.id, ms, score);
-        saveGame();
-        paintHome();
-        const bossMatName = ({ fire: '赤焰龍的翅膀', water: '蒼溟貝的尾巴', wind: '金鷺鷲的鳥喙', thunder: '玄雷機的核心' })[g.id];
-        const rewardsText = `通關虹彩石 +${shards}、額外虹彩石 +${drops.rainbow}、限定突破石 +${drops.breakthrough}、經驗水晶 +${drops.experience}、高階經驗水晶 +${drops.highExperience}${drops.bossMaterial ? `、${bossMatName} +1` : ""}${drops.singleTicket ? `、單抽招募券 +${drops.singleTicket}` : ""}${drops.tenTicket ? `、十抽招募券 +${drops.tenTicket}` : ""}${newlyDroppedAvatarFrame ? `、頭像框「${newlyDroppedAvatarFrame.name}」` : ""}`;
-        log(first
-            ? `🏆 <b style='color:#ffce5a'>${gName}・首次擊破</b>（境界領域）：${rewardsText}。`
-            : `⚔️ <b>${gName}</b> 再度擊破（境界領域）：${rewardsText}。`);
-        if (homeTabOn === "boss") renderPage();
+        receiveGateReward(d,fr);
+    } else if (d.type === "wf-gate-retry-request") {
+        receiveGateRetry(d,fr);
     } else if (d.type === "wf-gate-close") {
         closeGateBattle();
     }
@@ -8905,7 +8941,7 @@ addEventListener("message", ev => {
 // ---- iframe 內：把門直接開在這份實例的戰場上 ----
 function startGateBattle(g) {
     resetBattleTransient(); battleLifecycle.setRunning(true);
-    GATE.id = g.id; GATE.t0 = performance.now(); GATE.dmg0 = dmgTotal;
+    GATE.id = g.id; GATE.t0 = performance.now(); GATE.dmg0 = dmgTotal; markGateRun();
     hideResult();
     setPaused(false);
     spawnEnemy();
@@ -8913,7 +8949,7 @@ function startGateBattle(g) {
     if (TRAINING_MODE) initializeTrainingBoss();
     spawnFoe(); applyStageBg(g.zone, "gate_" + g.id); updateUI();
     PF.el.classList.add("gate-art");
-    log(`🏰 進入獨立關卡 <b style='color:#ffce5a'>${g.gate}</b>：場上只有 <b>${enemy.name}</b>，生命 <b>${fmt(enemy.maxHp)}</b>。`);
+    log(`🏰 進入獨立關卡 <b style='color:#ffce5a'>${g.gate}</b>${GATE.tier ? `（強化 +${GATE.tier}）` : ''}：場上只有 <b>${enemy.name}</b>，生命 <b>${fmt(enemy.maxHp)}</b>。`);
 }
 
 // 副本的戰場外觀：金幣／經驗各有一套閃粉疊層，三條長副本用自己的場布加群組濾鏡。
@@ -9103,6 +9139,7 @@ function confirmGateExit() {
 
 // 打完／不想打都要把深層流程還回來：GATE 一清空，spawnEnemy 就回到原本那一層
 function gateExit() {
+    if (GATE_MODE && window.parent !== window && gateLastResult && !gateRewardSaved && $("pf-result").classList.contains("on")) { hmToast("請先重試儲存本場獎勵。"); return; }
     if (expedition) { finishExpedition("已撤退"); return; }
     resetBattleTransient();
     // 門的實例沒有「深層」可回：按返回就請母頁關掉這個獨立戰場
@@ -9124,34 +9161,36 @@ function gateExit() {
 }
 
 // 同一道門重開：不結算、不退回深層，直接把王重新召出來
-function gateRetry() {
+function restartGateBattleAfterPayment() {
     const g = gateOf();
     if (!g) { gateExit(); return; }
     resetBattleTransient();
     hideResult();
     $("pf-pause").classList.remove("on");
     setPaused(false);
-    GATE.t0 = performance.now(); GATE.dmg0 = dmgTotal;
+    GATE.t0 = performance.now(); GATE.dmg0 = dmgTotal; markGateRun();
     battleLifecycle.setRunning(true);
     PF.members.forEach(m => {
         m.down = false; m.ch.hp = hpMax(m.ch); m.ch.gauge = 0;
         attachBall(m);
     });
     spawnEnemy(); spawnFoe(); applyBattlefieldBg(); updateUI();
-    log(`🔁 <b>${g.gate}</b> 重新開戰：${enemy.name} 再次降臨。`);
+    log(`🔁 <b>${g.gate}</b>${GATE.tier ? `（強化 +${GATE.tier}）` : ''} 重新開戰：${enemy.name} 再次降臨。${gatePaidRun() ? `消耗 ${StaminaSystem.GATE_COST} 點體力。` : ''}`);
 }
 
 function restartCurrentGate() {
     if (!gateOn() || !enemy.boss) return;
-    if (!confirm("重新開始本關？隊伍生命與技能能量會重置，本次戰鬥用時與傷害會歸零；帳號進度與存檔保留。")) return;
+    if (!confirm(`重新開始本關？${gatePaidRun() ? `將消耗 ${StaminaSystem.GATE_COST} 點體力，` : ""}隊伍生命與技能能量會重置，本次戰鬥用時與傷害會歸零；帳號進度與存檔保留。`)) return;
     gateRetry();
 }
 
 function showDeepFail() {
-    // 自動循環開啟時不擋失敗畫面：本輪獎勵在戰鬥中已即時入帳，直接回到起始層接下一輪。
+    if (deepTimeLeft > 0) return; // 已重開的樓層不處理上一輪重複超時。
+    // 自動循環開啟時不擋失敗畫面：本輪獎勵在戰鬥中已即時入帳，依失敗當層回退後接下一輪。
     if (towerAutoLoop && !gateOn() && !GATE_MODE && !DUNGEON_MODE && !TRAINING_MODE && !EXPEDITION_MODE && !expedition) {
         const failedAt = stage;
-        restartTowerAtFloor(towerStartFloor, `⏳ 第 ${failedAt} 層時間耗盡，自動循環回到第 ${towerStartFloor} 層重新挑戰。`);
+        const target=towerAutoFailureTarget(failedAt);
+        restartTowerAtFloor(target, `⏳ 第 ${failedAt} 層超時，自動回退到第 ${target} 層。`);
         return;
     }
     setPaused(true);
@@ -9168,6 +9207,7 @@ function showDeepFail() {
 // 自動循環與指定起始層共用：換到指定樓層、重新計時，陣亡角色以 50% 血量復活。
 function restartTowerAtFloor(floor, note) {
     resetBattleTransient();
+    battleLifecycle.setRunning(true);
     $("deep-fail").classList.remove("on");
     stage = Math.max(1, Math.floor(Number(floor) || 1));
     floorWins = 0;
@@ -9185,6 +9225,7 @@ function restartTowerAtFloor(floor, note) {
     log(note);
 }
 function leaveDeepToHome() {
+    towerRunActive = false;
     $("deep-fail").classList.remove("on");
     showScreen("home");
 }
@@ -9841,7 +9882,7 @@ function updateUI() {
         $("weak-time").textContent = (t / 1000).toFixed(1) + "s";
     } else wb.classList.remove("on");
 
-    $("stage-num").textContent = expedition ? "生存" : DUNGEON_MODE ? `第 ${DUNGEON_WAVE} / ${dungeonWaveTotal(gateOf())} 波` : gateOn() ? "試煉" : `第 ${stage} 層`;
+    $("stage-num").textContent = expedition ? "生存" : DUNGEON_MODE ? `第 ${DUNGEON_WAVE} / ${dungeonWaveTotal(gateOf())} 波` : gateOn() ? `${GATE.tier ? "強化 " : ""}${GateEnhancement.label(GATE.tier, enemy.gateLevel)}` : `第 ${stage} 層`;
     const clock = $("deep-clock");
     clock.style.display = gateOn() ? "none" : "";
     clock.textContent = `⏱${Math.max(0, deepTimeLeft)}s`;
@@ -9973,10 +10014,10 @@ function saveGame() {
         const snapshot = SaveSystem.createSnapshot({
             picked: starterPicked, accountCreated, accountName, accountAvatarId, accountAvatarFrameId, avatarFramesOwned,
             typeTalentPoints, typeTalentRanks,
-            tutorialSeen, stage, towerBestStage, towerFirstBossRecoveryUsed, rankLv, rankExp, kills, floorWins, deepTimeLeft, shardTotal, gold, towerMaterials, stamina, staminaTickAt, staminaOverflowResetDate,
-            teamIds, squads, squadOn, unisonMap, titleOn, bossWin, gateRecord, cultivationMaterials, highGradeExperienceCrystals, growthExpReserve, breakthroughStones,
+            tutorialSeen, stage, towerBestStage, towerFirstBossRecoveryUsed, towerStartFloor, towerAutoLoop, towerFallbackFloors, towerStableThreshold, towerStableEnabled, rankLv, rankExp, kills, floorWins, deepTimeLeft, shardTotal, gold, towerMaterials, stamina, staminaTickAt, staminaOverflowResetDate,
+            teamIds, squads, squadOn, unisonMap, titleOn, bossWin, gateRecord, gateEnhance, cultivationMaterials, highGradeExperienceCrystals, growthExpReserve, breakthroughStones,
             battleBoostMs: { speed: BATTLE_PAID_BOOSTS.speed, attack: BATTLE_PAID_BOOSTS.attack, crit: BATTLE_PAID_BOOSTS.crit }, battleBoostSavedAt: Date.now(),
-            limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, betaEventState, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, collectionAchievementClaims,
+            limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, betaEventState, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, specialDungeonClears, updateCompensationClaims, collectionAchievementClaims,
             passSeason, passExp, passPremium, passClaimedFree, passClaimedPremium, passCosmetics, passDailyDate, passDailyCheckinAwarded, passDailyStamina, passDailyFloors, passWeeklyDate, passWeeklyWeakHits, passWeeklyExpeditionClears,
             shakeOn: FX.shakeOn, roster
         }, CHAR_IDS);
@@ -9995,7 +10036,7 @@ function loadGame() {
         const restored = SaveSystem.restore(result.data, roster, {
             characterIds: CHAR_IDS, characters: CHAR_TABLE,
             titleIds: TITLE_TABLE.map(t => t.id), gateIds: BOSS_STAGES.map(g => g.id),
-            maxRank: MAX_RANK, teamMax: TEAM_MAX, bossEvery: BOSS_EVERY,
+            maxRank: MAX_RANK, teamMax: TEAM_MAX, bossEvery: BOSS_EVERY, towerAutoLoopDefault:towerAutoLoop,
             normalFloorWaves: NORMAL_FLOOR_WAVES, bossFloorSeconds: BOSS_FLOOR_SECONDS,
             normalFloorSeconds: NORMAL_FLOOR_SECONDS, rankExpNeed, staminaMaxAtRank,
             normalizeTalentRanks: normalizeTypeTalentRanks,
@@ -10014,14 +10055,16 @@ function loadGame() {
         }
         // 所有資料完成轉換才套用，避免失敗時留下半份進度。
         ({ starterPicked, accountCreated, accountName, accountAvatarId, accountAvatarFrameId, avatarFramesOwned,
-            typeTalentRanks, tutorialSeen, kills, stage, towerBestStage, towerFirstBossRecoveryUsed, rankLv, rankExp, stamina, staminaTickAt, staminaOverflowResetDate,
+            typeTalentRanks, tutorialSeen, kills, stage, towerBestStage, towerFirstBossRecoveryUsed, towerStartFloor, towerAutoLoop, towerFallbackFloors, towerStableThreshold, towerStableEnabled, rankLv, rankExp, stamina, staminaTickAt, staminaOverflowResetDate,
             typeTalentPoints, floorWins, deepTimeLeft, shardTotal, gold, towerMaterials, roster, teamIds,
             squads, squadOn,
-            unisonMap, titleOn, bossWin, gateRecord,
-            cultivationMaterials, highGradeExperienceCrystals, growthExpReserve, breakthroughStones, limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, betaEventState, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, collectionAchievementClaims,
+            unisonMap, titleOn, bossWin, gateRecord, gateEnhance,
+            cultivationMaterials, highGradeExperienceCrystals, growthExpReserve, breakthroughStones, limitedSummonCount, summonFeaturedCharacterId, limitedFeaturedGuaranteed, summonTicketSingle, summonTicketTen, betaEventState, expeditionHellEntryDay, expeditionHellEntriesUsed, expeditionNormalClearCount, expeditionNormalRewardDay, expeditionNormalRewardedToday, dailyCheckinDate, dailyCheckinStreak, dailyCheckinTotal, staminaSupplyDate, staminaSupplyNoonAmount, staminaSupplyEveningAmount, specialDungeonRunDate, specialDungeonRuns, specialDungeonClears, updateCompensationClaims, collectionAchievementClaims,
             passSeason, passExp, passPremium, passClaimedFree, passClaimedPremium, passCosmetics, passDailyDate, passDailyCheckinAwarded, passDailyStamina, passDailyFloors, passWeeklyDate, passWeeklyWeakHits, passWeeklyExpeditionClears } = restored);
+        resetTowerStall();
         Object.assign(BATTLE_PAID_BOOSTS, restored.battleBoostMs || { speed: 0, attack: 0, crit: 0 });
         FX.shakeOn = restored.shakeOn;
+        if (typeof migrateCollectionAchievements === "function") { collectionLegacyPending = null; migrateCollectionAchievements(); }
         spawnEnemy();
         return true;
     } catch (err) { saveNote = SaveSystem.parseFailure; return false; }
@@ -10196,7 +10239,7 @@ function rememberUiLocation() {
         }));
     } catch (_) {}
 }
-function pickHomeTab(k, leaderboardMode = "tower") { if (k === "leaderboard") towerLbMode = leaderboardMode === "rogue" ? "rogue" : "tower"; uiRouter.select(k); rememberUiLocation(); }
+function pickHomeTab(k, leaderboardMode = "tower") { if (k === "leaderboard") towerLbMode = "tower"; uiRouter.select(k); rememberUiLocation(); }
 function toggleBottomTab(tab) {
     const route = uiRouter.current();
     const alreadyOpen = tab === "team" ? route === "adventure" : route === "page" && homeTabOn === tab;
@@ -10258,6 +10301,7 @@ function leaveGateContextForTower() {
 function enterBattle() {
     // 一般冒險永遠回到波利塔；訓練場的 Boss 和訓練狀態不能沿用。
     leaveGateContextForTower();
+    towerRunActive = true;
     showScreen("battle");
     FX.clearPops();
     if (!GATE_MODE && !tutorialSeen) {
@@ -10321,6 +10365,7 @@ function spawnMotes() {
 
 // 由 updateUI 每幀呼叫，內容沒變就不碰 DOM
 function paintHome() {
+    paintUpdateCompensationEntry();
     if ($("home").style.display === "none") return;
     const staminaState = syncStamina();
     // 這張卡顯示 RANK 目前這一級的經驗進度，不是角色經驗
@@ -11087,7 +11132,7 @@ function towerLbReadReady() {
     return !DEV_MODE && typeof SupabaseCloud !== "undefined" && !!SupabaseCloud?.available;
 }
 function towerLbScopeKey() {
-    return towerLbMode === "rogue" ? "hell_week" : towerLbScope === "life" ? "tower_life" : "tower_week";
+    return towerLbScope === "life" ? "tower_life" : "tower_week";
 }
 function towerLbCacheKey() { return `${towerLbScopeKey()}|${towerWeekRecord().week}`; }
 function towerLbOnline() { return towerLbCloud.state === "online" && towerLbCloud.key === towerLbCacheKey(); }
@@ -11165,13 +11210,7 @@ function reportTowerScores() {
     if (week.floor) towerLbSubmit({ scope: "tower_week", name, floor: week.floor, at: week.at, weekStart: towerWeekBucket() });
     towerLbSubmit({ scope: "tower_life", name, floor: Math.max(1, Math.floor(Number(towerBestStage) || stage || 1)) });
 }
-function reportHellScore(row) {
-    if (!towerCloudReady()) return;
-    towerLbSubmit({
-        scope: "hell_week", name: accountName || "見習勇者",
-        seconds: row.seconds, count: row.count, clear: row.clear === true, weekStart: towerWeekBucket()
-    });
-}
+function reportHellScore(row) { /* 排行停用；保留歷史與個人紀錄。 */ }
 // 榜單只剩自己那一筆時，要講清楚卡在哪一環，別讓人以為榜單壞了。
 function towerLbSourceNote() {
     if (towerLbOnline()) return "榜單目前只有你這一筆：本週全服還沒有其他勇者登塔。";
@@ -11240,7 +11279,7 @@ function hellLbRows(weekRecord) {
     return towerLbMerge(rows, mine, better).sort((a, b) => better(b, a) || String(a.name).localeCompare(String(b.name)));
 }
 function setTowerLbScope(scope) { towerLbScope = scope === "life" ? "life" : "week"; renderPage(); }
-function setTowerLbMode(mode) { towerLbMode = mode === "rogue" ? "rogue" : "tower"; renderPage(); }
+function setTowerLbMode(mode) { towerLbMode = "tower"; renderPage(); }
 // 把本機既有的最佳成績補送到全服榜：登入當下、剛設好名字、以及每次進到榜單那頁各跑一次。
 // 名字還沒設定好時先不送，免得榜上留「見習勇者」；送過的數字記在 towerLbSync 裡，
 // 同一輪再進這頁不會重複打資料庫，但上報失敗過的下次進這頁會自動再試。
@@ -11253,7 +11292,7 @@ function syncTowerScoresToCloud() {
     }
 }
 function openHomeLeaderboard(mode) {
-    towerLbMode = mode === "rogue" ? "rogue" : "tower";
+    towerLbMode = "tower";
     pickHomeTab("leaderboard", towerLbMode);
 }
 
@@ -11262,7 +11301,7 @@ function pageTowerLeaderboard() {
     syncTowerScoresToCloud();
     const esc = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     const icon = (name, cls = '') => `<svg class="lb-icon ${cls}" aria-hidden="true" viewBox="0 0 100 100"><use href="asset/ui/leaderboard-emblems.svg#${name}"/></svg>`;
-    const rogue = towerLbMode === 'rogue', life = !rogue && towerLbScope === 'life';
+    const rogue = false, life = !rogue && towerLbScope === 'life';
     const week = rogue ? expeditionHellWeekRecord() : towerWeekRecord();
     const rows = rogue ? hellLbRows(week).map((row, i) => towerLbOnline() ? row : { ...row, me:i === 0 }) : towerLbRows();
     const me = rows.find(row => row.me);
@@ -11280,7 +11319,7 @@ function pageTowerLeaderboard() {
     return `<section class="lbv" aria-label="全服排行榜">
         <header class="lb-hero"><img class="lb-guardian left" src="asset/character/couette/pixelart/animated/walk.gif" alt="" aria-hidden="true"><img class="lb-guardian right" src="asset/character/theo/pixelart/animated/walk.gif" alt="" aria-hidden="true">
             <div class="lb-title-crest">${icon('laurel')}${icon('crown')}</div><small class="lb-eyebrow">PINBALL REALMS · HALL OF GLORY</small>
-            <div class="lb-title-row"><h2>榮耀排行榜</h2><label class="lb-mode-select"><span class="lb-sr-only">挑戰模式</span><select aria-label="挑戰模式" onchange="setTowerLbMode(this.value)"><option value="tower" ${rogue ? '' : 'selected'}>波利塔</option><option value="rogue" ${rogue ? 'selected' : ''}>無限連擊</option></select></label></div>
+            <div class="lb-title-row"><h2>榮耀排行榜</h2><label class="lb-mode-select"><span class="lb-sr-only">挑戰模式</span><select aria-label="挑戰模式" onchange="setTowerLbMode(this.value)"><option value="tower" ${rogue ? '' : 'selected'}>波利塔</option></select></label></div>
             <p>以勇氣登頂，讓榮耀留下名字</p><div class="lb-hero-rule">${icon('gem')}</div></header>
         <nav class="lb-tabs" aria-label="排行週期"><button type="button" class="${life ? '' : 'on'}" aria-pressed="${!life}" onclick="setTowerLbScope('week')">本週排行</button><button type="button" class="${life ? 'on' : ''}" aria-pressed="${life}" ${rogue ? 'disabled title="無限連擊目前僅有本週地獄模式紀錄"' : 'onclick="setTowerLbScope(\'life\')"'}>生涯最高</button></nav>
         <div class="lb-panel"><div class="lb-sec"><h3>${rogue ? '地獄模式' : life ? '生涯前段' : '本週前段'}${life ? '' : '・'+towerWeekLabel(week.week)}</h3>${life ? `<span>${towerLbOnline() ? '全服最佳' : '本機紀錄'}</span>` : `<span class="lb-clock">本週倒數 <b>${towerWeekCountdown(week.week)}</b></span>`}</div>
@@ -11823,11 +11862,17 @@ const DEX_HERO = {}; CHAR_IDS.forEach(id => { DEX_HERO[CHAR_TABLE[id].unit] = id
 let dexF = { a: "", t: "", q: "" };
 let dexSelected = "";
 let collectionAchievementClaims = [];
-const COLLECTION_ACHIEVEMENTS = [
+const LEGACY_COLLECTION_ACHIEVEMENTS = [
     { id:"ach_1", title:"初露鋒芒", desc:"擁有 3 位 Lv.85 以上角色", type:"level", required:3, reward:100 },
     { id:"ach_2", title:"黃金戰隊", desc:"擁有 4 位 Lv.85 以上角色", type:"level", required:4, reward:250 },
     { id:"ach_3", title:"滿員遠征", desc:"累計解鎖 6 位角色", type:"owned", required:6, reward:150 }
 ];
+const COLLECTION_ACHIEVEMENTS = [
+    ...[[3,30,'啟程收藏家'],[6,50,'旅伴集結'],[10,100,'冒險收藏家'],[25,150,'群星名冊'],[50,250,'收藏達人'],[100,500,'百人殿堂']].map(([required,reward,title]) => ({id:'ca2_owned_'+required,type:'owned',category:'collection',required,reward,title,desc:'持有 '+required+' 位角色'})),
+    ...[[3,40,50],[3,60,75],[3,80,100],[6,80,150],[1,90,150],[1,100,250],[3,100,500]].filter(([,level]) => level <= GROWTH_MAX_CAP).map(([required,level,reward]) => ({id:'ca2_level_'+level+'_'+required,type:'level',category:'growth',required,level,reward,title:({40:'成長足跡',60:'進階旅程',80:'菁英培養',90:'突破巔峰',100:'極境大師'})[level]+(required>1?'・'+required+'人':''),desc:required+' 位角色達 Lv.'+level})),
+    ...[[2,30],[3,50],['all',100]].map(([count,reward]) => ({id:'ca2_element_'+count,type:'elements',category:'element',required:count,reward,title:count==='all'?'萬象收藏家':count===2?'雙色旅伴':'三色共鳴',desc:count==='all'?'持有全部開放屬性的角色':'持有 '+count+' 種屬性的角色'}))
+];
+let collectionAchievementFilter = 'all', collectionClaimBusy = false, collectionLegacyPending = null;
 const DEX_ON = DEX.filter(c => (c[1] === 4 || c[1] === 5) && OPEN_ELEMENTS.has(c[2]) && (c[7] || DEX_HERO[c[0]]));
 const esc = s => String(s).replace(/"/g, "&quot;");
 const dexFace = (dev, r, txt) => `<img loading="lazy" src="${CDN_BASE}rarity${r}/${dev}/walk_front.gif" alt="${txt}" onerror="if(this.dataset.f){this.parentNode.textContent='${txt}'}else{this.dataset.f=1;this.src='${CDN_BASE}rarity${r}/${dev}/neutral.gif'}">`;
@@ -11864,28 +11909,58 @@ function charBarHTML() {
     return `<div class="dex-bar"><select id="dex-a" onchange="dexSet('a', this.value)"><option value="">全部屬性</option>${EL_KEYS.map(k => `<option value="${k}"${dexF.a === k ? " selected" : ""}>${ELEMENTS[k].label}</option>`).join("")}</select><select id="dex-t" onchange="dexSet('t', this.value)"><option value="">全部職業</option>${DEX_ROLES.map(k => `<option value="${k}"${dexF.t === k ? " selected" : ""}>${DEX_ROLE[k]}</option>`).join("")}</select><input id="dex-q" type="search" placeholder="搜尋角色" value="${esc(dexF.q)}" oninput="dexSet('q', this.value)"><button class="clr" onclick="dexClear()">清空</button></div>`;
 }
 function dexCollectionStats() {
-    // 與遊戲內角色名冊／主頁已解鎖數共用 OPEN_CHAR_IDS，排除未開放的角色資料。
-    const catalogIds = OPEN_CHAR_IDS;
-    const unlocked = catalogIds.filter(id => roster[id]?.unlocked);
-    const highLevel = catalogIds.filter(id => roster[id]?.unlocked && roster[id].lvl >= 85).length;
-    const elements = new Set(unlocked.map(id => CHAR_TABLE[id]?.element).filter(Boolean)).size;
-    return { unlocked:unlocked.length, total:catalogIds.length, highLevel, elements, elementTotal:OPEN_EL.length };
+    const catalogIds = OPEN_CHAR_IDS, owned = catalogIds.filter(id => roster[id]?.unlocked);
+    const starters = new Set(GAME_DATA.characterRules.starterIds);
+    const category = id => starters.has(id) ? 'base' : CHAR_TABLE[id].summonCategory === 'limited' ? 'limited' : 'permanent';
+    const groups = Object.fromEntries(['base','permanent','limited'].map(key => [key,{owned:owned.filter(id=>category(id)===key).length,total:catalogIds.filter(id=>category(id)===key).length}]));
+    const levels = Object.fromEntries([40,60,80,85,90,100].map(level => [level,owned.filter(id=>roster[id].lvl>=level).length]));
+    const allElements = new Set(catalogIds.map(id=>CHAR_TABLE[id].element).filter(Boolean));
+    const elements = new Set(owned.map(id=>CHAR_TABLE[id].element).filter(Boolean)).size;
+    const reliable = owned.every(id=>Number.isInteger(roster[id].breakthrough) && roster[id].breakthrough>=0);
+    return {unlocked:owned.length,total:catalogIds.length,levels,highLevel:levels[80],elements,elementTotal:allElements.size,groups,broken:reliable?owned.filter(id=>roster[id].breakthrough>0).length:null};
+}
+function dexCollectionSummaryHTML(stats) {
+    return '<div class="dex-bonus-title">帳號收藏進度</div>'+[['角色總收藏',stats.unlocked+'/'+stats.total],['Lv.80 培養達標',stats.levels[80]+' 位'],['屬性收藏',stats.elements+'/'+stats.elementTotal]].map(([label,value])=>'<div class="dex-bonus-row"><span>'+label+'</span><b>'+value+'</b></div>').join('')+'<details class="collection-details"><summary>查看詳細收藏 ▼</summary>'+[['基礎',stats.groups.base],['常駐',stats.groups.permanent],['限定',stats.groups.limited]].map(([label,group])=>'<div class="dex-bonus-row"><span>'+label+'角色收藏</span><b>'+group.owned+'/'+group.total+'</b></div>').join('')+(stats.broken===null?'':'<div class="dex-bonus-row"><span>已突破／解放角色</span><b>'+stats.broken+' 位</b></div>')+'</details>';
 }
 function dexFocusHTML() {
     const c = DEX_ON.find(row => row[0] === dexSelected) || dexMatch()[0];
     if (!c) return `<div class="dex-pane dex-focus"><div class="dex-pane-title">角色特寫</div><div class="pg-empty">沒有符合條件的角色</div></div>`;
     const d = CHAR_TABLE[DEX_HERO[c[0]]], ch = d && roster[d.unit], own = !!ch?.unlocked;
     const stats = dexCollectionStats();
-    return `<section class="dex-pane dex-focus"><div class="dex-pane-title"><span>角色特寫</span><span>${own ? "已解鎖" : "未解鎖"}</span></div><div class="dex-focus-portrait">${dexFace(c[0],c[1],dexDisplayName(c[3]).slice(0,1))}</div><h3 class="dex-focus-name">${esc(dexDisplayName(c[3]))}</h3><div class="dex-focus-meta">${ELEMENTS[c[2]].label}屬性・${c[1]}★・${DEX_ROLE[c[5]]}</div><div class="dex-focus-data"><div><span>稱號</span><b>${esc(c[4])}</b></div><div><span>角色等級</span><b>${own ? `Lv.${ch.lvl}/${growthCap(ch)}` : "尚未取得"}</b></div><div><span>角色碎片</span><b>${d ? `${ch.shards}/${d.need}` : "—"}</b></div><div><span>取得方式</span><b>${c[1] === 5 && summonCategory(c[0]) === "permanent" ? "交換所" : summonCategory(c[0]) === "limited" ? "限定招募" : "招募"}</b></div></div><div class="dex-selection-detail">${dexDetailHTML(c[0])}</div><div class="dex-bonus-title">帳號收藏進度</div><div class="dex-bonus-row"><span>已持有角色</span><b>${stats.unlocked}/${stats.total} 位</b></div><div class="dex-bonus-row"><span>角色達 Lv.85</span><b>${stats.highLevel} 位</b></div><div class="dex-bonus-row"><span>已持有屬性</span><b>${stats.elements}/${stats.elementTotal} 種</b></div></section>`;
+    return `<section class="dex-pane dex-focus"><div class="dex-pane-title"><span>角色特寫</span><span>${own ? "已解鎖" : "未解鎖"}</span></div><div class="dex-focus-portrait">${dexFace(c[0],c[1],dexDisplayName(c[3]).slice(0,1))}</div><h3 class="dex-focus-name">${esc(dexDisplayName(c[3]))}</h3><div class="dex-focus-meta">${ELEMENTS[c[2]].label}屬性・${c[1]}★・${DEX_ROLE[c[5]]}</div><div class="dex-focus-data"><div><span>稱號</span><b>${esc(c[4])}</b></div><div><span>角色等級</span><b>${own ? `Lv.${ch.lvl}/${growthCap(ch)}` : "尚未取得"}</b></div><div><span>角色碎片</span><b>${d ? `${ch.shards}/${d.need}` : "—"}</b></div><div><span>取得方式</span><b>${c[1] === 5 && summonCategory(c[0]) === "permanent" ? "交換所" : summonCategory(c[0]) === "limited" ? "限定招募" : "招募"}</b></div></div><div class="dex-selection-detail">${dexDetailHTML(c[0])}</div>${dexCollectionSummaryHTML(stats)}</section>`;
+}
+function collectionGoal(a, stats) { return a.required === 'all' ? stats.elementTotal : a.required; }
+function collectionValue(a, stats) { return a.type === 'level' ? stats.levels[a.level] || 0 : a.type === 'elements' ? stats.elements : stats.unlocked; }
+function collectionComplete(a, stats) { return collectionAchievementClaims.includes(a.id) || collectionValue(a, stats) >= collectionGoal(a, stats); }
+function collectionMasterReady(stats) { return COLLECTION_ACHIEVEMENTS.every(a => collectionComplete(a, stats)); }
+function collectionRewardHTML(amount) { return '<span class="collection-prize"><img src="asset/items/crystal.png" alt="虹彩石">'+amount+'</span>'; }
+function setCollectionAchievementFilter(filter) {
+    if (!['all','collection','growth','element'].includes(filter)) return;
+    collectionAchievementFilter = filter;
+    const node = $('dex-rewards'); if (node) node.innerHTML = dexAchievementsHTML();
+}
+function collectionCardHTML(a, stats, legacy = false) {
+    const claimed = collectionAchievementClaims.includes(a.id);
+    const goal = legacy ? 1 : collectionGoal(a,stats);
+    const value = legacy ? Number(claimed || collectionAchievementClaims.includes('ca2_legacy_'+a.id)) : collectionValue(a,stats);
+    const ready = value >= goal, completed = claimed || ready;
+    const high = !legacy && ((a.type==='owned' && a.required>=50) || a.level>=90);
+    return `<article class="dex-achievement collection-card${high?' high':''}${ready&&!claimed?' ready':''}${claimed?' claimed':''}"><span class="collection-medal" aria-hidden="true"><svg viewBox="0 0 100 100"><use href="asset/ui/collection-master.svg#${a.category==='growth'?'growth':a.category==='element'?'element':'collection'}"/></svg></span><div class="collection-card-copy"><div class="dex-achievement-head"><span>${a.title}</span></div><p class="dex-achievement-desc">${legacy?'改版前已達成・'+a.desc:a.desc}</p><div class="collection-meter"><progress max="${goal}" value="${completed?goal:Math.min(value,goal)}" aria-label="${a.title}進度"></progress><small>${legacy?'資格保留':Math.min(value,goal)+' / '+goal}</small></div></div><div class="collection-card-action">${collectionRewardHTML(a.reward)}<button type="button" class="dex-claim" ${!ready||claimed?'disabled':''} onclick="claimCollectionAchievement('${a.id}')">${claimed?'✓ 已領取':ready?'領取':'未達成'}</button></div></article>`;
 }
 function dexAchievementsHTML() {
-    const stats = dexCollectionStats();
-    return COLLECTION_ACHIEVEMENTS.map(a => {
-        const value = a.type === "level" ? stats.highLevel : stats.unlocked;
-        const claimed = collectionAchievementClaims.includes(a.id), ready = value >= a.required;
-        const progress = Math.min(100, Math.round(value / a.required * 100));
-        return `<article class="dex-achievement${ready ? " ready" : ""}${claimed ? " claimed" : ""}"><div class="dex-achievement-head"><span>${a.title}</span><span>💎 ${a.reward}</span></div><p class="dex-achievement-desc">${a.desc}</p><div class="dex-achievement-progress"><i style="width:${progress}%"></i></div><div class="dex-achievement-foot"><span>${Math.min(value,a.required)} / ${a.required}</span><button class="dex-claim" ${!ready || claimed ? "disabled" : ""} onclick="claimCollectionAchievement('${a.id}')">${claimed ? "已領取" : ready ? "領取虹彩石" : "未達成"}</button></div></article>`;
-    }).join("");
+    const stats = dexCollectionStats(), completed = COLLECTION_ACHIEVEMENTS.filter(a=>collectionComplete(a,stats)).length, total=COLLECTION_ACHIEVEMENTS.length;
+    const masterClaimed=collectionAchievementClaims.includes('ca2_master'), masterReady=collectionMasterReady(stats);
+    const eligible=COLLECTION_ACHIEVEMENTS.filter(a=>!collectionAchievementClaims.includes(a.id)&&collectionComplete(a,stats));
+    const old=LEGACY_COLLECTION_ACHIEVEMENTS.filter(a=>collectionAchievementClaims.includes(a.id)||collectionAchievementClaims.includes('ca2_legacy_'+a.id));
+    const oldReady=old.filter(a=>!collectionAchievementClaims.includes(a.id));
+    const count=eligible.length+oldReady.length+Number(masterReady&&!masterClaimed);
+    return `<header class="collection-hero"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="asset/ui/collection-master.svg#collection"/></svg><div><h3>收藏成就</h3><p>每一份收藏，都是旅途的證明</p><strong>成就完成度 ${completed} / ${total}</strong><progress value="${completed}" max="${total}" aria-label="成就總完成進度"></progress></div></header>
+    <nav class="collection-filters" aria-label="成就分類">${[['all','全部'],['collection','收藏'],['growth','培養'],['element','屬性']].map(([key,label])=>`<button type="button" aria-pressed="${collectionAchievementFilter===key}" onclick="setCollectionAchievementFilter('${key}')">${label}</button>`).join('')}</nav>
+    ${COLLECTION_ACHIEVEMENTS.filter(a=>collectionAchievementFilter==='all'||a.category===collectionAchievementFilter).map(a=>collectionCardHTML(a,stats)).join('')}
+    <article class="collection-master${masterClaimed?' claimed':''}"><img src="asset/ui/collection-master.svg" alt="傳說收藏大師紀念徽章"><div><small>LEGENDARY COLLECTION</small><h3>傳說收藏大師</h3><p>完成全部 ${total} 項一般收藏成就<br>不含限定專屬及舊版成就・純榮譽，無戰力加成</p><progress max="${total}" value="${completed}" aria-label="傳說收藏大師完成進度"></progress><span>${completed} / ${total}</span></div><footer>${collectionRewardHTML(300)}<button type="button" class="dex-claim" ${!masterReady||masterClaimed?'disabled':''} onclick="claimCollectionAchievement('ca2_master')">${masterClaimed?'✓ 已收藏徽章':masterReady?'領取徽章與獎勵':'未解鎖'}</button></footer>${masterClaimed?'<b class="collection-honor">已獲得・傳說收藏大師紀念徽章</b>':''}</article>
+    <button type="button" class="collection-claim-all" onclick="claimAllCollectionAchievements()" ${count?'':'disabled'}>一鍵領取${count?'（'+count+' 項）':''}</button>
+    ${old.length?`<details class="collection-legacy"><summary>舊版獎勵保留區（${oldReady.length} 項待領）</summary><p>僅保留改版前已領取或已達成資格，與新版成就分開記錄。</p>${old.map(a=>collectionCardHTML(a,stats,true)).join('')}</details>`:''}
+    ${collectionAchievementClaims.includes('ca2_migrated')?'':'<p class="collection-save-warning">舊版資格尚未儲存成功；領取前會再次確認，原有紀錄保留。</p>'}`;
 }
 function dexBoxHTML() {
     if (!dexMatch().some(row => row[0] === dexSelected)) dexSelected = dexMatch()[0]?.[0] || "";
@@ -11939,15 +12014,39 @@ function dexSetTab(tab) {
 function dexSelect(id, ev) { dexSelected = id; dexRefresh(); dexHide(); dexSetTab("focus"); }
 function dexSet(k, v) { dexF[k] = v; if (k === "q") { const input = $("dex-q"); if (input && input.value !== v) input.value = v; } dexRefresh(); }
 function dexClear() { dexF = { a: "", t: "", q: "" }; dexSelected = ""; ["a", "t"].forEach(k => { const el = $("dex-" + k); if (el) el.value = ""; }); const q = $("dex-q"); if (q) q.value = ""; dexRefresh(); }
-function claimCollectionAchievement(id) {
-    const achievement = COLLECTION_ACHIEVEMENTS.find(row => row.id === id);
-    if (!achievement || collectionAchievementClaims.includes(id)) return;
-    const stats = dexCollectionStats(), progress = achievement.type === "level" ? stats.highLevel : stats.unlocked;
-    if (progress < achievement.required) return;
-    collectionAchievementClaims.push(id);
-    shardTotal = Math.min(99999999, shardTotal + achievement.reward);
-    if (!saveGame()) { collectionAchievementClaims = collectionAchievementClaims.filter(key => key !== id); shardTotal -= achievement.reward; hmToast("虹彩石獎勵存檔失敗，請稍後再試。"); return; }
-    updateUI(); dexRefresh(); hmToast(`${achievement.title}完成，虹彩石 +${achievement.reward}`);
+// 舊版資格只在第一次載入時擷取；Lv.85 僅用於這次相容轉換，不參與新版成就。
+function migrateCollectionAchievements() {
+    if (collectionAchievementClaims.includes('ca2_migrated')) return true;
+    if (!collectionLegacyPending) {
+        const stats=dexCollectionStats();
+        collectionLegacyPending=['ca2_migrated',...LEGACY_COLLECTION_ACHIEVEMENTS.filter(a=>(a.type==='level'?stats.levels[85]:stats.unlocked)>=a.required&&!collectionAchievementClaims.includes(a.id)).map(a=>'ca2_legacy_'+a.id)];
+    }
+    const before=collectionAchievementClaims;
+    collectionAchievementClaims=[...new Set([...before,...collectionLegacyPending])];
+    if (!saveGame()) { collectionAchievementClaims=before; return false; }
+    collectionLegacyPending=null;
+    return true;
+}
+function claimCollectionAchievement(id) { return claimCollectionRewards([id]); }
+function claimAllCollectionAchievements() { return claimCollectionRewards(null); }
+function claimCollectionRewards(requested) {
+    if (collectionClaimBusy) return false;
+    collectionClaimBusy=true;
+    try {
+        if (!migrateCollectionAchievements()) { hmToast('收藏資格存檔失敗，請稍後重試。'); return false; }
+        const stats=dexCollectionStats();
+        const ready=COLLECTION_ACHIEVEMENTS.filter(a=>collectionComplete(a,stats)).concat(LEGACY_COLLECTION_ACHIEVEMENTS.filter(a=>collectionAchievementClaims.includes('ca2_legacy_'+a.id)));
+        if (collectionMasterReady(stats)) ready.push({id:'ca2_master',title:'傳說收藏大師',reward:300});
+        const rewards=ready.filter(a=>!collectionAchievementClaims.includes(a.id)&&(!requested||requested.includes(a.id)));
+        if (!rewards.length) return false;
+        const amount=rewards.reduce((n,a)=>n+a.reward,0), before={claims:collectionAchievementClaims,shards:shardTotal};
+        if (shardTotal+amount>99999999) { hmToast('虹彩石即將超過持有上限，請先使用後再領取。'); return false; }
+        collectionAchievementClaims=[...before.claims,...rewards.map(a=>a.id)];
+        shardTotal+=amount;
+        if (!saveGame()) { collectionAchievementClaims=before.claims; shardTotal=before.shards; hmToast('獎勵存檔失敗，已還原，請稍後再試。'); return false; }
+        updateUI(); dexRefresh(); hmToast('收藏獎勵已領取：虹彩石 +'+amount);
+        return true;
+    } finally { collectionClaimBusy=false; }
 }
 function pageBook() {
     return `<div class="pg-sec">圖鑑</div><div class="pgc"><div class="sub">收集角色、查看技能資料並領取收藏成就</div></div><div id="dex-box">${dexBoxHTML()}</div>`;
@@ -12543,53 +12642,75 @@ function showExpeditionModePicker() {
     if (!gateBattleOpen && !dialog.open) dialog.showModal();
 }
 
-// ===== 無限波利塔進場設定：起始層依已解鎖樓層（第 1 層＋每 10 層＋最高紀錄） =====
-function towerFloorOptions() {
-    const best = Math.max(1, Math.floor(Number(towerBestStage) || 1));
-    const floors = new Set([1, best]);
-    for (let floor = BOSS_EVERY; floor <= best; floor += BOSS_EVERY) floors.add(floor);
-    return [...floors].sort((a, b) => a - b);
+// ===== 無限波利塔設定：沿用帳號存檔與既有戰鬥結算 =====
+// 波利塔設定與卡關狀態；沿用既有戰鬥、換層與結算。
+function towerMaxUnlockedFloor() { return Math.max(1, Math.floor(Number(towerBestStage) || 1)); }
+function towerClampStart(floor) { return Math.min(towerMaxUnlockedFloor(), Math.max(1, Math.floor(Number(floor) || 1))); }
+function resetTowerStall() { towerFailureState = {floor:0,count:0,min:0,max:0}; }
+function towerStableActive() { return towerAutoLoop && towerStableEnabled && towerFailureState.min > 0; }
+function towerRecordVictory(floor) {
+    if (towerFailureState.floor === floor) { towerFailureState.floor=0; towerFailureState.count=0; }
 }
-
-function paintTowerModePicker() {
-    const box = $("tower-mode-floors");
-    if (!box) return;
-    const floors = towerFloorOptions();
-    if (!floors.includes(towerStartFloor)) {
-        const notPast = floors.filter(floor => floor <= Math.max(1, Math.floor(Number(stage) || 1)));
-        towerStartFloor = notPast.length ? notPast[notPast.length - 1] : floors[0];
+function towerNextFloor(completed) {
+    return towerStableActive() && completed >= towerFailureState.max ? towerFailureState.min : completed+1;
+}
+function towerAutoFailureTarget(failed) {
+    if (towerFailureState.floor === failed) towerFailureState.count++;
+    else { towerFailureState.floor=failed; towerFailureState.count=1; }
+    if (towerStableActive()) return towerFailureState.min;
+    const target=Math.max(1,failed-towerFallbackFloors);
+    if (towerStableEnabled && failed>1 && towerFailureState.count>=towerStableThreshold) {
+        towerFailureState.min=target; towerFailureState.max=failed-1;
+        log(`穩定刷塔已啟動：第 ${failed} 層連續失敗 ${towerFailureState.count} 次，改刷第 ${target}～${failed-1} 層。`);
     }
-    $("tower-mode-record").textContent = `歷史最高紀錄：第 ${Math.max(1, Math.floor(Number(towerBestStage) || 1))} 層`;
-    box.innerHTML = floors.map(floor =>
-        `<button type="button" aria-pressed="${floor === towerStartFloor}" onclick="selectTowerStartFloor(${floor})">第 ${floor} 層</button>`).join("");
+    return target;
+}
+function saveTowerPreference(change, clearStall=false) {
+    const before={start:towerStartFloor,auto:towerAutoLoop,fallback:towerFallbackFloors,threshold:towerStableThreshold,stable:towerStableEnabled};
+    change();
+    if (!saveGame()) {
+        towerStartFloor=before.start;towerAutoLoop=before.auto;towerFallbackFloors=before.fallback;towerStableThreshold=before.threshold;towerStableEnabled=before.stable;
+        hmToast('波利塔設定儲存失敗，已保留原設定。');return false;
+    }
+    if (clearStall) resetTowerStall();
+    try { localStorage.setItem(TOWER_AUTO_LOOP_KEY,String(towerAutoLoop)); } catch {}
+    return true;
+}
+function changeTowerAdvanced(key,value) {
+    if (key==='fallback' && [5,10,20].includes(Number(value))) saveTowerPreference(()=>{towerFallbackFloors=Number(value)},true);
+    else if (key==='threshold' && [2,3,5].includes(Number(value))) saveTowerPreference(()=>{towerStableThreshold=Number(value)},true);
+    else if (key==='stable') saveTowerPreference(()=>{towerStableEnabled=value===true||value==='true'},true);
+    paintTowerModePicker();syncTowerAutoLoopButtons();
+}
+function toggleTowerStable() { changeTowerAdvanced('stable',!towerStableEnabled); }
+function towerFloorOptions() { return [1,50,100,towerMaxUnlockedFloor()]; }
+function paintTowerModePicker() {
+    const input=$('tower-start-floor'),box=$('tower-mode-floors');if(!input||!box)return;
+    input.max=String(towerMaxUnlockedFloor());input.value=String(towerClampStart(towerStartFloor));
+    $('tower-mode-record').textContent=`歷史最高紀錄：第 ${towerMaxUnlockedFloor()} 層`;
+    box.innerHTML=towerFloorOptions().map((floor,index)=>`<button type="button" ${floor>towerMaxUnlockedFloor()?'disabled':''} aria-pressed="${floor===towerStartFloor}" onclick="selectTowerStartFloor(${floor})">${index===3?'歷史最高':floor}</button>`).join('');
+    $('tower-fallback').value=String(towerFallbackFloors);$('tower-threshold').value=String(towerStableThreshold);$('tower-stable-enabled').checked=towerStableEnabled;
+    $('tower-stable-status').textContent=towerStableActive()?`正在循環第 ${towerFailureState.min}～${towerFailureState.max} 層`:`僅自動循環開啟時生效。同層連續失敗 ${towerStableThreshold} 次後啟動；成功通過卡關層即清除該層失敗次數。`;
     syncTowerAutoLoopButtons();
 }
-
 function selectTowerStartFloor(floor) {
-    towerStartFloor = Math.max(1, Math.floor(Number(floor) || 1));
-    paintTowerModePicker();
+    const saved=saveTowerPreference(()=>{towerStartFloor=towerClampStart(floor)},true);paintTowerModePicker();return saved;
 }
-
+function adjustTowerStartFloor(delta) { selectTowerStartFloor(Number($('tower-start-floor').value||towerStartFloor)+delta); }
 function syncTowerAutoLoopButtons() {
-    ["tower-mode-auto", "pp-tower-auto"].forEach(id => {
-        const button = $(id);
-        if (!button) return;
-        button.setAttribute("aria-pressed", String(towerAutoLoop));
-        const state = button.querySelector(".pp-state");
-        if (state) state.textContent = towerAutoLoop ? "開" : "關";
-    });
+    ['tower-mode-auto','pp-tower-auto'].forEach(id=>{const button=$(id);if(!button)return;button.setAttribute('aria-pressed',String(towerAutoLoop));const state=button.querySelector('.pp-state');if(state)state.textContent=towerAutoLoop?'開':'關';});
+    const button=$('pp-tower-stable');if(button){button.hidden=gateOn()||!!GATE_MODE||TRAINING_MODE||EXPEDITION_MODE;button.setAttribute('aria-pressed',String(towerStableEnabled));button.querySelector('.pp-state').textContent=towerStableActive()?`${towerFailureState.min}～${towerFailureState.max} 層`:towerStableEnabled?'待觸發':'關';}
 }
-
 function toggleTowerAutoLoop() {
-    towerAutoLoop = !towerAutoLoop;
-    try { localStorage.setItem(TOWER_AUTO_LOOP_KEY, String(towerAutoLoop)); } catch { hmToast("無法儲存循環設定，本次遊玩仍可使用。"); }
+    if(saveTowerPreference(()=>{towerAutoLoop=!towerAutoLoop},true))log(towerAutoLoop?`自動循環已開啟：失敗以當層為準回退 ${towerFallbackFloors} 層；全滅恢復 50% 生命。`:'自動循環已關閉：超時手動處理，全滅仍以 50% 生命重試當層。');
     syncTowerAutoLoopButtons();
-    log(towerAutoLoop
-        ? `🔁 自動循環爬塔已開啟：勝利自動上樓，超時自動回到第 ${towerStartFloor} 層。`
-        : "⏸ 自動循環爬塔已關閉：超時後手動選擇；全滅仍以 50% 生命自動重試當層。");
 }
 
 function showTowerModePicker() {
+    if (towerRunActive && !GATE_MODE && !TRAINING_MODE && !EXPEDITION_MODE && !gateOn() && !gateBattleOpen) {
+        enterBattle();
+        return;
+    }
     const dialog = $("tower-mode-picker");
     if (!dialog) return;
     if (!teamIds.length) { hmToast("請先編成隊伍再進入波利塔。"); return; }
@@ -12599,6 +12720,9 @@ function showTowerModePicker() {
 
 function startTowerRun() {
     $("tower-mode-picker")?.close();
+    if (towerRunActive) { enterBattle(); return; }
+    if (!selectTowerStartFloor($("tower-start-floor").value)) return;
+    resetTowerStall();
     const floor = towerStartFloor;
     enterBattle();
     if (!tutorialSeen || $("pf-tutorial")?.classList.contains("on")) return;
@@ -12630,15 +12754,17 @@ function paintSpecialDungeonPicker() {
             ? ({ "簡單":"dungeon-diff-easy", "普通":"dungeon-diff-normal", "困難":"dungeon-diff-hard" }[d.difficulty] || "")
             : "";
         const cardClass = d.waves ? "long-dungeon" : d.kind === "experience" ? "exp-dungeon" : "gold-dungeon";
-        return `<button type="button" class="${cardClass} ${difficultyClass}" onclick="selectSpecialDungeon('${d.id}')" ${disabled ? "disabled" : ""}>
-        <strong>${d.difficulty}</strong><small>免體力 · 剩餘 ${3 - used} / 3</small></button>`;
+        const material = d.kind === "gold" || d.kind === "experience";
+        const sweep = material ? `<button type="button" class="material-sweep" onclick="sweepMaterialDungeon('${d.id}')" ${disabled || !specialDungeonClears[d.id] ? "disabled" : ""}>${disabled ? "次數已滿" : !specialDungeonClears[d.id] ? "未解鎖" : "掃蕩"}</button>` : "";
+        return `${material ? '<div class="material-difficulty">' : ""}<button type="button" class="${cardClass} ${difficultyClass}" onclick="selectSpecialDungeon('${d.id}')" ${disabled ? "disabled" : ""}>
+        <strong>${d.difficulty}</strong><small>免體力 · 剩餘 ${3 - used} / 3</small></button>${sweep}${material ? "</div>" : ""}`;
     };
     const groupOf = d => d.group || (d.kind === "experience" ? "experience" : "gold");
     Object.entries(lists).forEach(([group, node]) => {
         node.innerHTML = SPECIAL_DUNGEONS.filter(d => groupOf(d) === group).map(buttonFor).join("");
     });
     const eventEmpty = $("event-dungeon-empty");
-    if (eventEmpty) eventEmpty.hidden = SPECIAL_DUNGEONS.some(d => groupOf(d) === "event");
+    if (eventEmpty) eventEmpty.hidden = true;
 }
 
 function showSpecialDungeonPicker(mode = "material") {
@@ -12741,7 +12867,7 @@ function openAdventureHelp(kind) {
                 <li><b>挑戰失敗</b>：時間耗盡，停止戰鬥並顯示失敗畫面。</li>
                 <li><b>重試本層</b>：重新計時、重置怪物，角色以 50% 血量復原。</li>
                 <li><b>進度保存</b>：保留最高通關紀錄。</li>
-                <li><b>自動循環爬塔</b>：開啟後勝利自動上樓、超時自動回到進場設定的起始層；關閉後超時保留手動處理。無論開關，全滅皆以 50% 生命自動重試當層；開關設定會保留，最高紀錄只升不降。</li>
+                <li><b>自動循環爬塔</b>：勝利自動上樓；開啟循環後失敗依當層回退，預設 10 層。同層失敗達門檻後，可在卡關層之前穩定刷塔。關閉循環時保留手動超時處理，全滅以 50% 生命重試當層。設定會隨帳號保存，最高紀錄只升不降。</li>
             </ul></section>
             <section><h3>普通怪物掉落</h3><ul>
                 <li>經驗水晶：100 層以下 0～3 顆；101～200 層 1～4 顆；201 層以上 2～5 顆。</li>
@@ -13842,6 +13968,7 @@ function finishExpedition(title, clear = false) {
 // ===== 啟動 =====
 const resumed = loadGame();
 ensurePlayableAccount();
+migrateCollectionAchievements();
 syncSquadView();   // 存檔有配隊欄位就沿用，沒有則把開場隊伍鋪進配隊1
 if (resumed) saveGame(); // 將舊版「尚未完成開場引導」存檔平滑轉成可直接遊玩的狀態。
 if (!resumed) {
@@ -13886,6 +14013,8 @@ if (GATE_MODE) {
     const q = new URLSearchParams(location.hash.replace(/^#/, ""));
     const st = parseInt(q.get("stage"), 10);
     if (st > 0) stage = st;
+    const wanted = Math.floor(+q.get("tier") || 0);
+    GATE.tier = !TRAINING_MODE && GateEnhancement.isUnlocked(gateEnhance, GATE_MODE, wanted, bossWin) ? wanted : 0;
 } else {
     renderTabs();
     spawnMotes();

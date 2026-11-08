@@ -7,7 +7,7 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const ctx = { window: null, addEventListener() {}, document: { addEventListener() {}, hidden: false } };
 ctx.window = ctx;
 vm.createContext(ctx);
-for (const file of ['asset/game-data.js', 'asset/progression-formulas.js', 'asset/character-growth.js', 'asset/type-talents.js', 'asset/save-system.js']) {
+for (const file of ['asset/game-data.js', 'asset/gate-enhancement.js', 'asset/progression-formulas.js', 'asset/character-growth.js', 'asset/type-talents.js', 'asset/save-system.js']) {
     vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), ctx);
 }
 const { SaveSystem } = ctx;
@@ -156,11 +156,31 @@ const store = SaveSystem.createStore({ key, getStorage: () => storage });
     assert.equal(blocked.read().ok, false); assert.equal(blocked.write({}).ok, false);
     assert.equal(blocked.remove(), false);
 }
+// 波利塔偏好存入同一份帳號快照；舊存檔提供安全預設，非法設定不越界。
+{
+    const state={...fixture(),towerBestStage:200,towerStartFloor:175,towerAutoLoop:true,towerFallbackFloors:20,towerStableThreshold:5,towerStableEnabled:false};
+    const result=SaveSystem.restore(SaveSystem.createSnapshot(state,ids),defaults,rules);
+    for(const key of ['towerStartFloor','towerAutoLoop','towerFallbackFloors','towerStableThreshold','towerStableEnabled'])assert.equal(result[key],state[key]);
+    const old=SaveSystem.restore(SaveSystem.createSnapshot(fixture(),ids),defaults,{...rules,towerAutoLoopDefault:true});
+    assert.equal(old.towerStartFloor,1);assert.equal(old.towerAutoLoop,true);assert.equal(old.towerFallbackFloors,10);assert.equal(old.towerStableThreshold,3);assert.equal(old.towerStableEnabled,true);
+    const invalid=SaveSystem.restore(SaveSystem.createSnapshot({...state,towerStartFloor:9000,towerFallbackFloors:999,towerStableThreshold:99},ids),defaults,rules);
+    assert.equal(invalid.towerStartFloor,200);assert.equal(invalid.towerFallbackFloors,10);assert.equal(invalid.towerStableThreshold,3);
+}
+// 收藏 2.0 沿用原欄位與版本；新舊 ID 皆需往返保留，未知 ID 不接納。
+{
+    const saved=SaveSystem.createSnapshot(fixture(),ids);
+    saved.collectionAchievementClaims=['ach_1','ach_3','ca2_migrated','ca2_legacy_ach_2','ca2_owned_100','ca2_level_100_3','ca2_element_all','ca2_master','bad_id','ca2_level_85_3','ach_1'];
+    const restored=SaveSystem.restore(saved,defaults,rules);
+    assert.deepEqual(copy(restored.collectionAchievementClaims),['ach_1','ach_3','ca2_migrated','ca2_legacy_ach_2','ca2_owned_100','ca2_level_100_3','ca2_element_all','ca2_master']);
+    const roundTrip=SaveSystem.restore(SaveSystem.createSnapshot(restored,ids),defaults,rules);
+    assert.deepEqual(copy(roundTrip.collectionAchievementClaims),copy(restored.collectionAchievementClaims));
+    assert.equal(roundTrip.shardTotal,saved.shardTotal);
+}
 // Exercise the actual main-page integration, including failure before the state commit.
 {
     let spawns = 0;
     Object.assign(ctx, {
-        BetaEvent: {normalize: value => value || {}}, BATTLE_PAID_BOOSTS: {}, SAVE_KEY: key, localStorage: storage, GATE_MODE: false, roster: copy(defaults),
+        towerAutoLoop:false, resetTowerStall() {}, BetaEvent: {normalize: value => value || {}}, BATTLE_PAID_BOOSTS: {}, SAVE_KEY: key, localStorage: storage, GATE_MODE: false, roster: copy(defaults),
         CHAR_IDS: ids, DEV_MODE: true,
         TITLE_TABLE: rules.titleIds.map(id => ({ id })),
         BOSS_STAGES: rules.gateIds.map(id => ({ id })), MAX_RANK: 150, TEAM_MAX: 3,

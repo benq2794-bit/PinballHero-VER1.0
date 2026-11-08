@@ -2,11 +2,12 @@ const fs = require('node:fs'), path = require('node:path'), vm = require('node:v
 const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '..'), ctx = { window: {} };
 vm.createContext(ctx);
-for (const name of ['game-data', 'battle-lifecycle', 'battle-settlement', 'ui-router', 'reward-formulas', 'type-effects']) {
+for (const name of ['game-data', 'gate-enhancement', 'battle-lifecycle', 'battle-settlement', 'ui-router', 'reward-formulas', 'type-effects']) {
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/' + name + '.js'), 'utf8'), ctx);
 }
 // Browsers expose window properties as global identifiers; mirror that binding in this isolated VM.
 ctx.GAME_DATA = ctx.window.GAME_DATA;
+ctx.GateEnhancement = ctx.window.GateEnhancement;
 const { BattleLifecycle, BattleSettlement, UIRouter, RewardFormulas, TypeEffects } = ctx.window;
 function clock() {
     const state = { paused: false, running: true, holdL: true, holdR: true };
@@ -53,7 +54,8 @@ function clock() {
 function settlement(training = false, gate = null) {
     const c = clock(), events = [], members = [{ ch: { id: 'a' } }, { ch: { id: 'b' } }];
     const state = { training, gate, seq: 1, enemy: { hp: 0, expReward: 101, name: 'Boss', maxHp: 1000 },
-        gateDefinition: gate ? { id: gate, gate: '火關', el: 'fire', shards: 60, replay: 12 } : null,
+        gateDefinition: gate ? { id: gate, gate: '火關', el: 'fire', shards: 60, par: 40 } : null,
+        gateEnhance: {}, gateTier: 0, gateLevel: 100,
         bossWin: {}, now: 2200, startedAt: 1000, damage: 1000, damageStart: 0 };
     const actions = Object.fromEntries(['playVictory', 'trainingNotice', 'resetTraining', 'experienceNotice',
         'gainRankExp', 'gateVictory', 'settleTower', 'showGateResult', 'recordGate', 'save', 'publishGateResult'].map(name =>
@@ -86,7 +88,12 @@ function settlement(training = false, gate = null) {
     assert.deepEqual(recorded.args.slice(0, 2), ['fire', 1200]);
     assert.ok(recorded.args[2] > 0, 'score is positive');
     t.life.invalidate(); t.state.seq++; t.runtime.resolveGate();
-    assert.equal(t.events.filter(e => e.name === 'reward')[1].result.shards, 12);
+    // 再戰不再有固定 5 顆：首勝的 60 只發一次，第二場只剩隨機 1～3 虹彩石。
+    const replay = t.events.filter(e => e.name === 'reward')[1].result;
+    assert.equal(replay.shards, 0);
+    assert.ok(replay.drops.rainbow >= 1 && replay.drops.rainbow <= 3);
+    assert.equal(replay.gold, 1000, 'Lv.100 每場額外金幣 1,000');
+    assert.equal(replay.firstBreak, 0, '一般等級沒有階級首破');
     const receipts = new Map();
     assert.equal(BattleSettlement.acceptGateReceipt(receipts, { gate: 'fire', win: 1 }), true);
     assert.equal(BattleSettlement.acceptGateReceipt(receipts, { gate: 'fire', win: 1 }), false);

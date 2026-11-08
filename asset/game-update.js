@@ -127,7 +127,7 @@ function gameUpdateSafeReason() {
     if (document.hidden) return '回到遊戲後，會在安全時機更新。';
     if (!document.getElementById('login-screen')?.hidden) return '登入與存檔初始化完成後再更新。';
     if (uiRouter.current() === 'battle' || gateBattleOpen || GATE_MODE) return '正在戰鬥，結束並返回主頁後才會更新。';
-    if (growthOperationBusy || betaEventBusy || growthHoldRepeat || gachaAnimation ||
+    if (growthOperationBusy || betaEventBusy || updateCompensationBusy || growthHoldRepeat || gachaAnimation ||
         pendingGoldSale || pendingSummonExchange || pendingBattleBoost ||
         document.querySelector('dialog[open],.gold-market-confirm-overlay,.ticket-confirm-overlay,#avatar-picker.on'))
         return '正在處理重要操作，完成後再更新。';

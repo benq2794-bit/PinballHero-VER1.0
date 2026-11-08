@@ -4,12 +4,17 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 
 const HOUR = 3600000, DAY = 24 * HOUR, TOTAL = 336 * HOUR;
+// 存檔系統會走 GateEnhancement.normalize，沙箱要有真正的關卡與掉落規則表，不能只留 betaEvent 那一段。
+const dataContext = { window: {} };
+vm.createContext(dataContext);
+vm.runInContext(fs.readFileSync(path.join(__dirname, "../asset/game-data.js"), "utf8"), dataContext);
+const gameData = () => ({ ...dataContext.window.GAME_DATA, betaEvent: { phase: "beta", launchVersion: "launch-1" } });
 const taipei = (y, m, d, h = 0, mi = 0) => Date.UTC(y, m - 1, d, h, mi) - 8 * HOUR;
 const keyOf = ms => new Intl.DateTimeFormat("en-CA", { timeZone:"Asia/Taipei", year:"numeric", month:"2-digit", day:"2-digit" })
     .format(new Date(ms));
 
 const context = {
-    GAME_DATA: { betaEvent: { phase:"beta", launchVersion:"launch-1" } },
+    GAME_DATA: gameData(),
     document: { getElementById() { return null; }, querySelector() { return null; } },
     structuredClone, navigator: {}, GATE_MODE: false, homeTabOn: "other", gachaAnimation: null,
     CHAR_IDS: ["owned", "missing", "limited"],
@@ -59,7 +64,7 @@ function reset(now) {
             missing: { unlocked: false, lvl: 1, shards: 0 },
             limited: { unlocked: false, lvl: 1, shards: 0 }
         },
-        GAME_DATA: { betaEvent: { phase:"beta", launchVersion:"launch-1" } }
+        GAME_DATA: gameData()
     });
     context.clockMs = now;
     disk = null; failSave = false; context.toasts.length = 0;
@@ -302,6 +307,7 @@ async function test() {
     assert.equal(context.betaEventStatusText(), "封測活動已結束");
 
     // 十五、雲端存檔往來不丟時間戳
+    vm.runInContext(fs.readFileSync(path.join(__dirname, "../asset/gate-enhancement.js"), "utf8"), context);
     vm.runInContext(fs.readFileSync(path.join(__dirname, "../asset/save-system.js"), "utf8"), context);
     const fresh = id => ({ id, unlocked:false, lvl:1, maxHp:100, gauge:0 });
     const rules = {

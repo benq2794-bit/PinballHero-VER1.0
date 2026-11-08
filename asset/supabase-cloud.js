@@ -44,6 +44,7 @@ window.SupabaseCloud = (() => {
         return flushPromise;
     }
     async function readLeaderboard(scope, weekStart) {
+        if (scope === 'hell_week') return [];
         let query = requireClient().from('leaderboard_entries')
             .select('user_id, account_name, best_floor, clear_seconds, kill_count, cleared, reached_at')
             .eq('scope', scope)
@@ -66,6 +67,7 @@ window.SupabaseCloud = (() => {
     // 上報前先查自己那筆：換裝置或清過瀏覽器時，本機數字會比線上小，不能盲目覆寫。
     // 只按 user_id + scope 取，不帶週期條件，跨週那筆才看得見、也才比得了。
     async function readOwnLeaderboard(scope) {
+        if (scope === 'hell_week') return null;
         const { data: { session }, error: sessionError } = await requireClient().auth.getSession();
         if (sessionError) throw sessionError;
         if (!session?.user?.id) return null;
@@ -83,6 +85,7 @@ window.SupabaseCloud = (() => {
         };
     }
     async function writeLeaderboard(entry) {
+        if (entry.scope === 'hell_week') return false;
         const { data: { session }, error: sessionError } = await requireClient().auth.getSession();
         if (sessionError) throw sessionError;
         const id = session?.user?.id;
@@ -105,6 +108,8 @@ window.SupabaseCloud = (() => {
     }
     return Object.freeze({
         available: !!client,
+        presenceChannel(key) { return requireClient().channel("game-online-v1", { config:{presence:{key}} }); },
+        removePresence(channel) { return client?.removeChannel(channel); },
         async getSession() {
             const { data, error } = await requireClient().auth.getSession();
             if (error) throw error;

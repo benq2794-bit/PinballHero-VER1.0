@@ -49,7 +49,11 @@ window.BattleSettlement = Object.freeze({
                 const win = (s.bossWin[gate.id] || 0) + 1, first = win === 1;
                 const ms = Math.max(1, Math.round(s.now - s.startedAt));
                 const dmg = Math.max(0, Math.round(s.damage - s.damageStart));
-                const shards = first ? gate.shards : gate.replay;
+                // 首勝的 50 顆只發一次；再戰與強化階級都只剩下面那組隨機 1～3 虹彩石。
+                const shards = first ? gate.shards : 0;
+                const enhancement = GateEnhancement.rewardRule(s.gateLevel || 0, s.gateTier || 0);
+                // applyGateReward 會先改掉存檔狀態，結算畫面要在這之前就知道這一階的首破還領不領得到。
+                const clear = GateEnhancement.previewClear(s.gateEnhance, gate.id, enhancement.tier, enhancement.level);
                 const drops = {
                     breakthrough: 1 + Math.floor(Math.random() * 3),
                     rainbow: 1 + Math.floor(Math.random() * 3),
@@ -72,6 +76,10 @@ window.BattleSettlement = Object.freeze({
                 const result = {
                     gate: gate.gate, boss: s.enemy.name, el: gate.el, first,
                     shards, drops, win, ms, parMs, timeBonus, score, rating: ratingOf(ms, parMs),
+                    // 階級專屬的三份獎勵放在 drops 之外，封測加倍那一段就不會誤乘到它們。
+                    tier: enhancement.tier, level: enhancement.level, gateId: gate.id,
+                    gold: enhancement.gold, bonusStones: enhancement.stones,
+                    firstBreak: clear.firstBreak, unlockedTier: clear.unlocked,
                     // 「打敗自己」要有前一筆可比：第一次破關只是立紀錄，不標 NEW RECORD
                     prevMs: record.ms || 0, prevScore: record.score || 0,
                     recordTime: (record.ms || 0) > 0 && ms < record.ms,

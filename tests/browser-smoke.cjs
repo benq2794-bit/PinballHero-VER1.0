@@ -97,13 +97,14 @@ class CDP {
         assert.equal(await page.evaluate("backHome(); uiRouter.current() === 'home' && !GATE.id && !TRAINING_MODE"), true);
         const receipt = await page.evaluate(`
             const gate = BOSS_STAGES[1]; openGateBattle(gate);
-            const oldBalance = shardTotal;
-            const message = { type: 'wf-gate-result', gate: gate.id, win: (bossWin[gate.id] || 0) + 1, shards: gate.replay };
+            const oldBalance = shardTotal, firstClear = !(bossWin[gate.id] || 0);
+            // 固定再戰 5 顆已取消：子頁貼上來的 shards 一律不採信，母頁只發自己算的首勝與 1～3 虹彩石。
+            const message = { type: 'wf-gate-result', gate: gate.id, win: (bossWin[gate.id] || 0) + 1, shards: 999, drops: { rainbow: 3 } };
             const send = source => dispatchEvent(new MessageEvent('message', { source, origin: location.origin, data: message }));
             send(window); const forged = shardTotal - oldBalance;
             send($('gate-frame').contentWindow); const paid = shardTotal - oldBalance;
             send($('gate-frame').contentWindow); const duplicate = shardTotal - oldBalance - paid;
-            closeGateBattle(); ({ forged, paid, duplicate, expected: gate.replay });`);
+            closeGateBattle(); ({ forged, paid, duplicate, expected: (firstClear ? gate.shards : 0) + 3 });`);
         assert.equal(receipt.forged, 0); assert.equal(receipt.paid, receipt.expected); assert.equal(receipt.duplicate, 0);
         await delay(300);
         assert.deepEqual(page.errors, [], 'interaction JavaScript exceptions');

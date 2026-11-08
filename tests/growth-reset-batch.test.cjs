@@ -132,6 +132,7 @@ async function test() {
     await ctx.upgradeGrowthLevels('hero', 1);
     assert.equal(ch.lvl, 21, 'legacy accounts can still upgrade');
     assert.equal(ch.growthLedger.complete, false, 'new records never guess the missing old investment');
+    vm.runInContext(fs.readFileSync(path.join(root, 'asset/gate-enhancement.js'), 'utf8'), ctx);
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/save-system.js'), 'utf8'), ctx);
     const rules = {
         characterIds:['hero'], characters:ctx.CHAR_TABLE, titleIds:['novice'], gateIds:[],

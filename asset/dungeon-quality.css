@@ -1,0 +1,16 @@
+/* Shared result sizing, including the independent dungeon iframe. */
+#pf-result .rs-box { box-sizing:border-box; max-height:calc(100% - 16px); overflow:auto; min-width:0; }
+#pf-result .rs-rewards { min-width:0; }
+#pf-result .rs-rewards > span { flex-wrap:wrap; overflow-wrap:anywhere; letter-spacing:0; }
+#pf-result .rs-rewards img { width:20px !important; height:20px !important; max-width:20px !important; max-height:20px !important; flex:0 0 20px; object-fit:contain; }
+.material-difficulty { min-width:0; display:flex; flex-direction:column; gap:5px; }
+.special-dungeon-options .material-difficulty > button { width:100%; min-width:0; box-sizing:border-box; }
+#special-dungeon-picker .material-sweep { min-height:32px; padding:6px; border:1px solid #6abda0; border-radius:9px; background:linear-gradient(#e8fff4,#b3e6cc); color:#14583d; font-weight:800; }
+#special-dungeon-picker .material-sweep:disabled { background:#d9dfe4; border-color:#a2afb8; color:#54616a; cursor:not-allowed; opacity:1; }
+#material-sweep-result { width:min(340px,calc(100vw - 30px)); box-sizing:border-box; border:1px solid #d9b870; border-radius:15px; background:linear-gradient(145deg,#20364c,#101d30); color:#f5f6ec; }
+#material-sweep-result h2 { color:#ffe0a2; font-size:19px; }
+#material-sweep-result .sweep-rewards { display:grid; gap:9px; padding:14px 0; }
+#material-sweep-result .sweep-rewards > div { display:flex; gap:9px; align-items:center; }
+#material-sweep-result img { width:24px; height:24px; object-fit:contain; }
+#material-sweep-result button { padding:8px 24px; border:1px solid #d0a953; border-radius:8px; background:#f6d583; color:#463513; font-weight:800; }
+#app-frame #home .hm-online-count { position:absolute; right:4px; top:calc(100% + 3px); display:inline-flex; padding:2px 7px; border:1px solid #8eafc488; border-radius:20px; background:rgba(15,35,53,.78); color:#edfaff; font:700 10px/1.4 sans-serif; white-space:nowrap; pointer-events:none; }

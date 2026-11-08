@@ -1,0 +1,23 @@
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),assert=require('node:assert/strict');const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+function setup({count=110,level=100,claims=['ca2_migrated'],shards=1000}={}){let fail=false,writes=0;const ids=Array.from({length:count},(_,i)=>'c'+i);const c={GROWTH_MAX_CAP:100,OPEN_CHAR_IDS:ids,GAME_DATA:{characterRules:{starterIds:['c0']}},CHAR_TABLE:Object.fromEntries(ids.map((id,i)=>[id,{element:['fire','water','wind','thunder'][i%4],summonCategory:i%5?'permanent':'limited'}])),roster:Object.fromEntries(ids.map(id=>[id,{unlocked:true,lvl:level,breakthrough:0}])),shardTotal:shards,saveGame:()=>{writes++;return !fail},updateUI(){},dexRefresh(){},hmToast(){},$:()=>null};vm.createContext(c);for(const [a,b] of [['let collectionAchievementClaims =','const DEX_ON ='],['function dexCollectionStats()','function dexFocusHTML()'],['function collectionGoal(','function dexBoxHTML()'],['function migrateCollectionAchievements()','function pageBook()']])vm.runInContext(html.slice(html.indexOf(a),html.indexOf(b,html.indexOf(a))),c);vm.runInContext('collectionAchievementClaims='+JSON.stringify(claims),c);return {c,read:()=>JSON.parse(vm.runInContext('JSON.stringify(collectionAchievementClaims)',c)),fail:v=>fail=v,writes:()=>writes};}
+{
+const t=setup(),c=t.c;const stats=c.dexCollectionStats();assert.equal(stats.total,110);assert.equal(stats.levels[80],110);assert.equal(stats.elementTotal,4);assert.equal(stats.groups.base.total,1);assert.equal(stats.groups.base.total+stats.groups.permanent.total+stats.groups.limited.total,110);assert.equal(stats.broken,0);delete c.roster.c0.breakthrough;assert.equal(c.dexCollectionStats().broken,null);c.CHAR_TABLE.c0.element='dark';assert.equal(c.dexCollectionStats().elementTotal,5,'dynamic element count');
+}
+{
+const t=setup();assert.equal(t.c.claimAllCollectionAchievements(),true);assert.equal(t.c.shardTotal,3835,'16 specified awards plus master 300');assert.ok(t.read().includes('ca2_master'));const paid=t.c.shardTotal;for(let i=0;i<5;i++)t.c.claimAllCollectionAchievements();assert.equal(t.c.shardTotal,paid);assert.equal(new Set(t.read()).size,t.read().length);assert.equal(t.writes(),1,'all rewards and badge in one snapshot');assert.ok(t.c.dexAchievementsHTML().includes('已獲得・傳說收藏大師紀念徽章'));for(const ch of Object.values(t.c.roster))ch.lvl=1;assert.ok(t.c.dexAchievementsHTML().includes('成就完成度 16 / 16'),'claimed progress survives level reset');
+}
+{
+const t=setup();t.fail(true);assert.equal(t.c.claimAllCollectionAchievements(),false);assert.equal(t.c.shardTotal,1000);assert.deepEqual(t.read(),['ca2_migrated']);t.fail(false);assert.equal(t.c.claimAllCollectionAchievements(),true);
+const cap=setup({shards:99999990});assert.equal(cap.c.claimCollectionAchievement('ca2_owned_3'),false);assert.equal(cap.c.shardTotal,99999990);assert.deepEqual(cap.read(),['ca2_migrated']);
+}
+{
+const t=setup({count:6,level:85,claims:['ach_1']});assert.equal(t.c.migrateCollectionAchievements(),true);assert.ok(t.read().includes('ach_1'));assert.ok(t.read().includes('ca2_legacy_ach_2'));assert.ok(t.read().includes('ca2_legacy_ach_3'));assert.equal(t.c.claimCollectionAchievement('ach_1'),false);assert.equal(t.c.claimCollectionAchievement('ach_2'),true);assert.equal(t.c.shardTotal,1250);assert.equal(t.c.claimCollectionAchievement('ach_2'),false);
+const newer=setup({count:3,level:80,claims:[]});newer.c.migrateCollectionAchievements();for(const ch of Object.values(newer.c.roster))ch.lvl=85;assert.equal(newer.c.claimCollectionAchievement('ach_1'),false,'newly reached 85 never unlocks old rewards');assert.ok(!newer.c.dexAchievementsHTML().includes('Lv.85'),'no new Lv85 conditions');
+}
+{
+const t=setup({count:4,level:85,claims:[]});t.fail(true);assert.equal(t.c.migrateCollectionAchievements(),false);assert.deepEqual(t.read(),[]);for(const ch of Object.values(t.c.roster))ch.lvl=1;t.fail(false);assert.equal(t.c.migrateCollectionAchievements(),true);assert.ok(t.read().includes('ca2_legacy_ach_2'),'pending old eligibility is frozen across save retry');
+}
+{
+const t=setup({count:3,level:1});t.c.claimCollectionAchievement('ca2_master');assert.equal(t.c.shardTotal,1000);t.c.setCollectionAchievementFilter('growth');const ui=t.c.dexAchievementsHTML();assert.ok(!ui.includes('啟程收藏家'));assert.ok(ui.includes('成長足跡'));assert.ok(ui.includes('asset/items/crystal.png'));assert.ok(!ui.includes('💎'));const defs=vm.runInContext('COLLECTION_ACHIEVEMENTS',t.c);assert.equal(defs.length,16);assert.ok(defs.every(a=>a.level!==85));
+}
+console.log('PASS: dynamic stats/categories, 16 milestones, batch atomicity, duplicate guards, rollback, currency cap, old eligibility, old claimed rewards, master honor and filters');
