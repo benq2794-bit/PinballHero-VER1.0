@@ -404,10 +404,18 @@
         /* 戰士永續風刃 GIF 是黑底素材，用濾色讓黑底融入戰場，只保留紫色風刃。 */
         .pf-fx.passive-wind-gif { background-size:100% 100%; image-rendering:auto; mix-blend-mode:screen;
             filter:drop-shadow(0 0 7px rgba(142,91,255,.62)); }
-        .pf-fx.passive-gif { background-size:100% 100%; image-rendering:auto; mix-blend-mode:screen; }
+        .pf-fx.passive-gif { background-size:100% 100%; image-rendering:auto; mix-blend-mode:screen;
+            mask-image:radial-gradient(ellipse at center, #000 54%, transparent 84%); }
         .pf-fx.passive-gif-slow { filter:drop-shadow(0 0 8px rgba(94,177,255,.72)); }
         .pf-fx.passive-gif-pierce { filter:drop-shadow(0 0 7px rgba(120,196,255,.7)); }
         .pf-fx.passive-gif-shock { filter:drop-shadow(0 0 7px rgba(190,75,255,.72)); }
+        .passive-hit-flash { position:absolute; z-index:12; width:72px; height:72px; border-radius:50%;
+            pointer-events:none; transform:translate(-50%,-50%);
+            background:radial-gradient(circle,rgba(255,255,255,.92) 0%,rgba(255,224,155,.58) 20%,rgba(255,192,87,.18) 48%,transparent 72%);
+            animation:passiveHitFlash 150ms ease-out both; }
+        @keyframes passiveHitFlash { from{opacity:.9;transform:translate(-50%,-50%) scale(.32)} to{opacity:0;transform:translate(-50%,-50%) scale(1.12)} }
+        .passive-hit-shake { animation:passiveHitShake 120ms ease-out; }
+        @keyframes passiveHitShake { 0%,100%{transform:translate(0,0)} 35%{transform:translate(-1.5px,.8px)} 70%{transform:translate(1.5px,-.8px)} }
         .boss-special-gif { position:absolute; z-index:4; transform:translate(-50%,-50%); object-fit:contain; pointer-events:none;
             mix-blend-mode:screen; filter:brightness(1.08) saturate(.88); }
         .boss-special-gif.summon,.boss-special-gif.shockwave { filter:brightness(1.62) saturate(1.2) drop-shadow(0 0 8px rgba(121,205,255,.6)); }
@@ -3241,7 +3249,7 @@
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.12";
+const GAME_VERSION = "v0.1.0-alpha.13";
 const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
@@ -3300,6 +3308,7 @@ function watchPowerState() {
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
+    {"version":"v0.1.0-alpha.13","date":"2026-11-09","content":["優化攻擊型態專屬被動命中特效，加入短暫閃光與輕微節流震動。","柔化被動 GIF 邊緣並沿用技能特效透明度設定，降低黑底邊框感與透明度重複套用。","連續觸發時重用同一被動 GIF 節點，避免閃爍並延長特效清理生命週期。"]},
     {"version":"v0.1.0-alpha.12","date":"2026-11-09","content":["畫面設定新增傷害數字顯示開關，預設開啟；關閉僅隱藏玩家受傷與敵方受傷害飄字。","新增技能特效透明度滑桿（30%–100%，預設 100%），即時調整既有 CSS 與 Canvas 技能特效且保留原動畫。","設定沿用本機保存；新增恢復預設操作，將傷害數字恢復開啟、技能特效透明度恢復 100%。"]},
     {"version":"v0.1.0-alpha.11","date":"2026-11-09","content":["保留五種攻擊型態各六個普通天賦節點，並顯示普通天賦 0/5–5/5 進度與各型態投入點數。","普通天賦達到 5/5 後可手動消耗 1 點解鎖專屬被動；最多啟用 3 種，並限制共用 33 點及每型態 11 點。","新增被動鎖定、可解鎖、已啟用及上限原因狀態，並改善手機直立版狀態標籤版面。"]},
     {"version":"v0.1.0-alpha.10","date":"2026-11-09","content":["修復舊存檔角色等級重置停用問題：依角色等級累計經驗估算歷史投入並返還估算值的 80%，明確提示估算金額可能與實際不同。","維持每名角色最多重置 3 次；精確投入紀錄角色仍按原規則計算。"]},
@@ -4566,7 +4575,7 @@ function syncShakeLabel() {
     if (p) { p.textContent = FX.shakeOn ? "開" : "關"; p.classList.toggle("off", !FX.shakeOn); }
 }
 
-const SKILL_FX_OPACITY_TARGETS = ".active-skill-mark,.healing-magic-sigil,.spell-sigil,.spell-mark,.spell-meteor,.spell-flash,.spell-blizzard,.spell-bolt,.spell-crack,.skill-cine,.expedition-signature,.skill-fx-canvas";
+const SKILL_FX_OPACITY_TARGETS = ".active-skill-mark,.healing-magic-sigil,.spell-sigil,.spell-mark,.spell-meteor,.spell-flash,.spell-blizzard,.spell-bolt,.spell-crack,.skill-cine,.expedition-signature,.skill-fx-canvas,.passive-effect";
 const SKILL_FX_BASE_FILTERS = new WeakMap();
 function applySkillFxOpacity(node) {
     if (!node?.matches?.(SKILL_FX_OPACITY_TARGETS)) return;
@@ -6908,6 +6917,19 @@ function showPassiveFX(key, x, y, opt = {}) {
     const ms = opt.ms || sheet.ms;
     const k = 1.5 * (opt.scale || 1) * (sheet.scale || 1);
     const owner = opt.follow || opt.owner || null;
+    const existing = owner && sheet.gif
+        ? FX.sprites.find(n => n._passiveKey === key && n._passiveOwner === owner && n.isConnected)
+        : null;
+    if (existing) {
+        existing.style.left = `${x}px`; existing.style.top = `${y}px`;
+        existing.style.setProperty("--sx", k.toFixed(3)); existing.style.setProperty("--sy", k.toFixed(3));
+        existing.style.setProperty("--r", `${opt.rot || 0}rad`);
+        existing._followBody = opt.follow || null; existing._followDx = opt.dx || 0; existing._followDy = opt.dy || 0;
+        existing._followRotate = !!opt.rotateWithBody;
+        clearTimeout(existing._timer);
+        existing._timer = setTimeout(existing._disposePassive, ms + 40);
+        return;
+    }
     if (owner) clearPassiveFX(key, owner);
     const n = el("div", "pf-fx passive-effect");
     n._passiveKey = key; n._passiveOwner = owner; n._passiveSeq = PF.foeSeq;
@@ -6916,6 +6938,7 @@ function showPassiveFX(key, x, y, opt = {}) {
     if (sheet.gif) n.classList.add("passive-gif", key === "wind" ? "passive-wind-gif" : `passive-gif-${key}`);
     if (opt.behind && PF.field) PF.field.insertBefore(n, PF.field.firstChild);
     else PF.vfx.appendChild(n);
+    applySkillFxOpacity(n);
     // GIF 自己帶逐幀播放；其他被動特效仍使用水平圖集逐格播放。
     if (!sheet.gif) n.animate([{ backgroundPositionX: "0px" }, { backgroundPositionX: (-sheet.fw * sheet.frames) + "px" }],
         { duration: sheet.ms, easing: `steps(${sheet.frames}, end)`, iterations: Math.ceil(ms / sheet.ms), fill: "both" });
@@ -6930,6 +6953,25 @@ function showPassiveFX(key, x, y, opt = {}) {
         if (i >= 0) FX.sprites.splice(i, 1);
     };
     n._timer = setTimeout(n._disposePassive, ms + 40);
+}
+
+function showPassiveHitFeedback(x, y, owner) {
+    if (!PF.vfx) return;
+    const now = performance.now();
+    const lastFlash = owner?._passiveFlashAt ?? -Infinity;
+    if (now - lastFlash >= 95) {
+        if (owner) owner._passiveFlashAt = now;
+        const flash = el("div", "passive-hit-flash passive-effect");
+        flash.style.left = `${x}px`; flash.style.top = `${y}px`;
+        PF.vfx.appendChild(flash);
+        applySkillFxOpacity(flash);
+        setTimeout(() => flash.remove(), 170);
+    }
+    if (!FX.shakeOn || !PF.el || now - (PF._passiveHitShakeAt || 0) < 180) return;
+    PF._passiveHitShakeAt = now;
+    PF.el.classList.remove("passive-hit-shake"); void PF.el.offsetWidth;
+    PF.el.classList.add("passive-hit-shake");
+    setTimeout(() => PF.el?.classList.remove("passive-hit-shake"), 130);
 }
 
 // 技能蓄能：時間只是保底，撞擊才是主要來源
@@ -7250,6 +7292,7 @@ function hitWeak(w, m) {
         if (extra > 0) {
             PF.weak.passiveSlowMs = used + extra;
             PF.weak.dur += extra;
+            showPassiveHitFeedback(w.x, w.y, m?.ch);
             // 弱點命中時放慢 Boss 位移與突入節奏，讀條延長之外也有可見的物理回饋。
             PF.specialSlowUntil = Math.max(PF.specialSlowUntil, performance.now() + Math.min(1800, 450 + extra));
             FX.pop(w.x, w.y - 22, "時空緩速", "energy");

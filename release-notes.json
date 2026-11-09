@@ -1,14 +1,13 @@
 {
   "content": [
-    "畫面設定新增傷害數字顯示開關，預設開啟；關閉僅隱藏玩家受傷與敵方受傷害飄字。",
-    "新增技能特效透明度滑桿（30%–100%，預設 100%），即時調整既有 CSS 與 Canvas 技能特效且保留原動畫。",
-    "設定沿用本機保存；新增恢復預設操作，將傷害數字恢復開啟、技能特效透明度恢復 100%。"
+    "優化攻擊型態專屬被動命中特效，加入短暫閃光與輕微節流震動。",
+    "柔化被動 GIF 邊緣並沿用技能特效透明度設定，降低黑底邊框感與透明度重複套用。",
+    "連續觸發時重用同一被動 GIF 節點，避免閃爍並延長特效清理生命週期。"
   ],
   "files": [
     "index.html",
-    "asset/fx/black-hole.js",
-    "tests/browser-display-settings.cjs",
-    "tests/skill-cinematic.test.cjs",
+    "asset/fx/power-flip.js",
+    "tests/browser-three-fixes.cjs",
     "release-notes.json"
   ]
 }

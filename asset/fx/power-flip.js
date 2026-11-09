@@ -82,6 +82,9 @@ function rangerPierceHit(member, target, speed, isBoss = false) {
     if (b._rangerPierceHitUnits.has(target)) return false;
     b._rangerPierceHitUnits.add(target);
     hitFoe(member, speed, target, { piercing: true });
+    if (typeEffects.active('ranger') && b.powerFlip?.rangerPierce) {
+        showPassiveHitFeedback(target.x, target.y, member.ch);
+    }
     if (isBoss && enemyUnitAlive(target)) bossHitImpact(target);
     return true;
 }
@@ -95,6 +98,7 @@ function triggerFighterShockwave(ch, target) {
     powerFlipWeakCircle(target.x, target.y, radius, { seq: PF.foeSeq, source: ch });
     // 被動專屬的衝擊環：半徑跟實際判定同步，不再借用爆裂型的爆炸。
     showPassiveFX('shock', target.x, target.y, { scale: radius / 90, owner: ch });
+    showPassiveHitFeedback(target.x, target.y, ch);
     for (const splash of powerFlipTargets()) {
         if (splash === target || Math.hypot(splash.x - target.x, splash.y - target.y) > radius + splash.r) continue;
         const shockCrit = rollCrit(ch, 'shockwave');
@@ -160,6 +164,7 @@ function powerFlipDamage(state, target, mult) {
                 if (owner.body) FX.pop(owner.body.x, owner.body.y - 30, `+${heal}`, 'heal');
                 SFX.lifeSteal();
             }
+            showPassiveHitFeedback(target.x, target.y, owner.ch);
         }
     }
     if (state.type === 'fighter' && typeEffects.active('fighter')) triggerFighterShockwave(ch, target);
