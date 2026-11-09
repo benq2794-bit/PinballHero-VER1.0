@@ -15,6 +15,7 @@
         .layout { display: flex; align-items: center; justify-content: center;
             min-height: calc(100vh / var(--zk, 1)); padding: 10px 0; zoom: var(--zk, 1); }
         .frame { position: relative; width: 430px; height: 760px; border-radius: 16px; }
+        #app-frame { touch-action: pan-x pan-y; }
         .panel { background: #14141b; border: 2px solid #26263a; border-radius: 12px; padding: 16px; box-shadow: 0 4px 18px rgba(0,0,0,.6); }
         h2, h3 { margin-top: 0; color: #f3b942; text-shadow: 1px 1px #000; }
         h2 { font-size: 17px; } h3 { font-size: 14px; }
@@ -12605,6 +12606,12 @@ function pageMenu() {
 
 // ===== 輸入 =====
 function bindInput() {
+    const gameFrame = document.getElementById("app-frame");
+    if (gameFrame) {
+        for (const type of ["gesturestart", "gesturechange"]) {
+            gameFrame.addEventListener(type, event => event.preventDefault(), { passive: false });
+        }
+    }
     // Autoplay Policy：直到玩家真的點過畫面／按過鍵才建立 AudioContext
     addEventListener("pointerdown", () => SFX.unlock(), true);
     addEventListener("keydown", () => SFX.unlock(), true);

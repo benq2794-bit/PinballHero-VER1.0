@@ -102,7 +102,7 @@
 /* ---------- 經驗培養與上限解放 ---------- */
 #app-frame #pg-body .growth-acts { flex:none; display:grid; grid-template-columns:1fr 1fr; gap:7px; margin:0 0 6px; }
 #app-frame #pg-body .growth-act { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 4px !important;
-    touch-action:none; user-select:none;
+    touch-action:pan-x pan-y; user-select:none;
     border:1px solid var(--gk-line) !important; border-radius:5px !important; background:linear-gradient(#fff,#e3eef3) !important;
     box-shadow:none !important; color:var(--gk-ink) !important; text-shadow:none !important; font-family:inherit; line-height:1.2; cursor:pointer; }
 #app-frame #pg-body .growth-act b { font-size:13px; font-weight:900; color:var(--gk-ink) !important; text-shadow:none !important; }
