@@ -1,12 +1,11 @@
 {
   "content": [
-    "角色圖鑑特寫改為依角色資料顯示原版初始與覺醒完整立繪，支援放大檢視，未解鎖角色以灰階呈現。",
-    "修正素材索引測試，使其比對時忽略 LF/CRLF 換行差異。"
+    "修正手機遊玩時誤觸縮放：遊戲區域保留平移操作並阻止 Safari 手勢縮放。",
+    "新增手機觸控縮放回歸測試。"
   ],
   "files": [
     "index.html",
-    "tests/browser-collection.cjs",
-    "tests/asset-index.test.cjs",
+    "asset/character-growth.css",
     "release-notes.json"
   ]
 }
