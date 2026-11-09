@@ -404,8 +404,8 @@ window.GAME_DATA.assets = {
         supporter: { src: "asset/fx/pixelfx/pf-supporter.png", frames: 24, ms: 780, fw: 124, fh: 120, scale: 1.28 }
     },
     passiveFx: {
-        wind: { src: "asset/fx/knight-permanent-wind.gif", gif: true, frames: 13, ms: 1170, fw: 175, fh: 98, scale: 1 },
-        slow: { src: "asset/fx/special-starburst-time.gif", gif: true, frames: 12, ms: 1080, fw: 170, fh: 91, scale: 1 },
+        wind: { src: "asset/fx/knight-permanent-wind.gif", gif: true, frames: 13, ms: 1170, fw: 175, fh: 98, scale: 1.35 },
+        slow: { src: "asset/fx/special-starburst-time.gif", gif: true, frames: 12, ms: 1080, fw: 170, fh: 91, scale: 1.35 },
         shock: { src: "asset/fx/fighter-burst-lock.gif", gif: true, frames: 7, ms: 630, fw: 118, fh: 103, scale: 1 },
         pierce: { src: "asset/fx/ranger-absolute-pierce.gif", gif: true, frames: 5, ms: 1800, fw: 180, fh: 89, scale: 1 }
     },

@@ -1,12 +1,15 @@
 {
   "content": [
-    "優化攻擊型態專屬被動命中特效，加入短暫閃光與輕微節流震動。",
-    "柔化被動 GIF 邊緣並沿用技能特效透明度設定，降低黑底邊框感與透明度重複套用。",
-    "連續觸發時重用同一被動 GIF 節點，避免閃爍並延長特效清理生命週期。"
+    "劍士「永續風刃」與特殊「星爆時空」專屬被動特效放大 35%。",
+    "專屬被動 GIF 黑底轉透明，保留原尺寸與動畫播放設定。"
   ],
   "files": [
     "index.html",
-    "asset/fx/power-flip.js",
+    "asset/game-data.js",
+    "asset/fx/knight-permanent-wind.gif",
+    "asset/fx/special-starburst-time.gif",
+    "asset/fx/fighter-burst-lock.gif",
+    "asset/fx/ranger-absolute-pierce.gif",
     "tests/browser-three-fixes.cjs",
     "release-notes.json"
   ]
