@@ -11974,7 +11974,7 @@ const DEX_ROLE = GAME_DATA.ui.dexRoles;
 const DEX_ROLES = Object.keys(DEX_ROLE);
 const EL_KEYS = OPEN_EL;
 const DEX_HERO = {}; CHAR_IDS.forEach(id => { DEX_HERO[CHAR_TABLE[id].unit] = id; });
-let dexF = { a: "", t: "", q: "" };
+let dexF = { a: "", t: "", q: "", u: "all" };
 let dexSelected = "";
 let dexPortraitState = 0;
 let collectionAchievementClaims = [];
@@ -11995,7 +11995,10 @@ const dexFace = (dev, r, txt) => `<img loading="lazy" src="${CDN_BASE}rarity${r}
 const dexDisplayName = name => String(name).replace(/\s*[（(].*$/u, "").trim();
 function dexMatch() {
     const q = dexF.q.trim().toLowerCase();
-    return DEX_ON.filter(c => (!dexF.a || c[2] === dexF.a) && (!dexF.t || c[5] === dexF.t) && (!q || (c[0] + " " + c[3] + " " + c[4]).toLowerCase().includes(q)));
+    return DEX_ON.filter(c => {
+        const unlocked = !!roster[DEX_HERO[c[0]]]?.unlocked;
+        return (dexF.u === "all" || unlocked === (dexF.u === "unlocked")) && (!dexF.a || c[2] === dexF.a) && (!dexF.t || c[5] === dexF.t) && (!q || (c[0] + " " + c[3] + " " + c[4]).toLowerCase().includes(q));
+    });
 }
 function dexCell(c) {
     const hid = DEX_HERO[c[0]], ch = hid ? roster[hid] : null, own = ch && ch.unlocked;
@@ -12021,9 +12024,13 @@ function dexGridHTML() {
     return `<div class="dex-grid">${rows.map(dexCell).join("")}</div>`;
 }
 function dexCntHTML() { return `顯示 <b>${dexMatch().length}</b> 位角色。 <span class="dex-hint">指向或點選角色查看技能與隊長特性</span>`; }
-function charBarHTML() {
+function charBarHTMLBase() {
     return `<div class="dex-bar"><select id="dex-a" onchange="dexSet('a', this.value)"><option value="">全部屬性</option>${EL_KEYS.map(k => `<option value="${k}"${dexF.a === k ? " selected" : ""}>${ELEMENTS[k].label}</option>`).join("")}</select><select id="dex-t" onchange="dexSet('t', this.value)"><option value="">全部職業</option>${DEX_ROLES.map(k => `<option value="${k}"${dexF.t === k ? " selected" : ""}>${DEX_ROLE[k]}</option>`).join("")}</select><input id="dex-q" type="search" placeholder="搜尋角色" value="${esc(dexF.q)}" oninput="dexSet('q', this.value)"><button class="clr" onclick="dexClear()">清空</button></div>`;
 }
+function dexUnlockFilterHTML() {
+    return `<nav class="collection-filters dex-status-filters" aria-label="角色解鎖篩選">${[['all','全部'],['unlocked','已解鎖'],['locked','未解鎖']].map(([key,label])=>`<button type="button" data-unlock-filter="${key}" aria-pressed="${dexF.u===key}" onclick="setDexUnlockFilter('${key}')">${label}</button>`).join('')}</nav>`;
+}
+function charBarHTML() { return charBarHTMLBase() + dexUnlockFilterHTML(); }
 function dexCollectionStats() {
     const catalogIds = OPEN_CHAR_IDS, owned = catalogIds.filter(id => roster[id]?.unlocked);
     const starters = new Set(GAME_DATA.characterRules.starterIds);
@@ -12168,7 +12175,13 @@ function dexSetTab(tab) {
 }
 function dexSelect(id, ev) { dexSelected = id; dexPortraitState = 0; dexRefresh(); dexHide(); dexSetTab("focus"); }
 function dexSet(k, v) { dexF[k] = v; if (k === "q") { const input = $("dex-q"); if (input && input.value !== v) input.value = v; } dexRefresh(); }
-function dexClear() { dexF = { a: "", t: "", q: "" }; dexSelected = ""; ["a", "t"].forEach(k => { const el = $("dex-" + k); if (el) el.value = ""; }); const q = $("dex-q"); if (q) q.value = ""; dexRefresh(); }
+function setDexUnlockFilter(filter) {
+    if (!["all", "unlocked", "locked"].includes(filter)) return;
+    dexF.u = filter;
+    document.querySelectorAll(".dex-status-filters [data-unlock-filter]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.unlockFilter === filter)));
+    dexRefresh();
+}
+function dexClear() { dexF = { a: "", t: "", q: "", u: "all" }; dexSelected = ""; ["a", "t"].forEach(k => { const el = $("dex-" + k); if (el) el.value = ""; }); const q = $("dex-q"); if (q) q.value = ""; document.querySelectorAll(".dex-status-filters [data-unlock-filter]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.unlockFilter === "all"))); dexRefresh(); }
 // 舊版資格只在第一次載入時擷取；Lv.85 僅用於這次相容轉換，不參與新版成就。
 function migrateCollectionAchievements() {
     if (collectionAchievementClaims.includes('ca2_migrated')) return true;

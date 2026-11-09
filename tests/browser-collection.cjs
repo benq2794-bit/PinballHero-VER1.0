@@ -44,6 +44,10 @@ class CDP {
  for(let i=0;i<100;i++){if(await page.evaluate("typeof uiRouter !== 'undefined'"))break;await delay(100);}assert.deepEqual(page.errors,[]);
 
  await page.evaluate("cloudUser=null;$('login-screen').hidden=true;pickHomeTab('book')");
+ const unlockFilters=await page.evaluate("(()=>{const results={};for(const filter of ['all','unlocked','locked']){setDexUnlockFilter(filter);const expected=DEX_ON.filter(row=>filter==='all'||!!roster[DEX_HERO[row[0]]]?.unlocked===(filter==='unlocked')).map(row=>row[0]);results[filter]={expected,shown:[...document.querySelectorAll('.dex-cell')].map(cell=>cell.dataset.character),pressed:document.querySelector('[data-unlock-filter=\"'+filter+'\"]').getAttribute('aria-pressed')};}setDexUnlockFilter('unlocked');const match=DEX_ON.find(row=>!!roster[DEX_HERO[row[0]]]?.unlocked);if(match)dexSet('q',match[0]);results.search=match?{id:match[0],shown:[...document.querySelectorAll('.dex-cell')].map(cell=>cell.dataset.character)}:null;dexClear();return results;})()");
+ for(const filter of ['all','unlocked','locked']){assert.deepEqual(unlockFilters[filter].shown,unlockFilters[filter].expected,`${filter} character filter`);assert.equal(unlockFilters[filter].pressed,'true',`${filter} filter pressed state`);}
+ assert.ok(unlockFilters.search===null||unlockFilters.search.shown.includes(unlockFilters.search.id),'search works with the unlocked filter');
+ assert.equal(await page.evaluate("dexF.u==='all'&&dexF.q===''"),true,'clear resets status and text filters');
  assert.equal(await page.evaluate("document.querySelectorAll('.dex-mobile-tabs button').length"),3);
  for(const tab of ['focus','matrix','rewards']){await page.evaluate("dexSetTab('"+tab+"')");assert.equal(await page.evaluate("document.querySelector('.dex-layout').dataset.active"),tab);}
  await page.evaluate("dexSetTab('focus')");assert.equal(await page.evaluate("document.querySelector('.dex-focus').textContent.includes('Lv.80 培養達標')"),true);
