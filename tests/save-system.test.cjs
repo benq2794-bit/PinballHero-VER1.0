@@ -96,6 +96,13 @@ const store = SaveSystem.createStore({ key, getStorage: () => storage });
     assert.equal(ctx.typeTalentSpent(null, restored.typeTalentRanks), 2);
 }
 {
+    const type = 'knight', nodes = ctx.typeTalentLaneNodes(type).slice(0, 5);
+    const ranks = { [type]: Object.fromEntries([...nodes.map(node => [node.id, 1]), ['passive_knight', 1]]) };
+    const restored = SaveSystem.restore(SaveSystem.createSnapshot(fixture(ranks), ids), defaults, rules);
+    assert.equal(restored.typeTalentRanks.knight.passive_knight, 1, '手動解鎖狀態會保留在存檔');
+    assert.equal(ctx.typeTalentSpent(null, restored.typeTalentRanks), 6, '被動解鎖成本納入存檔點數計算');
+}
+{
     const p = { v: 6, picked: true, kills: 27, roster: { ally: { unlocked: true } } };
     const restored = SaveSystem.restore(p, defaults, rules);
     assert.equal(restored.stage, 10, 'legacy stage comes from kills');

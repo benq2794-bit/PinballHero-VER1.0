@@ -163,9 +163,15 @@ function settlement(training = false, gate = null) {
     assert.equal(ctx.typeTalentTreeMaxed('knight'), false, '車道未點滿時被動不生效');
     vm.runInContext(`typeTalentRanks = normalizeTypeTalentRanks({ knight: Object.fromEntries(
         TYPE_TALENT_TREES.knight.branches.flatMap(branch => branch.nodes.map(node => [node.id, 5]))) });`, ctx);
-    assert.equal(ctx.typeTalentTreeMaxed('knight'), true);
+    assert.equal(ctx.typeTalentTreeMaxed('knight'), false, '普通天賦不會自動啟用專屬被動');
     assert.equal(ctx.typeTalentTreeMaxed('ranger'), false, '一條點滿不會讓其他車道一起成立');
-    assert.equal(vm.runInContext('typeTalentSpent()', ctx), 30, '一條車道 6 節點 × 5 級');
+    assert.equal(vm.runInContext('typeTalentSpent()', ctx), 30, '保留既有六個普通節點的已投入點數');
+    vm.runInContext(`typeTalentRanks = normalizeTypeTalentRanks({ knight: {
+        ...Object.fromEntries(TYPE_TALENT_TREES.knight.branches.flatMap(branch => branch.nodes).slice(0, 5).map(node => [node.id, 1])),
+        passive_knight: 1
+    } });`, ctx);
+    assert.equal(ctx.typeTalentTreeMaxed('knight'), true, '手動解鎖的專屬被動保持啟用');
+    assert.equal(vm.runInContext('typeTalentSpent()', ctx), 6, '被動解鎖額外計入一點');
     assert.deepEqual(JSON.parse(JSON.stringify(vm.runInContext('normalizeTypeTalentRanks({ warrior: { warrior_recovery: 5 } })', ctx))),
         { knight: {}, fighter: {}, ranger: {}, supporter: {}, special: {} }, '職業 key 的舊等級讀入即歸零');
     assert.equal(ctx.typeTalentTreeMaxed('warrior'), false, '職業 key 不認得');

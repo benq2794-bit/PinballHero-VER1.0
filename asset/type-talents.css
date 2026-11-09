@@ -51,12 +51,20 @@
     background:linear-gradient(180deg,color-mix(in srgb,var(--lane-color) 15%,transparent) 0%,color-mix(in srgb,var(--lane-color) 7%,transparent) 58%,color-mix(in srgb,var(--lane-color) 4%,transparent) 100%);
     border-top:2px solid color-mix(in srgb,var(--lane-color) 40%,transparent); }
 .tt-lane-foot { position:absolute; top:95.5%; left:50%; transform:translate(-50%,-50%); z-index:5;
-    display:flex; align-items:center; gap:3px; padding:1px 6px; white-space:nowrap; pointer-events:none; font-size:9px;
+    display:flex; flex-direction:column; align-items:center; gap:0; padding:2px 4px; white-space:nowrap; pointer-events:none; font-size:7px; line-height:1.15;
     border:1px solid color-mix(in srgb,var(--lane-color) 45%,#c6d4db); border-radius:8px; background:rgba(255,255,255,.92); }
 .tt-lane-foot b { --tt-ink:color-mix(in srgb,var(--lane-color) 70%,#16303c); font-weight:700; }
-.tt-lane-foot i { color:#586a73; font-style:normal; font-size:8px; }
+.tt-lane-foot i { color:#586a73; font-style:normal; font-size:7px; }
 .tt-lane-foot.done { border-color:#b7842f; background:rgba(255,250,232,.95); }
 .tt-lane-foot.done i { color:#8a6417; }
+.tt-passive-status { position:absolute; top:10%; z-index:4; transform:translateX(-50%); box-sizing:border-box;
+    width:min(88px,19%); padding:2px 1px; border:1px solid #c6d2d8; border-radius:5px;
+    --tt-ink:#586a73; background:rgba(255,255,255,.9); font:700 7px/1.2 "Microsoft JhengHei",sans-serif;
+    text-align:center; white-space:normal; pointer-events:none; }
+.tt-passive-status.passive-available { --tt-ink:#805b13; border-color:#c49a3a; background:rgba(255,248,222,.96);
+    box-shadow:0 0 7px rgba(208,159,44,.48); }
+.tt-passive-status.passive-active { --tt-ink:#76520f; border-color:#b7842f; background:rgba(255,246,207,.97); }
+.tt-passive-status.passive-limit { --tt-ink:#78664a; border-color:#b69a69; }
 
 .tt-tree-svg { position:absolute; inset:0; z-index:1; width:100%; height:100%; overflow:visible; }
 .tt-link { fill:none; stroke:#b7c6cd; stroke-width:1.1; stroke-linecap:round; opacity:.9; }
@@ -95,10 +103,14 @@
 
 .tt-passive-node { --tt-line:#c6d2d8; --tt-face:linear-gradient(150deg,#f2f5f7,#dbe6ea); --tt-radius:50%; width:38px; height:38px; }
 .tt-passive-node .tt-icon { width:21px; height:21px; }
-/* 車道點滿＝被動自動生效，只有這一種亮起狀態（舊的「已解鎖但未啟用」已隨開關移除）。 */
+/* 可解鎖時金色發光；啟用後保留金框。 */
+.tt-passive-node.passive-available { --tt-line:#c49a3a;
+    --tt-face:radial-gradient(circle at 34% 26%,#fffdf2,#f8e9b9 58%,#e0bd62);
+    --tt-shadow:inset 0 1px 0 #fffdf2,0 0 13px rgba(218,165,32,.82),0 0 22px rgba(218,165,32,.42); }
 .tt-passive-node.passive-active { --tt-line:#b7842f;
     --tt-face:radial-gradient(circle at 34% 26%,#fffdf2,#f4e6bb 58%,#dcc277);
-    --tt-shadow:inset 0 1px 0 #fffdf2,0 0 9px rgba(183,132,47,.5); }
+    --tt-shadow:inset 0 1px 0 #fffdf2,0 0 0 2px #b7842f,0 0 9px rgba(183,132,47,.5); }
+.tt-passive-node.passive-limit { --tt-line:#b69a69; --tt-face:linear-gradient(150deg,#f4f1e8,#e3dccb); opacity:.72; }
 
 /* ---- 節點詳情 ---- */
 .tt-detail { flex:none; padding:7px 9px 8px; border:1px solid #b3c4cd; border-radius:9px;

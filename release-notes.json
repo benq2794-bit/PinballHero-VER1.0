@@ -1,12 +1,17 @@
 {
   "content": [
-    "修復舊存檔角色等級重置停用問題：依角色等級累計經驗估算歷史投入並返還估算值的 80%，明確提示估算金額可能與實際不同。",
-    "維持每名角色最多重置 3 次；精確投入紀錄角色仍按原規則計算。"
+    "保留五種攻擊型態各六個普通天賦節點，並顯示普通天賦 0/5–5/5 進度與各型態投入點數。",
+    "普通天賦達到 5/5 後可手動消耗 1 點解鎖專屬被動；最多啟用 3 種，並限制共用 33 點及每型態 11 點。",
+    "新增被動鎖定、可解鎖、已啟用及上限原因狀態，並改善手機直立版狀態標籤版面。"
   ],
   "files": [
     "index.html",
-    "asset/character-growth.js",
-    "tests/growth-reset-batch.test.cjs",
+    "asset/type-talents.js",
+    "asset/type-talents.css",
+    "tests/battle-flow.test.cjs",
+    "tests/browser-type-talent-click.cjs",
+    "tests/save-system.test.cjs",
+    "tests/type-talents.test.cjs",
     "release-notes.json"
   ]
 }

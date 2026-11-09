@@ -47,6 +47,27 @@ class CDP {
  await page.evaluate("cloudUser=null;$('login-screen').hidden=true;tutorialSeen=true;ensurePlayableAccount();setPaused(true);pickHomeTab('talents')");
  for(const width of [1280,320,390]){
  const touch=width<500;await page.send('Emulation.setDeviceMetricsOverride',{width,height:850,deviceScaleFactor:1,mobile:touch});await page.send('Emulation.setTouchEmulationEnabled',{enabled:touch});await delay(100);
+ await page.evaluate("typeTalentRanks={knight:Object.fromEntries(typeTalentLaneNodes('knight').slice(0,5).map(n=>[n.id,1]))};typeTalentPoints=28;typeTalentSelected={};renderTypeTalentTree()");
+ const layout=await page.evaluate(`(() => {
+  const canvas=document.querySelector('.tt-canvas'),cr=canvas.getBoundingClientRect();
+  const statuses=[...document.querySelectorAll('.tt-passive-status')],nodes=[...document.querySelectorAll('.tt-node:not(.tt-passive-node)')];
+  const overlap=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+  return {viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,
+   statuses:statuses.map(s=>{const r=s.getBoundingClientRect();return {text:s.textContent,left:r.left,right:r.right,top:r.top,bottom:r.bottom}}),
+   canvas:{left:cr.left,right:cr.right,top:cr.top,bottom:cr.bottom},
+   overlaps:statuses.flatMap(s=>{const r=s.getBoundingClientRect();return nodes.filter(n=>overlap(r,n.getBoundingClientRect())).map(n=>n.getAttribute('aria-label'))})};
+ })()`);
+ assert.ok(layout.documentWidth<=layout.viewport,'talent page must not overflow horizontally '+JSON.stringify({width,layout}));
+ assert.ok(layout.statuses.every(s=>s.left>=layout.canvas.left&&s.right<=layout.canvas.right),'passive statuses must remain inside the canvas '+JSON.stringify({width,layout}));
+ assert.equal(layout.overlaps.length,0,'passive statuses must not cover ordinary nodes '+JSON.stringify({width,layout}));
+ assert.ok(layout.statuses.some(s=>s.text==='可解鎖（消耗 1 點）'),'unlock cost is visible at '+width+'px');
+ if(touch){
+ const rect=await page.evaluate("(()=>{const b=document.querySelector('.tt-passive-node.passive-available'),r=b.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()");
+ await page.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{...rect,radiusX:1,radiusY:1}]});
+ await page.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(50);
+ assert.deepEqual(await page.evaluate('[typeTalentSpent(),typeTalentPoints]'),[6,27],'passive touch spends exactly one point');
+ assert.ok(await page.evaluate("document.querySelector('.tt-passive-node.passive-active')!==null"),'touch enables the passive');
+ }
  for(const dark of [false,true]){
  await page.evaluate("document.documentElement.classList.toggle('ui-dark-mode',"+dark+");typeTalentRanks={};typeTalentPoints=100;typeTalentSelected={};renderTypeTalentTree()");
  const id=await page.evaluate("document.querySelector('.tt-node.available.selected').getAttribute('onclick')");
@@ -67,6 +88,6 @@ class CDP {
  await page.send('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,x:other.x,y:other.y});await page.send('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,x:other.x,y:other.y});assert.equal(await page.evaluate('typeTalentPoints'),94);
  }
  }
- assert.deepEqual(page.errors,[]);console.log('PASS: 320/390 touch and 1280 mouse in both themes, center/icon and four edges, stationary pressed hit area, exactly one level/point per tap, unselected nodes and Lv.5 cap/badge');
+ assert.deepEqual(page.errors,[]);console.log('PASS: 320/390 touch and 1280 mouse in both themes, overflow-free visible passive statuses, tap unlock/refund point accounting, center/icon and four edges, stationary hit area and Lv.5 cap/badge');
  }finally{if(page)page.socket.close();proc.kill();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1});
