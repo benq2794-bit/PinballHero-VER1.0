@@ -1,11 +1,12 @@
 {
   "content": [
-    "修正手機遊玩時誤觸縮放：遊戲區域保留平移操作並阻止 Safari 手勢縮放。",
-    "新增手機觸控縮放回歸測試。"
+    "修復舊存檔角色等級重置停用問題：依角色等級累計經驗估算歷史投入並返還估算值的 80%，明確提示估算金額可能與實際不同。",
+    "維持每名角色最多重置 3 次；精確投入紀錄角色仍按原規則計算。"
   ],
   "files": [
     "index.html",
-    "asset/character-growth.css",
+    "asset/character-growth.js",
+    "tests/growth-reset-batch.test.cjs",
     "release-notes.json"
   ]
 }
