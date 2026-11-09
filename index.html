@@ -986,6 +986,8 @@
             text-shadow: 2px 2px 0 #681006, -1px -1px 0 #681006, 0 0 8px rgba(255,145,40,.75);
             filter: drop-shadow(2px 3px 0 #380a05); }
         .dmg-pop.hurt { color: #ff8492; font-size: 17px; -webkit-text-stroke-width: 1.4px; filter: drop-shadow(0 0 8px rgba(255,70,90,.85)); }
+        #pf.hide-damage-numbers .dmg-pop.enemy-damage,
+        #pf.hide-damage-numbers .dmg-pop.hurt { display:none !important; }
         .dmg-pop.enemy-damage { color:#dff7ff; font-size:22px; -webkit-text-stroke:1.5px #073047;
             text-shadow:2px 2px 0 #073047,-1px -1px 0 #073047,0 0 8px rgba(65,220,255,.72); filter:drop-shadow(0 2px 2px #00111b); }
         .dmg-pop.heal { color: #48e38a; font-size: 17px; -webkit-text-stroke-width: 1.4px; filter: drop-shadow(0 0 8px rgba(60,230,130,.85)); }
@@ -3239,7 +3241,7 @@
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.11";
+const GAME_VERSION = "v0.1.0-alpha.12";
 const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
@@ -3261,14 +3263,21 @@ if (DEV_MODE) {
 }
 // ===== 選項：畫面幀率／技能動畫／自動省電 =====
 // 三項都只存本機 localStorage（跟深色模式、音效音量同一套），不進存檔 schema，換裝置不會動到雲端進度。
-const GAME_OPTION_KEYS = { fps: "wf_fps_target", skillAnim: "wf_skill_anim", powerSave: "wf_auto_powersave" };
+const GAME_OPTION_KEYS = { fps: "wf_fps_target", skillAnim: "wf_skill_anim", powerSave: "wf_auto_powersave",
+    damageNumbers: "wf_damage_numbers", skillFxOpacity: "wf_skill_fx_opacity" };
 const FPS_CHOICES = [60, 30];
 const SKILL_ANIM_CHOICES = ["full", "lite", "skip"];
 const SKILL_ANIM_TEXT = { full: "完整", lite: "簡化", skip: "跳過" };
 const GAME_OPTIONS = {
     fps: (() => { try { return localStorage.getItem(GAME_OPTION_KEYS.fps) === "30" ? 30 : 60; } catch (_) { return 60; } })(),
     skillAnim: (() => { try { const v = localStorage.getItem(GAME_OPTION_KEYS.skillAnim); return SKILL_ANIM_CHOICES.includes(v) ? v : "full"; } catch (_) { return "full"; } })(),
-    powerSave: (() => { try { return localStorage.getItem(GAME_OPTION_KEYS.powerSave) === "true"; } catch (_) { return false; } })()
+    powerSave: (() => { try { return localStorage.getItem(GAME_OPTION_KEYS.powerSave) === "true"; } catch (_) { return false; } })(),
+    damageNumbers: (() => { try { return localStorage.getItem(GAME_OPTION_KEYS.damageNumbers) !== "false"; } catch (_) { return true; } })(),
+    skillFxOpacity: (() => { try {
+        const saved = localStorage.getItem(GAME_OPTION_KEYS.skillFxOpacity);
+        const value = saved === null ? 100 : Number(saved);
+        return Number.isFinite(value) ? Math.max(30, Math.min(100, Math.round(value))) : 100;
+    } catch (_) { return 100; } })()
 };
 // 自動省電只看電源：改用電池供電、或電量掉到 20% 以下才降載。桌上型電腦查不到電池，開了也不會有任何變化。
 const POWER_STATE = { detected: false, onBattery: false, lowLevel: false };
@@ -3291,6 +3300,7 @@ function watchPowerState() {
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
+    {"version":"v0.1.0-alpha.12","date":"2026-11-09","content":["畫面設定新增傷害數字顯示開關，預設開啟；關閉僅隱藏玩家受傷與敵方受傷害飄字。","新增技能特效透明度滑桿（30%–100%，預設 100%），即時調整既有 CSS 與 Canvas 技能特效且保留原動畫。","設定沿用本機保存；新增恢復預設操作，將傷害數字恢復開啟、技能特效透明度恢復 100%。"]},
     {"version":"v0.1.0-alpha.11","date":"2026-11-09","content":["保留五種攻擊型態各六個普通天賦節點，並顯示普通天賦 0/5–5/5 進度與各型態投入點數。","普通天賦達到 5/5 後可手動消耗 1 點解鎖專屬被動；最多啟用 3 種，並限制共用 33 點及每型態 11 點。","新增被動鎖定、可解鎖、已啟用及上限原因狀態，並改善手機直立版狀態標籤版面。"]},
     {"version":"v0.1.0-alpha.10","date":"2026-11-09","content":["修復舊存檔角色等級重置停用問題：依角色等級累計經驗估算歷史投入並返還估算值的 80%，明確提示估算金額可能與實際不同。","維持每名角色最多重置 3 次；精確投入紀錄角色仍按原規則計算。"]},
     {"version":"v0.1.0-alpha.9","date":"2026-11-09","content":["修正手機遊玩時誤觸縮放：遊戲區域保留平移操作並阻止 Safari 手勢縮放。","新增手機觸控縮放回歸測試。"]},
@@ -4556,6 +4566,55 @@ function syncShakeLabel() {
     if (p) { p.textContent = FX.shakeOn ? "開" : "關"; p.classList.toggle("off", !FX.shakeOn); }
 }
 
+const SKILL_FX_OPACITY_TARGETS = ".active-skill-mark,.healing-magic-sigil,.spell-sigil,.spell-mark,.spell-meteor,.spell-flash,.spell-blizzard,.spell-bolt,.spell-crack,.skill-cine,.expedition-signature,.skill-fx-canvas";
+const SKILL_FX_BASE_FILTERS = new WeakMap();
+function applySkillFxOpacity(node) {
+    if (!node?.matches?.(SKILL_FX_OPACITY_TARGETS)) return;
+    if (!SKILL_FX_BASE_FILTERS.has(node)) SKILL_FX_BASE_FILTERS.set(node, getComputedStyle(node).filter);
+    const filter = SKILL_FX_BASE_FILTERS.get(node);
+    node.style.filter = `${filter && filter !== "none" ? filter + " " : ""}opacity(${GAME_OPTIONS.skillFxOpacity / 100})`;
+}
+function syncSkillFxOpacity() {
+    const field = $("pf");
+    if (!field) return;
+    field.querySelectorAll(SKILL_FX_OPACITY_TARGETS).forEach(applySkillFxOpacity);
+}
+function syncDamageNumberVisibility() {
+    const field = $("pf");
+    if (field) field.classList.toggle("hide-damage-numbers", !GAME_OPTIONS.damageNumbers);
+    const button = $("menu-damage-numbers-btn");
+    if (button) button.setAttribute("aria-pressed", String(GAME_OPTIONS.damageNumbers));
+    const state = $("menu-damage-numbers-state");
+    if (state) {
+        state.textContent = GAME_OPTIONS.damageNumbers ? "開" : "關";
+        state.classList.toggle("off", !GAME_OPTIONS.damageNumbers);
+    }
+}
+function toggleDamageNumbers() {
+    GAME_OPTIONS.damageNumbers = !GAME_OPTIONS.damageNumbers;
+    try { localStorage.setItem(GAME_OPTION_KEYS.damageNumbers, String(GAME_OPTIONS.damageNumbers)); } catch (_) {}
+    syncDamageNumberVisibility();
+}
+function setSkillFxOpacity(value) {
+    GAME_OPTIONS.skillFxOpacity = Math.max(30, Math.min(100, Math.round(Number(value) || 100)));
+    try { localStorage.setItem(GAME_OPTION_KEYS.skillFxOpacity, String(GAME_OPTIONS.skillFxOpacity)); } catch (_) {}
+    const slider = $("menu-skill-fx-opacity");
+    if (slider && document.activeElement !== slider) slider.value = GAME_OPTIONS.skillFxOpacity;
+    const label = $("menu-skill-fx-opacity-value");
+    if (label) label.textContent = GAME_OPTIONS.skillFxOpacity + "%";
+    syncSkillFxOpacity();
+}
+function restoreVisualSettingsDefaults() {
+    GAME_OPTIONS.damageNumbers = true;
+    GAME_OPTIONS.skillFxOpacity = 100;
+    try {
+        localStorage.setItem(GAME_OPTION_KEYS.damageNumbers, "true");
+        localStorage.setItem(GAME_OPTION_KEYS.skillFxOpacity, "100");
+    } catch (_) {}
+    syncDamageNumberVisibility();
+    setSkillFxOpacity(100);
+}
+
 // 三列選項都靠同一組同步函式就地改字，點一次不需要重渲染整個選單頁。
 function gameOptionTexts() {
     const saving = powerSaveEngaged();
@@ -4574,6 +4633,11 @@ function syncGameOptionLabels() {
     if (state) { state.textContent = texts.powerSave; state.classList.toggle("off", !GAME_OPTIONS.powerSave); }
     const button = $("menu-power-save-btn");
     if (button) button.setAttribute("aria-pressed", String(GAME_OPTIONS.powerSave));
+    syncDamageNumberVisibility();
+    const opacitySlider = $("menu-skill-fx-opacity");
+    if (opacitySlider && document.activeElement !== opacitySlider) opacitySlider.value = GAME_OPTIONS.skillFxOpacity;
+    const opacityValue = $("menu-skill-fx-opacity-value");
+    if (opacityValue) opacityValue.textContent = GAME_OPTIONS.skillFxOpacity + "%";
 }
 function cycleFpsTarget() {
     GAME_OPTIONS.fps = FPS_CHOICES[(FPS_CHOICES.indexOf(GAME_OPTIONS.fps) + 1) % FPS_CHOICES.length];
@@ -6388,6 +6452,7 @@ function activeSkillMark(kind, x, y, opt = {}) {
     if (opt.width) node.style.setProperty("--sw", `${opt.width * widthScale}px`);
     if (opt.height) node.style.setProperty("--sh", `${opt.height * 1.1}px`);
     PF.vfx.appendChild(node);
+    applySkillFxOpacity(node);
     setTimeout(() => node.remove(), opt.ms || 720);
 }
 
@@ -6403,6 +6468,7 @@ function healingMagicSigil(x, y) {
     image.draggable = false;
     node.appendChild(image);
     PF.field.appendChild(node);
+    applySkillFxOpacity(node);
     setTimeout(() => node.remove(), 1100);
 }
 
@@ -6478,6 +6544,7 @@ function spellGroundFx(cls, x, y, ms, vars, html) {
     for (const key in vars) node.style.setProperty(key, vars[key]);
     if (html) node.innerHTML = html;
     PF.field.appendChild(node);
+    applySkillFxOpacity(node);
     PF.bossFx.push({ node, x: spellFieldX(x), y: spellFieldY(y), dx: 0, dy: 0, follow: false,
         until: performance.now() + ms + 60 });
     setTimeout(() => node.remove(), ms + 140);
@@ -6493,6 +6560,7 @@ function spellAirFx(cls, x, y, ms, vars, html) {
     for (const key in vars) node.style.setProperty(key, vars[key]);
     if (html) node.innerHTML = html;
     PF.vfx.appendChild(node);
+    applySkillFxOpacity(node);
     setTimeout(() => node.remove(), ms + 140);
     return node;
 }
@@ -6619,6 +6687,7 @@ function spellBlizzard(e, spell, atk, valid) {
         const veil = el("div", "spell-blizzard");
         veil.setAttribute("aria-hidden", "true");
         PF.vfx.appendChild(veil);
+        applySkillFxOpacity(veil);
         setTimeout(() => veil.remove(), 1780);
     }
     SFX.noise(1.4, .3, 2600, 900);
@@ -7942,7 +8011,7 @@ function startSkillCinematic(m, onImpact) {
     if (PF.el) PF.el.classList.add("skill-cinematic-active");
     if (!c.canvas) {
         c.canvas = document.createElement("canvas"); c.canvas.className = "skill-cine";
-        c.canvas.width = W; c.canvas.height = H; PF.vfx.appendChild(c.canvas); c.ctx = c.canvas.getContext("2d");
+        c.canvas.width = W; c.canvas.height = H; PF.vfx.appendChild(c.canvas); applySkillFxOpacity(c.canvas); c.ctx = c.canvas.getContext("2d");
     }
     if (lite) c.specialImage = null;   // 簡化＝不載入也不停撥全場大小的 skill_ready GIF，省掉解碼與合成。
     else {
@@ -12579,6 +12648,11 @@ function pageMenu() {
         <button class="mi" onclick="cycleSkillAnimMode()"><span class="k">✧ 技能動畫</span><span class="v" id="menu-skill-anim-state">${gameOptionTexts().skillAnim}</span></button>
         <button class="mi" id="menu-power-save-btn" aria-pressed="${GAME_OPTIONS.powerSave}" onclick="toggleAutoPowerSave()"><span class="k">🔋 自動省電</span>
             <span class="v${GAME_OPTIONS.powerSave ? "" : " off"}" id="menu-power-save-state">${GAME_OPTIONS.powerSave ? "開" : "關"}</span></button>
+        <button class="mi" id="menu-damage-numbers-btn" aria-pressed="${GAME_OPTIONS.damageNumbers}" onclick="toggleDamageNumbers()"><span class="k">✦ 傷害數字顯示</span>
+            <span class="v${GAME_OPTIONS.damageNumbers ? "" : " off"}" id="menu-damage-numbers-state">${GAME_OPTIONS.damageNumbers ? "開" : "關"}</span></button>
+        <label class="mi mi-volume" for="menu-skill-fx-opacity"><span class="k">✧ 技能特效透明度</span><b id="menu-skill-fx-opacity-value">${GAME_OPTIONS.skillFxOpacity}%</b>
+            <input id="menu-skill-fx-opacity" type="range" min="30" max="100" step="1" value="${GAME_OPTIONS.skillFxOpacity}" oninput="setSkillFxOpacity(this.value)" aria-label="技能特效透明度"></label>
+        <button class="mi" id="menu-restore-visual-defaults" type="button" onclick="restoreVisualSettingsDefaults()"><span class="k">恢復預設</span><span class="v">傷害數字開・特效 100%</span></button>
         </section><section data-settings-panel="controls" ${settingsCategory === "controls" ? "" : "hidden"}><div class="pg-sec">遊戲操作</div>
         <button class="mi" id="menu-help-btn" aria-expanded="false" onclick="toggleHelp()"><span class="k">❔ 操作說明</span><span class="v" id="menu-help-state">查看</span></button>
         <div class="pgc help-guide" id="menu-help" hidden>
@@ -13722,6 +13796,7 @@ function playExpeditionSignature(index, body, center, hits, evolved, range, blad
     const length = blades ? blades.duration * 1000 : index === 0 ? Math.max(510, (targets.length - 1) * hop + (evolved ? 575 : 410)) : evolved ? 930 : 650;
     const start = performance.now(), speed = battleSpeedMultiplier();
     PF.vfx.append(canvas);
+    applySkillFxOpacity(canvas);
 
     const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
     const seed = (i, salt) => {
@@ -14184,6 +14259,8 @@ if (!resumed) {
 }
 
 PF.el = $("pf");
+syncDamageNumberVisibility();
+syncSkillFxOpacity();
 PF.field = $("pf-field");
 PF.vfx = $("pf-vfx");
 PF.pops = $("pf-pops");

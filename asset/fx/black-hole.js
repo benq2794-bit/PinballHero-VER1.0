@@ -289,11 +289,13 @@
         const cssW = opts.w || container.clientWidth || 430;
         const cssH = opts.h || container.clientHeight || 760;
         const out = document.createElement("canvas");
+        out.className = "skill-fx-canvas";
         out.width = cssW; out.height = cssH;
         out.style.cssText = "position:absolute;inset:0;width:100%;height:100%;pointer-events:none;image-rendering:pixelated";
         const g = out.getContext("2d");
         g.imageSmoothingEnabled = false;
         container.appendChild(out);
+        if (typeof applySkillFxOpacity === "function") applySkillFxOpacity(out);
         const parts = makeParticles(opts.seed || 0x9e3779b9);
         // 整體時長可壓縮（opts.ms）：0–300ms 起爆保留原速，後面那段長拖尾依比例收乾，收束留最後 200ms
         const total = Math.min(END, Math.max(700, opts.ms || END));

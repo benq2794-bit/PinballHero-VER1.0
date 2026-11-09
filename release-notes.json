@@ -1,17 +1,14 @@
 {
   "content": [
-    "保留五種攻擊型態各六個普通天賦節點，並顯示普通天賦 0/5–5/5 進度與各型態投入點數。",
-    "普通天賦達到 5/5 後可手動消耗 1 點解鎖專屬被動；最多啟用 3 種，並限制共用 33 點及每型態 11 點。",
-    "新增被動鎖定、可解鎖、已啟用及上限原因狀態，並改善手機直立版狀態標籤版面。"
+    "畫面設定新增傷害數字顯示開關，預設開啟；關閉僅隱藏玩家受傷與敵方受傷害飄字。",
+    "新增技能特效透明度滑桿（30%–100%，預設 100%），即時調整既有 CSS 與 Canvas 技能特效且保留原動畫。",
+    "設定沿用本機保存；新增恢復預設操作，將傷害數字恢復開啟、技能特效透明度恢復 100%。"
   ],
   "files": [
     "index.html",
-    "asset/type-talents.js",
-    "asset/type-talents.css",
-    "tests/battle-flow.test.cjs",
-    "tests/browser-type-talent-click.cjs",
-    "tests/save-system.test.cjs",
-    "tests/type-talents.test.cjs",
+    "asset/fx/black-hole.js",
+    "tests/browser-display-settings.cjs",
+    "tests/skill-cinematic.test.cjs",
     "release-notes.json"
   ]
 }
