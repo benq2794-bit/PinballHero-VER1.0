@@ -44,15 +44,20 @@
       ]
     },
     {
-      "source": "/asset/(.*)",
+      "source": "/asset/(.*)\\.(png|jpg|jpeg|gif|webp|avif|svg|ico|wav|mp3|ogg|m4a|woff|woff2)",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-store"
-        },
+          "value": "public, max-age=86400, s-maxage=86400"
+        }
+      ]
+    },
+    {
+      "source": "/asset/(.*)\\.(js|css|json|map|html)",
+      "headers": [
         {
-          "key": "Vercel-CDN-Cache-Control",
-          "value": "no-store"
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
         }
       ]
     }
