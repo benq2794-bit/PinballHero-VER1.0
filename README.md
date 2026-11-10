@@ -4,7 +4,7 @@
 
 - `index.html`：遊戲入口。
 - `asset/`：遊戲會載入的程式、圖片、音效與背景。請保留整個資料夾。
-- `vercel.json`：部署設定。
+- GitHub `main`：連接 Cloudflare Pages 專案 `pinballhero-ver1-0` 自動部署。
 
 要直接開遊戲，開啟 `index.html`。移除 `asset/` 裡的檔案可能會讓遊戲缺圖、缺音效或無法啟動。
 
@@ -20,4 +20,4 @@
 - `dev-tools/`：素材處理輔助工具。
 - `dev-artifacts/`：瀏覽器輸出記錄與暫存資料；不是遊戲素材。
 
-若只想保留可執行遊戲，請至少保留 `index.html`、完整的 `asset/`、`vercel.json`。其餘資料夾依上方說明區分；參考圖與預覽先留著，確認不再需要再自行移除。
+若只想保留可執行遊戲，請至少保留 `index.html` 與完整的 `asset/`。其餘資料夾依上方說明區分；參考圖與預覽先留著，確認不再需要再自行移除。

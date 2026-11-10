@@ -29,9 +29,11 @@ async function build() {
     const devMode = /const DEV_MODE = \(\(\) => \{[\s\S]*?\n\}\)\(\);/;
     if (!devMode.test(input)) throw new Error("Production DEV_MODE override no longer matches");
     const version = input.match(/const GAME_VERSION = "([^"]+)"/)[1];
-    let commit = process.env.VERCEL_GIT_COMMIT_SHA || '';
+    let commit = process.env.CF_PAGES_COMMIT_SHA || '';
     if (!commit) { try { commit = execFileSync('git', ['rev-parse', 'HEAD'], {cwd:root,encoding:'utf8'}).trim(); } catch {} }
-    const release = {app:'pinball-realms',version,id:randomUUID(),commit,channel:process.env.VERCEL_ENV || 'development',builtAt:new Date().toISOString()};
+    const branch = process.env.CF_PAGES_BRANCH || '';
+    const channel = branch ? (branch === 'main' ? 'production' : 'preview') : 'development';
+    const release = {app:'pinball-realms',version,id:randomUUID(),commit,channel,builtAt:new Date().toISOString()};
     const html = input.replace(devMode, "const DEV_MODE = false;").replace(/const GAME_RELEASE = [^;]+;/, 'const GAME_RELEASE = '+JSON.stringify(release)+';');
     if (!html.includes(release.id)) throw new Error('Missing release identity');
     const scripts = /(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi;
