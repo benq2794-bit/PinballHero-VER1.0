@@ -1,11 +1,15 @@
 /* 更新控制器不接觸遊戲存檔格式，存檔與安全時機由主程式提供。 */
+// 版本檢查間隔：5 分鐘（原為 10 秒）。切回分頁時仍會立即檢查一次，發現新版後的 30 秒倒數不受影響。
+const GAME_UPDATE_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 window.GameUpdate = Object.freeze({
     create({ release, storage, fetchVersion, safeReason, save, hold, navigate, render,
-        showNotes, now = Date.now, timers = window }) {
+        showNotes, now = Date.now, timers = window, pollMs = GAME_UPDATE_CHECK_INTERVAL_MS }) {
         const seenKey = 'pinball-update-seen';
         const attemptKey = 'pinball-update-attempt';
         let target = null, deadline = 0, error = '', saving = false, reloading = false;
-        let checking = false, pendingNotes = false, pollTimer = null, tickTimer = null;
+        let checking = false, pendingNotes = false, pollTimer = null, tickTimer = null, inflight = null;
+        // 同一時間最多只有一個 version.json 請求：進行中時，其他呼叫端直接共用它的結果。
+        const latestVersion = () => inflight || (inflight = (async () => fetchVersion())().finally(() => { inflight = null; }));
         const read = key => { try { return JSON.parse(storage.getItem(key) || 'null'); } catch { return null; } };
         const write = (key, value) => storage.setItem(key, JSON.stringify(value));
         const valid = value => value && typeof value.id === 'string' && value.id.length > 0 &&
@@ -27,7 +31,7 @@ window.GameUpdate = Object.freeze({
             if (checking || saving || reloading) return;
             checking = true;
             try {
-                const next = await fetchVersion();
+                const next = await latestVersion();
                 if (!valid(next) || next.id === release.id ||
                     Date.parse(next.builtAt) < Date.parse(release.builtAt)) return;
                 if (target && Date.parse(next.builtAt) < Date.parse(target.builtAt)) return;
@@ -48,7 +52,7 @@ window.GameUpdate = Object.freeze({
             display();
             let releaseHold;
             try {
-                const latest = await fetchVersion();
+                const latest = await latestVersion();
                 if (!valid(latest) || Date.parse(latest.builtAt) < Date.parse(release.builtAt)) throw new Error('無法確認正式版本，請稍後重試。');
                 if (latest.id === release.id) {
                     target = null; error = ''; return false;
@@ -87,7 +91,7 @@ window.GameUpdate = Object.freeze({
             } else if (!seen) {
                 try { write(seenKey, { id:release.id, version:release.version }); } catch { /* 首次進入不強制顯示日誌。 */ }
             }
-            pollTimer = timers.setInterval(check, 10000);
+            pollTimer = timers.setInterval(check, pollMs);
             tickTimer = timers.setInterval(tick, 1000);
             void check();
             tick();
@@ -172,6 +176,7 @@ function showLatestReleaseNotes() {
 }
 
 function startGameUpdates() {
+    if (gameUpdater) return;
     if (GATE_MODE || DEV_MODE || GAME_RELEASE.channel !== 'production' || (location.protocol !== 'https:' && !(location.protocol === 'http:' && ['localhost','127.0.0.1'].includes(location.hostname)))) return;
     gameUpdater = GameUpdate.create({
         release:GAME_RELEASE, storage:localStorage,
