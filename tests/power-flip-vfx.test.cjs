@@ -63,6 +63,8 @@ assert.ok(scheduledFrame, 'one shared animation frame services all 15 variants')
 scheduledFrame(1000);
 assert.ok(drawCalls > 0, 'embedded sprite atlases are drawn through the live canvas layer');
 assert.equal(renderer.activeCount(), 15);
+scheduledFrame(1300);
+assert.equal(renderer.activeCount(), 15, 'swordsman fade tails and fighter combo wind-down remain visible through their preview timelines');
 scheduledFrame(5000);
 assert.equal(renderer.activeCount(), 0, 'completed effects are removed');
 assert.equal(canvas.isConnected, false, 'the temporary overlay canvas is removed after its last effect');

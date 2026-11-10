@@ -10,7 +10,7 @@
         special: Object.freeze(["gold-white blast", "cyan-violet blast", "large blast with magic circle"]),
         supporter: Object.freeze(["green buff aura", "enhanced buff aura", "field burst, magic seal and leaves"])
     });
-    const DURATION = { knight: [1150, 1700, 2350], fighter: [1190, 1278, 1424], ranger: [3150, 3150, 3150], special: [3500, 3500, 3500], supporter: [4600, 4600, 4600] };
+    const DURATION = { knight: [1600, 2150, 2800], fighter: [2050, 2138, 2284], ranger: [3150, 3150, 3150], special: [3500, 3500, 3500], supporter: [4600, 4600, 4600] };
     const effects = [];
     let container = null, canvas = null, ctx = null, raf = 0, lastNow = 0;
     let fighterAtlas = null, supporterAtlas = null;
@@ -63,7 +63,8 @@
         effects.push({
             type, x, y, angle, level, visualScale: Math.max(.5, visualScale || 1), beamLength,
             options: options || {}, started: performance.now(), seed: (Math.random() * 0x7fffffff) | 0,
-            particles: [], sparks: [], bursts: [], shots: [], hits: [], knightParticles: [], rangerParticles: [], rangerRings: [], fighterParticles: []
+            particles: [], sparks: [], bursts: [], shots: [], hits: [], knightParticles: [], rangerParticles: [], rangerRings: [], fighterParticles: [],
+            knightBall: { x: 210, y: 370, vx: 78, vy: -120 }
         });
         if (effects.length > 16) effects.splice(0, effects.length - 16);
         if (!raf) {
@@ -96,7 +97,7 @@
                 effects.splice(i, 1);
                 continue;
             }
-            if (fx.type === "knight") drawKnight(fx, elapsed / 1000);
+            if (fx.type === "knight") drawKnight(fx, elapsed / 1000, Math.min(35, delta) / 1000);
             else if (fx.type === "fighter") drawFighter(fx, elapsed, delta);
             else if (fx.type === "ranger") drawRanger(fx, elapsed / 1000, delta);
             else if (fx.type === "special") drawSpecial(fx, elapsed / 1000, delta);
@@ -265,7 +266,7 @@
         g.restore();
     }
 
-    function drawKnight(fx, t) {
+    function drawKnight(fx, t, step) {
         const scale = Math.min(1, W / 420, H / 650) * fx.visualScale;
         const duration = [1, 1.5, 2][fx.level], fade = [.15, .2, .35][fx.level - 1];
         const spinRate = fx.level === 1 ? 8.4 : fx.level === 2 ? 16.8 : 21;
@@ -283,10 +284,13 @@
             spawnKnightParticles(fx, 2, 85, ["#a7ffff", "#e3ffff"]);
         }
         fx.lastT = t;
-        let bx = 210 + 83 * t, by = 370 - 117 * t + 15 * t * t;
-        bx = 75 + Math.abs(((bx - 75) % 540 + 540) % 540 - 270);
-        by = clamp(by, 150, 510);
-        const x = fx.x + (bx - 210) * scale, y = fx.y + (by - 340) * scale;
+        const ball = fx.knightBall;
+        ball.x += ball.vx * step;
+        ball.y += ball.vy * step;
+        ball.vy += 30 * step;
+        if (ball.x < 75 || ball.x > 345) { ball.x = clamp(ball.x, 75, 345); ball.vx *= -1; }
+        if (ball.y < 150 || ball.y > 510) { ball.y = clamp(ball.y, 150, 510); ball.vy *= -1; }
+        const x = fx.x + (ball.x - 210) * scale, y = fx.y + (ball.y - 340) * scale;
         const alpha = clamp((duration + fade - t) / fade), intro = ease(t / .13);
         ctx.save();
         ctx.translate(x, y);
@@ -367,11 +371,12 @@
         if (!fighterAtlas || !fighterAtlas.complete || !fighterAtlas.naturalWidth) return;
         const q = fighterConfig(fx.level), scale = Math.min(1, W / 960, H / 560);
         const t = elapsed;
-        const majorAt = q.hits * q.gap + 260;
+        const firstHitAt = 460;
+        const majorAt = firstHitAt + q.hits * q.gap + 260;
         const hasPrevious = Number.isFinite(fx.lastElapsed), previous = hasPrevious ? fx.lastElapsed : -1;
         let shake = fx.shake || 0;
         for (let i = 0; i <= q.hits; i++) {
-            const hitAt = i === q.hits ? majorAt : i * q.gap;
+            const hitAt = i === q.hits ? majorAt : firstHitAt + i * q.gap;
             if (((hitAt === 0 && !hasPrevious) || previous < hitAt) && elapsed >= hitAt) {
                 const major = i === q.hits;
                 shake = Math.max(shake, major ? 16 : 5);
@@ -416,7 +421,7 @@
             }
         }
         for (let i = 0; i < q.hits; i++) {
-            const age = t - i * q.gap;
+            const age = t - firstHitAt - i * q.gap;
             if (age < 0 || age > 170) continue;
             const p = clamp(age / 170), a = 1 - p;
             ctx.save();

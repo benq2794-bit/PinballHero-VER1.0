@@ -3247,7 +3247,7 @@
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.15";
+const GAME_VERSION = "v0.1.0-alpha.16";
 const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
@@ -3306,6 +3306,7 @@ function watchPowerState() {
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
+    {"version":"v0.1.0-alpha.16","date":"2026-11-10","content":["修正劍士 PF 特效的球體軌跡與完整淡出時間，並校正格鬥 PF 連段命中節奏及收尾時間。"]},
     {"version":"v0.1.0-alpha.15","date":"2026-11-10","content":["將五職業 PF1～PF3 共 15 組預覽動畫接入正式戰鬥系統，並以新特效取代舊 PF 播放路徑。","保留既有 PF 觸發與命中位置；輔助魔法陣與落葉僅於 PF3 顯示，並支援手機直向畫面及技能特效透明度設定。"]},
     {"version":"v0.1.0-alpha.14","date":"2026-11-09","content":["劍士「永續風刃」與特殊「星爆時空」專屬被動特效放大 35%。","專屬被動 GIF 黑底轉透明，保留原尺寸與動畫播放設定。"]},
     {"version":"v0.1.0-alpha.13","date":"2026-11-09","content":["優化攻擊型態專屬被動命中特效，加入短暫閃光與輕微節流震動。","柔化被動 GIF 邊緣並沿用技能特效透明度設定，降低黑底邊框感與透明度重複套用。","連續觸發時重用同一被動 GIF 節點，避免閃爍並延長特效清理生命週期。"]},
