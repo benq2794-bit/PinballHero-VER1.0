@@ -396,11 +396,9 @@
         /* 白橘斬光使用透明 PNG，避免黑底邊框；橫向素材沿衝刺方向旋轉。 */
         .impact-vfx.impact-dash-energy { width:170px;height:85px;background-size:100% 100%;image-rendering:auto;
             filter:drop-shadow(0 0 2px rgba(255,156,91,.45)); }
-        /* PF（Power Flip）點陣特效：pixelfx 匯出的單列橫條，格尺寸由 --fw/--fh 決定，--sx/--sy 分開控制長短與粗細 */
+        /* DOM 點陣／GIF 特效沿用格尺寸；正式 PF 攻擊演出由獨立 Canvas 層繪製。 */
         .pf-fx { position:absolute; width:var(--fw,208px); height:var(--fh,104px); background-repeat:no-repeat;
             transform:translate(-50%,-50%) rotate(var(--r,0rad)) scale(var(--sx,1), var(--sy,1)); image-rendering:pixelated; pointer-events:none; }
-        /* 格鬥型三連爪在草地上偏小偏暗，放大後補一層暖色光暈把輪廓拉出來。 */
-        .pf-fx.pf-fx-fighter { filter:drop-shadow(0 0 6px rgba(255,214,120,.85)) brightness(1.12) saturate(1.1); }
         /* 專屬被動 GIF 已保留透明背景；只保留原本各自的光暈濾鏡。 */
         .pf-fx.passive-wind-gif { background-size:100% 100%; image-rendering:auto;
             filter:drop-shadow(0 0 7px rgba(142,91,255,.62)); }
@@ -3211,6 +3209,7 @@
 <script src="asset/asset-index.js"></script>
 <script src="asset/fx/skill-signatures.js"></script>
 <script src="asset/fx/power-flip.js"></script>
+<script src="asset/fx/power-flip-vfx.js"></script>
 <script src="asset/fx/collision-trial.js"></script>
 <script src="asset/fx/battle-bounds.js"></script>
 <script src="asset/character-growth.js"></script>
@@ -3248,7 +3247,7 @@
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.14";
+const GAME_VERSION = "v0.1.0-alpha.15";
 const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
@@ -3307,6 +3306,7 @@ function watchPowerState() {
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
+    {"version":"v0.1.0-alpha.15","date":"2026-11-10","content":["將五職業 PF1～PF3 共 15 組預覽動畫接入正式戰鬥系統，並以新特效取代舊 PF 播放路徑。","保留既有 PF 觸發與命中位置；輔助魔法陣與落葉僅於 PF3 顯示，並支援手機直向畫面及技能特效透明度設定。"]},
     {"version":"v0.1.0-alpha.14","date":"2026-11-09","content":["劍士「永續風刃」與特殊「星爆時空」專屬被動特效放大 35%。","專屬被動 GIF 黑底轉透明，保留原尺寸與動畫播放設定。"]},
     {"version":"v0.1.0-alpha.13","date":"2026-11-09","content":["優化攻擊型態專屬被動命中特效，加入短暫閃光與輕微節流震動。","柔化被動 GIF 邊緣並沿用技能特效透明度設定，降低黑底邊框感與透明度重複套用。","連續觸發時重用同一被動 GIF 節點，避免閃爍並延長特效清理生命週期。"]},
     {"version":"v0.1.0-alpha.12","date":"2026-11-09","content":["畫面設定新增傷害數字顯示開關，預設開啟；關閉僅隱藏玩家受傷與敵方受傷害飄字。","新增技能特效透明度滑桿（30%–100%，預設 100%），即時調整既有 CSS 與 Canvas 技能特效且保留原動畫。","設定沿用本機保存；新增恢復預設操作，將傷害數字恢復開啟、技能特效透明度恢復 100%。"]},
@@ -5354,6 +5354,7 @@ function resetBattleTransient() {
     PF.hitStopUntil = PF.hitStopReadyAt = PF.impactShakeReadyAt = 0;
     PF.doomFX = null;
     FX.clearPops();
+    window.PowerFlipVFX?.clear();
     if (PF.vfx) PF.vfx.innerHTML = '';
     PF.el?.querySelectorAll('.doom-strike,.doom-top-beam').forEach(n => n.remove());
     if (FEVER.active) feverEnd();
@@ -6423,29 +6424,9 @@ const FX = {
     }
 };
 
-// PF 點陣特效表：攻擊型態決定用哪張橫條，顏色由素材本身烙死（不再跟屬性變色）。
-// beam＝光束厚度，該型改採「長度跟 beamLength、厚度跟等級」各自拉伸，不做等比縮放。
-// scale 校成「螢幕高度跟原本一致」；貫光／爆裂經比較後維持原圖（arcane-beam／plasma-explosion）。
-const PF_FX = GAME_DATA.assets.powerFlipFx;
-function showPowerFlipVFX(type, x, y, angle = 0, level = 1, visualScale = 1, beamLength = 170) {
-    if (!PF.vfx) return;
-    const sheet = PF_FX[type];
-    if (!sheet) return;
-    const k = (1 + Math.max(0, level - 1) * .12) * Math.max(.5, visualScale) * (sheet.scale || 1);
-    let sx = k, sy = k, px = x, py = y;
-    if (sheet.beam) {
-        const len = Math.max(240, beamLength) * k;
-        sx = len / sheet.fw; sy = sheet.beam * k / sheet.fh;
-        px = x + Math.cos(angle) * len / 2;
-        py = y + Math.sin(angle) * len / 2;
-    }
-    const n = el("div", "pf-fx pf-fx-" + type);
-    n.style.cssText = `left:${px}px;top:${py}px;background-image:url(${sheet.src});` +
-        `--sx:${sx.toFixed(3)};--sy:${sy.toFixed(3)};--r:${angle}rad;--fw:${sheet.fw}px;--fh:${sheet.fh}px`;
-    PF.vfx.appendChild(n);
-    n.animate([{ backgroundPositionX: "0px" }, { backgroundPositionX: (-sheet.fw * sheet.frames) + "px" }],
-        { duration: sheet.ms, easing: `steps(${sheet.frames}, end)`, fill: "both" });
-    setTimeout(() => n.remove(), sheet.ms + 40);
+function showPowerFlipVFX(type, x, y, angle = 0, level = 1, visualScale = 1, beamLength = 170, options = {}) {
+    if (!PF.vfx || !window.PowerFlipVFX) return false;
+    return window.PowerFlipVFX.play(type, x, y, angle, level, visualScale, beamLength, options);
 }
 
 // 主動技能專用程式特效，與 PF 圖集分離；只回饋施放與命中，不參與傷害判定。
@@ -6904,7 +6885,7 @@ function skillVfx(m, type, opt = {}) {
     }
 }
 
-// 型態被動點陣特效：跟 PF_FX 同一套橫條，差別是這些會跟著目標跑（光環類）。
+// 型態被動點陣特效：GIF 與光環類維持各自原有素材及跟隨目標方式。
 // wind＝劍士型浮游時的風渦（插在球後面，不蓋臉）、slow＝特殊型推條時的時空鐘、shock＝格鬥型補的衝擊環。
 const PASSIVE_FX = { ...GAME_DATA.assets.passiveFx, supporter: GAME_DATA.assets.powerFlipFx.supporter };
 function clearPassiveFX(key, owner) {

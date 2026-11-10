@@ -143,8 +143,9 @@ function powerFlipDamage(state, target, mult) {
     const ch = state.source;
     const member = PF.members.find(m => m.ch === ch && m.body);
     const angle = member ? Math.atan2(target.y - member.body.y, target.x - member.body.x) : 0;
-    // 範圍／射線型各自只播一次完整演出，避免每個命中目標都疊出重複特效。
-    if (state.type !== 'special' && state.type !== 'ranger') {
+    // 劍士每次 PF 只播一組完整演出；格鬥與其餘型態在各自的觸發點播放。
+    if (state.type === 'knight' && !state.vfxStarted) {
+        state.vfxStarted = true;
         showPowerFlipVFX(state.type, target.x, target.y, angle, state.lv);
     }
     const crit = rollCrit(ch);
@@ -178,10 +179,16 @@ function powerFlipContact(m, target) {
     if (state.type === 'fighter') {
         state.left = Math.min(state.left, 650);
         state.hitWait = 0;
+        if (!state.vfxStarted) {
+            state.vfxStarted = true;
+            const angle = Math.atan2(target.y - m.body.y, target.x - m.body.x);
+            showPowerFlipVFX('fighter', target.x, target.y, angle, state.lv);
+        }
     } else if (state.type === 'special') {
         // 特殊型：爆裂範圍內的弱點會同時擊破。
         const radius = 80 + state.lv * 35;
-        showPowerFlipVFX('special', target.x, target.y, 0, state.lv, radius / 90);
+        state.vfxStarted = true;
+        showPowerFlipVFX('special', target.x, target.y, 0, state.lv);
         powerFlipWeakCircle(target.x, target.y, radius, state);
         for (const unit of enemyTargetsInRadius(target.x, target.y, radius)) {
             powerFlipDamage(state, unit, [0, 2.2, 3.4, 4.8][state.lv]);
@@ -207,8 +214,8 @@ function updatePowerFlip(dtMs) {
                 POWER_FLIP.buffMs = 5000;
                 for (const x of aliveMembers()) {
                     addCd(x, [0, 3, 5, 7][state.lv]);
-                    showPowerFlipVFX('supporter', x.body.x, x.body.y, 0, state.lv);
                 }
+                showPowerFlipVFX('supporter', b.x, b.y, 0, state.lv);
                 clearPowerFlip(b);
                 continue;
             }
@@ -224,13 +231,15 @@ function updatePowerFlip(dtMs) {
                 // 弱點追蹤只放寬弱點判定，光束本體與命中帶不變。
                 const weakWidth = width + typeEffects.weakWidth();
                 // 射擊型：從球指向目標以長條光束掃過弱點。
-                showPowerFlipVFX('ranger', b.x, b.y, angle, state.lv, 1, 760);
                 powerFlipWeakRay(b.x, b.y, ux, uy, 760, weakWidth, state);
                 const hits = powerFlipTargets().map(t => {
                     const dx = t.x - b.x, dy = t.y - b.y;
                     return { t, along: dx * ux + dy * uy, across: Math.abs(dx * uy - dy * ux) };
                 }).filter(h => h.along >= 0 && h.along <= 760 && h.across <= h.t.r + width)
                   .sort((a, z) => a.along - z.along);
+                state.vfxStarted = true;
+                showPowerFlipVFX('ranger', b.x, b.y, angle, state.lv, 1, 760,
+                    { targets: hits.map(hit => ({ x: hit.t.x, y: hit.t.y })) });
                 for (const hit of hits) {
                     // 同一敵人已被光束命中時，不再由穿透球體重複計算一次 PF 傷害。
                     if (state.rangerPierce && b._rangerPierceHitUnits) b._rangerPierceHitUnits.add(hit.t);

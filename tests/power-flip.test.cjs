@@ -12,7 +12,7 @@ function setup(type, combo = 39) {
     const ch = { id: 'leader', hp: 100, gauge: 42 };
     const member = { ch, body, down: false };
     const foe = { x: 210, y: 200, r: 30 };
-    const hits = [];
+    const hits = [], vfx = [];
     const ctx = { combo, comboAt: 1, teamIds: ['leader'], roster: { leader: ch },
         CHAR_TABLE: { leader: { type, element: 'fire' } }, ELEMENTS: { fire: { color: '#f00' } },
         PF: { running: true, paused: false, ready: true, members: [member], foe, extraFoes: [], foeSeq: 1 },
@@ -28,17 +28,17 @@ function setup(type, combo = 39) {
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/game-data.js'), 'utf8'), ctx);
     ctx.performance = { now: () => 0 }; ctx.elementMultiplier = () => 1;
     ctx.mainAccountBonus = () => ({ powerFlipDamage: 0 });
-    ctx.showPowerFlipVFX = noop; ctx.showPassiveFX = noop;
+    ctx.showPowerFlipVFX = (...args) => { vfx.push(args); }; ctx.showPassiveFX = noop;
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/type-effects.js'), 'utf8'), ctx);
     ctx.typeEffects = ctx.TypeEffects.create({ isActive: () => false,
         getStat: () => 1, getTalent: () => 0, isFever: () => false });
     vm.runInContext(fs.readFileSync(path.join(root, "asset/enemy-wave.js"), "utf8") + source + ';this.mode=POWER_FLIP;', ctx);
-    return { ctx, member, body, hits };
+    return { ctx, member, body, hits, vfx };
 }
 
 for (const type of ['knight', 'fighter', 'ranger', 'special', 'supporter']) {
     for (const [combo, level] of [[9, 1], [15, 2], [39, 3]]) {
-        const { ctx: c, member: m, body: b, hits } = setup(type, combo);
+        const { ctx: c, member: m, body: b, hits, vfx } = setup(type, combo);
         c.launchPowerFlip(b);
         assert.equal(b.powerFlip.lv, level);
         assert.equal(c.combo, 0, 'combo consumed on launch');
@@ -56,6 +56,9 @@ for (const type of ['knight', 'fighter', 'ranger', 'special', 'supporter']) {
             if (type === 'ranger' || type === 'special') assert.equal(hits.length, 1);
             else assert.equal(hits.length, 2 + level, 'bounded attack count');
         }
+        assert.equal(vfx.length, 1, `${type} PF${level} plays one complete animation`);
+        assert.equal(vfx[0][0], type);
+        assert.equal(vfx[0][4], level);
         assert.equal(b.powerFlip, null, 'charge clears after use/expiry');
     }
 }

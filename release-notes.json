@@ -1,16 +1,18 @@
 {
   "content": [
-    "劍士「永續風刃」與特殊「星爆時空」專屬被動特效放大 35%。",
-    "專屬被動 GIF 黑底轉透明，保留原尺寸與動畫播放設定。"
+    "將五職業 PF1～PF3 共 15 組預覽動畫接入正式戰鬥系統，並以新特效取代舊 PF 播放路徑。",
+    "保留既有 PF 觸發與命中位置；輔助魔法陣與落葉僅於 PF3 顯示，並支援手機直向畫面及技能特效透明度設定。"
   ],
   "files": [
     "index.html",
-    "asset/game-data.js",
-    "asset/fx/knight-permanent-wind.gif",
-    "asset/fx/special-starburst-time.gif",
-    "asset/fx/fighter-burst-lock.gif",
-    "asset/fx/ranger-absolute-pierce.gif",
-    "tests/browser-three-fixes.cjs",
+    "asset/fx/power-flip.js",
+    "asset/fx/power-flip-vfx.js",
+    "asset/fx/pf-fighter-preview.png",
+    "asset/fx/pf-supporter-preview.png",
+    "tests/power-flip.test.cjs",
+    "tests/power-flip-vfx.test.cjs",
+    "tests/game-update.test.cjs",
+    "tests/browser-power-flip-vfx.cjs",
     "release-notes.json"
   ]
 }
