@@ -114,7 +114,7 @@ window.SaveSystem = (() => {
         state.stamina = p.stamina === undefined ? staminaMax : Math.max(0, Math.min(9999999, Math.floor(+p.stamina) || 0));
         state.staminaTickAt = Number.isFinite(+p.staminaTickAt) && +p.staminaTickAt > 0 ? Math.floor(+p.staminaTickAt) : Date.now();
         state.staminaOverflowResetDate = typeof p.staminaOverflowResetDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(p.staminaOverflowResetDate) ? p.staminaOverflowResetDate : '';
-        state.typeTalentPoints = Math.max(0, Math.floor(state.rankLv / 5) - talentSpent(state.typeTalentRanks));
+        state.typeTalentPoints = Math.max(0, GAME_DATA.progression.typeTalents.totalPoints - talentSpent(state.typeTalentRanks));
         const isBossFloor = state.stage % bossEvery === 0;
         state.floorWins = isBossFloor ? 0 : Math.max(0, Math.min(normalFloorWaves - 1, Math.floor(+p.floorWins) || 0));
         const floorSeconds = isBossFloor ? bossFloorSeconds : normalFloorSeconds;

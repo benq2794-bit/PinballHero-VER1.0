@@ -59,9 +59,8 @@ class CDP {
             await delay(100);
         }
         assert.deepEqual(page.errors, [], 'startup JavaScript exceptions'); assert.equal(ready, true);
-        await page.evaluate(`accountCreated = true; accountGender = 'male'; accountName = 'Smoke';
-            tutorialSeen = true;
-            $('account-setup').classList.remove('on'); pickStarter('doctor_pirate');
+        await page.evaluate(`cloudUser = null; $('login-screen').hidden = true; accountName = 'Smoke';
+            tutorialSeen = true; ensurePlayableAccount();
             setPaused(false); showScreen('home');`);
         const tabs = await page.evaluate("[...Object.keys(PAGES), 'home']");
         for (const tab of tabs) {
@@ -77,11 +76,11 @@ class CDP {
             passives: document.querySelectorAll('#pg-body .tt-passive-node').length,
             brokenIcons: Array.from(document.querySelectorAll('#pg-body .tt-icon')).filter(i => !i.complete || i.naturalWidth === 0).length });`);
         assert.equal(talentPage.lanes, 'knight,fighter,ranger,supporter,special');
-        assert.equal(talentPage.nodes, 35, '30 顆天賦加 5 顆被動');
+        assert.equal(talentPage.nodes, 30, '25 顆天賦加 5 顆被動');
         assert.equal(talentPage.passives, 5);
         assert.equal(talentPage.brokenIcons, 0, '型態圖示不能掛掉');
         await page.evaluate("pickHomeTab('home')");
-        assert.equal(await page.evaluate("openAccountStats(); dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape' })); !$('account-stats').classList.contains('on') && uiRouter.current() === 'home'"), true);
+        assert.equal(await page.evaluate("toggleHomeAccountBonus(); const opened = !$('hm-bonus-details').hidden; dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape' })); toggleHomeAccountBonus(); opened && $('hm-bonus-details').hidden && uiRouter.current() === 'home'"), true);
         await page.evaluate("enterBattle(); setPaused(false); window.__smokeHits = 0; battleLifecycle.schedule(100, () => window.__smokeHits++); setPaused(true);");
         await delay(250); assert.equal(await page.evaluate('window.__smokeHits'), 0);
         await page.evaluate('setPaused(false)'); await delay(400);
@@ -108,7 +107,7 @@ class CDP {
         assert.equal(receipt.forged, 0); assert.equal(receipt.paid, receipt.expected); assert.equal(receipt.duplicate, 0);
         await delay(300);
         assert.deepEqual(page.errors, [], 'interaction JavaScript exceptions');
-        console.log('PASS: real Chrome startup, all tabs, account modal return, paused tasks, skill/restart cleanup, unique Boss rewards and gate exit.');
+        console.log('PASS: real Chrome startup, all tabs, account bonus panel return, paused tasks, skill/restart cleanup, unique Boss rewards and gate exit.');
         const browserInfo = await (await fetch('http://127.0.0.1:' + port + '/json/version')).json();
         browser = new WebSocket(browserInfo.webSocketDebuggerUrl);
         await new Promise(resolve => { browser.onopen = resolve; });

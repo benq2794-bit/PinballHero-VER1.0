@@ -126,12 +126,27 @@ async function test() {
     ch = fixture();
     delete ch.growthLedger;
     ch.lvl = 20;
+    ch.baseAtk = 39;
+    ch.maxHp = 340;
     ctx.normalizeCharacterGrowth(ch);
-    assert.match(ctx.growthResetQuote(ch).error, /舊存檔/);
+    const legacyQuote = ctx.growthResetQuote(ch);
+    assert.equal(legacyQuote.error, undefined, 'legacy characters can reset');
+    assert.equal(legacyQuote.experience, 0, 'unrecorded old investment is never guessed');
     ctx.saveGame();
+    await ctx.resetGrowthLevel('hero', stamp());
+    assert.equal(ch.lvl, 1);
+    assert.equal(ch.baseAtk, 20, 'legacy reset returns to the character initial stats');
+    assert.equal(ch.maxHp, 150);
+    assert.equal(ch.growthLedger.complete, false);
+    assert.equal(ch.growthLedger.resets, 1);
+    assert.equal(ctx.growthExpReserve, 0);
     await ctx.upgradeGrowthLevels('hero', 1);
-    assert.equal(ch.lvl, 21, 'legacy accounts can still upgrade');
+    assert.equal(ch.lvl, 2, 'legacy accounts can still upgrade');
     assert.equal(ch.growthLedger.complete, false, 'new records never guess the missing old investment');
+    const tracked = ch.growthLedger.experience;
+    await ctx.resetGrowthLevel('hero', stamp());
+    assert.equal(ctx.growthExpReserve, Math.floor(tracked * .8), 'only tracked investment is refunded');
+    await ctx.upgradeGrowthLevels('hero', 1);
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/gate-enhancement.js'), 'utf8'), ctx);
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/save-system.js'), 'utf8'), ctx);
     const rules = {
@@ -145,7 +160,7 @@ async function test() {
     const legacySave = { picked:true, roster:{ hero:oldCharacter }, teamIds:['hero'] };
     const restored = ctx.SaveSystem.restore(legacySave, { hero:ctx.newChar('hero', false) }, rules);
     assert.equal(restored.roster.hero.growthLedger.complete, false, 'old saves never inherit a fresh-character ledger');
-    assert.equal(restored.roster.hero.lvl, 21);
+    assert.equal(restored.roster.hero.lvl, 2);
     ch = fixture();
     await ctx.upgradeGrowthLevels('hero', 1);
     await ctx.resetGrowthLevel('hero', stamp());
@@ -153,6 +168,6 @@ async function test() {
     const reloaded = ctx.SaveSystem.restore(persisted, { hero:ctx.newChar('hero', false) }, rules);
     assert.equal(reloaded.growthExpReserve, ctx.growthExpReserve);
     assert.equal(reloaded.roster.hero.growthLedger.resets, 1);
-    console.log('PASS batch levels, real input refunds, bonus exclusion, 3 resets, talent preservation, legacy lock, rollback and stale tabs');
+    console.log('PASS batch levels, real input refunds, bonus exclusion, 3 resets, talent preservation, legacy reset without guessing, rollback and stale tabs');
 }
 test().catch(error => { console.error(error); process.exitCode = 1; });

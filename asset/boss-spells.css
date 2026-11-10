@@ -1,0 +1,16 @@
+.boss-spell-portal { position:absolute; z-index:2; width:var(--bs-size,300px); aspect-ratio:1;
+    transform:translate(-50%,-50%); pointer-events:none; opacity:0; color:var(--bs-color,#c8a6ff); }
+.boss-spell-portal svg { display:block; width:100%; height:100%; overflow:visible; }
+.boss-spell-portal .spin-slow, .boss-spell-portal .spin-reverse, .boss-spell-portal .spin-medium,
+.boss-spell-portal .spin-inner, .boss-spell-portal .core-symbol, .boss-spell-portal .pulse { transform-origin:300px 300px; }
+.boss-spell-portal .spin-slow { animation:bsSpellSpin 26s linear infinite; }
+.boss-spell-portal .spin-reverse { animation:bsSpellSpin 18s linear infinite reverse; }
+.boss-spell-portal .spin-medium { animation:bsSpellSpin 12s linear infinite; }
+.boss-spell-portal .spin-inner { animation:bsSpellSpin 7s linear infinite reverse; }
+.boss-spell-portal .core-symbol, .boss-spell-portal .pulse { animation:bsSpellBreath 2s ease-in-out infinite; }
+@keyframes bsSpellSpin { to { transform:rotate(360deg); } }
+@keyframes bsSpellBreath { 50% { opacity:.65; transform:scale(.96); } }
+.boss-spell-warning { position:absolute; z-index:2; border:3px solid #ff4848; background:#ff22221b; border-radius:50%;
+    transform:translate(-50%,-50%); box-shadow:0 0 20px #ff4444; opacity:0; pointer-events:none; }
+.boss-spell-canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.boss-spell-flash { position:absolute; inset:0; background:var(--bs-color,#fff); opacity:0; pointer-events:none; }

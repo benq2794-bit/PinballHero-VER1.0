@@ -6,8 +6,8 @@
 2. 執行 npm run check；任一語法、測試或建置失敗即停止部署，回報具體錯誤，不得宣稱通過。
 3. 準備 release-notes.json：content 為本次真實更新文字陣列，files 為明確要發布的相對檔案路徑陣列。
 4. 執行 npm run deploy -- release-notes.json。發布腳本會再檢查、遞增版本、保留舊日誌並提交所列檔案。
-5. 使用既有 GitHub main → Vercel 正式環境流程。不得強制推送或清除工作區。
-6. 驗證 https://pinball-realms.vercel.app/ 的 HTML 與 version.json：版本、發布 ID、commit 和 production 標記必須一致。
+5. 使用既有 GitHub main → Cloudflare Pages 正式環境流程（Pages 專案連結 GitHub repo，推送 main 即自動建置）。不得強制推送或清除工作區。
+6. 驗證 https://pinball-realms.pages.dev/ 的 HTML 與 version.json：版本、發布 ID、commit 和 production 標記必須一致。
 7. 正式站未更新、回傳錯誤或設定缺漏時明確回報，不能只憑推送成功宣稱已上線。
 8. 回報版本、更新內容、實際執行的測試、正式網址及未解決事項。
 

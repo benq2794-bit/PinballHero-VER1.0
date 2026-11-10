@@ -365,6 +365,7 @@ function renderGrowthPage() {
     const normalExp = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(100) : 100;
     const highExp = typeof betaExperienceAmount === 'function' ? betaExperienceAmount(1000) : 1000;
     const resetQuote = growthResetQuote(ch);
+    const resetNotice = resetQuote.error || (ch.growthLedger.complete ? '重置返還實際投入的培養經驗與金幣各 80%；剩餘經驗可繼續升級。' : '舊存檔沒有過去投入紀錄：重置不返還舊投入，重置後的新投入會正常記錄與返還。');
     const canUpgrade = count => !!growthUpgradeQuote(ch, count);
     // 圓台與徽章都取自角色自己的屬性，沒有對應素材時退回風屬性的圓台。
     const el = GROWTH_DAIS_EL.includes(d.element) ? d.element : 'wind', elInfo = GROWTH_ELEMENTS[el];
@@ -399,7 +400,7 @@ function renderGrowthPage() {
             <button type="button" class="growth-batch-ten" onclick="upgradeGrowthLevels('${ch.id}',10)" ${!canUpgrade(10) ? 'disabled' : ''}>⚡ 升級 ×10</button>
             <button type="button" class="growth-batch-cap" onclick="openGrowthActionDialog('${ch.id}','cap')" ${!canUpgrade('cap') ? 'disabled' : ''}>🚀 一鍵升至上限</button>
         </div><div class="growth-refund-row"><span>返還經驗 <b>${growthExpReserve.toLocaleString('zh-TW')}</b></span><button type="button" onclick="openGrowthActionDialog('${ch.id}','reset')" ${resetQuote.error ? 'disabled' : ''}>🔄 重置等級（${3 - ch.growthLedger.resets}/3）</button></div>
-        <p class="growth-reset-notice">${resetQuote.error || '重置返還實際投入的培養經驗與金幣各 80%；剩餘經驗可繼續升級。'}</p>
+        <p class="growth-reset-notice">${resetNotice}</p>
         <div class="growth-acts">
             <button class="growth-act gold" ${!materials || capped ? 'disabled' : ''} onpointerdown="startGrowthContinuous(event,'${ch.id}','normal')" onclick="growthClickFallback(event,'${ch.id}','normal')" title="按住左鍵連續強化，放開停止"><b>經驗水晶強化</b><small>${capped ? `需先${breakAction}` : `+${normalExp.toLocaleString('zh-TW')} 經驗｜持有 ${materials}｜按住連續強化`}</small></button>
             <button class="growth-act high-crystal" ${!highMaterials || capped ? 'disabled' : ''} onpointerdown="startGrowthContinuous(event,'${ch.id}','high')" onclick="growthClickFallback(event,'${ch.id}','high')" title="按住左鍵連續強化，放開停止"><b>高階水晶強化</b><small>${capped ? `需先${breakAction}` : `+${highExp.toLocaleString('zh-TW')} 經驗｜持有 ${highMaterials}｜按住連續強化`}</small></button>
@@ -434,7 +435,7 @@ function growthResourceKey(character, wallet) {
     return JSON.stringify({
         lvl:character.lvl, exp:character.exp, breakthrough:character.breakthrough,
         baseAtk:character.baseAtk, maxHp:character.maxHp, talents:character.talents,
-        ledger:character.growthLedger, reserve:wallet.growthExpReserve || 0,
+        ledger:normalizeGrowthLedger(character), reserve:wallet.growthExpReserve || 0,
         normal:wallet.cultivationMaterials || 0, high:wallet.highGradeExperienceCrystals || 0, gold:wallet.gold || 0
     });
 }
@@ -445,7 +446,6 @@ function growthCurrentWallet() {
 
 function growthResetQuote(ch) {
     const ledger = normalizeGrowthLedger(ch);
-    if (!ledger.complete) return { error:'舊存檔缺少完整培養消耗紀錄，暫時無法安全返還資源。' };
     if (ledger.resets >= 3) return { error:'此角色已用完 3 次等級重置。' };
     if (ch.lvl === 1 && !ch.exp && !ledger.experience && !ledger.gold) return { error:'角色目前尚無可重置的等級或培養投入。' };
     const experience = Number(BigInt(ledger.experience) * 4n / 5n);
@@ -550,8 +550,14 @@ function resetGrowthLevel(id, expected) {
         ch.lvl = 1;
         ch.exp = 0;
         ch.nextExp = growthExpNeed(1);
-        ch.baseAtk = ledger.baseAtk;
-        ch.maxHp = ledger.baseHp;
+        if (ledger.complete) {
+            ch.baseAtk = ledger.baseAtk;
+            ch.maxHp = ledger.baseHp;
+        } else {
+            const d = CHAR_TABLE[ch.id];
+            ch.baseAtk = Math.round(d.atk * (d.powerScale || 1));
+            ch.maxHp = Math.round(d.hp * (d.powerScale || 1));
+        }
         if (ch.hp > 0) ch.hp = hpMax(ch);
         growthExpReserve += quote.experience;
         gold += quote.gold;
@@ -589,7 +595,7 @@ function openGrowthActionDialog(id, kind) {
         <p class="growth-dialog-character">${escape(charName(id))}</p>
         <div class="growth-dialog-level"><b>Lv.${ch.lvl}</b><span>→</span><b>Lv.${reset ? 1 : quote.target}</b></div>
         ${reset ? `<dl><div><dt>返還培養經驗</dt><dd>${quote.experience.toLocaleString('zh-TW')}</dd></div><div><dt>返還金幣</dt><dd>${quote.gold.toLocaleString('zh-TW')}</dd></div><div><dt>重置剩餘次數</dt><dd>${quote.remaining} → ${quote.remaining - 1}</dd></div></dl>
-        <p class="growth-dialog-warning">將損失 20% 已投入資源。星級、突破與天賦進度保留。</p><p>經驗存入「返還經驗」，可用於升級。返還以實際使用的水晶原始經驗計算，封測額外加成不計入投入；現有水晶強化不扣金幣，因此該部分金幣返還為 0。</p>`
+        ${ch.growthLedger.complete ? '<p class="growth-dialog-warning">將損失 20% 已投入資源。星級、突破與天賦進度保留。</p><p>經驗存入「返還經驗」，可用於升級。返還以實際使用的水晶原始經驗計算，封測額外加成不計入投入；現有水晶強化不扣金幣，因此該部分金幣返還為 0。</p>' : '<p class="growth-dialog-warning">舊存檔沒有過去的投入紀錄：本次重置不返還舊投入，等級與素質回到初始值。星級、突破與天賦進度保留；重置後的新投入會正常記錄與返還。</p>'}`
         : `<dl><div><dt>使用返還經驗</dt><dd>${quote.reserve.toLocaleString('zh-TW')}</dd></div><div><dt>經驗水晶</dt><dd>×${quote.normal}</dd></div><div><dt>高階水晶</dt><dd>×${quote.high}</dd></div><div><dt>金幣</dt><dd>0</dd></div></dl>
         <p>升至目前已解鎖上限。水晶未用完的 ${quote.change.toLocaleString('zh-TW')} 經驗轉入返還經驗。</p>`}
         <div class="growth-dialog-actions"><button type="button" onclick="closeGrowthActionDialog()">取消</button><button type="submit" class="growth-dialog-confirm">${reset ? '確認重置' : '確認升級'}</button></div></form>`;

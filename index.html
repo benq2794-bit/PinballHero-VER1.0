@@ -337,6 +337,7 @@
             box-shadow: inset 0 0 0 5px rgba(7,24,38,.24), 0 0 0 2px rgba(4,12,24,.72);
         }
 
+        .pf-passive { position: absolute; inset: 0; pointer-events: none; }
         .pf-vfx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 8; }
         /* 傷害跳字自己一層，壓在 BOSS 血條（z22）之上：跳字會往上飛過王的頭，掛在 .pf-vfx(8) 裡一定被條蓋掉 */
         .pf-pops { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 23; }
@@ -400,13 +401,13 @@
             transform:translate(-50%,-50%) rotate(var(--r,0rad)) scale(var(--sx,1), var(--sy,1)); image-rendering:pixelated; pointer-events:none; }
         /* 格鬥型三連爪在草地上偏小偏暗，放大後補一層暖色光暈把輪廓拉出來。 */
         .pf-fx.pf-fx-fighter { filter:drop-shadow(0 0 6px rgba(255,214,120,.85)) brightness(1.12) saturate(1.1); }
-        /* 戰士永續風刃 GIF 是黑底素材，用濾色讓黑底融入戰場，只保留紫色風刃。 */
-        .pf-fx.passive-wind-gif { background-size:100% 100%; image-rendering:auto; mix-blend-mode:screen;
-            filter:drop-shadow(0 0 7px rgba(142,91,255,.62)); }
-        .pf-fx.passive-gif { background-size:100% 100%; image-rendering:auto; mix-blend-mode:screen; }
-        .pf-fx.passive-gif-slow { filter:drop-shadow(0 0 8px rgba(94,177,255,.72)); }
-        .pf-fx.passive-gif-pierce { filter:drop-shadow(0 0 7px rgba(120,196,255,.7)); }
-        .pf-fx.passive-gif-shock { filter:drop-shadow(0 0 7px rgba(190,75,255,.72)); }
+        /* 被動展示特效：黑底素材一律用濾色融入戰場。drop-shadow 會沿不透明矩形產生方形光暈，
+           改以觸發瞬間的亮度脈衝表現衝擊，不另疊圖層。 */
+        .pf-fx.passive-wind-gif { background-size:100% 100%; image-rendering:auto; mix-blend-mode:normal; }
+        .pf-fx.passive-gif { background-size:100% 100%; image-rendering:auto; mix-blend-mode:normal; }
+        .pf-fx.passive-strip { mix-blend-mode:screen; }
+        .pf-fx.passive-effect { animation:passiveImpactFlash .42s ease-out both; }
+        @keyframes passiveImpactFlash { 0%{filter:brightness(2.1) saturate(1.35)} 45%{filter:brightness(1.22) saturate(1.1)} 100%{filter:brightness(1) saturate(1)} }
         .boss-special-gif { position:absolute; z-index:4; transform:translate(-50%,-50%); object-fit:contain; pointer-events:none;
             mix-blend-mode:screen; filter:brightness(1.08) saturate(.88); }
         .boss-special-gif.summon,.boss-special-gif.shockwave { filter:brightness(1.62) saturate(1.2) drop-shadow(0 0 8px rgba(121,205,255,.6)); }
@@ -766,18 +767,75 @@
             0 0 16px rgba(255,200,60,.55), inset 0 0 70px rgba(255,150,20,.28); }
         #pf.fever-on .pf-turf { filter: hue-rotate(calc(var(--turf-hue, 0deg) - 24deg)) saturate(1.35) brightness(calc(var(--turf-lum, 1) * 1.45)); }
 
-        /* 中央 FEVER 字：常駐貼在能量條上方當標籤，Fever 期間才全亮脈動；字身用傷害點陣字 */
+        /* 中央 FEVER 字：常駐貼在能量條上方當標籤，Fever 期間才全亮脈動；字身用金色點陣字 */
         .pf-center .fever { position: absolute; left: 0; right: 0; top: 168px; font-size: 20px; font-weight: 900;
-            letter-spacing: 5px; color: #ffd93d; opacity: 0; visibility: hidden; transform: scale(.94); transition: opacity .2s, transform .2s, visibility .2s;
-            text-shadow: 0 0 16px #ffb036, 0 0 34px rgba(255,140,20,.9); }
+            letter-spacing: 5px; color: #ffd93d; opacity: .88; visibility: visible; transform: scale(.95); transition: opacity .2s, transform .2s, filter .2s;
+            text-shadow: 0 0 14px #ffb036, 0 0 26px rgba(255,140,20,.8); }
         .pf-center .fever.px-num { display: flex; justify-content: center; align-items: center; font-size: 0; line-height: 0;
             letter-spacing: 0; text-shadow: none;
-            filter: drop-shadow(0 0 14px rgba(255,180,50,.9)) drop-shadow(0 3px 2px rgba(0,0,0,.6)); }
+            filter: drop-shadow(0 0 10px rgba(255,180,50,.7)) drop-shadow(0 2px 2px rgba(0,0,0,.6)); }
         .pf-center .fever.px-num i { display: block; flex: none; background-repeat: no-repeat; image-rendering: pixelated; }
         .pf-center .fever.on { opacity: 1; visibility: visible; animation: feverPulse .5s ease-in-out infinite alternate; }
         @keyframes feverPulse {
             from { transform: scale(1); filter: brightness(1) drop-shadow(0 0 14px rgba(255,180,50,.9)); }
             to { transform: scale(1.09); filter: brightness(1.25) drop-shadow(0 0 22px rgba(255,200,70,1)); }
+        }
+
+        /* FEVER 能量條：青白色像素風，位於金色 FEVER 字下方 */
+        .pf-center .fever-gauge {
+            position: absolute; left: 50%; top: 208px;
+            width: 176px; height: 12px;
+            transform: translateX(-50%);
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+        .pf-center .fever-bar-frame {
+            position: relative; width: 100%; height: 100%;
+            background: #041019;
+            border: 2px solid #a5f3fc;
+            outline: 2px solid #04111d;
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.45), inset 0 2px 3px rgba(0, 0, 0, 0.9);
+            box-sizing: border-box;
+            overflow: hidden;
+            image-rendering: pixelated;
+        }
+        .pf-center .fever-bar-fill {
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 0%;
+            background: linear-gradient(180deg, #e0faff 0%, #38bdf8 36%, #0284c7 78%, #0369a1 100%);
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.65);
+            transition: width 0.25s cubic-bezier(0.2, 0.8, 0.3, 1);
+            overflow: hidden;
+        }
+        .pf-center .fever-gauge.active-fever .fever-bar-fill {
+            background: linear-gradient(180deg, #ffffff 0%, #67e8f9 32%, #00e5ff 72%, #0284c7 100%);
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.95), 0 0 4px #ffffff;
+            transition: width 0.08s linear;
+        }
+        .pf-center .fever-bar-glint {
+            position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%);
+            background-size: 55px 100%;
+            background-repeat: no-repeat;
+            animation: feverGlint 1.8s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes feverGlint {
+            0% { background-position: -55px 0; }
+            100% { background-position: calc(100% + 55px) 0; }
+        }
+        .pf-center .fever-bar-flash {
+            position: absolute; left: -6px; top: -6px; right: -6px; bottom: -6px;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.95) 0%, rgba(56,189,248,0.7) 50%, transparent 80%);
+            opacity: 0; pointer-events: none;
+        }
+        .pf-center .fever-gauge.flash .fever-bar-flash {
+            animation: feverGaugeBurst 0.4s ease-out forwards;
+        }
+        @keyframes feverGaugeBurst {
+            0% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0; transform: scale(1.2); }
         }
         /* FEVER 字下面接一起算的連擊：只有 Fever 期間才有這個數字 */
         .pf-center .fever-combo { position: absolute; left: 0; right: 0; top: 10px;
@@ -1010,42 +1068,12 @@
         @keyframes healingSigilBloom { 0%{opacity:0;transform:translate(-50%,-50%) scale(.72)} 18%{opacity:.92;transform:translate(-50%,-50%) scale(1)} 72%{opacity:.78;transform:translate(-50%,-50%) scale(1.02)} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.12)} }
         @keyframes healingSigilTurn { from{transform:rotate(-12deg)} to{transform:rotate(12deg)} }
         /* ===== 敵方進階攻擊：小怪遠程點射 + BOSS 大範圍法術（隕石術／暴風雪／落雷／地震） ===== */
-        /* 法陣畫在角色實體層（.ent z5）下方，被鎖定的目標才看得见自己踩在陣裡；空間撕裂由 BlackHoleFX 畫在上層。 */
-        .spell-sigil { position:absolute; z-index:2; left:var(--sx); top:var(--sy); width:var(--sz,300px); height:var(--sz,300px);
-            color:var(--spell-color,#c8a6ff); opacity:0; pointer-events:none; transform:translate(-50%,-50%);
-            filter:drop-shadow(0 0 11px currentColor); animation:spellSigilBloom var(--ms,1500ms) cubic-bezier(.2,.72,.24,1) forwards; }
-        .spell-sigil svg { display:block; width:100%; height:100%; }
-        .spell-sigil g { transform-box:view-box; transform-origin:100px 100px; }
-        .spell-sigil .sg-ring { animation:spellTurn 4.2s linear infinite; }
-        .spell-sigil .sg-ring-b { animation:spellTurnBack 3.1s linear infinite; }
-        .spell-sigil .sg-core { animation:spellCorePulse 520ms ease-in-out infinite; }
-        @keyframes spellSigilBloom { 0%{opacity:0;transform:translate(-50%,-50%) scale(.26)} 20%{opacity:1;transform:translate(-50%,-50%) scale(1)}
-            74%{opacity:.9;transform:translate(-50%,-50%) scale(1.03)} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)} }
-        @keyframes spellTurn { from{transform:rotate(0)} to{transform:rotate(360deg)} }
-        @keyframes spellTurnBack { from{transform:rotate(0)} to{transform:rotate(-360deg)} }
-        @keyframes spellCorePulse { 0%,100%{transform:scale(.92);opacity:.6} 50%{transform:scale(1.05);opacity:1} }
-        /* 隕石與落雷的落點鎖圈：同样是細線，不鋪底板。 */
-        .spell-mark { position:absolute; z-index:2; left:var(--sx); top:var(--sy); width:var(--sz,120px); height:var(--sz,120px);
-            color:var(--spell-color); border:2px solid currentColor; border-radius:50%; transform:translate(-50%,-50%) scale(.4);
-            opacity:0; pointer-events:none; box-shadow:0 0 13px currentColor, inset 0 0 11px currentColor;
-            animation:spellMarkLock var(--ms,900ms) ease-out forwards; }
-        .spell-mark::before { content:""; position:absolute; inset:-5px; border:1px dashed currentColor; border-radius:50%; opacity:.72;
-            animation:spellTurn 1.7s linear infinite; }
-        @keyframes spellMarkLock { 0%{opacity:0;transform:translate(-50%,-50%) scale(.4)} 24%{opacity:.95;transform:translate(-50%,-50%) scale(1)}
-            80%{opacity:.8} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.18)} }
+        /* BOSS 四法術的魔法陣／預警圈／攻擊 canvas 樣式在 asset/boss-spells.css。 */
         .ball.boss-casting { filter:brightness(1.14) saturate(1.3) drop-shadow(0 0 16px var(--spell-color,#c8a6ff)); }
         /* 小怪的遠程彈：元素色能量球，黑底是實心漸層，直接疊在場布上不會像破圖。 */
         .foe-shot { position:absolute; z-index:8; left:0; top:0; width:var(--sz,26px); height:var(--sz,26px); margin:calc(var(--sz,26px) / -2);
             border-radius:50%; pointer-events:none; background:radial-gradient(circle at 38% 34%,#fff 8%,var(--shot-color) 44%,rgba(24,10,30,.85) 92%);
             box-shadow:0 0 11px var(--shot-color), 0 0 24px var(--shot-color); }
-        .spell-meteor { position:absolute; z-index:8; left:var(--sx); top:var(--sy); width:var(--sw,52px); height:var(--sh,150px);
-            transform:translate(-50%,-100%); opacity:0; pointer-events:none; color:var(--spell-color); }
-        .spell-meteor::before { content:""; position:absolute; inset:0 18% 22%;
-            background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,150,60,.28) 38%,rgba(255,232,180,.9) 92%);
-            clip-path:polygon(40% 0,60% 0,78% 76%,100% 100%,0 100%,22% 76%); }
-        .spell-meteor::after { content:""; position:absolute; left:50%; bottom:-2px; width:36px; height:36px; transform:translateX(-50%);
-            border-radius:50%; background:radial-gradient(circle at 36% 32%,#fff8e6 12%,#ffbe63 46%,#c9401b 84%);
-            box-shadow:0 0 15px rgba(255,150,60,.95), 0 0 32px rgba(255,90,30,.7); }
         .spell-flash { position:absolute; z-index:8; left:var(--sx); top:var(--sy); width:var(--sz,140px); height:var(--sz,140px);
             transform:translate(-50%,-50%) scale(.3); opacity:0; pointer-events:none; color:var(--spell-color);
             background:radial-gradient(circle,rgba(255,255,255,.95) 8%,currentColor 34%,rgba(255,255,255,0) 70%);
@@ -1055,34 +1083,6 @@
         @keyframes spellFlashIn { 0%{opacity:0;transform:translate(-50%,-50%) scale(.3)} 26%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}
             100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)} }
         @keyframes spellShockOut { from{transform:scale(.3);opacity:.9} to{transform:scale(2);opacity:0} }
-        /* 暴風雪：整個戰場蓋一層斜飘的雪粒＋冷色霧，不是一個框。 */
-        .spell-blizzard { position:absolute; inset:0; z-index:8; pointer-events:none; opacity:0;
-            background:radial-gradient(circle at 50% 6%,rgba(186,238,255,.32),rgba(255,255,255,0) 66%),
-                       repeating-linear-gradient(74deg,rgba(255,255,255,.14) 0 2px,rgba(255,255,255,0) 2px 14px);
-            animation:spellBlizzard 1700ms linear forwards; }
-        .spell-blizzard::before,.spell-blizzard::after { content:""; position:absolute; inset:-24% 0; }
-        .spell-blizzard::before { background-image:radial-gradient(circle,rgba(255,255,255,.9) 1.4px,rgba(255,255,255,0) 1.7px);
-            background-size:34px 46px; animation:spellSnow 820ms linear infinite; }
-        .spell-blizzard::after { background-image:radial-gradient(circle,rgba(214,246,255,.8) 2.3px,rgba(255,255,255,0) 2.6px);
-            background-size:57px 71px; animation:spellSnow 1260ms linear infinite; }
-        @keyframes spellBlizzard { 0%{opacity:0} 12%{opacity:.96} 74%{opacity:.82} 100%{opacity:0} }
-        @keyframes spellSnow { from{transform:translateY(-46px)} to{transform:translateY(0)} }
-        .spell-bolt { position:absolute; z-index:9; left:var(--sx); top:0; width:var(--sw,52px); height:var(--h,340px);
-            transform:translateX(-50%); opacity:0; pointer-events:none; color:var(--spell-color); }
-        .spell-bolt svg { display:block; width:100%; height:100%; overflow:visible;
-            filter:drop-shadow(0 0 9px currentColor) drop-shadow(0 0 22px currentColor); }
-        .spell-bolt .bl-glow { stroke:currentColor; stroke-width:11; fill:none; opacity:.45; stroke-linecap:round; stroke-linejoin:round; }
-        .spell-bolt .bl-core { stroke:#fff; stroke-width:3.6; fill:none; stroke-linecap:round; stroke-linejoin:round; }
-        .spell-bolt .bl-fork { stroke:currentColor; stroke-width:2.2; fill:none; opacity:.8; stroke-linecap:round; }
-        .spell-bolt.on { animation:spellBoltStrike 420ms linear forwards; }
-        @keyframes spellBoltStrike { 0%{opacity:0} 5%{opacity:1} 20%{opacity:.3} 31%{opacity:1} 58%{opacity:.72} 100%{opacity:0} }
-        .spell-crack { position:absolute; z-index:2; left:var(--sx); top:var(--sy); width:var(--sz,240px); height:var(--sz,240px);
-            transform:translate(-50%,-50%); opacity:0; pointer-events:none; color:var(--spell-color);
-            animation:spellCrackRun 780ms ease-out forwards; }
-        .spell-crack svg { display:block; width:100%; height:100%; overflow:visible; }
-        .spell-crack .ck-dark { stroke:rgba(28,14,6,.88); stroke-width:6; fill:none; stroke-linecap:round; }
-        .spell-crack .ck-edge { stroke:currentColor; stroke-width:2.1; fill:none; stroke-linecap:round; }
-        @keyframes spellCrackRun { 0%{opacity:0} 8%{opacity:1} 66%{opacity:.86} 100%{opacity:0} }
         /* 地震專用晃動：比通用 .shake 長一倍、幅度兩倍，且是逐次衰減的多段往復。兩條規則都寫 animation 簡寫，後面的本塊會整條贏過 .shake，所以同時掛只會剩強震。 */
         .pf-quake { animation:quakeShakeAnim 620ms cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes quakeShakeAnim { 0%{transform:translate(0,0)} 6%{transform:translate(-11px,7px)} 13%{transform:translate(10px,-8px)}
@@ -1567,7 +1567,6 @@
         .dex-cell { cursor:pointer; }
         .dex-cell:focus-visible { outline:2px solid #ffe27c; outline-offset:1px; }
         .dex-cell.selected { border-color:#ffe27c; box-shadow:0 0 0 1px rgba(255,226,124,.72) inset,0 0 10px rgba(255,210,99,.28); }
-        .char-card.skill-selected { outline:2px solid #ffe27c; outline-offset:1px; }
         .dex-hover-card { position:fixed; z-index:9999; width:min(430px,calc(100vw - 24px)); max-height:min(310px,calc(100vh - 24px)); overflow:auto; pointer-events:none; }
         .dex-hover-card[hidden] { display:none !important; }
         .dex-detail { display:grid; grid-template-columns:62px minmax(0,1fr); gap:10px; margin:0; padding:10px;
@@ -1608,14 +1607,21 @@
         .dex-pane { min-width:0; border:1px solid var(--dex-line); border-radius:9px; background:linear-gradient(155deg,#f7fbfc,#dfeaf0); padding:8px; box-shadow:0 2px 7px #09253718; }
         .dex-pane-title { display:flex; align-items:center; justify-content:space-between; gap:5px; color:#17394d; font-size:11px; font-weight:900; margin:0 0 7px; }
         .dex-focus { text-align:center; }
-        .dex-focus-portrait { height:100px; display:grid; place-items:center; overflow:hidden; border:1px solid #9ab4c3; border-radius:7px;
-            background:linear-gradient(180deg,rgba(248,252,253,.54),rgba(233,242,245,.68)),url("asset/ui/ui-background-polita.png") center 42% / cover no-repeat; }
-        .dex-focus-portrait img { max-width:100%; max-height:100%; image-rendering:pixelated; }
+        .dex-focus-portrait { position:relative; height:340px; display:grid; place-items:center; overflow:hidden; border:1px solid #9ab4c3; border-radius:7px;
+            background:linear-gradient(180deg,#fbfdfe,#e8f1f5); }
+        .dex-focus-portrait img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+        .dex-focus-portrait.locked img { filter:grayscale(1); opacity:.8; }
+        .dex-zoom-btn { position:absolute; right:6px; bottom:6px; border:1px solid #9ab4c3; border-radius:999px; background:#ffffffd9; color:#17394d; font-family:inherit; font-size:9px; font-weight:800; padding:3px 9px; cursor:pointer; }
         .dex-focus-name { margin:6px 0 1px; color:#17394d; font-size:15px; font-weight:900; }
         .dex-focus-meta { color:#496576; font-size:9px; font-weight:800; }
         .dex-focus-data { display:grid; gap:5px; margin-top:8px; text-align:left; }
         .dex-focus-data div { display:flex; justify-content:space-between; gap:5px; padding:5px 6px; border-radius:5px; background:#e7f0f4; color:#476171; font-size:9px; }
         .dex-focus-data b { color:#17394d; text-align:right; }
+        .dex-portrait-tabs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-top:6px; }
+        .dex-portrait-tabs button { min-height:36px; border:1px solid #89a9b8; border-radius:7px; background:linear-gradient(#fff,#dce9ee); color:#18394b; font-family:inherit; font-size:11px; font-weight:800; cursor:pointer; }
+        .dex-portrait-tabs button[aria-pressed="true"] { border-color:#d0a338; background:linear-gradient(#fff1bd,#e9c763); color:#513a0b; }
+        .dex-lightbox { position:fixed; inset:0; z-index:10080; display:grid; place-items:center; background:#000000c9; cursor:zoom-out; }
+        .dex-lightbox img { max-width:94vw; max-height:92vh; object-fit:contain; }
         .dex-focus-skill { margin-top:7px; padding:6px; border-left:3px solid #e0b744; border-radius:4px; background:#fff8e5; text-align:left; color:#425b68; font-size:9px; line-height:1.45; }
         .dex-focus-skill b { color:#8a6414; }
         .dex-bonus-title { margin:9px 0 5px; text-align:left; color:#1c4357; font-size:10px; font-weight:900; }
@@ -1662,7 +1668,7 @@
         .dex-layout > #dex-focus,.dex-layout > .dex-matrix,.dex-layout > .dex-rewards-pane { display:none; }
         .dex-layout[data-active="focus"] > #dex-focus,.dex-layout[data-active="matrix"] > .dex-matrix,.dex-layout[data-active="rewards"] > .dex-rewards-pane { display:block; }
         .dex-pane { padding:10px; }
-        .dex-focus-portrait { height:150px; }
+        .dex-focus-portrait { height:300px; }
         .dex-matrix .dex-grid { grid-template-columns:repeat(3,minmax(0,1fr)); max-height:calc(100vh - 270px); }
         /* 名冊卡片固定直向堆疊：角色圖、名稱、稱號、分類各自佔一行。 */
         .dex-matrix .dex-cell > .art { display:flex; width:100%; height:52px; margin:0 auto 2px; }
@@ -2595,6 +2601,7 @@
 <link rel="stylesheet" href="asset/game-update.css">
 <link rel="stylesheet" href="asset/summon-jackpot.css">
 <link rel="stylesheet" href="asset/boss-mech-fx.css">
+<link rel="stylesheet" href="asset/boss-spells.css">
 <script>
     document.documentElement.classList.add("ui-booting");
     try { document.documentElement.classList.toggle("ui-dark-mode", localStorage.getItem("wf_ui_dark_mode") === "true"); } catch (_) {}
@@ -2872,12 +2879,23 @@
             <!-- 登場點陣特效層：排在 .pf-field 前面，特效在王背後炸，再大也不會把他蓋掉 -->
             <div class="boss-fx-back" id="boss-fx-back" aria-hidden="true"></div>
             <div class="pf-field" id="pf-field"></div>
+            <!-- 被動展示專用層：不能給 z-index／filter／translate，否則濾色會被困在透明圖層裡變黑塊。
+                 FEVER 震動與換層濾鏡都只作用在 .pf-field，這層維持乾淨才能讓 screen 疊到場布上。 -->
+            <div class="pf-passive" id="pf-passive" aria-hidden="true"></div>
             <div class="pf-vfx" id="pf-vfx"></div>
             <div class="pf-pops" id="pf-pops" aria-hidden="true"></div>
             <div class="pf-loot-stack" id="pf-loot-stack" aria-live="polite" aria-label="戰利品掉落"></div>
 
             <div class="pf-center" id="pf-center">
                 <div class="fever" id="pf-fever">FEVER</div>
+                <div class="fever-gauge" id="pf-fever-gauge" aria-label="FEVER 能量槽">
+                    <div class="fever-bar-frame">
+                        <div class="fever-bar-fill" id="pf-fever-bar-fill" style="width: 0%">
+                            <div class="fever-bar-glint"></div>
+                        </div>
+                    </div>
+                    <div class="fever-bar-flash" id="pf-fever-bar-flash"></div>
+                </div>
                 <div class="fever-combo" id="pf-fever-combo">COMBO x0</div>
             </div>
 
@@ -3136,8 +3154,8 @@
 <script src="asset/combat-rules.js"></script>
 <script src="asset/boss-entrance.js"></script>
 <script src="asset/fx/pixel-text.js"></script>
-<script src="asset/fx/black-hole.js"></script>
 <script src="asset/fx/fever-rush.js"></script>
+<script src="asset/fx/boss-spells.js"></script>
 <script src="asset/gate-enhancement.js"></script>
 <script src="asset/gate-browser.js"></script>
 <script src="asset/home-party.js"></script>
@@ -3163,14 +3181,14 @@
 const GAME_VERSION = "v0.1.0-alpha.8";
 const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
-// 開發模式只允許在本機或 Vercel 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
+// 開發模式只允許在本機或 Cloudflare Pages 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
 const DEV_MODE = (() => {
     const host = location.hostname.toLowerCase();
     const requested = new URLSearchParams(location.search).get("dev") === "1";
-    const productionHosts = new Set(["pinball-realms.vercel.app", "rank-3.vercel.app"]);
-    const vercelBranchPreview = host.endsWith(".vercel.app") && host.includes("-git-") && !productionHosts.has(host);
+    const productionHosts = new Set(["pinball-realms.pages.dev"]);
+    const cloudflarePreview = host.endsWith(".pages.dev") && !productionHosts.has(host);
     const allowedHost = location.protocol === "file:" || host === "localhost" || host === "127.0.0.1" ||
-        vercelBranchPreview;
+        cloudflarePreview;
     return requested && allowedHost;
 })();
 const DEV_PF_ALWAYS_KEY = "wf_dev_pf_always_v1";
@@ -4872,7 +4890,6 @@ function gainRankExp(amount) {
     }
     const add = Math.max(0, Math.floor(Number(amount) || 0));
     if (!add) return 0;
-    const previousTalentMilestones = Math.floor(rankLv / 5);
     rankExp += add;
     let ups = 0;
     while (rankLv < MAX_RANK && rankExp >= rankExpNeed(rankLv)) { rankExp -= rankExpNeed(rankLv); rankLv++; ups++; }
@@ -4880,12 +4897,9 @@ function gainRankExp(amount) {
     if (ups) {
         stamina = Math.max(stamina, staminaMaxAtRank(rankLv));
         staminaTickAt = Date.now();
-        const talentPointsEarned = Math.max(0, Math.floor(rankLv / 5) - previousTalentMilestones);
-        typeTalentPoints += talentPointsEarned;
         homeSig = "";
-        const talentMessage = talentPointsEarned ? `、天賦點 +${talentPointsEarned}` : "";
         const accountBonus = mainAccountBonus();
-        log(`🏅 <b>RANK UP！</b> 目前 RANK ${rankLv}${talentMessage}｜體力補滿至 ${stamina}/${staminaMaxAtRank()}｜全隊攻擊 +${(accountBonus.atk * 100).toFixed(1)}%｜暴擊 +${(accountBonus.crit * 100).toFixed(1)}%`);
+        log(`🏅 <b>RANK UP！</b> 目前 RANK ${rankLv}｜體力補滿至 ${stamina}/${staminaMaxAtRank()}｜全隊攻擊 +${(accountBonus.atk * 100).toFixed(1)}%｜暴擊 +${(accountBonus.crit * 100).toFixed(1)}%`);
         saveGame();
     }
     return ups;
@@ -4983,6 +4997,13 @@ function paintFeverFlippers() {
     const pct = FEVER.active ? Math.max(0, Math.min(100, FEVER.left / FEVER_MS * 100)) : Math.min(100, FEVER.value / FEVER.maxValue * 100);
     // 彈板顏色就是 FEVER 能量：蓄能逐漸轉金，啟動後隨倒數逐漸退回紅色。
     setFlipperGold(pct / 100);
+    paintFeverBar(pct);
+}
+function paintFeverBar(pct) {
+    const bar = $("pf-fever-bar-fill");
+    if (!bar || !bar.style) return;
+    const clamped = Math.max(0, Math.min(100, pct));
+    bar.style.width = clamped.toFixed(1) + "%";
 }
 function feverAdd(n) {
     if (FEVER.active) return 0;
@@ -5000,6 +5021,12 @@ function feverStart() {
     FEVER.times++;
     const pf = $("pf"); if (pf) pf.classList.add("fever-on");
     const badge = $("pf-fever"); if (badge) badge.classList.add("on");
+    const gauge = $("pf-fever-gauge");
+    if (gauge && gauge.classList) {
+        gauge.classList.add("active-fever");
+        gauge.classList.add("flash");
+        if (typeof setTimeout === "function") setTimeout(() => { if (gauge && gauge.classList) gauge.classList.remove("flash"); }, 400);
+    }
     feverCombo = 0;
     const fc = $("pf-fever-combo"); if (fc) fc.classList.remove("on", "bump");
     // 速度感：速度線＋霓虹粒子＋鏡頭震動，起點用球的位置
@@ -5032,6 +5059,11 @@ function feverEnd() {
     clearFeverPads();
     FEVER.maxValue = Math.min(FEVER_CAP, FEVER_BASE + FEVER.times * FEVER_STEP);
     setFlipperGold(0);
+    const gauge = $("pf-fever-gauge");
+    if (gauge && gauge.classList) {
+        gauge.classList.remove("active-fever");
+        gauge.classList.remove("flash");
+    }
     paintFeverFlippers();
     const pf = $("pf"); if (pf) pf.classList.remove("fever-on");
     const badge = $("pf-fever"); if (badge) badge.classList.remove("on");
@@ -5141,7 +5173,8 @@ const PF = {
 };
 
 const typeEffects = TypeEffects.create({
-    isActive: typeTalentTreeMaxed,
+    // 被動需手動解鎖，且隊伍裡要有對應攻擊型態的角色才生效。
+    isActive: type => typePassiveUnlocked(type) && teamIds.some(id => CHAR_TABLE[id] && CHAR_TABLE[id].type === type),
     getTalent: typeTalentRank, isFever: () => FEVER.active
 });
 const battleLifecycle = BattleLifecycle.create({
@@ -5182,10 +5215,12 @@ function resetBattleTransient() {
     PF.doomFX = null;
     FX.clearPops();
     if (PF.vfx) PF.vfx.innerHTML = '';
+    // 被動展示掛在獨立被動層，重置時要主動收掉，不能只清 .pf-vfx 層。
+    for (const fx of [...FX.sprites]) if (fx._passiveKey) fx._disposePassive();
     PF.el?.querySelectorAll('.doom-strike,.doom-top-beam').forEach(n => n.remove());
     if (FEVER.active) feverEnd();
     Object.assign(FEVER, { value: 0, maxValue: FEVER_BASE, active: false, left: 0, times: 0 });
-    POWER_FLIP.lockMs = POWER_FLIP.buffMs = POWER_FLIP.buffPct = 0;
+    POWER_FLIP.lockMs = POWER_FLIP.buffMs = POWER_FLIP.buffPct = POWER_FLIP.speedPct = 0;
     COLLISION_TRIAL.dashLeft = 0;
     combo = 0; comboAt = 0; feverCombo = 0;
     for (const m of PF.members) {
@@ -5445,7 +5480,10 @@ function resolveFlipperCollision(b, f) {
         b.vy += cx * lin * 0.8;
     }
     stabilizeFlipperExit(b, f, qx, qy, dx, dy, swingingUp);
-    if (swingingUp) launchPowerFlip(b);
+    if (swingingUp) {
+        powerFlipSupportLaunchSpeed(b);
+        launchPowerFlip(b);
+    }
     return true;
 }
 
@@ -6256,6 +6294,11 @@ const FX = {
 const PF_FX = GAME_DATA.assets.powerFlipFx;
 function showPowerFlipVFX(type, x, y, angle = 0, level = 1, visualScale = 1, beamLength = 170) {
     if (!PF.vfx) return;
+    // New PF effect replaces the old sprite-sheet animation, never overlays it.
+    if (typeof window.showPowerFlipCanvasFX === 'function') {
+        window.showPowerFlipCanvasFX(type, x, y, angle, level, visualScale, beamLength);
+        return;
+    }
     const sheet = PF_FX[type];
     if (!sheet) return;
     const k = (1 + Math.max(0, level - 1) * .12) * Math.max(.5, visualScale) * (sheet.scale || 1);
@@ -6319,70 +6362,25 @@ const ENEMY_ADVANCED_ATTACK = {
     leadTime: .35,          // 彈道預判：瞄 0.35 秒後的位置，跑得快才躲得掉
     chillSpeed: .46         // 暴風雪减速期間只允許 46% 的原時最高速度
 };
+// 定案版四階段：施法 1.5s → 預警 0.8s → 攻擊 2s（每 0.1s 一次傷害判定）→ 消散 0.5s。
+// tick 是單次判定的 atk 倍率：暴風雪／地震全場 20 拍＝0.74／0.80；隕石只算爆轟窗口、落雷只算可見雷柱，總傷仍落在 0.74～1.35。
 const BOSS_SPELLS = {
-    meteor: { name: "隕石術", color: "#ff8a3c", sample: "skillFire", castMs: 900, size: 340, glyph: "triangle",
-        rock: .60, blast: .42, radius: 46, staggerMs: 150, run: spellMeteor },
-    blizzard: { name: "暴風雪", color: "#7fdcff", sample: "skillWater", castMs: 760, size: 320, glyph: "hexagram",
-        hits: [[0, .42], [760, .16], [1520, .16]], chillMs: 3200, run: spellBlizzard },
-    thunder: { name: "落雷", color: "#ffe45c", sample: "skillThunder", castMs: 620, size: 300, glyph: "octagram",
-        bolts: 3, per: .45, radius: 78, gapMs: 130, stunMs: 550, run: spellThunder },
-    quake: { name: "地震", color: "#ffbe7a", sample: "skillWind", castMs: 820, size: 360, glyph: "crossSquare",
-        per: .80, lift: 320, push: 190, run: spellQuake }
+    meteor: { name: "隕石術", fx: "meteor", color: "#ff6539", sample: "skillFire",
+        tick: .10, radius: 56 },
+    blizzard: { name: "暴風雪", fx: "snow", color: "#54bfff", sample: "skillWater",
+        tick: .037, chillMs: 3200 },
+    thunder: { name: "落雷", fx: "bolt", color: "#ffe6a3", sample: "skillThunder",
+        tick: .05, radius: 64, stunMs: 550 },
+    quake: { name: "地震", fx: "quake", color: "#e4bb83", sample: "skillWind",
+        tick: .04, lift: 320, push: 190 }
 };
 const BOSS_SPELL_KEYS = Object.keys(BOSS_SPELLS);
+// 四屬性 BOSS 放自己屬性的法術；光／闇等沒有對應法術的關卡維持隨機，行為不變。
+const BOSS_SPELL_BY_ELEMENT = { fire: "meteor", water: "blizzard", thunder: "thunder", wind: "quake" };
 
 function spellFieldX(x) { return Math.max(24, Math.min(W - 24, x)); }
 function spellFieldY(y) { return Math.max(BATTLE_BOUNDS.top + 30, Math.min(H - 70, y)); }
 
-function spellSigilStar(points, skip, radius, phase) {
-    let d = "";
-    for (let i = 0; i <= points; i++) {
-        const a = (phase || 0) - Math.PI / 2 + ((i * skip) % points) * 2 * Math.PI / points;
-        d += `${i ? "L" : "M"}${(100 + Math.cos(a) * radius).toFixed(1)} ${(100 + Math.sin(a) * radius).toFixed(1)}`;
-    }
-    return `<path d="${d}Z"/>`;
-}
-// 三层反向旋轉的陣面：外圈刻度＋中圈符文＋內圈依技能變化的幾何圖形。
-function spellSigilSvg(glyph) {
-    const ticks = [], runes = [];
-    const labels = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
-    for (let i = 0; i < 24; i++) {
-        const a = i * Math.PI / 12, r0 = i % 2 ? 78 : 83;
-        ticks.push(`<path d="M${(100 + Math.cos(a) * r0).toFixed(1)} ${(100 + Math.sin(a) * r0).toFixed(1)}`
-            + `L${(100 + Math.cos(a) * 93).toFixed(1)} ${(100 + Math.sin(a) * 93).toFixed(1)}"/>`);
-    }
-    for (let i = 0; i < 8; i++) {
-        const a = i * Math.PI / 4 - Math.PI / 2;
-        runes.push(`<text x="${(100 + Math.cos(a) * 71).toFixed(1)}" y="${(100 + Math.sin(a) * 71 + 4).toFixed(1)}"`
-            + ` font-size="11" text-anchor="middle" fill="currentColor" stroke="none">${labels[i]}</text>`);
-    }
-    const core = glyph === "triangle" ? spellSigilStar(3, 1, 46) + spellSigilStar(3, 1, 30, Math.PI)
-        : glyph === "hexagram" ? spellSigilStar(6, 2, 46) + '<circle cx="100" cy="100" r="17"/>'
-            : glyph === "octagram" ? spellSigilStar(8, 3, 46)
-                : spellSigilStar(4, 1, 44) + spellSigilStar(4, 1, 44, Math.PI / 4) + '<circle cx="100" cy="100" r="13"/>';
-    return `<svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">`
-        + `<g class="sg-ring" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="100" cy="100" r="96" opacity=".45"/>`
-        + `<circle cx="100" cy="100" r="88" stroke-dasharray="3 8"/>${ticks.join("")}</g>`
-        + `<g class="sg-ring-b" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="100" cy="100" r="64" opacity=".75"/>`
-        + `<circle cx="100" cy="100" r="58" stroke-dasharray="15 6" opacity=".6"/>${runes.join("")}</g>`
-        + `<g class="sg-core" fill="none" stroke="currentColor" stroke-width="2.1">${core}</g></svg>`;
-}
-// 地面層節點：跟着 bossFx 一起被換場收掉，撕裂特效也靠它的存活當開關。
-function spellGroundFx(cls, x, y, ms, vars, html) {
-    if (!PF.field) return null;
-    const node = el("div", cls);
-    node.setAttribute("aria-hidden", "true");
-    node.style.setProperty("--sx", `${spellFieldX(x).toFixed(1)}px`);
-    node.style.setProperty("--sy", `${spellFieldY(y).toFixed(1)}px`);
-    node.style.setProperty("--ms", `${ms}ms`);
-    for (const key in vars) node.style.setProperty(key, vars[key]);
-    if (html) node.innerHTML = html;
-    PF.field.appendChild(node);
-    PF.bossFx.push({ node, x: spellFieldX(x), y: spellFieldY(y), dx: 0, dy: 0, follow: false,
-        until: performance.now() + ms + 60 });
-    setTimeout(() => node.remove(), ms + 140);
-    return node;
-}
 function spellAirFx(cls, x, y, ms, vars, html) {
     if (!PF.vfx) return null;
     const node = el("div", cls);
@@ -6401,16 +6399,6 @@ function spellImpactFx(x, y, color, size, shake = true) {
     FX.sparks(x, y, color, 6);
     FX.sprite(x, y, "hit");
     if (shake) FX.shake();
-}
-// 大型法陣＋空間撕裂：陣畫在腳下，裂縫由 BlackHoleFX 疊在上層，跟著法陣節點一起消失。
-function castSpellSigil(x, y, spell, ms) {
-    const node = spellGroundFx("spell-sigil", x, y, ms, { "--sz": `${spell.size}px`, "--spell-color": spell.color },
-        spellSigilSvg(spell.glyph));
-    if (node && window.BlackHoleFX) {
-        BlackHoleFX.play(PF.vfx, { x: spellFieldX(x), y: spellFieldY(y), seed: (PF.foeSeq + 1) * 2654435761,
-            ms: Math.min(3000, ms + 240), scale: .72, tieTo: node });
-    }
-    return node;
 }
 function predictedPoint(body, lead) {
     return [spellFieldX(body.x + body.vx * lead), spellFieldY(body.y + body.vy * lead)];
@@ -6454,180 +6442,127 @@ function enemyRangedShot(e, target, fighter) {
     }, () => PF.foeSeq === seq && enemyUnitAlive(e));
 }
 
+// 定案版四法術：魔法陣＋攻擊動畫在同一條 4.8 秒時間軸（asset/fx/boss-spells.js），
+// 戰鬥端只負責攻擊期每 0.1 秒的傷害判定；暫停／加速／換場都跟戰鬥迴圈同步。
 function castBossSpell(e) {
-    const spell = BOSS_SPELLS[BOSS_SPELL_KEYS[(Math.random() * BOSS_SPELL_KEYS.length) | 0]];
+    const matchedSpell = BOSS_SPELL_BY_ELEMENT[e.element || enemy.element];
+    const spell = matchedSpell ? BOSS_SPELLS[matchedSpell] : BOSS_SPELLS[BOSS_SPELL_KEYS[(Math.random() * BOSS_SPELL_KEYS.length) | 0]];
     const seq = PF.foeSeq;
     const now = performance.now();
-    e.castingUntil = now + spell.castMs;
+    const party = aliveMembers();
+    if (!party.length || !PF.field || !PF.vfx) return;
+    const atk = e.attackPower ?? enemy.atk;
+    // 地面線錨在隊伍重心：預警圈與四種攻擊動畫都落在這一帶，直立畫面不會跑到 HUD 或彈板區。
+    const groundY = Math.max(BATTLE_BOUNDS.top + 190, Math.min(H - 160,
+        party.reduce((sum, m) => sum + m.body.y, 0) / party.length));
+    // 隕石瞄每人 0.5 秒後的位置（少於四人時循環），夾回地面帶；跑開就躲得掉。
+    const targets = Array.from({ length: 4 }, (_, i) => {
+        const [x, y] = predictedPoint(party[i % party.length].body, ENEMY_ADVANCED_ATTACK.leadTime + .15);
+        return [x, Math.max(groundY - 46, Math.min(groundY + 46, y))];
+    });
+    e.castingUntil = now + 4800;
     e.diving = false; e.target = null; e.vx = 0; e.vy = 0; e.kx = 0; e.ky = 0;
     if (e.ball) {
         e.ball.style.setProperty("--spell-color", spell.color);
         e.ball.classList.add("boss-casting");
     }
     const valid = () => PF.foeSeq === seq && enemyUnitAlive(e);
-    castSpellSigil(e.x, e.y, spell, spell.castMs + 300);
+    const endCast = () => { e.castingUntil = 0; e.ball?.classList.remove("boss-casting"); };
+    const cues = { burst: 0, boltGroup: -1, chilled: false, stunned: new Set() };
+    let fx = null;
+    fx = BossSpellFx.cast({
+        type: spell.fx, color: spell.color, groundY,
+        fieldW: W, fieldH: H, field: PF.field, vfx: PF.vfx, bossFx: PF.bossFx,
+        targets, valid,
+        onPhase: phase => { if (phase === "warning") SFX.tone(620, 940, .16, "square", .07); },
+        onTick: (n, u) => judgeSpellTick(e, spell, atk, n, u, fx, cues),
+        onEnd: endCast
+    });
+    // 保底：效果節點若被換場收掉，排程仍把施法狀態結束掉，王不會永遠站著。
+    battleLifecycle.schedule(4800, endCast, valid);
     FX.pop(e.x, e.y - e.r - 26, spell.name, "brk expedition-skill-name", 1.15, spell.color);
     SFX.sample(spell.sample, .8);
     SFX.tone(150, 430, .5, "sawtooth", .16);
     log(`🔮 <b style="color:${spell.color}">${spell.name}</b>：<b>${e.name || enemy.name}</b> 撕開空間，大型法陣展開。`);
-    battleLifecycle.schedule(spell.castMs, () => {
-        e.castingUntil = 0;
-        e.ball?.classList.remove("boss-casting");
-    }, valid);
-    spell.run(e, spell, e.attackPower ?? enemy.atk, valid);
 }
 
-// 隕石術：每人一顆、依序落下；第一拍是隕石本體，第二拍是炸開的爆轟。
-function spellMeteor(e, spell, atk, valid) {
-    const targets = aliveMembers().filter(m => m.body);
-    targets.forEach((m, i) => {
-        const [tx, ty] = predictedPoint(m.body, ENEMY_ADVANCED_ATTACK.leadTime + .15);
-        const delay = spell.castMs + i * spell.staggerMs;
-        spellGroundFx("spell-mark", tx, ty, delay + 240, { "--sz": "118px", "--spell-color": spell.color });
-        battleLifecycle.schedule(delay, () => {
-            const node = spellAirFx("spell-meteor", tx, ty, 320, { "--spell-color": spell.color });
-            node?.animate([
-                { transform: "translate(-50%,-100%) translateY(-330px)", opacity: 0 },
-                { transform: "translate(-50%,-100%) translateY(-250px)", opacity: 1, offset: .16 },
-                { transform: "translate(-50%,-100%) translateY(0)", opacity: 1 }
-            ], { duration: 300, easing: "cubic-bezier(.36,.05,.66,.98)", fill: "forwards" });
-            SFX.tone(880, 190, .30, "sawtooth", .10);   // 隕石劃落下來的俯衝哨音
-            battleLifecycle.schedule(300, () => {
+// 攻擊期每 0.1 秒一次判定：傷害數字與受擊閃爍由 memberStrike 統一處理，這裡只補命中震動與法術控場。
+function judgeSpellTick(e, spell, atk, n, u, fx, cues) {
+    const members = aliveMembers();
+    if (!members.length) return;
+    const dmg = Math.max(1, Math.round(atk * spell.tick));
+    const element = e.element || enemy.element;
+    let hit = false;
+    if (spell.fx === "meteor") {
+        // 四顆依序落下：飛行 0.34s 後觸地，RO 式爆轟窗口 0.66s 內站在落點旁才扣血。
+        for (let k = 0; k < 4; k++) {
+            const local = u - k * .43;
+            if (local < .34 || local > 1) continue;
+            if (!(cues.burst & (1 << k))) {
+                cues.burst |= 1 << k;
+                SFX.tone(880, 190, .30, "sawtooth", .10);
                 SFX.skillImpact("fire");
-                spellImpactFx(tx, ty, spell.color, 150);
-                const body = !m.down && m.body ? m.body : null;
-                if (body && Math.hypot(body.x - tx, body.y - ty) <= body.r + spell.radius) {
-                    memberStrike(m, Math.max(1, Math.round(atk * spell.rock)), spellDamageLabel(e, spell, "直擊"), e.element || enemy.element);
-                } else FX.pop(tx, ty - 16, "MISS", "miss", 1);
-                battleLifecycle.schedule(250, () => {
-                    SFX.noise(.34, .42, 760, 90, 0, { mode: "band", q: .55 });   // 爆轟的低頻悶响
-                    SFX.tone(78, 34, .30, "sine", .50);
-                    spellImpactFx(tx, ty, "#ffd08a", 210);
-                    const late = !m.down && m.body ? m.body : null;
-                    if (late && Math.hypot(late.x - tx, late.y - ty) <= late.r + spell.radius * 1.35) {
-                        memberStrike(m, Math.max(1, Math.round(atk * spell.blast)), spellDamageLabel(e, spell, "爆轟"), e.element || enemy.element);
-                    }
-                }, valid);
-            }, valid);
-        }, valid);
-    });
-}
-
-// 暴風雪：全場覆蓋，第一段上凍傷（减速），後續兩段只扣薄血。
-function spellBlizzard(e, spell, atk, valid) {
-    if (PF.vfx) {
-        const veil = el("div", "spell-blizzard");
-        veil.setAttribute("aria-hidden", "true");
-        PF.vfx.appendChild(veil);
-        setTimeout(() => veil.remove(), 1780);
-    }
-    SFX.noise(1.4, .3, 2600, 900);
-    spell.hits.forEach(([at, mult]) => battleLifecycle.schedule(spell.castMs + at, () => {
-        if (!at) SFX.skillImpact("water");
-        else SFX.noise(.42, .18, 2100, 620, 0, { mode: "band", q: .8 });   // 兩段餘波各補一陣風，否則聽起來只吹一次
-        for (const m of aliveMembers()) {
-            if (!m.body) continue;
-            if (!at) {
+                SFX.noise(.34, .42, 760, 90, 0, { mode: "band", q: .55 });
+            }
+            const [tx, ty] = fx.meteorPoints[k];
+            for (const m of members) {
+                if (Math.hypot(m.body.x - tx, m.body.y - ty) > spell.radius + m.body.r) continue;
+                memberStrike(m, dmg, spellDamageLabel(e, spell, "隕石爆轟"), element);
+                hit = true;
+            }
+        }
+    } else if (spell.fx === "snow") {
+        // 全場覆蓋：第一拍上凍傷（減速），其餘各拍扣薄血。
+        if (!cues.chilled) {
+            cues.chilled = true;
+            SFX.skillImpact("water");
+            SFX.noise(1.4, .3, 2600, 900);
+        } else if (n % 7 === 0) SFX.noise(.42, .18, 2100, 620, 0, { mode: "band", q: .8 });
+        for (const m of members) {
+            if (n === 0) {
                 m.body._chillUntil = performance.now() + spell.chillMs;
                 m.body.ball?.classList.add("player-chilled");
             }
-            FX.sprite(m.body.x, m.body.y - m.body.r * .6, "hit");
-            memberStrike(m, Math.max(1, Math.round(atk * mult)), spellDamageLabel(e, spell, at ? "餘波" : "暴風席捲"), e.element || enemy.element);
+            memberStrike(m, dmg, spellDamageLabel(e, spell, "暴風席捲"), element);
+            hit = true;
         }
-        FX.sparks(W / 2, H * .55, spell.color, 10);
-        FX.shake();
-    }, valid));
-}
-
-// 落雷：三道雷分頭劈向不同隊員，範圍小、帶眩暈，站得開就只中一道。
-function spellThunder(e, spell, atk, valid) {
-    const targets = aliveMembers().filter(m => m.body);
-    if (!targets.length) return;
-    for (let i = 0; i < spell.bolts; i++) {
-        const m = targets[i % targets.length];
-        const [tx, ty] = predictedPoint(m.body, ENEMY_ADVANCED_ATTACK.leadTime * .8);
-        const at = spell.castMs + i * spell.gapMs;
-        spellGroundFx("spell-mark", tx, ty, at + 60, { "--sz": `${spell.radius * 2}px`, "--spell-color": spell.color });
-        battleLifecycle.schedule(at, () => {
-            const bolt = spellAirFx("spell-bolt", tx, ty, 440,
-                { "--spell-color": spell.color, "--h": `${Math.max(140, ty).toFixed(1)}px` }, spellBoltSvg(ty));
-            bolt?.classList.add("on");
-            SFX.sample("skillThunder", .9, 1 + i * .06);
-            spellImpactFx(tx, ty, spell.color, 120);
-            for (const member of aliveMembers()) {
-                const body = member.body;
-                if (!body || Math.hypot(body.x - tx, body.y - ty) > spell.radius + body.r) continue;
-                PF.memberStunUntil.set(member.ch.id, performance.now() + spell.stunMs);
-                memberStrike(member, Math.max(1, Math.round(atk * spell.per)), spellDamageLabel(e, spell, `第 ${i + 1} 擊`), e.element || enemy.element);
+    } else if (spell.fx === "bolt") {
+        // 判定跟著可見雷柱：每組第 3 道、窗口 0.33s；範圍小，站得開就只中一柱。
+        for (let k = 0; k < fx.boltStrikes.length; k++) {
+            const strike = fx.boltStrikes[k];
+            const v = u - strike.start;
+            if (v < 0 || v > .33) continue;
+            if (cues.boltGroup < k) { cues.boltGroup = k; SFX.sample("skillThunder", .9, 1 + k * .06); }
+            for (const m of members) {
+                if (Math.hypot(m.body.x - strike.x, m.body.y - fx.toGame(0, 306)[1]) > spell.radius + m.body.r) continue;
+                if (!cues.stunned.has(m.ch.id)) {
+                    cues.stunned.add(m.ch.id);
+                    PF.memberStunUntil.set(m.ch.id, performance.now() + spell.stunMs);
+                }
+                memberStrike(m, dmg, spellDamageLabel(e, spell, `第 ${k + 1} 擊`), element);
+                hit = true;
             }
-        }, valid);
+        }
+    } else {
+        // 地震：全場確定命中，攻擊第一拍拋起＋推開（用拋起代替眩暈，不跟既有暈眩搶判定）。
+        if (n === 0) {
+            SFX.noise(.9, .5, 120, 34);
+            SFX.skillImpact("wind");
+            FX.quakeShake();
+            for (const m of members) {
+                const dx = m.body.x - e.x, dy = m.body.y - e.y, d = Math.hypot(dx, dy) || 1;
+                m.body.vx += dx / d * spell.push;
+                m.body.vy -= spell.lift + Math.random() * 80;
+            }
+        }
+        for (const m of members) {
+            memberStrike(m, dmg, spellDamageLabel(e, spell, "震盪衝擊"), element);
+            hit = true;
+        }
     }
-}
-function spellBoltSvg(topOfGround) {
-    const h = Math.max(140, Math.min(H - 10, topOfGround));
-    const w = 52, pts = [];
-    for (let i = 0; i <= 7; i++) {
-        const t = i / 7;
-        const off = i === 0 || i === 7 ? 0 : (Math.random() * 2 - 1) * 15;
-        pts.push(`${(w / 2 + off).toFixed(1)} ${(t * h).toFixed(1)}`);
-    }
-    const mid = pts[4].split(" ").map(Number);
-    const fork = (sx, sy, dx, dy) => `${sx} ${sy}L${sx + dx * .45} ${sy + dy * .4}L${sx + dx} ${sy + dy}`;
-    return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><path class="bl-glow" d="M${pts.join("L")}"/>`
-        + `<path class="bl-core" d="M${pts.join("L")}"/>`
-        + `<path class="bl-fork" d="M${fork(mid[0], mid[1], -20, 34)}"/><path class="bl-fork" d="M${fork(mid[0], mid[1], 22, 26)}"/></svg>`;
+    if (hit) FX.shake();
 }
 
-// 地震：地面沿每人腳下裂開，全場確定命中，用拋起代替眩暈，不跟既有暈眩搶判定。
-function spellQuake(e, spell, atk, valid) {
-    const targets = aliveMembers().filter(m => m.body);
-    // 裂縫要在「地面被砸開」那一拍才展開；擱在吟唱期間的話，等強震來時裂縫已經淡到看不見。
-    const tear = () => {
-        for (let i = 0; i <= targets.length; i++) {
-            const x = i === 0 ? e.x : targets[i - 1].body.x;
-            const y = i === 0 ? e.y : spellFieldY(targets[i - 1].body.y + 26);
-            const node = spellGroundFx("spell-crack", x, y, 720,
-                { "--sz": `${i === 0 ? spell.size : 250}px`, "--spell-color": spell.color }, spellCrackSvg(i));
-            node?.querySelectorAll("path").forEach((path, index) => {
-                const len = path.getTotalLength();
-                path.style.strokeDasharray = `${len}`;
-                path.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
-                    { duration: 320, delay: index * 40 + i * 70, easing: "ease-out", fill: "both" });
-            });
-        }
-    };
-    battleLifecycle.schedule(spell.castMs, () => {
-        tear();
-        SFX.noise(.9, .5, 120, 34);
-        SFX.skillImpact("wind");
-        FX.quakeShake();
-        for (const m of targets) {
-            if (!m.body) continue;
-            spellImpactFx(m.body.x, m.body.y + m.body.r * .5, spell.color, 130, false);
-            const dx = m.body.x - e.x, dy = m.body.y - e.y, d = Math.hypot(dx, dy) || 1;
-            m.body.vx += dx / d * spell.push;
-            m.body.vy -= spell.lift + Math.random() * 80;
-            memberStrike(m, Math.max(1, Math.round(atk * spell.per)), spellDamageLabel(e, spell, "地裂衝擊"), e.element || enemy.element);
-        }
-    }, valid);
-}
-function spellCrackSvg(seed) {
-    const paths = [];
-    for (let i = 0; i < 4; i++) {
-        const a = (seed * 1.31 + i) * Math.PI / 2 + Math.random() * .5;
-        const len = 46 + Math.random() * 46;
-        const pts = [[100, 100]];
-        for (let k = 1; k <= 3; k++) {
-            const t = k / 3;
-            const wobble = (Math.random() * 2 - 1) * 12;
-            pts.push([100 + Math.cos(a) * len * t + Math.cos(a + Math.PI / 2) * wobble,
-                100 + Math.sin(a) * len * t + Math.sin(a + Math.PI / 2) * wobble]);
-        }
-        const d = `M${pts.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join("L")}`;
-        paths.push(`<path class="ck-dark" d="${d}"/><path class="ck-edge" d="${d}"/>`);
-    }
-    return `<svg viewBox="0 0 200 200" aria-hidden="true">${paths.join("")}</svg>`;
-}
 // 球外裂開的弧段：六段、段間留缺口，半徑各別抖一下，讀起來是「外框裂掉」而不是一個正圓。
 function hurtShardSvg() {
     const paths = [];
@@ -6737,7 +6672,8 @@ function showPassiveFX(key, x, y, opt = {}) {
     const sheet = PASSIVE_FX[key];
     if (!sheet) return;
     const ms = opt.ms || sheet.ms;
-    const k = 1.5 * (opt.scale || 1) * (sheet.scale || 1);
+    // 被動展示放大為現行顯示的 1.5 倍（2.25＝1.5×1.5），仍在原素材 2 倍上限內。
+    const k = 2.25 * (opt.scale || 1) * (sheet.scale || 1);
     const owner = opt.follow || opt.owner || null;
     if (owner) clearPassiveFX(key, owner);
     const n = el("div", "pf-fx passive-effect");
@@ -6745,8 +6681,12 @@ function showPassiveFX(key, x, y, opt = {}) {
     n.style.cssText = `left:${x}px;top:${y}px;background-image:url(${sheet.src});` +
         `--sx:${k.toFixed(3)};--sy:${k.toFixed(3)};--fw:${sheet.fw}px;--fh:${sheet.fh}px;--r:${opt.rot || 0}rad`;
     if (sheet.gif) n.classList.add("passive-gif", key === "wind" ? "passive-wind-gif" : `passive-gif-${key}`);
-    if (opt.behind && PF.field) PF.field.insertBefore(n, PF.field.firstChild);
-    else PF.vfx.appendChild(n);
+    else n.classList.add("passive-strip");
+    // 掛在獨立被動層：.pf-field 會被 FEVER 震動（translate）與換層濾鏡（filter）變成獨立堆疊上下文，
+    // 濾色一旦被困在裡面就整塊變黑；這層不搖不濾，screen 才能真的疊到場布上。
+    const layer = PF.passive || PF.field || PF.vfx;
+    if (opt.behind) layer.insertBefore(n, layer.firstChild);
+    else { n.style.zIndex = 6; layer.appendChild(n); }
     // GIF 自己帶逐幀播放；其他被動特效仍使用水平圖集逐格播放。
     if (!sheet.gif) n.animate([{ backgroundPositionX: "0px" }, { backgroundPositionX: (-sheet.fw * sheet.frames) + "px" }],
         { duration: sheet.ms, easing: `steps(${sheet.frames}, end)`, iterations: Math.ceil(ms / sheet.ms), fill: "both" });
@@ -6960,12 +6900,7 @@ function triggerSkillChain(m, chainMembers, seq) {
         unit.statusStunUntil = Math.max(unit.statusStunUntil || 0, now + SKILL_CHAIN_RULES.downMs);
     }
     // 單次播放 GIF 爆發，鎖定觸發座標並置於敵人圖層下方；不再產生舊的全屏散點爆炸。
-    const chainFx = playBossVfx("chain-core", target, { ms: 660, dy: 0, follow: false });
-    // 空間撕裂跟連攜同生共死：節點一收（含換場清 bossFx）撕裂同一幀停掉，長度跟 GIF 一樣。
-    if (window.BlackHoleFX && chainFx) {
-        BlackHoleFX.play(PF.vfx, { x: target.x, y: target.y, seed: seq,
-            ms: SKILL_CHAIN_FRAME_COUNT * SKILL_CHAIN_FRAME_MS, tieTo: chainFx.node });
-    }
+    playBossVfx("chain-core", target, { ms: 660, dy: 0, follow: false });
     FX.pop(target.x, target.y - 48, "DOWN", "brk", 1.3);
     // 連攜技能總傷害的三分之一作為六段暴擊的基礎總傷害，再依既有暴擊倍率結算。
     const combinedSkillDamage = chainMembers.reduce((sum, member) => sum + (member.damageCapture?.total || 0), 0);
@@ -7339,7 +7274,7 @@ function checkKill() {
 
 // 暴擊率＝基礎值＋隊長被動，上限 75%；暴擊倍率固定，沒有暴擊傷害乘區
 function critRate(ch, context = "") {
-    const passiveCrit = typeEffects.shockCritical(context);
+    const passiveCrit = typeEffects.shockCritical(context) + typeEffects.directCritical(context);
     return DamageFormulas.criticalRate(CRIT_RATE, leadVal(ch.id, "crit"), mainAccountBonus().crit, passiveCrit + (battleBoostActive("crit") ? 0.15 : 0), 0.75);
 }
 function rollCrit(ch, context = "") { return Math.random() < critRate(ch, context); }
@@ -7396,7 +7331,7 @@ function skillHit(m, mult, opt) {
     // 持續傷害（DOT）固定不暴擊，也不播放暴擊音效。
     const crit = !o.dot && rollCrit(m.ch);
     const dmgBase = {
-        attack: atkOf(m.ch), multiplier: mult, skillRank: talentRank(m.ch, 'skill'),
+        attack: atkOf(m.ch), multiplier: mult * (1 + typeEffects.skillDamageBonus()), skillRank: talentRank(m.ch, 'skill'),
         accountSkillBonus: mainAccountBonus().skillDamage,
         criticalMultiplier: crit ? CRIT_DMG : 1, dot: o.dot
     };
@@ -7407,6 +7342,23 @@ function skillHit(m, mult, opt) {
     }
     const targets = o.beam ? enemyTargetsOnRay(o.beam.x, o.beam.y, o.beam.angle, o.beam.length, o.beam.width)
         : o.areaRadius ? enemyTargetsInRadius(target.x, target.y, o.areaRadius) : [target];
+    // 弱點洞察：技能範圍實際覆蓋到的弱點立即擊破，範圍隨天賦等級擴大。
+    const weakBonus = typeEffects.weakRadiusBonus();
+    if (weakBonus > 0 && PF.weak) {
+        for (const w of PF.weak.nodes) {
+            if (w.hit) continue;
+            let inRange;
+            if (o.beam) {
+                const ux = Math.cos(o.beam.angle), uy = Math.sin(o.beam.angle);
+                const dx = w.x - o.beam.x, dy = w.y - o.beam.y;
+                const along = dx * ux + dy * uy;
+                inRange = along >= 0 && along <= o.beam.length && Math.abs(dx * uy - dy * ux) <= o.beam.width + w.r + weakBonus;
+            } else {
+                inRange = Math.hypot(w.x - target.x, w.y - target.y) <= (o.areaRadius || 60) + w.r + weakBonus;
+            }
+            if (inRange) hitWeak(w, m);
+        }
+    }
     let total = 0;
     for (const unit of targets) {
         if (!enemyUnitAlive(unit)) continue;
@@ -7603,7 +7555,7 @@ function hitFoe(m, speed, target, hitFlags = {}) {
 
     const mult = elementMultiplier(CHAR_TABLE[m.ch.id].element, target.element || enemy.element);
     const stun = now < PF.stunUntil ? 1.25 : 1;   // 暈眩是敵人狀態，不算傷害乘區
-    const crit = rollCrit(m.ch);
+    const crit = rollCrit(m.ch, 'direct');
     const rush = comboMult();
     const passiveDirect = typeEffects.directBonus();
     const dmg = applyDamage(m.ch, Math.max(1, Math.round(atkOf(m.ch) * mult * stun * rush * (1 + passiveDirect) * (crit ? CRIT_DMG : 1))),
@@ -7693,7 +7645,7 @@ const battleSettlement = BattleSettlement.create({
                 towerWeekCommit(stage);
                 floorWins = 0;
                 deepTimeLeft = stage % BOSS_EVERY === 0 ? BOSS_FLOOR_SECONDS : NORMAL_FLOOR_SECONDS;
-                const healPct = 0.25;
+                const healPct = 0.25 + typeEffects.clearHeal();
                 PF.members.forEach(m => { m.ch.hp = Math.min(hpMax(m.ch), m.ch.hp + Math.ceil(hpMax(m.ch) * healPct)); });
                 log(`🏕️ 通過第 ${completedFloor} 層：全隊回復 ${Math.round(healPct * 100)}% 生命。`);
             }
@@ -7707,6 +7659,13 @@ const battleSettlement = BattleSettlement.create({
         },
         applyGateReward(gate, result) {
             const drops = result.drops || {};
+            if (result.win) {
+                const prayerPct = typeEffects.clearHeal();
+                if (prayerPct > 0) {
+                    PF.members.forEach(m => { m.ch.hp = Math.min(hpMax(m.ch), m.ch.hp + Math.ceil(hpMax(m.ch) * prayerPct)); });
+                    log(`♡ 生命禱言：通過關卡額外回復全隊 ${Math.round(prayerPct * 100)}% 生命。`);
+                }
+            }
             bossWin[gate.id] = result.win;
             GateEnhancement.recordClear(gateEnhance, gate.id, result.tier || 0, result.level || 0);
             shardTotal += result.shards + (drops.rainbow || 0) + (result.firstBreak || 0);
@@ -8157,12 +8116,14 @@ function step(dt, now) {
         b.x += b.vx * dt; b.y += b.vy * dt;
         b.spin += b.vx * dt / b.r;
 
-        if (b.x < b.r + 12) { b.x = b.r + 12; b.vx = -b.vx * PHYS.wallRest; }
-        if (b.x > W - b.r - 12) { b.x = W - b.r - 12; b.vx = -b.vx * PHYS.wallRest; }
+        if (b.x < b.r + 12) { b.x = b.r + 12; b.vx = -b.vx * PHYS.wallRest; powerFlipWallContact(b, 12, b.y); }
+        if (b.x > W - b.r - 12) { b.x = W - b.r - 12; b.vx = -b.vx * PHYS.wallRest; powerFlipWallContact(b, W - 12, b.y); }
+        const ceilingBefore = b.vy;
         enforceHeroBattleCeiling(b);
+        if (ceilingBefore < 0 && b.vy > 0) powerFlipWallContact(b);
         if (feverBounce(b)) PF.lastContact = now;
 
-        for (const s of PF.segs) if (segCollide(b, s)) PF.lastContact = now;
+        for (const s of PF.segs) if (segCollide(b, s)) { PF.lastContact = now; powerFlipWallContact(b); }
         // 打到彈板就點亮那塊板的「擊球閃光」幀，110ms 後自己退回去
         for (const f of PF.flippers) if (resolveFlipperCollision(b, f)) {
             PF.lastContact = now; f.flashAt = now; SFX.flipperHit(); FX.sprite(b.x, b.y, "flip");
@@ -8211,7 +8172,7 @@ function step(dt, now) {
         const touching = new Set();
         for (const m of alive) {
             const b = m.body;
-            if (Math.hypot(b.x - w.x, b.y - w.y) >= b.r + w.r) continue;
+            if (Math.hypot(b.x - w.x, b.y - w.y) >= b.r + w.r + typeEffects.weakRadiusBonus()) continue;
             // 弱點只接受有速度的正面撞擊，避免角色慢慢飄過也自動命中；技能命中仍照常計算。
             if (Math.hypot(b.vx, b.vy) < 480) continue;
             const id = m.ch.id;
@@ -8530,6 +8491,8 @@ function pfLoop(ts) {
     }
     PF.hitStopUntil = 0;
     battleLifecycle.advance(dt * 1000 * battleSpeedMultiplier());
+    // 四法術的 4.8 秒時間軸跟排程器吃同一份 dt：暫停／技能插播／加速都同步。
+    if (battleLifecycle.phase() === "play") BossSpellFx.tick(dt * 1000 * battleSpeedMultiplier());
     animTick(ts);            // 圖框型 BOSS 的逐格撥放搭這一次 rAF，不必另開計時器
     if (PF.running && PF.ready) {
         tickBattleBoosts(dt * 1000);
@@ -9736,7 +9699,7 @@ function buildSlots() {
         const cd = Math.round((SKILL_CD[d.type] || 15) * SKILL_CHARGE_TIME);
         const head = i === 0;
         const open = `role="button" tabindex="0" title="點擊查看 ${d.name} 詳情" aria-label="點擊查看 ${d.name} 詳情" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openGrowth('${id}')}" onclick="openGrowth('${id}')"`;
-        const outBtn = `<button type="button" onclick="event.stopPropagation();squadLeave('${id}')" aria-label="讓 ${d.name} 卸下">卸下</button>`;
+        const outBtn = `<button type="button" onclick="event.stopPropagation();squadLeave('${id}')"${editIds.length === 1 ? ' disabled title="至少要留一名角色上場"' : ""} aria-label="讓 ${d.name} 卸下">卸下</button>`;
         if (head) {
             lineup += `<article class="fm-slot fm-captain" style="--slot-el:${el}" ${open}>
                 <div class="fm-captain-art" id="slot-sp-${i}"></div>
@@ -10214,7 +10177,14 @@ function openHomeDungeonPicker(mode) {
 }
 const uiRouter = UIRouter.create({
     screens: SCREENS, getElement: $, getPages: () => PAGES,
-    setTab: tab => { homeTabOn = tab; if (tab !== "chars") squadReplaceFor = null; },
+    setTab: tab => {
+        homeTabOn = tab;
+        if (tab !== "chars") {
+            squadReplaceFor = null;
+            // 離開角色頁就結束培養詳情；回來時回到角色管理，而不是卡在上一隻角色的培養頁。
+            if (growthFor) { stopGrowthContinuous(); closeGrowthActionDialog(); growthFor = null; growthViewSignature = ''; }
+        }
+    },
     paintHome: () => { homeSig = ''; paintHome(); }, paintAdventure: paintAdventureEntry, renderPage, renderTabs,
     onBattle: () => { PF.last = performance.now(); },
     onHomeParty: active => {
@@ -10931,7 +10901,7 @@ function pageChars() {
         <div id="team" class="cm-formation"><div class="panel fm-panel"><div id="team-slots"></div></div></div>
         <div class="char-directory-head" id="owned-roster"><div><b>持有角色</b><small>已持有 ${ownedCount} 位</small></div><span>${ids.length} 位符合條件</span></div>
         <div class="char-directory-tools"><div class="char-directory-search"><input id="char-directory-query" type="search" value="${charDirectoryQuery.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;")}" placeholder="搜尋角色名稱" onkeydown="if(event.key==='Enter'){applyCharDirectorySearch()}"><button type="button" onclick="applyCharDirectorySearch()">搜尋</button></div><div class="char-directory-filters"><select aria-label="依屬性篩選" onchange="setCharDirectoryElement(this.value)">${elementOptions}</select><select aria-label="依持有狀態篩選" onchange="setCharDirectoryOwnership(this.value)">${ownershipOptions}</select><select aria-label="依獎池分類篩選" onchange="setCharDirectorySummonCategory(this.value)">${summonOptions}</select><select aria-label="依職業篩選" onchange="setCharDirectoryType(this.value)">${typeOptions}</select></div></div>
-        ${charSkillHoverHTML()}<div class="char-directory-grid" id="char-directory-grid">${ids.map(charRow).join("") || `<div class="char-directory-empty">沒有符合條件的角色</div>`}</div>
+        <div class="char-directory-grid" id="char-directory-grid">${ids.map(charRow).join("") || `<div class="char-directory-empty">沒有符合條件的角色</div>`}</div>
         <p class="char-directory-foot">已解鎖角色: <span id="char-unlocked">${ownedCount}/${OPEN_CHAR_IDS.length}</span>｜累計虹彩石: <span id="shard-total">${shardTotal}</span></p>
     </div>`;
 }
@@ -10967,7 +10937,7 @@ function setCharDirectoryType(type) { charDirectoryType = type; renderPage(); }
 function charRow(id) {
     const d = CHAR_TABLE[id], ch = roster[id];
     if (!ch.unlocked) {
-        return `<article class="pgc char-card locked" data-character="${id}" aria-label="${d.name}角色資料" onmouseenter="charSkillHover('${id}',event)" onmousemove="charSkillHover('${id}',event)" onmouseleave="dexHide()" onclick="charSkillHover('${id}',event)" onfocus="charSkillHover('${id}',event)" onblur="dexHide()"><div class="char-card-art">${unitFace(d.unit, d.rarity, "walk_front", d.name.slice(0, 1))}</div>
+        return `<article class="pgc char-card locked" data-character="${id}" aria-label="${d.name}角色資料"><div class="char-card-art">${unitFace(d.unit, d.rarity, "walk_front", d.name.slice(0, 1))}</div>
             <img class="card-element-icon" src="asset/ui/element-${d.element}.svg" alt="${ELEMENTS[d.element].label}屬性" title="${ELEMENTS[d.element].label}屬性"><div class="char-card-info"><div class="nm">${d.name}</div><div class="char-card-tags"><span class="tag2">${TYPE_INFO[d.type].n}</span><span class="summon-tag ${d.summonCategory}">${characterSourceLabel(d)}</span></div>
             <div class="sub">碎片 ${ch.shards}/${d.need}</div><div class="bar"><i style="width:${Math.min(100, ch.shards / d.need * 100).toFixed(0)}%"></i></div></div></article>`;
     }
@@ -10975,11 +10945,11 @@ function charRow(id) {
     const role = slot === 0 ? "隊長" : slot > 0 ? "隊員" : teamIds.indexOf(id) >= 0 ? "出戰中" : "";
     const roleCls = slot === 0 ? "lead" : slot > 0 ? "mate" : "field";
     const action = slot >= 0
-        ? `<button type="button" class="char-act out" onclick="event.stopPropagation();squadLeave('${id}')" aria-label="讓 ${d.name} 卸下">卸下</button>`
+        ? `<button type="button" class="char-act out" onclick="event.stopPropagation();squadLeave('${id}')"${editIds.length === 1 ? ' disabled title="至少要留一名角色上場"' : ""} aria-label="讓 ${d.name} 卸下">卸下</button>`
         : editIds.length >= TEAM_MAX
             ? `<button type="button" class="char-act swap" onclick="event.stopPropagation();openSquadReplace('${id}')" aria-label="替換 ${d.name} 上場">替換</button>`
             : `<button type="button" class="char-act join" onclick="event.stopPropagation();squadJoin('${id}')" aria-label="選取 ${d.name} 上場">選取</button>`;
-    return `<article class="pgc char-card cultivable${slot >= 0 ? " onfield" : ""}" data-character="${id}" role="button" tabindex="0" aria-label="${d.name}角色資料" title="點擊角色卡查看詳情" onmouseenter="charSkillHover('${id}',event)" onmousemove="charSkillHover('${id}',event)" onmouseleave="dexHide()" onclick="openGrowth('${id}')" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openGrowth('${id}')}" onfocus="charSkillHover('${id}',event)" onblur="dexHide()"><div class="char-card-art">${unitFace(d.unit, d.rarity, "walk_front", d.name.slice(0, 1))}</div>
+    return `<article class="pgc char-card cultivable${slot >= 0 ? " onfield" : ""}" data-character="${id}" role="button" tabindex="0" aria-label="${d.name}角色資料" title="點擊角色卡查看詳情" onclick="openGrowth('${id}')" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openGrowth('${id}')}"><div class="char-card-art">${unitFace(d.unit, d.rarity, "walk_front", d.name.slice(0, 1))}</div>
         <img class="card-element-icon" src="asset/ui/element-${d.element}.svg" alt="${ELEMENTS[d.element].label}屬性" title="${ELEMENTS[d.element].label}屬性">${role ? `<b class="char-role ${roleCls}">${role}</b>` : ""}<div class="char-card-info"><div class="nm">${d.name}</div><div class="char-card-tags"><span class="tag2">${TYPE_INFO[d.type].n}</span><span class="summon-tag ${d.summonCategory}">${characterSourceLabel(d)}</span></div>
         ${breakthroughStarsMarkup(ch)}<div class="sub">Lv.${ch.lvl}/${growthCap(ch)}</div><div class="char-card-stat">攻 ${atkOf(ch)}　HP ${hpMax(ch)}</div></div>
         <div class="char-card-actions">${action}</div></article>`;
@@ -11667,10 +11637,14 @@ function setSummonInfoTab(tab) {
 
 let summonFocusedView = false;
 let summonInfoDrawer = false;
-function openSummonFocused() { summonFocusedView = true; summonInfoDrawer = false; renderPage(); }
-function closeSummonFocused() { summonFocusedView = false; summonInfoDrawer = false; renderPage(); }
-function toggleSummonInfoDrawer() { summonInfoDrawer = !summonInfoDrawer; renderPage(); }
-function openSummonHistory() { summonInfoTab = "history"; summonInfoDrawer = true; renderPage(); }
+let summonHistoryOnly = false;
+function openSummonFocused() { summonFocusedView = true; summonInfoDrawer = false; summonHistoryOnly = false; renderPage(); }
+function closeSummonFocused() { summonFocusedView = false; summonInfoDrawer = false; summonHistoryOnly = false; renderPage(); }
+function toggleSummonInfoDrawer() { summonInfoDrawer = !summonInfoDrawer; if (summonInfoDrawer) summonInfoTab = "rates"; summonHistoryOnly = false; renderPage(); }
+function openSummonHistory() {
+    summonInfoTab = "history"; summonInfoDrawer = true; summonHistoryOnly = true; renderPage();
+    requestAnimationFrame(() => document.querySelector(".sumfull-overlay .sumfull-info")?.scrollIntoView({ block: "nearest" }));
+}
 
 function summonPrizeMarkup(prize) {
     const hero = prize.id && CHAR_TABLE[prize.id];
@@ -11710,8 +11684,8 @@ function pageGachaShop() {
     const featuredStage = featuredId ? `<div class="summon-featured-stage"><div class="summon-featured-title">本期限定精選</div><div class="summon-featured-heroes">${eligible.map(id => heroCard(id, id === featuredId)).join("")}</div><div class="summon-featured-meta"><b>${featuredHero?.name || "本期限定角色"}</b><span>限定五星・每週輪替</span></div><div class="summon-featured-countdown">◷ 剩餘 ${towerWeekCountdown(weekStart)}</div></div>` : "";
     const poolCharacters = SUMMON_FOUR_STAR_IDS.slice(0, 6).map(id => { const d = CHAR_TABLE[id]; return `<div class="summon-pool-unit">${unitFace(d.unit,d.rarity,"walk_front",d.name.slice(0,1))}<small>${d.name}</small></div>`; }).join("");
     const poolPanel = `<div class="summon-pool-content"><div class="summon-pool-section"><b>本期限定五星角色</b><div class="summon-pool-lineup">${eligible.map(id => heroCard(id)).join("")}</div><small>火、水、雷、風各一位；角色每週輪替</small></div><div class="summon-pool-section"><b>四星完整角色</b><div class="summon-pool-unit-list">${poolCharacters}${SUMMON_FOUR_STAR_IDS.length > 6 ? `<span class="summon-pool-more">＋${SUMMON_FOUR_STAR_IDS.length - 6} 位</span>` : ""}</div></div><div class="summon-pool-materials"><span><img src="asset/items/breakthrough-stone-four.png" alt="">限定突破石</span><span><img src="asset/items/high-grade-experience-crystal.png" alt="">高階經驗水晶</span><span><img src="asset/items/experience-crystal.png" alt="">經驗水晶</span><span>四星角色碎片</span></div></div>`;
-    const ratesPanel = `<div class="summon-rates"><h3>獎項機率</h3>${rates}<small>四星完整角色重複時轉成 10 片；已持有的限定五星再次抽中時，改得限定突破石 ×10。角色碎片滿 10 片會自動解鎖。</small></div>`;
-    const historyPanel = `<div class="summon-history-list">${summonHistory.length ? summonHistory.map(row => `<article class="summon-history-row"><header><b>${row.count} 次招募</b><time>${new Date(row.at).toLocaleString("zh-TW", { month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", hour12:false })}</time><span>${row.ticketType ? `使用 ${row.ticketType === "ten" ? "十抽招募券 ×1" : "單抽招募券 ×1"}` : `消耗 ${row.cost} 虹彩石`}</span></header><p>${row.prizes.map(prize => { const wasGrand = prize.grand || Object.values(CHAR_TABLE).some(ch => ch.rarity === 5 && ch.summonCategory === "limited" && ch.name === prize.name); return `<span class="${wasGrand ? "summon-history-prize-grand" : ""}">${esc(prize.characterName || prize.name)}${prize.rarity ? ` · ${prize.rarity}★` : ""}${prize.note ? `（${esc(prize.note)}）` : ""}</span>`; }).join("、")}</p></article>`).join("") : `<div class="summon-history-empty">還沒有招募紀錄<br><small>完成招募後，最近 20 筆結果會顯示在這裡。</small></div>`}</div>`;
+    const ratesPanel = `<div class="summon-rates"><h3>獎項機率</h3>${rates}<small>上表為「下一抽」的實際機率，會隨保底進度即時調整。</small><h3>規則說明</h3><div class="summon-rate-rules"><p><b>限定五星機率</b>基礎 ${percentText(SUMMON_RULES.limitedBaseRate)}／抽；第 ${SUMMON_LIMITED_SOFT_PITY_START + 1} 抽起每抽再 +${percentText(SUMMON_LIMITED_SOFT_PITY_STEP)}，第 ${SUMMON_LIMITED_PITY} 抽必出限定五星。</p><p><b>保底計數</b>抽出限定五星後歸零重算；跨週輪替不重置，只認抽數。</p><p><b>指定角色</b>每次限定五星有 50% 為本期指定角色；若未中，下一次限定五星必定是指定角色。</p><p><b>其餘獎項</b>四星完整角色 ${percentText(SUMMON_FOUR_STAR_CHARACTER_RATE)}、四星碎片 ${percentText(SUMMON_FOUR_STAR_FRAGMENT_RATE)}（隨機 ${SUMMON_FRAGMENT_MIN}～${SUMMON_FRAGMENT_MAX} 片）、限定突破石 ${percentText(SUMMON_FOUR_STAR_STONE_RATE)}、高階經驗水晶 ${percentText(SUMMON_HIGH_EXP_CRYSTAL_RATE)}，剩餘為經驗水晶；保底那一抽只出限定五星。</p><p><b>重複轉換</b>四星完整角色重複時轉成 ${SUMMON_DUPLICATE_FRAGMENTS} 片；已持有的限定五星再次抽中時，改得限定突破石 ×10。角色碎片滿 10 片會自動解鎖。</p></div></div>`;
+    const historyPanel = `<div class="summon-history-list">${summonHistory.length ? summonHistory.map(row => `<article class="summon-history-row"><header><b>${row.count} 次招募</b><time>${new Date(row.at).toLocaleString("zh-TW", { month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", hour12:false })}</time><span>${row.ticketType ? `使用 ${row.ticketType === "ten" ? "十抽招募券 ×1" : "單抽招募券 ×1"}` : `消耗 ${row.cost} 虹彩石`}</span></header><p>${row.prizes.map(prize => { const wasGrand = prize.grand || Object.values(CHAR_TABLE).some(ch => ch.rarity === 5 && ch.summonCategory === "limited" && ch.name === prize.name); return `<span class="${wasGrand ? "summon-history-prize-grand" : ""}">${esc(prize.characterName || prize.name)}${prize.rarity ? ` · ${prize.rarity}★` : ""}${prize.note ? `（${esc(prize.note)}）` : ""}</span>`; }).join("、")}</p></article>`).join("") : `<div class="summon-history-empty">目前尚無招募紀錄<br><small>完成招募後，最近 20 筆結果會顯示在這裡。</small></div>`}</div>`;
     const infoContent = summonInfoTab === "rates" ? ratesPanel : summonInfoTab === "history" ? historyPanel : poolPanel;
     const infoTabs = `<div class="summon-info-tabs" role="tablist" aria-label="招募資訊"><button type="button" role="tab" aria-selected="${summonInfoTab === "pool"}" class="${summonInfoTab === "pool" ? "active" : ""}" onclick="setSummonInfoTab('pool')">獎池內容</button><button type="button" role="tab" aria-selected="${summonInfoTab === "rates"}" class="${summonInfoTab === "rates" ? "active" : ""}" onclick="setSummonInfoTab('rates')">機率說明</button><button type="button" role="tab" aria-selected="${summonInfoTab === "history"}" class="${summonInfoTab === "history" ? "active" : ""}" onclick="setSummonInfoTab('history')">招募紀錄</button></div>`;
     // 大獎揭曉特效層：只在抽出限定五星、且 3.1s 節奏還在跑的期間掛進彈窗（滾動定格＋壓軸炸開）
@@ -11735,7 +11709,7 @@ function pageGachaShop() {
     const focusedOwned = `<div class="sumfull-owned"><b>擁有道具</b><span><img src="asset/items/summon-ticket-single.svg" alt="">單抽券 ×${summonTicketSingle}</span><span><img src="asset/items/summon-ticket-ten.svg" alt="">十抽券 ×${summonTicketTen}</span><span><img src="asset/items/crystal.png" alt="">虹彩石 ${shardTotal.toLocaleString("zh-TW")}</span><button type="button" class="sumfull-owned-plus" aria-label="兌換招募券" onclick="closeSummonFocused();openShopSection('ticket-exchange')">＋</button></div>`;
     const focusedPity = `<div class="sumfull-pity"><header><span>限定保底</span><b>${limitedSummonCount} / ${SUMMON_LIMITED_PITY}</b></header><div class="sumfull-pity-track"><i style="width:${Math.min(100, limitedSummonCount / SUMMON_LIMITED_PITY * 100)}%"></i></div>${limitedFeaturedGuaranteed ? '<em class="sumfull-guarantee">下次限定五星：指定角色保證</em>' : ""}<small>第 ${SUMMON_LIMITED_SOFT_PITY_START} 抽起機率提升；限定五星首次 50% 為指定角色，若未中，下次限定五星必定指定。第 ${SUMMON_LIMITED_PITY} 抽必出限定五星。</small></div>`;
     const focusedActions = `<div class="sumfull-actions"><button class="mini-btn" ${summonTicketSingle < 1 || animation?.busy ? "disabled" : ""} onclick="performSummon(1)"><b>單次招募</b><small><img src="asset/items/summon-ticket-single.svg" alt="">單抽券 ×1（持有 ${summonTicketSingle}）</small></button><button class="mini-btn gold" ${summonTicketTen < 1 || animation?.busy ? "disabled" : ""} onclick="performSummon(10)"><b>十次招募</b><small><img src="asset/items/summon-ticket-ten.svg" alt="">十抽券 ×1（持有 ${summonTicketTen}）</small></button></div>`;
-    const focusedInfo = summonInfoDrawer ? `<section class="sumfull-info"><button type="button" class="sumfull-chip summon-info-close" onclick="toggleSummonInfoDrawer()" aria-label="關閉招募資訊">關閉資訊 ✕</button>${infoTabs}<div class="summon-info-content">${infoContent}</div></section>` : "";
+    const focusedInfo = summonInfoDrawer ? `<section class="sumfull-info"><button type="button" class="sumfull-chip summon-info-close" onclick="toggleSummonInfoDrawer()" aria-label="關閉招募資訊">關閉資訊 ✕</button>${summonHistoryOnly ? "" : infoTabs}<div class="summon-info-content">${summonHistoryOnly ? historyPanel : infoContent}</div></section>` : "";
     const focusedMarkup = summonFocusedView ? `<div class="sumfull-overlay" role="dialog" aria-modal="true" aria-label="限定招募"><div class="sumfull-page">
         <header class="sumfull-head"><button type="button" class="sumfull-back" aria-label="返回轉蛋商店" onclick="closeSummonFocused()">‹</button><div class="sumfull-title"><small>四屬精選五星招募</small><h2>限定招募</h2></div><div class="sumfull-ops"><button type="button" class="sumfull-chip" onclick="openSummonHistory()">招募紀錄</button><button type="button" class="sumfull-chip sumfull-chip${summonInfoDrawer ? " active" : ""}" aria-pressed="${summonInfoDrawer}" onclick="toggleSummonInfoDrawer()">機率說明</button><button type="button" class="sumfull-chip sumfull-close" aria-label="關閉限定招募" onclick="closeSummonFocused()">✕</button></div></header>
         <div class="sumfull-period">◷ ${weekFmt(weekStart)} ～ ${weekFmt(weekStart + 7 * 864e5)} 輪替・剩餘 ${towerWeekCountdown(weekStart)}</div>
@@ -11751,8 +11725,6 @@ function pageGachaShop() {
     return `<section class="gacha-shop"><header class="summon-head"><button type="button" class="summon-back" aria-label="返回主頁" onclick="pickHomeTab('home')">‹</button><div class="summon-head-title"><small>四屬精選五星招募</small><h2>限定招募</h2><p>使用招募券進行招募；虹彩石可在兌換頁換取招募券。</p></div><div class="summon-currency"><img src="asset/items/crystal.png" alt=""><b>${shardTotal.toLocaleString("zh-TW")}</b><small>虹彩石</small><button type="button" onclick="openShopSection('ticket-exchange')" aria-label="兌換招募券">＋</button></div></header>
         ${featuredStage}
         <button type="button" class="sumfull-enter" onclick="openSummonFocused()"><b>進入限定招募</b><small>指定角色・保底・獎池與機率</small></button>
-        <button type="button" class="mini-btn summon-history-open" onclick="openSummonHistory()">招募紀錄</button>
-        ${focusedInfo}
         <p class="summon-acquisition-note">四星角色可抽取完整角色或角色碎片；碎片集滿 10 片自動解鎖。</p>
         </section>${charSkillHoverHTML()}${animationMarkup}${focusedMarkup}`;
 }
@@ -11878,7 +11850,8 @@ const DEX_ROLE = GAME_DATA.ui.dexRoles;
 const DEX_ROLES = Object.keys(DEX_ROLE);
 const EL_KEYS = OPEN_EL;
 const DEX_HERO = {}; CHAR_IDS.forEach(id => { DEX_HERO[CHAR_TABLE[id].unit] = id; });
-let dexF = { a: "", t: "", q: "" };
+let dexF = { a: "", t: "", q: "", o: "" };
+let dexPortraitTab = 0;
 let dexSelected = "";
 let collectionAchievementClaims = [];
 const LEGACY_COLLECTION_ACHIEVEMENTS = [
@@ -11898,7 +11871,8 @@ const dexFace = (dev, r, txt) => `<img loading="lazy" src="${CDN_BASE}rarity${r}
 const dexDisplayName = name => String(name).replace(/\s*[（(].*$/u, "").trim();
 function dexMatch() {
     const q = dexF.q.trim().toLowerCase();
-    return DEX_ON.filter(c => (!dexF.a || c[2] === dexF.a) && (!dexF.t || c[5] === dexF.t) && (!q || (c[0] + " " + c[3] + " " + c[4]).toLowerCase().includes(q)));
+    const owned = c => !!(DEX_HERO[c[0]] && roster[DEX_HERO[c[0]]]?.unlocked);
+    return DEX_ON.filter(c => (!dexF.a || c[2] === dexF.a) && (!dexF.t || c[5] === dexF.t) && (!dexF.o || (dexF.o === "own") === owned(c)) && (!q || (c[0] + " " + c[3] + " " + c[4]).toLowerCase().includes(q)));
 }
 function dexCell(c) {
     const hid = DEX_HERO[c[0]], ch = hid ? roster[hid] : null, own = ch && ch.unlocked;
@@ -11925,7 +11899,7 @@ function dexGridHTML() {
 }
 function dexCntHTML() { return `顯示 <b>${dexMatch().length}</b> 位角色。 <span class="dex-hint">指向或點選角色查看技能與隊長特性</span>`; }
 function charBarHTML() {
-    return `<div class="dex-bar"><select id="dex-a" onchange="dexSet('a', this.value)"><option value="">全部屬性</option>${EL_KEYS.map(k => `<option value="${k}"${dexF.a === k ? " selected" : ""}>${ELEMENTS[k].label}</option>`).join("")}</select><select id="dex-t" onchange="dexSet('t', this.value)"><option value="">全部職業</option>${DEX_ROLES.map(k => `<option value="${k}"${dexF.t === k ? " selected" : ""}>${DEX_ROLE[k]}</option>`).join("")}</select><input id="dex-q" type="search" placeholder="搜尋角色" value="${esc(dexF.q)}" oninput="dexSet('q', this.value)"><button class="clr" onclick="dexClear()">清空</button></div>`;
+    return `<div class="dex-bar"><select id="dex-a" onchange="dexSet('a', this.value)"><option value="">全部屬性</option>${EL_KEYS.map(k => `<option value="${k}"${dexF.a === k ? " selected" : ""}>${ELEMENTS[k].label}</option>`).join("")}</select><select id="dex-t" onchange="dexSet('t', this.value)"><option value="">全部職業</option>${DEX_ROLES.map(k => `<option value="${k}"${dexF.t === k ? " selected" : ""}>${DEX_ROLE[k]}</option>`).join("")}</select><select id="dex-o" aria-label="依解鎖狀態篩選" onchange="dexSet('o', this.value)"><option value="">全部狀態</option><option value="own"${dexF.o === "own" ? " selected" : ""}>已解鎖</option><option value="unowned"${dexF.o === "unowned" ? " selected" : ""}>未解鎖</option></select><input id="dex-q" type="search" placeholder="搜尋角色" value="${esc(dexF.q)}" oninput="dexSet('q', this.value)"><button class="clr" onclick="dexClear()">清空</button></div>`;
 }
 function dexCollectionStats() {
     const catalogIds = OPEN_CHAR_IDS, owned = catalogIds.filter(id => roster[id]?.unlocked);
@@ -11941,12 +11915,34 @@ function dexCollectionStats() {
 function dexCollectionSummaryHTML(stats) {
     return '<div class="dex-bonus-title">帳號收藏進度</div>'+[['角色總收藏',stats.unlocked+'/'+stats.total],['Lv.80 培養達標',stats.levels[80]+' 位'],['屬性收藏',stats.elements+'/'+stats.elementTotal]].map(([label,value])=>'<div class="dex-bonus-row"><span>'+label+'</span><b>'+value+'</b></div>').join('')+'<details class="collection-details"><summary>查看詳細收藏 ▼</summary>'+[['基礎',stats.groups.base],['常駐',stats.groups.permanent],['限定',stats.groups.limited]].map(([label,group])=>'<div class="dex-bonus-row"><span>'+label+'角色收藏</span><b>'+group.owned+'/'+group.total+'</b></div>').join('')+(stats.broken===null?'':'<div class="dex-bonus-row"><span>已突破／解放角色</span><b>'+stats.broken+' 位</b></div>')+'</details>';
 }
+// 立繪收藏：普通立繪跟著角色解鎖；覺醒立繪僅在解放／突破（breakthrough>0）後解鎖。
+// 原版排列：大图預覽＋下方初始／覺醒切換鈕；未解鎖以灰階 teaser 顯示，不當作已解鎖。
+function dexPortraitViewerHTML(c, ch) {
+    const own = !!ch?.unlocked, awakened = own && ch.breakthrough > 0;
+    const n = dexPortraitTab, unlocked = n === 0 ? own : awakened;
+    const url = `${CDN_BASE}rarity${c[1]}/${c[0]}/full_shot_1440_1920_${n}.png`;
+    return `<div class="dex-focus-portrait${unlocked ? "" : " locked"}"><img loading="lazy" src="${url}" alt="${n === 0 ? "初始立繪" : "覺醒立繪"}" onerror="this.style.visibility='hidden'"><button type="button" class="dex-zoom-btn" onclick="dexZoomPortrait()">點擊放大</button></div><div class="dex-portrait-tabs"><button type="button" aria-pressed="${n === 0}" onclick="dexSetPortrait(0)">初始立繪</button><button type="button" aria-pressed="${n === 1}" onclick="dexSetPortrait(1)">覺醒立繪</button></div>`;
+}
+function dexSetPortrait(n) {
+    dexPortraitTab = n;
+    const focus = $("dex-focus");
+    if (focus) focus.innerHTML = dexFocusHTML();
+}
+function dexZoomPortrait() {
+    const img = document.querySelector(".dex-focus-portrait img");
+    if (!img || !img.src) return;
+    const box = document.createElement("div");
+    box.className = "dex-lightbox";
+    box.innerHTML = `<img src="${img.src}" alt="立繪放大">`;
+    box.onclick = () => box.remove();
+    document.body.appendChild(box);
+}
 function dexFocusHTML() {
     const c = DEX_ON.find(row => row[0] === dexSelected) || dexMatch()[0];
     if (!c) return `<div class="dex-pane dex-focus"><div class="dex-pane-title">角色特寫</div><div class="pg-empty">沒有符合條件的角色</div></div>`;
     const d = CHAR_TABLE[DEX_HERO[c[0]]], ch = d && roster[d.unit], own = !!ch?.unlocked;
     const stats = dexCollectionStats();
-    return `<section class="dex-pane dex-focus"><div class="dex-pane-title"><span>角色特寫</span><span>${own ? "已解鎖" : "未解鎖"}</span></div><div class="dex-focus-portrait">${dexFace(c[0],c[1],dexDisplayName(c[3]).slice(0,1))}</div><h3 class="dex-focus-name">${esc(dexDisplayName(c[3]))}</h3><div class="dex-focus-meta">${ELEMENTS[c[2]].label}屬性・${c[1]}★・${DEX_ROLE[c[5]]}</div><div class="dex-focus-data"><div><span>稱號</span><b>${esc(c[4])}</b></div><div><span>角色等級</span><b>${own ? `Lv.${ch.lvl}/${growthCap(ch)}` : "尚未取得"}</b></div><div><span>角色碎片</span><b>${d ? `${ch.shards}/${d.need}` : "—"}</b></div><div><span>取得方式</span><b>${c[1] === 5 && summonCategory(c[0]) === "permanent" ? "交換所" : summonCategory(c[0]) === "limited" ? "限定招募" : "招募"}</b></div></div><div class="dex-selection-detail">${dexDetailHTML(c[0])}</div>${dexCollectionSummaryHTML(stats)}</section>`;
+    return `<section class="dex-pane dex-focus"><div class="dex-pane-title"><span>角色特寫</span><span>${own ? "已解鎖" : "未解鎖"}</span></div>${dexPortraitViewerHTML(c, ch)}<h3 class="dex-focus-name">${esc(dexDisplayName(c[3]))}</h3><div class="dex-focus-meta">${ELEMENTS[c[2]].label}屬性・${c[1]}★・${DEX_ROLE[c[5]]}</div><div class="dex-focus-data"><div><span>稱號</span><b>${esc(c[4])}</b></div><div><span>角色等級</span><b>${own ? `Lv.${ch.lvl}/${growthCap(ch)}` : "尚未取得"}</b></div><div><span>角色碎片</span><b>${d ? `${ch.shards}/${d.need}` : "—"}</b></div><div><span>取得方式</span><b>${c[1] === 5 && summonCategory(c[0]) === "permanent" ? "交換所" : summonCategory(c[0]) === "limited" ? "限定招募" : "招募"}</b></div></div><div class="dex-selection-detail">${dexDetailHTML(c[0])}</div>${dexCollectionSummaryHTML(stats)}</section>`;
 }
 function collectionGoal(a, stats) { return a.required === 'all' ? stats.elementTotal : a.required; }
 function collectionValue(a, stats) { return a.type === 'level' ? stats.levels[a.level] || 0 : a.type === 'elements' ? stats.elements : stats.unlocked; }
@@ -12022,7 +12018,7 @@ function showSkillHover(id, ev, rootSelector, itemSelector, selectedClass) {
     card.style.top = `${top}px`;
 }
 function dexHover(id, ev) { showSkillHover(id, ev, "dex-grid", ".dex-cell", "selected"); }
-function charSkillHover(id, ev) { showSkillHover(id, ev, "pg-body", ".char-card,.exchange-character-card", "skill-selected"); }
+function charSkillHover(id, ev) { showSkillHover(id, ev, "pg-body", ".exchange-character-card", "skill-selected"); }
 function summonSkillHover(id, ev) { showSkillHover(id, ev, "pg-body", ".summon-lineup-face", "summon-selected"); }
 function dexHide() { const card = $("dex-hover-card"); if (card) card.hidden = true; }
 function dexSetTab(tab) {
@@ -12032,7 +12028,7 @@ function dexSetTab(tab) {
 }
 function dexSelect(id, ev) { dexSelected = id; dexRefresh(); dexHide(); dexSetTab("focus"); }
 function dexSet(k, v) { dexF[k] = v; if (k === "q") { const input = $("dex-q"); if (input && input.value !== v) input.value = v; } dexRefresh(); }
-function dexClear() { dexF = { a: "", t: "", q: "" }; dexSelected = ""; ["a", "t"].forEach(k => { const el = $("dex-" + k); if (el) el.value = ""; }); const q = $("dex-q"); if (q) q.value = ""; dexRefresh(); }
+function dexClear() { dexF = { a: "", t: "", q: "", o: "" }; dexSelected = ""; ["a", "t", "o"].forEach(k => { const el = $("dex-" + k); if (el) el.value = ""; }); const q = $("dex-q"); if (q) q.value = ""; dexRefresh(); }
 // 舊版資格只在第一次載入時擷取；Lv.85 僅用於這次相容轉換，不參與新版成就。
 function migrateCollectionAchievements() {
     if (collectionAchievementClaims.includes('ca2_migrated')) return true;
@@ -14026,6 +14022,7 @@ if (!resumed) {
 
 PF.el = $("pf");
 PF.field = $("pf-field");
+PF.passive = $("pf-passive");
 PF.vfx = $("pf-vfx");
 PF.pops = $("pf-pops");
 PF.bgEl = document.querySelector(".pf-bg");

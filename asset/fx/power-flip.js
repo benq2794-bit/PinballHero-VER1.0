@@ -23,7 +23,7 @@ function launchPowerFlip(b) {
     const type = CHAR_TABLE[source.id].type;
     // 劍士在 15 Combo 以上發動 PF 時短暫浮游；仍會照常碰撞與反彈。
     if (typeEffects.active('knight') && combo >= 15) {
-        b._knightFloatUntil = performance.now() + 1500;
+        b._knightFloatUntil = performance.now() + typeEffects.floatMs();
         showPassiveFX('wind', b.x, b.y + 8, { follow: b, dy: 8, ms: 1500, behind: true });
     }
     const rangerPierce = typeEffects.active('ranger') && type === 'ranger';
@@ -90,7 +90,7 @@ function triggerFighterShockwave(ch, target) {
     if (!typeEffects.active('fighter') || !ch || !target || !enemyUnitAlive(target)) return false;
     const now = performance.now();
     if (now < (ch._fighterShockReadyAt || 0)) return false;
-    ch._fighterShockReadyAt = now + 550;
+    ch._fighterShockReadyAt = now + typeEffects.shockCooldown();
     const radius = typeEffects.shockRadius();
     powerFlipWeakCircle(target.x, target.y, radius, { seq: PF.foeSeq, source: ch });
     // 被動專屬的衝擊環：半徑跟實際判定同步，不再借用爆裂型的爆炸。
@@ -102,6 +102,8 @@ function triggerFighterShockwave(ch, target) {
             * (shockCrit ? CRIT_DMG : 1)));
         applyDamage(ch, shock, { target: splash, critical: shockCrit, cls: 'pf-damage', pf: true });
     }
+    const extraCombo = typeEffects.shockCombo();
+    if (extraCombo > 0) bumpCombo(extraCombo);
     return true;
 }
 // PF 專屬弱點判定：只有攻擊型態範圍實際覆蓋到的弱點才會破。
@@ -110,7 +112,7 @@ function powerFlipWeakCircle(x, y, radius, state) {
     const owner = powerFlipOwner(state);
     let broken = 0;
     for (const w of PF.weak.nodes) {
-        if (!w.hit && Math.hypot(w.x - x, w.y - y) <= radius + w.r) {
+        if (!w.hit && Math.hypot(w.x - x, w.y - y) <= radius + w.r + typeEffects.weakRadiusBonus()) {
             hitWeak(w, owner);
             broken++;
         }
@@ -126,7 +128,7 @@ function powerFlipWeakRay(x, y, ux, uy, length, width, state) {
         const dx = w.x - x, dy = w.y - y;
         const along = dx * ux + dy * uy;
         const across = Math.abs(dx * uy - dy * ux);
-        if (along >= 0 && along <= length && across <= width + w.r) {
+        if (along >= 0 && along <= length && across <= width + w.r + typeEffects.weakRadiusBonus()) {
             hitWeak(w, owner);
             broken++;
         }
@@ -145,7 +147,7 @@ function powerFlipDamage(state, target, mult) {
     }
     const crit = rollCrit(ch);
     const rangePierce = typeEffects.pfBonus(state.type);
-    const damage = Math.max(1, Math.round(atkOf(ch) * mult * (1 + mainAccountBonus().powerFlipDamage + rangePierce) * (1 + .08 * talentRank(ch, 'pf')) *
+    const damage = Math.max(1, Math.round(atkOf(ch) * mult * (1 + mainAccountBonus().powerFlipDamage + rangePierce + typeEffects.pfDamageBonus()) * (1 + .08 * talentRank(ch, 'pf')) *
         elementMultiplier(CHAR_TABLE[ch.id].element, enemy.element) * (crit ? CRIT_DMG : 1)));
     const dealt = applyDamage(ch, damage, { target, critical: crit, cls: 'pf-damage', combo: 1, pf: true, pfState: state });
     // 劍士每段命中加極短微停頓，利用既有全域節流避免連段變慢動作。
@@ -175,7 +177,7 @@ function powerFlipContact(m, target) {
         state.hitWait = 0;
     } else if (state.type === 'special') {
         // 特殊型：爆裂範圍內的弱點會同時擊破。
-        const radius = 80 + state.lv * 35;
+        const radius = (80 + state.lv * 35) * typeEffects.burstScale();
         showPowerFlipVFX('special', target.x, target.y, 0, state.lv, radius / 90);
         powerFlipWeakCircle(target.x, target.y, radius, state);
         for (const unit of enemyTargetsInRadius(target.x, target.y, radius)) {
@@ -183,6 +185,17 @@ function powerFlipContact(m, target) {
         }
         clearPowerFlip(m.body);
     }
+}
+// PF 發射速度保底：碰撞實驗的出口修正關閉時，彈板可能把球送得太慢而發不了 PF；
+// 實驗開啟時 stabilizeFlipperExit 已保證向上速度，這裡不疊加修正。
+function powerFlipSupportLaunchSpeed(b) {
+    if (COLLISION_TRIAL.enabled || b.vy < -80) return;
+    b.vy = -680;
+}
+// PF 球撞牆回饋：反彈與判定已由呼叫端處理，這裡只補接觸點的一下打擊特效。
+function powerFlipWallContact(b, x = b.x, y = b.y) {
+    if (!b.powerFlip || b.powerFlip.seq !== PF.foeSeq) return;
+    FX.sprite(x, y, "hit");
 }
 function updatePowerFlip(dtMs) {
     if (!POWER_FLIP.enabled || PF.paused || !PF.running || !PF.ready) return;

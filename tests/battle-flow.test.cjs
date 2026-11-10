@@ -141,7 +141,8 @@ function settlement(training = false, gate = null) {
     assert.equal(effect.attackMultiplier(), 2.5); assert.equal(effect.gaugeMultiplier(), 2); assert.equal(effect.shield(), .20);
     fever = false; activeType = 'knight';
     assert.equal(effect.floating(14, 0, 100), false); assert.equal(effect.floating(15, 0, 100), true);
-    assert.equal(effect.lifeSteal(100000, 1000), 50); assert.ok(effect.gravity() >= .55);
+    assert.equal(effect.lifeSteal(100000, 1000), 150, '生命掠取 rank5 把單次回復上限提高到最大生命 15%');
+    assert.ok(Math.abs(effect.gravity() - .42) < 1e-9, '凌空步法 rank5 浮游重力 0.42');
     activeType = 'special';
     assert.equal(effect.weakDelay(1500), 400); assert.equal(effect.weakDelay(0), 1300);
     assert.equal(effect.enemyTimeScale(1000, 500), .45);
@@ -160,14 +161,37 @@ function settlement(training = false, gate = null) {
 {
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/type-talents.js'), 'utf8'), ctx);
     vm.runInContext('typeTalentRanks = normalizeTypeTalentRanks({});', ctx);
-    assert.equal(ctx.typeTalentTreeMaxed('knight'), false, '車道未點滿時被動不生效');
+    assert.equal(ctx.typePassiveUnlocked('knight'), false, '被動未解鎖時不生效');
+    assert.equal(ctx.typePassiveUnlockable('knight'), false, '普通天賦未各 Lv.1 不能解鎖被動');
+    // 五顆各 Lv.1（不用點滿）＝第 6 點可解鎖被動。
     vm.runInContext(`typeTalentRanks = normalizeTypeTalentRanks({ knight: Object.fromEntries(
-        TYPE_TALENT_TREES.knight.branches.flatMap(branch => branch.nodes.map(node => [node.id, 5]))) });`, ctx);
-    assert.equal(ctx.typeTalentTreeMaxed('knight'), true);
-    assert.equal(ctx.typeTalentTreeMaxed('ranger'), false, '一條點滿不會讓其他車道一起成立');
-    assert.equal(vm.runInContext('typeTalentSpent()', ctx), 30, '一條車道 6 節點 × 5 級');
+        TYPE_TALENT_TREES.knight.branches.flatMap(branch => branch.nodes.map(node => [node.id, 1]))) });`, ctx);
+    assert.equal(ctx.typePassiveUnlockable('knight'), true);
+    assert.equal(ctx.typePassiveUnlocked('knight'), false, '條件成立不代表已解鎖');
+    vm.runInContext(`typeTalentRanks = normalizeTypeTalentRanks({ knight: { ...Object.fromEntries(
+        TYPE_TALENT_TREES.knight.branches.flatMap(branch => branch.nodes.map(node => [node.id, 5]))), passive_knight: 1 } });`, ctx);
+    assert.equal(ctx.typePassiveUnlocked('knight'), true);
+    assert.equal(ctx.typePassiveUnlocked('ranger'), false, '一條解鎖不會讓其他車道一起成立');
+    assert.equal(vm.runInContext('typeTalentSpent()', ctx), 26, '一條車道 5 節點 × 5 級＋被動 1 點');
+    // 不強制依序：後段節點可以先學，前段歸零不連帶返還。
+    assert.deepEqual(JSON.parse(JSON.stringify(vm.runInContext('normalizeTypeTalentRanks({ knight: { knight_pf_damage: 3 } })', ctx))).knight,
+        { knight_pf_damage: 3 }, '後段節點獨立保留');
+    // 車道 11 點上限：額滿後未學節點轉為鎖定。
+    vm.runInContext('typeTalentRanks = normalizeTypeTalentRanks({ knight: { knight_recovery: 5, knight_recovery_cap: 5, knight_float_time: 1 } });', ctx);
+    assert.equal(vm.runInContext('typeTalentSpent("knight")', ctx), 11);
+    assert.equal(vm.runInContext('typeTalentNodeState("knight", TYPE_TALENT_TREES.knight.branches[1], 1)', ctx), 'locked', '車道 11 點上限');
+    vm.runInContext('typeTalentPoints = 0;', ctx);
+    assert.equal(vm.runInContext('typeTalentNodeState("ranger", TYPE_TALENT_TREES.ranger.branches[0], 0)', ctx), 'locked', '總點數用盡');
+    // 被動最多同時 3 種。
+    vm.runInContext(`typeTalentPoints = 33; typeTalentRanks = normalizeTypeTalentRanks(Object.fromEntries(
+        Object.keys(TYPE_TALENT_TREES).map(type => [type, Object.fromEntries(
+            TYPE_TALENT_TREES[type].branches.flatMap(branch => branch.nodes.map(node => [node.id, 1])))])));`, ctx);
+    assert.equal(ctx.typePassiveUnlockable('special'), true);
+    vm.runInContext(`for (const type of ['knight', 'fighter', 'ranger']) typeTalentRanks[type]['passive_' + type] = 1;`, ctx);
+    assert.equal(ctx.typePassiveCount(), 3);
+    assert.equal(ctx.typePassiveUnlockable('special'), false, '被動上限 3 種');
     assert.deepEqual(JSON.parse(JSON.stringify(vm.runInContext('normalizeTypeTalentRanks({ warrior: { warrior_recovery: 5 } })', ctx))),
         { knight: {}, fighter: {}, ranger: {}, supporter: {}, special: {} }, '職業 key 的舊等級讀入即歸零');
-    assert.equal(ctx.typeTalentTreeMaxed('warrior'), false, '職業 key 不認得');
+    assert.equal(ctx.typePassiveUnlocked('warrior'), false, '職業 key 不認得');
 }
 console.log('PASS: battle phases, paused deadlines, canceled multihits, delayed/unique rewards, gate receipts, training isolation, page routes and attack-type effect bounds.');

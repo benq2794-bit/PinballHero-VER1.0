@@ -336,7 +336,7 @@ window.GAME_DATA.progression = {
         talent: { basePoints: 2, pointsPerLevels: 5 }
     },
     account: { expBase: 400, expPerRank: 100, rankBonusCap: .10, rankBonusPerLevel: .001, critStartRank: 100, critBonusCap: .10, critBonusPerLevel: .001 },
-    typeTalents: { maxRank: 5 }
+    typeTalents: { maxRank: 5, totalPoints: 33, laneCap: 11, passiveCap: 3 }
 };
 window.GAME_DATA.rewards = {
     towerEnemyExperience: { base: [0, 3], after100: [1, 4], after200: [2, 5] },
@@ -404,10 +404,10 @@ window.GAME_DATA.assets = {
         supporter: { src: "asset/fx/pixelfx/pf-supporter.png", frames: 24, ms: 780, fw: 124, fh: 120, scale: 1.28 }
     },
     passiveFx: {
-        wind: { src: "asset/fx/knight-permanent-wind.gif", gif: true, frames: 13, ms: 1170, fw: 175, fh: 98, scale: 1 },
-        slow: { src: "asset/fx/special-starburst-time.gif", gif: true, frames: 12, ms: 1080, fw: 170, fh: 91, scale: 1 },
-        shock: { src: "asset/fx/fighter-burst-lock.gif", gif: true, frames: 7, ms: 630, fw: 118, fh: 103, scale: 1 },
-        pierce: { src: "asset/fx/ranger-absolute-pierce.gif", gif: true, frames: 5, ms: 1800, fw: 180, fh: 89, scale: 1 }
+        wind: { src: "asset/fx/knight-permanent-wind.webp", gif: true, frames: 13, ms: 1170, fw: 175, fh: 98, scale: 1.35 },
+        slow: { src: "asset/fx/special-starburst-time.webp", gif: true, frames: 12, ms: 1080, fw: 170, fh: 91, scale: 1.35 },
+        shock: { src: "asset/fx/fighter-burst-lock.webp", gif: true, frames: 7, ms: 630, fw: 118, fh: 103, scale: 1 },
+        pierce: { src: "asset/fx/ranger-absolute-pierce.webp", gif: true, frames: 5, ms: 1800, fw: 180, fh: 89, scale: 1 }
     },
     bossPhaseGif: { summon: "asset/fx/boss/summon-circle-transparent.webp", shockwave: "asset/fx/boss/summon-shockwave-transparent.webp", berserk: "asset/fx/boss/berserk-aura-transparent.webp" },
     buffIcons: {
@@ -430,8 +430,7 @@ window.GAME_DATA.typeTalentTrees = {
             { id: "knight_float_gravity", title: "凌空步法", icon: "➤", desc: "浮游期間重力再降低 0.08 倍，碰撞仍正常。" }
         ] },
         { name: "破陣劍勢", nodes: [
-            { id: "knight_pf_damage", title: "破陣斬", icon: "⚔", desc: "PF 傷害提高 5%。" },
-            { id: "knight_float_drag", title: "乘風追擊", icon: "✧", desc: "浮游期間空氣阻力再降低，移動更俐落。" }
+            { id: "knight_pf_damage", title: "破陣斬", icon: "⚔", desc: "PF 傷害提高 5%。" }
         ] }
     ] },
     fighter: { branches: [
@@ -444,8 +443,7 @@ window.GAME_DATA.typeTalentTrees = {
             { id: "fighter_combo", title: "追擊節奏", icon: "⌁", desc: "每次觸發衝擊額外增加 1 Combo。" }
         ] },
         { name: "致命判讀", nodes: [
-            { id: "fighter_crit", title: "要害洞悉", icon: "✦", desc: "衝擊暴擊率提高 3%。" },
-            { id: "fighter_crit_damage", title: "致命一擊", icon: "†", desc: "衝擊暴擊傷害額外提高 15%。" }
+            { id: "fighter_crit", title: "要害洞悉", icon: "✦", desc: "衝擊暴擊率提高 3%。" }
         ] }
     ] },
     ranger: { branches: [
@@ -458,8 +456,7 @@ window.GAME_DATA.typeTalentTrees = {
             { id: "ranger_weak", title: "弱點追蹤", icon: "◇", desc: "光束弱點判定寬度增加 8px。" }
         ] },
         { name: "迅捷裝填", nodes: [
-            { id: "ranger_crit", title: "精準狙擊", icon: "✦", desc: "射擊直擊暴擊率提高 2%。" },
-            { id: "ranger_gauge", title: "疾速裝填", icon: "ϟ", desc: "射擊命中後額外回復技能能量。" }
+            { id: "ranger_crit", title: "精準狙擊", icon: "✦", desc: "射擊直擊暴擊率提高 2%。" }
         ] }
     ] },
     supporter: { branches: [
@@ -472,8 +469,7 @@ window.GAME_DATA.typeTalentTrees = {
             { id: "supporter_energy", title: "共鳴脈衝", icon: "ϟ", desc: "FEVER 發動時，全隊立即補充 3% 技能能量。" }
         ] },
         { name: "守護祈禱", nodes: [
-            { id: "supporter_heal", title: "生命禱言", icon: "♡", desc: "通過關卡時額外回復全隊 3% 生命。" },
-            { id: "supporter_resist", title: "堅韌聖印", icon: "▣", desc: "全隊最大生命提高 3%。" }
+            { id: "supporter_heal", title: "生命禱言", icon: "♡", desc: "通過關卡時額外回復全隊 3% 生命。" }
         ] }
     ] },
     special: { branches: [
@@ -486,8 +482,7 @@ window.GAME_DATA.typeTalentTrees = {
             { id: "special_slow_cap", title: "時域延展", icon: "⌛", desc: "星爆時空的總延長上限提高 0.4 秒。" }
         ] },
         { name: "咒式共鳴", nodes: [
-            { id: "special_weak_width", title: "弱點洞察", icon: "◇", desc: "技能與 PF 的弱點判定範圍增加。" },
-            { id: "special_crit", title: "秘術暴擊", icon: "✦", desc: "技能暴擊率提高 2%。" }
+            { id: "special_weak_width", title: "弱點洞察", icon: "◇", desc: "技能與 PF 的弱點判定範圍增加。" }
         ] }
     ] }
 };
@@ -502,15 +497,15 @@ window.GAME_DATA.TYPE_TALENT_COLORS = {
 
 window.GAME_DATA.TYPE_TALENT_ICON_BY_ID = {
     knight_recovery: "heart", knight_recovery_cap: "heart", knight_float_time: "speed",
-    knight_float_gravity: "arrow", knight_pf_damage: "sword", knight_float_drag: "slash",
+    knight_float_gravity: "arrow", knight_pf_damage: "sword",
     special_skill_damage: "burst", special_burst_radius: "target", special_slow_time: "moon",
-    special_slow_cap: "moon", special_weak_width: "eye", special_crit: "burst",
+    special_slow_cap: "moon", special_weak_width: "eye",
     supporter_fever_attack: "heart", supporter_fever_shield: "shield", supporter_gauge: "speed",
-    supporter_energy: "burst", supporter_heal: "heart", supporter_resist: "shield",
+    supporter_energy: "burst", supporter_heal: "heart",
     fighter_shock_damage: "slash", fighter_shock_radius: "burst", fighter_cooldown: "speed",
-    fighter_combo: "sword", fighter_crit: "target", fighter_crit_damage: "slash",
+    fighter_combo: "sword", fighter_crit: "target",
     ranger_direct: "arrow", ranger_pierce: "arrow", ranger_beam: "target",
-    ranger_weak: "eye", ranger_crit: "target", ranger_gauge: "speed"
+    ranger_weak: "eye", ranger_crit: "target"
 };
 
 window.GAME_DATA.TYPE_TALENT_PASSIVE_ICON = { knight: "sword", fighter: "slash", ranger: "target", supporter: "shield", special: "burst" };

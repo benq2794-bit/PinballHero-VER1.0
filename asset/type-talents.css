@@ -95,7 +95,10 @@
 
 .tt-passive-node { --tt-line:#c6d2d8; --tt-face:linear-gradient(150deg,#f2f5f7,#dbe6ea); --tt-radius:50%; width:38px; height:38px; }
 .tt-passive-node .tt-icon { width:21px; height:21px; }
-/* 車道點滿＝被動自動生效，只有這一種亮起狀態（舊的「已解鎖但未啟用」已隨開關移除）。 */
+/* 被動改第 6 點手動解鎖：天藍＝可解鎖，金＝已解鎖生效中。 */
+.tt-passive-node.passive-ready { --tt-line:#159bd1;
+    --tt-face:linear-gradient(150deg,#f4fbff,#cfeaf9);
+    --tt-shadow:inset 0 1px 0 #fff,0 0 8px rgba(21,155,209,.5),0 2px 0 rgba(20,90,120,.35); }
 .tt-passive-node.passive-active { --tt-line:#b7842f;
     --tt-face:radial-gradient(circle at 34% 26%,#fffdf2,#f4e6bb 58%,#dcc277);
     --tt-shadow:inset 0 1px 0 #fffdf2,0 0 9px rgba(183,132,47,.5); }

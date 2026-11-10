@@ -29,9 +29,9 @@ async function build() {
     const devMode = /const DEV_MODE = \(\(\) => \{[\s\S]*?\n\}\)\(\);/;
     if (!devMode.test(input)) throw new Error("Production DEV_MODE override no longer matches");
     const version = input.match(/const GAME_VERSION = "([^"]+)"/)[1];
-    let commit = process.env.VERCEL_GIT_COMMIT_SHA || '';
+    let commit = process.env.CF_PAGES_COMMIT_SHA || '';
     if (!commit) { try { commit = execFileSync('git', ['rev-parse', 'HEAD'], {cwd:root,encoding:'utf8'}).trim(); } catch {} }
-    const release = {app:'pinball-realms',version,id:randomUUID(),commit,channel:process.env.VERCEL_ENV || 'development',builtAt:new Date().toISOString()};
+    const release = {app:'pinball-realms',version,id:randomUUID(),commit,channel:process.env.CF_PAGES === '1' ? (process.env.CF_PAGES_BRANCH === 'main' ? 'production' : 'preview') : 'development',builtAt:new Date().toISOString()};
     const html = input.replace(devMode, "const DEV_MODE = false;").replace(/const GAME_RELEASE = [^;]+;/, 'const GAME_RELEASE = '+JSON.stringify(release)+';');
     if (!html.includes(release.id)) throw new Error('Missing release identity');
     const scripts = /(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi;
@@ -76,6 +76,13 @@ async function build() {
     }
     await fs.writeFile(path.join(output, "index.html"), page);
     await fs.writeFile(path.join(output, "version.json"), JSON.stringify(release,null,2));
+    await fs.writeFile(path.join(output, "_headers"), [
+        "/", "  Cache-Control: no-store",
+        "/index.html", "  Cache-Control: no-store",
+        "/version.json", "  Cache-Control: no-store",
+        "/asset/*", "  Cache-Control: public, max-age=0, must-revalidate",
+        ""
+    ].join("\n"));
     for (const [, reference] of page.matchAll(/\b(?:src|href)=["'](asset\/[^"'<>]+)["']/g)) {
         if (/[{}$]/.test(reference)) continue;
         await fs.access(path.join(output, reference.split(/[?#]/)[0]));

@@ -379,6 +379,13 @@ html.ui-dark-mode #app-frame #pg-body .dex-achievement {
     color:#dce7ec !important;
 }
 html.ui-dark-mode #app-frame #pg-body .dex-achievement.ready { border-color:#c49b3c !important; background:linear-gradient(145deg,#51452a,#2d3030) !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-portrait-card { border-color:#536873 !important; background:#22303a !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-portrait-art { background:linear-gradient(180deg,#2c3b44,#202d35) !important; color:#8fa3ad !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-portrait-card.locked .dex-portrait-art { background:#1d2830 !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-portrait-card figcaption { border-color:#455a66 !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-portrait-card figcaption b { color:#e8f0f4 !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-portrait-card figcaption small { color:#9db2bc !important; }
+html.ui-dark-mode #app-frame #pg-body .dex-portrait-card.locked figcaption small { color:#e3b954 !important; }
 html.ui-dark-mode #app-frame #pg-body .dex-achievement.claimed { border-color:#65a681 !important; background:linear-gradient(145deg,#263d34,#1d2c29) !important; }
 html.ui-dark-mode #app-frame #pg-body .dex-selection-detail .dex-detail-row { color:#e2ebef !important; }
 html.ui-dark-mode #app-frame #pg-body .dex-selection-detail .dex-detail-row b,

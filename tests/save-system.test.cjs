@@ -77,7 +77,7 @@ const store = SaveSystem.createStore({ key, getStorage: () => storage });
     assert.equal(restored.roster.hero.lvl, 17);
     assert.equal(restored.roster.hero.hp, 470); assert.equal(restored.roster.hero.gauge, 0);
     assert.equal(restored.roster.hero.talents.skill, 2);
-    assert.equal(restored.typeTalentPoints, 2, 'Rank 10 給 2 點，舊職業車道歸零後全額返還');
+    assert.equal(restored.typeTalentPoints, 33, '33 點制：舊職業車道歸零後全額可用');
     assert.deepEqual(copy(restored.typeTalentRanks), { knight: {}, fighter: {}, ranger: {}, supporter: {}, special: {} },
         '以職業為 key 的舊等級不會進到新型態樹');
     assert.equal(restored.shakeOn, false);
@@ -92,7 +92,7 @@ const store = SaveSystem.createStore({ key, getStorage: () => storage });
     // 新格式車道 key 用攻擊型態，已學點數要從 Rank 里程碑裡扣掉。
     const restored = SaveSystem.restore(SaveSystem.createSnapshot(fixture(TYPE_RANKS), ids), defaults, rules);
     assert.equal(restored.typeTalentRanks.knight.knight_recovery, 2, '保留新型態節點');
-    assert.equal(restored.typeTalentPoints, 0, '2 點里程碑扣掉已學的 2 點');
+    assert.equal(restored.typeTalentPoints, 31, '33 點扣掉已投入的 2 點');
     assert.equal(ctx.typeTalentSpent(null, restored.typeTalentRanks), 2);
 }
 {
@@ -105,7 +105,7 @@ const store = SaveSystem.createStore({ key, getStorage: () => storage });
     assert.equal('accountStats' in restored, false, '帳號屬性系統已移除，不會從舊存檔復活');
     assert.equal(restored.deepTimeLeft, 90); assert.equal(restored.floorWins, 0);
     assert.deepEqual(copy(restored.teamIds), ['ally']);
-    assert.equal(restored.typeTalentPoints, 2, '缺天賦欄位時依 Rank 補發');
+    assert.equal(restored.typeTalentPoints, 33, '缺天賦欄位時補滿 33 點');
 }
 {
     const p = SaveSystem.createSnapshot(fixture(), ids);
@@ -207,7 +207,7 @@ const store = SaveSystem.createStore({ key, getStorage: () => storage });
     values.set(key, JSON.stringify(SaveSystem.createSnapshot(fixture(), ids)));
     assert.equal(ctx.loadGame(), true); assert.equal(spawns, 1);
     assert.equal(ctx.rankLv, 10); assert.equal(ctx.roster.hero.lvl, 17);
-    assert.equal(vm.runInContext("typeTalentPoints", ctx), 2, '舊職業車道歸零後點數全額返還');
+    assert.equal(vm.runInContext("typeTalentPoints", ctx), 33, '舊職業車道歸零後點數全額返還');
     assert.equal(vm.runInContext("typeTalentRanks.warrior === undefined", ctx), true, '不再承認職業 key');
     assert.equal(vm.runInContext("Object.keys(typeTalentRanks).join(',')", ctx), 'knight,fighter,ranger,supporter,special');
     // loadGame 把存檔欄位交還給全域：少一顆全域就會被 catch 吞掉、整份存檔讀不進來。
