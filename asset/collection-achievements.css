@@ -15,6 +15,7 @@
 #app-frame #pg-body #dex-rewards progress::-webkit-progress-value{border-radius:6px;background:linear-gradient(#72e7f4,#29afd3 49%,#1a92bd 51%,#3edccb);box-shadow:inset 0 1px 0 #e7ffff}
 #app-frame #pg-body .collection-hero progress{height:13px!important;margin-top:7px}
 #app-frame #pg-body .collection-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+#app-frame #pg-body .dex-status-filters{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:7px}
 #app-frame #pg-body .collection-filters button{min-width:0;min-height:33px;border:1px solid #a3c8e2!important;border-radius:6px!important;background:linear-gradient(#fff,#dceefa)!important;color:#2c5675!important;font-size:11px!important;font-weight:bold;padding:4px}
 #app-frame #pg-body .collection-filters button[aria-pressed=true]{background:linear-gradient(#55c5f2,#2366af)!important;border-color:#80cde9!important;color:#fff!important;box-shadow:inset 0 0 0 1px #c7efff,0 2px 5px #2c74ab33!important}
 #app-frame #pg-body #dex-rewards .collection-card{display:grid;grid-template-columns:42px minmax(0,1fr) 70px;gap:7px;align-items:center;min-height:92px;padding:9px 7px;border:1px solid #a8cce4;border-radius:9px;background:linear-gradient(125deg,#fbfeff,#e8f4fd);box-shadow:inset 0 1px 0 #fff,0 2px 3px #27597e14;color:#25445f}

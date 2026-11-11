@@ -76,7 +76,7 @@ class CDP {
             passives: document.querySelectorAll('#pg-body .tt-passive-node').length,
             brokenIcons: Array.from(document.querySelectorAll('#pg-body .tt-icon')).filter(i => !i.complete || i.naturalWidth === 0).length });`);
         assert.equal(talentPage.lanes, 'knight,fighter,ranger,supporter,special');
-        assert.equal(talentPage.nodes, 30, '25 顆天賦加 5 顆被動');
+        assert.equal(talentPage.nodes, 35, '30 顆天賦加 5 顆被動');
         assert.equal(talentPage.passives, 5);
         assert.equal(talentPage.brokenIcons, 0, '型態圖示不能掛掉');
         await page.evaluate("pickHomeTab('home')");

@@ -31,7 +31,9 @@ async function build() {
     const version = input.match(/const GAME_VERSION = "([^"]+)"/)[1];
     let commit = process.env.CF_PAGES_COMMIT_SHA || '';
     if (!commit) { try { commit = execFileSync('git', ['rev-parse', 'HEAD'], {cwd:root,encoding:'utf8'}).trim(); } catch {} }
-    const release = {app:'pinball-realms',version,id:randomUUID(),commit,channel:process.env.CF_PAGES === '1' ? (process.env.CF_PAGES_BRANCH === 'main' ? 'production' : 'preview') : 'development',builtAt:new Date().toISOString()};
+    const branch = process.env.CF_PAGES_BRANCH || '';
+    const channel = branch ? (branch === 'main' ? 'production' : 'preview') : 'development';
+    const release = {app:'pinball-realms',version,id:randomUUID(),commit,channel,builtAt:new Date().toISOString()};
     const html = input.replace(devMode, "const DEV_MODE = false;").replace(/const GAME_RELEASE = [^;]+;/, 'const GAME_RELEASE = '+JSON.stringify(release)+';');
     if (!html.includes(release.id)) throw new Error('Missing release identity');
     const scripts = /(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi;

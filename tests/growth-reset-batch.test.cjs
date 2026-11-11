@@ -4,13 +4,25 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-let disk = null, saveFails = false, multiplier = 1;
+let disk = null, saveFails = false, multiplier = 1, actionDialog = null;
 const ctx = {
     structuredClone, navigator:{}, GATE_MODE:false, rankLv:150,
-    document:{ addEventListener() {}, querySelector() { return null; } },
+    document:{
+        addEventListener() {}, querySelector() { return null; },
+        getElementById(id) {
+            if (id === 'app-frame') return { appendChild(element) { actionDialog = element; } };
+            return id === 'growth-action-dialog' ? actionDialog : null;
+        },
+        createElement() {
+            return {
+                addEventListener() {}, setAttribute() {}, showModal() {}, close() {},
+                querySelector() { return { focus() {} }; }
+            };
+        }
+    },
     addEventListener() {}, $:() => null, renderPage() {}, updateUI() {}, log() {}, hmToast() {},
     roster:{}, growthExpReserve:0, cultivationMaterials:1000, highGradeExperienceCrystals:10, gold:1234,
-    CHAR_TABLE:{ hero:{ type:'knight', atk:20, hp:150, powerScale:1, rarity:5 } },
+    CHAR_TABLE:{ hero:{ id:'hero', name:'Hero', title:'Hero', element:'wind', type:'knight', unit:'hero', atk:20, hp:150, powerScale:1, rarity:5 } },
     betaExperienceAmount:n => n * multiplier, charName:() => 'Hero',
     atkOf:ch => ch.baseAtk, hpMax:ch => ch.maxHp,
     saveStore:{ read:() => disk ? { ok:true, data:disk } : { ok:false } },
@@ -26,6 +38,10 @@ vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(root, 'asset/game-data.js'), 'utf8'), ctx);
 vm.runInContext(fs.readFileSync(path.join(root, 'asset/character-growth.js'), 'utf8'), ctx);
 vm.runInContext(html.slice(html.indexOf('function newChar('), html.indexOf('let roster =')), ctx);
+ctx.shardTotal = 0;
+ctx.towerMaterials = {};
+ctx.breakthroughStones = {};
+ctx.unitFace = () => '';
 const stamp = () => ctx.growthResourceKey(ctx.roster.hero, ctx.growthCurrentWallet());
 function fixture() {
     ctx.roster.hero = ctx.newChar('hero', true);
@@ -124,29 +140,53 @@ async function test() {
     assert.equal(ctx.gold, 1234);
 
     ch = fixture();
-    delete ch.growthLedger;
     ch.lvl = 20;
-    ch.baseAtk = 39;
-    ch.maxHp = 340;
+    ch.exp = 50;
+    ch.nextExp = ctx.growthExpNeed(ch.lvl);
+    ch.baseAtk += 30;
+    ch.maxHp += 150;
+    ch.hp = ch.maxHp;
+    ch.growthLedger = { version:1, complete:false, experience:0, gold:0, resets:0,
+        baseAtk:ch.baseAtk, baseHp:ch.maxHp, talentBudgetFloor:0 };
     ctx.normalizeCharacterGrowth(ch);
+    const estimatedInvestment = Array.from({ length:19 }, (_, i) => ctx.growthExpNeed(i + 1))
+        .reduce((sum, amount) => sum + amount, 50);
+    assert.equal(ch.growthLedger.complete, true, 'legacy investment is estimated only when the old ledger is missing');
+    assert.equal(ch.growthLedger.estimated, true);
+    assert.equal(ch.growthLedger.experience, estimatedInvestment);
+    assert.equal(ch.growthLedger.gold, 0, 'legacy cultivation never spent gold');
+    assert.equal(ch.growthLedger.baseAtk, 20, 'legacy reset restores base attack');
+    assert.equal(ch.growthLedger.baseHp, 150, 'legacy reset restores base health');
+    vm.runInContext("growthFor='hero'", ctx);
+    const resetPage = ctx.renderGrowthPage();
+    const resetButton = resetPage.match(/<button type="button" onclick="openGrowthActionDialog\('hero','reset'\)"([^>]*)>/);
+    assert.ok(resetButton);
+    assert.doesNotMatch(resetButton[1], /\sdisabled(?:\s|$)/, 'legacy level reset button is enabled when estimated');
+    assert.match(resetPage, /重置等級（3\/3）/);
     const legacyQuote = ctx.growthResetQuote(ch);
-    assert.equal(legacyQuote.error, undefined, 'legacy characters can reset');
-    assert.equal(legacyQuote.experience, 0, 'unrecorded old investment is never guessed');
+    assert.equal(legacyQuote.experience, Math.floor(estimatedInvestment * .8));
+    assert.equal(legacyQuote.remaining, 3);
     ctx.saveGame();
-    await ctx.resetGrowthLevel('hero', stamp());
-    assert.equal(ch.lvl, 1);
-    assert.equal(ch.baseAtk, 20, 'legacy reset returns to the character initial stats');
+    ctx.openGrowthActionDialog('hero', 'reset');
+    assert.match(actionDialog.innerHTML, /重置等級/);
+    assert.match(actionDialog.innerHTML, /依角色等級估算/);
+    assert.match(actionDialog.innerHTML, /3 → 2/);
+    await ctx.confirmGrowthAction();
+    assert.equal(ch.lvl, 1, 'confirming the legacy reset dialog resets the character');
+    assert.equal(ch.growthLedger.resets, 1, 'confirming the dialog consumes one reset');
+    assert.equal(ch.growthLedger.estimated, false, 'later resets use exact post-migration tracking');
+    assert.equal(ctx.growthExpReserve, legacyQuote.experience, 'legacy reset grants the estimated 80% refund');
+    assert.equal(ch.baseAtk, 20);
     assert.equal(ch.maxHp, 150);
-    assert.equal(ch.growthLedger.complete, false);
-    assert.equal(ch.growthLedger.resets, 1);
-    assert.equal(ctx.growthExpReserve, 0);
+    ctx.saveGame();
     await ctx.upgradeGrowthLevels('hero', 1);
-    assert.equal(ch.lvl, 2, 'legacy accounts can still upgrade');
-    assert.equal(ch.growthLedger.complete, false, 'new records never guess the missing old investment');
-    const tracked = ch.growthLedger.experience;
-    await ctx.resetGrowthLevel('hero', stamp());
-    assert.equal(ctx.growthExpReserve, Math.floor(tracked * .8), 'only tracked investment is refunded');
-    await ctx.upgradeGrowthLevels('hero', 1);
+    assert.equal(ch.lvl, 2, 'legacy accounts can still upgrade after reset');
+    const invalidLedgerCharacter = fixture();
+    invalidLedgerCharacter.lvl = 20;
+    invalidLedgerCharacter.growthLedger.version = 2;
+    ctx.normalizeCharacterGrowth(invalidLedgerCharacter);
+    assert.equal(invalidLedgerCharacter.growthLedger.complete, false, 'corrupt ledgers are not converted into estimates');
+    assert.match(ctx.growthResetQuote(invalidLedgerCharacter).error, /舊存檔/);
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/gate-enhancement.js'), 'utf8'), ctx);
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/save-system.js'), 'utf8'), ctx);
     const rules = {
@@ -159,7 +199,8 @@ async function test() {
     delete oldCharacter.growthLedger;
     const legacySave = { picked:true, roster:{ hero:oldCharacter }, teamIds:['hero'] };
     const restored = ctx.SaveSystem.restore(legacySave, { hero:ctx.newChar('hero', false) }, rules);
-    assert.equal(restored.roster.hero.growthLedger.complete, false, 'old saves never inherit a fresh-character ledger');
+    assert.equal(restored.roster.hero.growthLedger.complete, true, 'old saves receive a level-based investment estimate');
+    assert.equal(restored.roster.hero.growthLedger.estimated, true, 'old-save estimate remains explicitly marked');
     assert.equal(restored.roster.hero.lvl, 2);
     ch = fixture();
     await ctx.upgradeGrowthLevels('hero', 1);
@@ -168,6 +209,6 @@ async function test() {
     const reloaded = ctx.SaveSystem.restore(persisted, { hero:ctx.newChar('hero', false) }, rules);
     assert.equal(reloaded.growthExpReserve, ctx.growthExpReserve);
     assert.equal(reloaded.roster.hero.growthLedger.resets, 1);
-    console.log('PASS batch levels, real input refunds, bonus exclusion, 3 resets, talent preservation, legacy reset without guessing, rollback and stale tabs');
+    console.log('PASS batch levels, real input refunds, bonus exclusion, 3 resets, legacy estimate and dialog, corrupt-ledger protection, talent preservation, rollback and stale tabs');
 }
 test().catch(error => { console.error(error); process.exitCode = 1; });

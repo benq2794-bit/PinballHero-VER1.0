@@ -70,7 +70,7 @@ function setup(type, ranks = {}, combo = 39) {
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/game-data.js'), 'utf8'), ctx);
     ctx.performance = { now: () => 0 }; ctx.elementMultiplier = () => 1;
     ctx.mainAccountBonus = () => ({ powerFlipDamage: 0 });
-    ctx.showPowerFlipVFX = noop; ctx.showPassiveFX = noop;
+    ctx.showPowerFlipVFX = noop; ctx.showPassiveFX = noop; ctx.showPassiveHitFeedback = noop;
     vm.runInContext(teSource, ctx);
     ctx.typeEffects = ctx.TypeEffects.create({ isActive: () => true, getTalent: id => ranks[id] || 0, isFever: () => false });
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/enemy-wave.js'), 'utf8') + pfSource, ctx);
@@ -151,7 +151,7 @@ function setup(type, ranks = {}, combo = 39) {
     s.body.vy = -900; s.ctx.powerFlipSupportLaunchSpeed(s.body);
     assert.equal(s.body.vy, -900, 'already-fast launch untouched');
 }
-// index.html 掛點：暴擊 context、技能倍率、技能弱點範圍、球撞弱點半徑、過關回復、死引用移除。
+// index.html 掛點：暴擊 context、技能倍率、技能弱點範圍、球撞弱點半徑、過關回復、PF VFX 引用有效。
 for (const re of [
     /typeEffects\.shockCritical\(context\) \+ typeEffects\.directCritical\(context\)/,
     /const crit = rollCrit\(m\.ch, 'direct'\)/,
@@ -161,7 +161,7 @@ for (const re of [
     /const healPct = 0\.25 \+ typeEffects\.clearHeal\(\)/,
     /const prayerPct = typeEffects\.clearHeal\(\)/
 ]) assert.match(html, re);
-assert.ok(!html.includes('power-flip-vfx.js'), 'dead PF VFX reference removed');
+assert.ok(html.includes('asset/fx/power-flip-vfx.js') && fs.existsSync(path.join(root, 'asset/fx/power-flip-vfx.js')), 'PF VFX reference resolves to the real canvas module');
 assert.match(pfSource, /function powerFlipWallContact\(b, x = b\.x, y = b\.y\)/, 'step() wall-contact callee exists');
 for (const file of ['asset/fx/power-flip.js', 'asset/type-effects.js']) new Function(fs.readFileSync(path.join(root, file), 'utf8'));
 for (const block of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new Function(block[1]);

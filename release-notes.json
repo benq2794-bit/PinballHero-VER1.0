@@ -1,21 +1,11 @@
 {
   "content": [
-    "設定頁改分類導覽：畫面與效能、音效設定、遊戲操作、遊戲說明、資料管理五個分類；更新日誌與素材授權改收合顯示。",
-    "商店與限定招募頁皆新增「招募紀錄」入口；紀錄顯示角色名稱與星等，資訊面板可一鍵關閉。",
-    "輔助型被動於 FEVER 期間產生跟隨光環，結束自動清除；被動特效統一在換波或跟隨對象離場時清理，避免殘影。",
-    "修復天賦節點按壓回饋位移點擊熱區的問題；招募頁按鈕版面適配窄螢幕。",
-    "修復獨立戰場啟動順序：錯誤門名不再生成主頁怪物，啟動畫面於戰場自身初始化完成後才釋放。"
+    "修正劍士 PF 特效的球體軌跡與完整淡出時間，並校正格鬥 PF 連段命中節奏及收尾時間。"
   ],
   "files": [
-    "index.html",
-    "release-notes.json",
-    "asset/settings-menu.css",
-    "asset/fx/power-flip.js",
-    "asset/summon-jackpot.css",
-    "asset/type-talents.css",
-    "tests/fever-feedback.test.cjs",
-    "tests/browser-settings-menu.cjs",
-    "tests/browser-three-fixes.cjs",
-    "tests/browser-type-talent-click.cjs"
+    "asset/fx/power-flip-vfx.js",
+    "tests/power-flip-vfx.test.cjs",
+    "tests/browser-power-flip-vfx.cjs",
+    "release-notes.json"
   ]
 }

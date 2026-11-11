@@ -1,1 +1,324 @@
-const TYPE_TALENT_TOTAL_POINTS=GAME_DATA.progression.typeTalents.totalPoints,TYPE_TALENT_LANE_CAP=GAME_DATA.progression.typeTalents.laneCap,TYPE_TALENT_PASSIVE_CAP=GAME_DATA.progression.typeTalents.passiveCap;let typeTalentPoints=TYPE_TALENT_TOTAL_POINTS,typeTalentRanks={};const TYPE_TALENT_MAX_RANK=GAME_DATA.progression.typeTalents.maxRank;let typeTalentSelected={type:"knight",node:"knight_recovery"},typeTalentHasSelectedTree=!1,typeTalentLineUnlock=null,typeTalentMapFrame=0,typeTalentMapLast=0,typeTalentMapTime=0;const TYPE_TALENT_TREES=GAME_DATA.typeTalentTrees,TYPE_TALENT_COLORS=GAME_DATA.TYPE_TALENT_COLORS;function normalizeTypeTalentRanks(e){const t={};for(const[n,a]of Object.entries(TYPE_TALENT_TREES)){t[n]={};for(const l of a.branches)for(const a of l.nodes){const l=Math.max(0,Math.min(TYPE_TALENT_MAX_RANK,Math.floor(Number(e&&e[n]&&e[n][a.id])||0)));l>0&&(t[n][a.id]=l)}Number(e&&e[n]&&e[n][`passive_${n}`])>0&&(t[n][`passive_${n}`]=1)}return t}function typeTalentRank(e,t=Object.keys(TYPE_TALENT_TREES).find(t=>String(e).startsWith(`${t}_`))||typeTalentSelected.type){return Math.max(0,Math.min(TYPE_TALENT_MAX_RANK,Math.floor(Number(typeTalentRanks[t]&&typeTalentRanks[t][e])||0)))}function typeTalentSpent(e=null,t=typeTalentRanks){return(e?[e]:Object.keys(TYPE_TALENT_TREES)).reduce((e,n)=>e+Object.values(t[n]||{}).reduce((e,t)=>e+Math.max(0,Math.min(TYPE_TALENT_MAX_RANK,Math.floor(Number(t)||0))),0),0)}function typePassiveUnlocked(e){return!!(typeTalentRanks[e]&&typeTalentRanks[e][`passive_${e}`]>0)}function typePassiveCount(){return Object.keys(TYPE_TALENT_TREES).filter(e=>typePassiveUnlocked(e)).length}function typePassiveUnlockable(e){const t=TYPE_TALENT_TREES[e];return!(!t||typePassiveUnlocked(e))&&(!(typeTalentPoints<=0||typeTalentSpent()>=TYPE_TALENT_TOTAL_POINTS||typeTalentSpent(e)+1>TYPE_TALENT_LANE_CAP)&&(!(typePassiveCount()>=TYPE_TALENT_PASSIVE_CAP)&&t.branches.every(t=>t.nodes.every(t=>typeTalentRank(t.id,e)>=1))))}function showTypeTalentTooltip(e,t){const n=t?.dataset?.tooltip;if(!n)return;let a=document.getElementById("tt-hover-tooltip");a||(a=document.createElement("div"),a.id="tt-hover-tooltip",a.className="tt-hover-tooltip",a.setAttribute("role","tooltip"),document.body.appendChild(a)),a.textContent=n,a.classList.add("visible");const l=a.getBoundingClientRect(),s=Math.max(10,Math.min(e.clientX+14,window.innerWidth-l.width-10)),T=Math.max(10,Math.min(e.clientY+14,window.innerHeight-l.height-10));a.style.left=`${s}px`,a.style.top=`${T}px`}function hideTypeTalentTooltip(){document.getElementById("tt-hover-tooltip")?.classList.remove("visible")}function typeTalentNodeState(e,t,n){const a=typeTalentRank(t.nodes[n].id,e),l=a>0;if(a>=TYPE_TALENT_MAX_RANK)return"maxed";const s=typeTalentPoints>0&&typeTalentSpent()<TYPE_TALENT_TOTAL_POINTS&&typeTalentSpent(e)<TYPE_TALENT_LANE_CAP;return l?"learned":s?"available":"locked"}const TYPE_TALENT_ICON_BY_ID=GAME_DATA.TYPE_TALENT_ICON_BY_ID,TYPE_TALENT_PASSIVE_ICON=GAME_DATA.TYPE_TALENT_PASSIVE_ICON;function typeTalentIconMarkup(e,t=""){return`<img class="tt-icon ${t}" src="asset/ui/type-talent-icons/${["shield","heart","sword","slash","target","arrow","burst","moon","speed","eye"].includes(e)?e:"burst"}.png" alt="" aria-hidden="true" draggable="false">`}function stopTypeTalentMapFlow(){typeTalentMapFrame&&cancelAnimationFrame(typeTalentMapFrame),typeTalentMapFrame=0,typeTalentMapLast=0}function startTypeTalentMapFlow(){stopTypeTalentMapFlow();const e=$("pg-body");if(!e||"talents"!==homeTabOn)return;const t=n=>{if("talents"!==homeTabOn||!document.body.contains(e))return void stopTypeTalentMapFlow();const a=typeTalentMapLast?Math.min(.05,(n-typeTalentMapLast)/1e3):0;if(typeTalentMapLast=n,typeTalentMapTime+=a,typeTalentLineUnlock){const t=e.querySelector(`.tt-link[data-link-id="${typeTalentLineUnlock.nodeId}"]`);if(t&&typeTalentLineUnlock.type===typeTalentSelected.type){const e=.52,a=Math.min(1,(n-typeTalentLineUnlock.startedAt)/(1e3*e)),l=t.getTotalLength();t.style.strokeDasharray=`${l}`,t.style.strokeDashoffset=""+l*(1-a),t.classList.add("unlocking"),a>=1&&(typeTalentLineUnlock=null,t.classList.remove("unlocking"),t.style.strokeDasharray="",t.style.strokeDashoffset="")}else typeTalentLineUnlock=null}e.querySelectorAll(".tt-link.lit:not(.unlocking)").forEach(e=>{e.style.strokeDasharray="3 3",e.style.strokeDashoffset=""+-8*typeTalentMapTime%6}),typeTalentMapFrame=requestAnimationFrame(t)};typeTalentMapFrame=requestAnimationFrame(t)}function investTypeTalent(e,t){const n=TYPE_TALENT_TREES[e];if(!n||typeTalentPoints<=0)return;if(typeTalentSpent()>=TYPE_TALENT_TOTAL_POINTS||typeTalentSpent(e)>=TYPE_TALENT_LANE_CAP)return;const a=n.branches.find(e=>e.nodes.some(e=>e.id===t));if(!a)return;const l=a.nodes.findIndex(e=>e.id===t),s=typeTalentRank(t,e);s>=TYPE_TALENT_MAX_RANK||!["available","learned"].includes(typeTalentNodeState(e,a,l))||(typeTalentRanks[e]||(typeTalentRanks[e]={}),typeTalentRanks[e][t]=s+1,typeTalentPoints--,typeTalentSelected={type:e,node:t},0===s&&(typeTalentLineUnlock={type:e,nodeId:t,startedAt:0}),saveGame(),renderTypeTalentTree(),0===s&&(typeTalentLineUnlock.startedAt=performance.now(),startTypeTalentMapFlow()))}function investTypePassive(e){if(!typePassiveUnlockable(e))return;typeTalentRanks[e]||(typeTalentRanks[e]={}),typeTalentRanks[e][`passive_${e}`]=1,typeTalentPoints--;const t=`passive_${e}`;typeTalentSelected={type:e,node:t},typeTalentLineUnlock={type:e,nodeId:t,startedAt:0},saveGame(),renderTypeTalentTree(),typeTalentLineUnlock.startedAt=performance.now(),startTypeTalentMapFlow()}function refundTypeTalent(e,t){const n=TYPE_TALENT_TREES[e];if(!n)return;if(typeTalentRanks[e]||(typeTalentRanks[e]={}),t===`passive_${e}`){if(!typePassiveUnlocked(e))return;return typeTalentRanks[e][t]=0,typeTalentPoints++,typeTalentSelected={type:e,node:t},saveGame(),void renderTypeTalentTree()}const a=typeTalentRank(t,e);a&&n.branches.some(e=>e.nodes.some(e=>e.id===t))&&(typeTalentRanks[e][t]=a-1,typeTalentPoints++,typeTalentSelected={type:e,node:t},saveGame(),renderTypeTalentTree())}function resetAllTypeTalents(){const e=typeTalentSpent();e&&confirm(`重置整張天賦圖並返還 ${e} 點天賦點？`)&&(typeTalentRanks={},typeTalentPoints=TYPE_TALENT_TOTAL_POINTS,saveGame(),renderTypeTalentTree())}function renderTypeTalentTree(){const e=$("pg-body");if("talents"!==homeTabOn||!e)return;hideTypeTalentTooltip();const t=e.scrollTop;e.innerHTML=typeTalentTreeMarkup(),e.scrollTop=t}function pageTypeTalents(){return typeTalentHasSelectedTree||(typeTalentSelected={type:"",node:""},typeTalentHasSelectedTree=!0),typeTalentTreeMarkup()}function typeTalentLaneNodes(e){return TYPE_TALENT_TREES[e].branches.flatMap(e=>e.nodes)}function typeTalentLaneStep(e,t){return TYPE_TALENT_TREES[e].branches.slice(0,t.branchIndex).reduce((e,t)=>e+t.nodes.length,0)+t.index}function typeTalentTreeMarkup(){const e=Object.keys(TYPE_TALENT_TREES),t=[];e.forEach(e=>TYPE_TALENT_TREES[e].branches.forEach((n,a)=>n.nodes.forEach((l,s)=>t.push({type:e,branch:n,branchIndex:a,index:s,node:l,isPassive:!1})))),e.forEach(e=>t.push({type:e,isPassive:!0,node:{id:`passive_${e}`,title:TYPE_PASSIVES[e].name,desc:TYPE_PASSIVES[e].desc}}));let n=t.find(e=>e.node.id===typeTalentSelected.node&&e.type===typeTalentSelected.type);n||(n=t.find(e=>!e.isPassive&&["available","learned"].includes(typeTalentNodeState(e.type,e.branch,e.index)))||t.find(e=>!e.isPassive)||t[0]),typeTalentSelected={type:n.type,node:n.node.id};const a=[10,30,50,70,90],l=(e,t)=>[a[e],83-13*t],s=e=>[a[e],6],T=e=>TYPE_TALENT_COLORS[e],o=e.map((e,t)=>{const n=typeTalentLaneNodes(e),o=`<path class="tt-link stem" d="M ${a[t]} 92 L ${l(t,0).join(" ")}"/>`,i=n.map((n,a)=>{const s=typeTalentRank(n.id,e)>0;if(!a)return"";const T=l(t,a-1),o=l(t,a);return`<path class="tt-link${s?" lit":""}${a%2?" tie":" cross"}" data-link-id="${n.id}" d="M ${T[0]} ${T[1]} L ${o[0]} ${o[1]}"/>`}).join(""),p=`<path class="tt-link cross${typePassiveUnlocked(e)?" lit":""}" data-link-id="passive_${e}" d="M ${l(t,n.length-1).join(" ")} L ${s(t).join(" ")}"/>`;return`<g style="--lane-color:${T(e)}">${o}${i}${p}</g>`}).join(""),i=e.map((e,t)=>{const n=typeTalentLaneNodes(e).filter(t=>typeTalentRank(t.id,e)>0).length,l=typeTalentLaneNodes(e).length;return`<span class="tt-lane" style="left:${a[t]}%;--lane-color:${T(e)}" aria-hidden="true"></span><span class="tt-lane-foot${typePassiveUnlocked(e)?" done":""}" style="left:${a[t]}%;--lane-color:${T(e)}"><b>${TYPE_INFO[e].n}</b><i>${n}/${l}</i></span>`}).join(""),p=t.map(t=>{const{type:a,node:o,isPassive:i}=t,p=e.indexOf(a),r=n.node.id===o.id&&n.type===a,y=i?s(p):l(p,typeTalentLaneStep(a,t)),c=i?0:typeTalentRank(o.id,a),d=i?typePassiveUnlocked(a)?"passive-active":typePassiveUnlockable(a)?"passive-ready":"passive-locked":typeTalentNodeState(a,t.branch,t.index),E=i?TYPE_TALENT_PASSIVE_ICON[a]:TYPE_TALENT_ICON_BY_ID[o.id],_=i?TYPE_PASSIVES[a].desc:o.desc,A=i||!c?"":`<i>${c}</i>`,u=`${`${TYPE_INFO[a].n}・${o.title}${i?typePassiveUnlocked(a)?"（被動生效中・右鍵返還）":typePassiveUnlockable(a)?"（點擊解鎖・消耗 1 點）":"（五個普通天賦各 Lv.1 後解鎖）":` ${c}/${TYPE_TALENT_MAX_RANK} 級`}`}\n效果：${_}`.replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;"),P=`onclick="${i?`investTypePassive('${a}')`:`investTypeTalent('${a}','${o.id}')`}" oncontextmenu="event.preventDefault();refundTypeTalent('${a}','${o.id}');return false"`;return`<button class="tt-node ${d}${i?" tt-passive-node":""}${r?" selected":""}" type="button" style="left:${y[0]}%;top:${y[1]}%;--lane-color:${T(a)}" data-tooltip="${u}" aria-label="${u}" onmouseenter="showTypeTalentTooltip(event,this)" onmousemove="showTypeTalentTooltip(event,this)" onmouseleave="hideTypeTalentTooltip()" ${P}>${typeTalentIconMarkup(E)}${A}</button>`}).join(""),r=typePassiveCount(),y=t.filter(e=>!e.isPassive).length;return`<div class="tt-shell" style="--lane-color:${T(n.type)}">\n        <header class="tt-header">\n            <div class="tt-heading"><h2>攻擊型態天賦</h2><small>${y} 節點・被動 ${r}/${TYPE_TALENT_PASSIVE_CAP}・左鍵解鎖／右鍵返還・懸浮看效果</small></div>\n            <div class="tt-header-actions"><button class="tt-reset-mini" type="button" onclick="resetAllTypeTalents()" ${typeTalentSpent()?"":"disabled"} title="免費重置天賦並返還全部點數，不限次數">↺ 重置</button><div class="tt-point" title="共 ${TYPE_TALENT_TOTAL_POINTS} 點自由分配，每條職業線最多 ${TYPE_TALENT_LANE_CAP} 點"><span class="tt-point-mark" aria-hidden="true">✦</span><b>${typeTalentPoints}</b><small>天賦點</small></div></div>\n        </header>\n        <div class="tt-canvas">\n            <div class="tt-lanes">${i}</div>\n            <svg class="tt-tree-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${o}</svg>\n            ${p}\n        </div>\n    </div>`}
+// 攻擊型態天賦樹：天賦分頁直接使用這套樹與帳號天賦點。
+// 車道 key 是 TYPE_INFO 的五種攻擊型態（職業系統已移除，不再以職業分組）。
+let typeTalentPoints = 0;
+let typeTalentRanks = {};
+const TYPE_TALENT_MAX_RANK = GAME_DATA.progression.typeTalents.maxRank;
+const TYPE_TALENT_POOL_LIMIT = 33;
+const TYPE_TALENT_TYPE_LIMIT = 11;
+const TYPE_TALENT_PASSIVE_LIMIT = 3;
+const TYPE_TALENT_PASSIVE_PREREQUISITE = 5;
+let typeTalentSelected = { type: "knight", node: "knight_recovery" };
+let typeTalentHasSelectedTree = false;
+let typeTalentLineUnlock = null;
+let typeTalentMapFrame = 0;
+let typeTalentMapLast = 0;
+let typeTalentMapTime = 0;
+
+const TYPE_TALENT_TREES = GAME_DATA.typeTalentTrees;
+
+// 車道色只負責辨認攻擊型態，節點狀態仍由灰／亮／車道色／金四種語言表達。
+const TYPE_TALENT_COLORS = GAME_DATA.TYPE_TALENT_COLORS;
+
+function normalizeTypeTalentRanks(saved) {
+    const normalized = {};
+    let passives = 0, spent = 0;
+    for (const [type, tree] of Object.entries(TYPE_TALENT_TREES)) {
+        normalized[type] = {};
+        for (const branch of tree.branches) {
+            let pathOpen = true;
+            for (const node of branch.nodes) {
+                const rank = Math.max(0, Math.min(TYPE_TALENT_MAX_RANK, Math.floor(Number(saved && saved[type] && saved[type][node.id]) || 0)));
+                const learned = rank > 0 && pathOpen;
+                if (learned) normalized[type][node.id] = rank;
+                else pathOpen = false;
+            }
+        }
+        const passiveKey = `passive_${type}`;
+        const normal = Object.values(normalized[type]).reduce((sum, rank) => sum + rank, 0);
+        const progress = Object.values(normalized[type]).filter(rank => rank > 0).length;
+        if (saved?.[type]?.[passiveKey] === 1 && progress >= TYPE_TALENT_PASSIVE_PREREQUISITE &&
+            passives < TYPE_TALENT_PASSIVE_LIMIT && normal < TYPE_TALENT_TYPE_LIMIT &&
+            spent + normal < TYPE_TALENT_POOL_LIMIT) {
+            normalized[type][passiveKey] = 1;
+            passives++;
+            spent++;
+        }
+        spent += normal;
+    }
+    return normalized;
+}
+function typeTalentRank(id, type = (Object.keys(TYPE_TALENT_TREES).find(key => String(id).startsWith(`${key}_`)) || typeTalentSelected.type)) { return Math.max(0, Math.min(TYPE_TALENT_MAX_RANK, Math.floor(Number(typeTalentRanks[type] && typeTalentRanks[type][id]) || 0))); }
+function typeTalentPassiveKey(type) { return `passive_${type}`; }
+function typeTalentOrdinaryProgress(type, ranks = typeTalentRanks) {
+    const nodes = typeTalentLaneNodes(type);
+    return Math.min(TYPE_TALENT_PASSIVE_PREREQUISITE, nodes.filter(node => Number(ranks[type]?.[node.id]) > 0).length);
+}
+function typeTalentTypeSpent(type, ranks = typeTalentRanks) {
+    const nodes = typeTalentLaneNodes(type);
+    const normal = nodes.reduce((spent, node) => spent + Math.max(0, Math.min(TYPE_TALENT_MAX_RANK, Math.floor(Number(ranks[type]?.[node.id]) || 0))), 0);
+    return normal + (Number(ranks[type]?.[typeTalentPassiveKey(type)]) === 1 ? 1 : 0);
+}
+function typeTalentSpent(type = null, ranks = typeTalentRanks) {
+    const types = type ? [type] : Object.keys(TYPE_TALENT_TREES);
+    return types.reduce((sum, key) => sum + typeTalentTypeSpent(key, ranks), 0);
+}
+function typeTalentPassiveCount(ranks = typeTalentRanks) {
+    return Object.keys(TYPE_TALENT_TREES).filter(type => Number(ranks[type]?.[typeTalentPassiveKey(type)]) === 1).length;
+}
+function typeTalentPassiveUnlocked(type, ranks = typeTalentRanks) {
+    return Number(ranks[type]?.[typeTalentPassiveKey(type)]) === 1;
+}
+function typeTalentPassiveState(type) {
+    if (typeTalentPassiveUnlocked(type)) return { state:"passive-active", label:"已啟用", reason:"專屬被動已啟用。" };
+    if (typeTalentPassiveCount() >= TYPE_TALENT_PASSIVE_LIMIT)
+        return { state:"passive-limit", label:"上限已滿", reason:`已達 ${TYPE_TALENT_PASSIVE_LIMIT} 種專屬被動上限。` };
+    if (typeTalentTypeSpent(type) >= TYPE_TALENT_TYPE_LIMIT)
+        return { state:"passive-limit", label:"上限已滿", reason:`此攻擊型態已達 ${TYPE_TALENT_TYPE_LIMIT} 點投入上限。` };
+    if (typeTalentSpent() >= TYPE_TALENT_POOL_LIMIT)
+        return { state:"passive-limit", label:"上限已滿", reason:`共用天賦已達 ${TYPE_TALENT_POOL_LIMIT} 點投入上限。` };
+    const progress = typeTalentOrdinaryProgress(type);
+    if (progress < TYPE_TALENT_PASSIVE_PREREQUISITE)
+        return { state:"passive-locked", label:"未解鎖", reason:`普通天賦需先達 ${TYPE_TALENT_PASSIVE_PREREQUISITE}/5，目前 ${progress}/5。` };
+    return { state:"passive-available", label:"可解鎖（消耗 1 點）", reason:typeTalentPoints > 0
+        ? "消耗 1 點天賦點手動解鎖專屬被動。"
+        : "可解鎖，但目前沒有可用天賦點。" };
+}
+// Combat and the talent interface share the same explicit passive-unlock state.
+function typeTalentTreeMaxed(type) {
+    return typeTalentPassiveUnlocked(type);
+}
+function showTypeTalentTooltip(event, node) {
+    const text = node?.dataset?.tooltip;
+    if (!text) return;
+    let tip = document.getElementById("tt-hover-tooltip");
+    if (!tip) {
+        tip = document.createElement("div");
+        tip.id = "tt-hover-tooltip";
+        tip.className = "tt-hover-tooltip";
+        tip.setAttribute("role", "tooltip");
+        document.body.appendChild(tip);
+    }
+    tip.textContent = text;
+    tip.classList.add("visible");
+    const margin = 10, gap = 14;
+    const rect = tip.getBoundingClientRect();
+    const left = Math.max(margin, Math.min(event.clientX + gap, window.innerWidth - rect.width - margin));
+    const top = Math.max(margin, Math.min(event.clientY + gap, window.innerHeight - rect.height - margin));
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+}
+function hideTypeTalentTooltip() {
+    document.getElementById("tt-hover-tooltip")?.classList.remove("visible");
+}
+function typeTalentNodeState(type, branch, index) {
+    const sequence = TYPE_TALENT_TREES[type].branches.flatMap(path => path.nodes);
+    const node = branch.nodes[index], sequenceIndex = sequence.findIndex(item => item.id === node.id);
+    const rank = typeTalentRank(node.id, type), learned = rank > 0;
+    const prior = sequenceIndex === 0 || typeTalentRank(sequence[sequenceIndex - 1].id, type) > 0;
+    if (rank >= TYPE_TALENT_MAX_RANK) return "maxed";
+    if (learned) return "learned";
+    if (typeTalentTypeSpent(type) >= TYPE_TALENT_TYPE_LIMIT || typeTalentSpent() >= TYPE_TALENT_POOL_LIMIT) return "locked";
+    return prior && typeTalentPoints > 0 ? "available" : "locked";
+}
+// 依天賦效果挑選外部圖標精靈，顏色由車道色 CSS 控制。
+const TYPE_TALENT_ICON_BY_ID = GAME_DATA.TYPE_TALENT_ICON_BY_ID;
+const TYPE_TALENT_PASSIVE_ICON = GAME_DATA.TYPE_TALENT_PASSIVE_ICON;
+function typeTalentIconMarkup(key, extraClass = "") {
+    const valid = ["shield", "heart", "sword", "slash", "target", "arrow", "burst", "moon", "speed", "eye"];
+    const icon = valid.includes(key) ? key : "burst";
+    return `<img class="tt-icon ${extraClass}" src="asset/ui/type-talent-icons/${icon}.png" alt="" aria-hidden="true" draggable="false">`;
+}
+function stopTypeTalentMapFlow() {
+    if (typeTalentMapFrame) cancelAnimationFrame(typeTalentMapFrame);
+    typeTalentMapFrame = 0;
+    typeTalentMapLast = 0;
+}
+function startTypeTalentMapFlow() {
+    stopTypeTalentMapFlow();
+    const body = $("pg-body");
+    if (!body || homeTabOn !== "talents") return;
+    const tick = timestamp => {
+        if (homeTabOn !== "talents" || !document.body.contains(body)) { stopTypeTalentMapFlow(); return; }
+        const deltaTime = typeTalentMapLast ? Math.min(.05, (timestamp - typeTalentMapLast) / 1000) : 0;
+        typeTalentMapLast = timestamp;
+        typeTalentMapTime += deltaTime;
+        if (typeTalentLineUnlock) {
+            const path = body.querySelector(`.tt-link[data-link-id="${typeTalentLineUnlock.nodeId}"]`);
+            if (!path || typeTalentLineUnlock.type !== typeTalentSelected.type) typeTalentLineUnlock = null;
+            else {
+                const duration = .52;
+                const progress = Math.min(1, (timestamp - typeTalentLineUnlock.startedAt) / (duration * 1000));
+                const length = path.getTotalLength();
+                path.style.strokeDasharray = `${length}`;
+                path.style.strokeDashoffset = `${length * (1 - progress)}`;
+                path.classList.add("unlocking");
+                if (progress >= 1) { typeTalentLineUnlock = null; path.classList.remove("unlocking"); path.style.strokeDasharray = ""; path.style.strokeDashoffset = ""; }
+            }
+        }
+        body.querySelectorAll(".tt-link.lit:not(.unlocking)").forEach(path => {
+            path.style.strokeDasharray = "3 3";
+            path.style.strokeDashoffset = `${-(typeTalentMapTime * 8) % 6}`;
+        });
+        typeTalentMapFrame = requestAnimationFrame(tick);
+    };
+    typeTalentMapFrame = requestAnimationFrame(tick);
+}
+function investTypeTalent(type, nodeId) {
+    const tree = TYPE_TALENT_TREES[type];
+    if (!tree || typeTalentPoints <= 0 || typeTalentTypeSpent(type) >= TYPE_TALENT_TYPE_LIMIT ||
+        typeTalentSpent() >= TYPE_TALENT_POOL_LIMIT) return;
+    const branch = tree.branches.find(path => path.nodes.some(node => node.id === nodeId));
+    if (!branch) return;
+    const index = branch.nodes.findIndex(node => node.id === nodeId);
+    const rank = typeTalentRank(nodeId, type);
+    if (rank >= TYPE_TALENT_MAX_RANK || !["available", "learned"].includes(typeTalentNodeState(type, branch, index))) return;
+    if (!typeTalentRanks[type]) typeTalentRanks[type] = {};
+    typeTalentRanks[type][nodeId] = rank + 1;
+    typeTalentPoints--;
+    typeTalentSelected = { type, node: nodeId };
+    if (rank === 0) typeTalentLineUnlock = { type, nodeId, startedAt: 0 };
+    saveGame();
+    renderTypeTalentTree();
+    if (rank === 0) {
+        typeTalentLineUnlock.startedAt = performance.now();
+        startTypeTalentMapFlow();
+    }
+}
+function refundTypeTalent(type, nodeId) {
+    const tree = TYPE_TALENT_TREES[type];
+    if (!tree) return;
+    const sequence = tree.branches.flatMap(branch => branch.nodes);
+    const index = sequence.findIndex(node => node.id === nodeId);
+    if (index < 0) return;
+    const rank = typeTalentRank(nodeId, type);
+    if (!rank) return;
+    if (!typeTalentRanks[type]) typeTalentRanks[type] = {};
+    typeTalentRanks[type][nodeId] = rank - 1;
+    let refunded = 1;
+    // 若節點完全歸零，後續依賴節點一併退回，避免留下不符合前置條件的天賦。
+    if (rank === 1) {
+        for (const node of sequence.slice(index + 1)) {
+            const downstreamRank = typeTalentRank(node.id, type);
+            if (downstreamRank > 0) {
+                refunded += downstreamRank;
+                typeTalentRanks[type][node.id] = 0;
+            }
+        }
+    }
+    typeTalentPoints += refunded;
+    if (typeTalentPassiveUnlocked(type) && typeTalentOrdinaryProgress(type) < TYPE_TALENT_PASSIVE_PREREQUISITE) {
+        delete typeTalentRanks[type][typeTalentPassiveKey(type)];
+        typeTalentPoints++;
+    }
+    typeTalentSelected = { type, node: nodeId };
+    saveGame();
+    renderTypeTalentTree();
+}
+function unlockTypeTalentPassive(type) {
+    const status = typeTalentPassiveState(type);
+    if (status.state !== "passive-available" || typeTalentPoints < 1) return;
+    if (!typeTalentRanks[type]) typeTalentRanks[type] = {};
+    typeTalentRanks[type][typeTalentPassiveKey(type)] = 1;
+    typeTalentPoints--;
+    typeTalentSelected = { type, node: typeTalentPassiveKey(type) };
+    saveGame();
+    renderTypeTalentTree();
+}
+function refundTypeTalentPassive(type) {
+    if (!typeTalentPassiveUnlocked(type)) return;
+    delete typeTalentRanks[type][typeTalentPassiveKey(type)];
+    typeTalentPoints++;
+    typeTalentSelected = { type, node: typeTalentPassiveKey(type) };
+    saveGame();
+    renderTypeTalentTree();
+}
+function resetAllTypeTalents() {
+    const refund = typeTalentSpent();
+    if (!refund) return;
+    if (!confirm(`重置整張天賦圖並返還 ${refund} 點天賦點？`)) return;
+    typeTalentPoints += refund;
+    typeTalentRanks = {};
+    saveGame();
+    renderTypeTalentTree();
+}
+function renderTypeTalentTree() {
+    const body = $("pg-body");
+    if (homeTabOn !== "talents" || !body) return;
+    hideTypeTalentTooltip();
+    const scroll = body.scrollTop;
+    body.innerHTML = typeTalentTreeMarkup();
+    body.scrollTop = scroll;
+}
+function pageTypeTalents() {
+    if (!typeTalentHasSelectedTree) {
+        typeTalentSelected = { type: "", node: "" };
+        typeTalentHasSelectedTree = true;
+    }
+    return typeTalentTreeMarkup();
+}
+function typeTalentLaneNodes(type) { return TYPE_TALENT_TREES[type].branches.flatMap(branch => branch.nodes); }
+function typeTalentLaneStep(type, item) { return TYPE_TALENT_TREES[type].branches.slice(0, item.branchIndex).reduce((count, branch) => count + branch.nodes.length, 0) + item.index; }
+function typeTalentTreeMarkup() {
+    const types = Object.keys(TYPE_TALENT_TREES);
+    const allNodes = [];
+    types.forEach(type => TYPE_TALENT_TREES[type].branches.forEach((branch, branchIndex) => branch.nodes.forEach((node, index) => allNodes.push({ type, branch, branchIndex, index, node, isPassive: false }))));
+    types.forEach(type => allNodes.push({ type, isPassive: true, node: { id: typeTalentPassiveKey(type), title: TYPE_PASSIVES[type].name, desc: TYPE_PASSIVES[type].desc } }));
+    let selected = allNodes.find(item => item.node.id === typeTalentSelected.node && item.type === typeTalentSelected.type);
+    if (!selected) selected = allNodes.find(item => !item.isPassive && ["available", "learned"].includes(typeTalentNodeState(item.type, item.branch, item.index))) || allNodes.find(item => !item.isPassive) || allNodes[0];
+    typeTalentSelected = { type: selected.type, node: selected.node.id };
+    // 五條直列車道＝五種攻擊型態，由下往上讀；同一分支的兩顆用實線綁住，跨分支換虛線，車道頂端留給被動。
+    const laneX = [10, 30, 50, 70, 90];
+    const routePoint = (lane, step) => [laneX[lane], 84 - step * 11];
+    const passivePoint = lane => [laneX[lane], 6];
+    const laneHue = type => TYPE_TALENT_COLORS[type];
+    const links = types.map((type, lane) => {
+        const nodes = typeTalentLaneNodes(type);
+        const stem = `<path class="tt-link stem" d="M ${laneX[lane]} 92 L ${routePoint(lane, 0).join(" ")}"/>`;
+        const chain = nodes.map((node, index) => {
+            const lit = typeTalentRank(node.id, type) > 0;
+            if (!index) return "";
+            const a = routePoint(lane, index - 1), b = routePoint(lane, index);
+            return `<path class="tt-link${lit ? " lit" : ""}${index % 2 ? " tie" : " cross"}" data-link-id="${node.id}" d="M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}"/>`;
+        }).join("");
+        const toPassive = `<path class="tt-link cross${typeTalentTreeMaxed(type) ? " lit" : ""}" data-link-id="passive_${type}" d="M ${routePoint(lane, nodes.length - 1).join(" ")} L ${passivePoint(lane).join(" ")}"/>`;
+        return `<g style="--lane-color:${laneHue(type)}">${stem}${chain}${toPassive}</g>`;
+    }).join("");
+    const lanes = types.map((type, lane) => {
+        const progress = typeTalentOrdinaryProgress(type), invested = typeTalentTypeSpent(type);
+        const passive = typeTalentPassiveState(type);
+        const title = passive.reason.replaceAll('"', "&quot;");
+        return `<span class="tt-lane" style="left:${laneX[lane]}%;--lane-color:${laneHue(type)}" aria-hidden="true"></span><span class="tt-passive-status ${passive.state}" style="left:${laneX[lane]}%;--lane-color:${laneHue(type)}" title="${title}">${passive.label}</span><span class="tt-lane-foot${typeTalentTreeMaxed(type) ? " done" : ""}" style="left:${laneX[lane]}%;--lane-color:${laneHue(type)}"><b>${TYPE_INFO[type].n}</b><i>普通 ${progress}/5</i><i>投入 ${invested}/${TYPE_TALENT_TYPE_LIMIT}</i></span>`;
+    }).join("");
+    const nodes = allNodes.map(item => {
+        const { type, node, isPassive } = item, lane = types.indexOf(type);
+        const active = selected.node.id === node.id && selected.type === type;
+        const position = isPassive ? passivePoint(lane) : routePoint(lane, typeTalentLaneStep(type, item));
+        const rank = isPassive ? 0 : typeTalentRank(node.id, type);
+        const passive = isPassive ? typeTalentPassiveState(type) : null;
+        const state = isPassive ? passive.state : typeTalentNodeState(type, item.branch, item.index);
+        const iconKey = isPassive ? TYPE_TALENT_PASSIVE_ICON[type] : TYPE_TALENT_ICON_BY_ID[node.id];
+        const effect = isPassive ? TYPE_PASSIVES[type].desc : node.desc;
+        const label = `${TYPE_INFO[type].n}・${node.title}${isPassive ? `（${passive.label}；${passive.reason}）` : ` ${rank}/${TYPE_TALENT_MAX_RANK} 級`}`;
+        const badge = isPassive || !rank ? "" : `<i>${rank}</i>`;
+        const tooltip = `${label}\n效果：${effect}`;
+        const tooltipAttr = tooltip.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+        const actions = isPassive
+            ? `onclick="${typeTalentPassiveUnlocked(type) ? "refund" : "unlock"}TypeTalentPassive('${type}')"`
+            : `onclick="investTypeTalent('${type}','${node.id}')" oncontextmenu="event.preventDefault();refundTypeTalent('${type}','${node.id}');return false"`;
+        const disabled = isPassive && !typeTalentPassiveUnlocked(type) &&
+            (passive.state !== "passive-available" || typeTalentPoints < 1) ? " disabled" : "";
+        return `<button class="tt-node ${state}${isPassive ? " tt-passive-node" : ""}${active ? " selected" : ""}" type="button" style="left:${position[0]}%;top:${position[1]}%;--lane-color:${laneHue(type)}" data-tooltip="${tooltipAttr}" aria-label="${tooltipAttr}" title="${isPassive ? passive.reason : ""}" onmouseenter="showTypeTalentTooltip(event,this)" onmousemove="showTypeTalentTooltip(event,this)" onmouseleave="hideTypeTalentTooltip()" ${actions}${disabled}>${typeTalentIconMarkup(iconKey)}${badge}</button>`;
+    }).join("");
+    const passiveCount = typeTalentPassiveCount();
+    return `<div class="tt-shell" style="--lane-color:${laneHue(selected.type)}">
+        <header class="tt-header">
+            <div class="tt-heading"><h2>攻擊型態天賦</h2><small>共用 33 點・已投入 ${typeTalentSpent()}/33・專屬被動 ${passiveCount}/${TYPE_TALENT_PASSIVE_LIMIT}・左鍵投入／右鍵返還</small></div>
+            <div class="tt-header-actions"><button class="tt-reset-mini" type="button" onclick="resetAllTypeTalents()" ${typeTalentSpent() ? "" : "disabled"} title="免費重置並返還全部已投入點數">↺ 重置</button><div class="tt-point" title="天賦點由帳號 RANK 獲得，五種攻擊型態共用"><span class="tt-point-mark" aria-hidden="true">✦</span><b>${typeTalentPoints}</b><small>可用點數</small></div></div>
+        </header>
+        <div class="tt-canvas">
+            <div class="tt-lanes">${lanes}</div>
+            <svg class="tt-tree-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${links}</svg>
+            ${nodes}
+        </div>
+    </div>`;
+}

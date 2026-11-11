@@ -25,6 +25,7 @@ const ctx = {
     CHAR_TABLE: { hero: { name: '測試角色', element: 'fire', type: 'knight' } },
     FX: { pops: [] }, W: 430, H: 760, CDN_BASE: '',
     document: { createElement: makeNode }, performance: { now: () => 0 },
+    applySkillFxOpacity() {},
     artRef: () => null,
     requestAnimationFrame(callback) { scheduled.push(callback); return scheduled.length; },
     cancelAnimationFrame() {}
