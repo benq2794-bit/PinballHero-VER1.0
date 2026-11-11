@@ -27,7 +27,7 @@ function launchPowerFlip(b) {
         showPassiveFX('wind', b.x, b.y + 8, { follow: b, dy: 8, ms: 1500, behind: true });
     }
     const rangerPierce = typeEffects.active('ranger') && type === 'ranger';
-    b.powerFlip = { type, lv, source, seq: PF.foeSeq, left: 1800, rangerPierce,
+    b.powerFlip = { type, lv, source, body: b, seq: PF.foeSeq, left: 1800, rangerPierce,
         pending: true, contacted: false, hits: 0, hitWait: 0, contactTarget: null };
     if (rangerPierce) {
         b._rangerPierceActive = true;
@@ -148,7 +148,8 @@ function powerFlipDamage(state, target, mult) {
     // 劍士每次 PF 只播一組完整演出；格鬥與其餘型態在各自的觸發點播放。
     if (state.type === 'knight' && !state.vfxStarted) {
         state.vfxStarted = true;
-        showPowerFlipVFX(state.type, target.x, target.y, angle, state.lv);
+        showPowerFlipVFX(state.type, state.body.x, state.body.y, angle, state.lv, 1, 760,
+            { state, follow: state.body });
     }
     const crit = rollCrit(ch);
     const rangePierce = typeEffects.pfBonus(state.type);
@@ -184,13 +185,13 @@ function powerFlipContact(m, target) {
         if (!state.vfxStarted) {
             state.vfxStarted = true;
             const angle = Math.atan2(target.y - m.body.y, target.x - m.body.x);
-            showPowerFlipVFX('fighter', target.x, target.y, angle, state.lv);
+            showPowerFlipVFX('fighter', target.x, target.y, angle, state.lv, 1, 760, { state });
         }
     } else if (state.type === 'special') {
         // 特殊型：爆裂範圍內的弱點會同時擊破。
         const radius = (80 + state.lv * 35) * typeEffects.burstScale();
         state.vfxStarted = true;
-        showPowerFlipVFX('special', target.x, target.y, 0, state.lv, radius / 90);
+        showPowerFlipVFX('special', target.x, target.y, 0, state.lv, radius / 90, 760, { state, radius });
         powerFlipWeakCircle(target.x, target.y, radius, state);
         for (const unit of enemyTargetsInRadius(target.x, target.y, radius)) {
             powerFlipDamage(state, unit, [0, 2.2, 3.4, 4.8][state.lv]);
@@ -207,7 +208,7 @@ function powerFlipSupportLaunchSpeed(b) {
 // PF 球撞牆回饋：反彈與判定已由呼叫端處理，這裡只補接觸點的一下打擊特效。
 function powerFlipWallContact(b, x = b.x, y = b.y) {
     if (!b.powerFlip || b.powerFlip.seq !== PF.foeSeq) return;
-    FX.sprite(x, y, "hit");
+    window.PowerFlipVFX.impact(b.powerFlip.type, x, y, b.powerFlip.lv, { wall: true });
 }
 function updatePowerFlip(dtMs) {
     if (!POWER_FLIP.enabled || PF.paused || !PF.running || !PF.ready) return;
@@ -228,7 +229,7 @@ function updatePowerFlip(dtMs) {
                 for (const x of aliveMembers()) {
                     addCd(x, [0, 3, 5, 7][state.lv]);
                 }
-                showPowerFlipVFX('supporter', b.x, b.y, 0, state.lv);
+                showPowerFlipVFX('supporter', b.x, b.y, 0, state.lv, 1, 760, { state, follow: b });
                 clearPowerFlip(b);
                 continue;
             }
@@ -252,7 +253,7 @@ function updatePowerFlip(dtMs) {
                   .sort((a, z) => a.along - z.along);
                 state.vfxStarted = true;
                 showPowerFlipVFX('ranger', b.x, b.y, angle, state.lv, 1, 760,
-                    { targets: hits.map(hit => ({ x: hit.t.x, y: hit.t.y })) });
+                    { state, width });
                 for (const hit of hits) {
                     // 同一敵人已被光束命中時，不再由穿透球體重複計算一次 PF 傷害。
                     if (state.rangerPierce && b._rangerPierceHitUnits) b._rangerPierceHitUnits.add(hit.t);

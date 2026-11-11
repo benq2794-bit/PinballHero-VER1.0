@@ -5,15 +5,15 @@
     const W = WORLD.width, H = WORLD.height, TAU = Math.PI * 2;
     const CATALOG = Object.freeze({
         knight: Object.freeze(["golden slash", "wind-ring slash", "rainbow sword storm"]),
-        fighter: Object.freeze(["three-hit combo", "four-hit combo", "six-hit finisher"]),
+        fighter: Object.freeze(["three-hit combo", "four-hit combo", "five-hit finisher"]),
         ranger: Object.freeze(["single energy shot", "double energy shot", "piercing energy burst"]),
         special: Object.freeze(["gold-white blast", "cyan-violet blast", "large blast with magic circle"]),
         supporter: Object.freeze(["green buff aura", "enhanced buff aura", "field burst, magic seal and leaves"])
     });
-    const DURATION = { knight: [1600, 2150, 2800], fighter: [2050, 2138, 2284], ranger: [3150, 3150, 3150], special: [3500, 3500, 3500], supporter: [4600, 4600, 4600] };
-    const effects = [];
+    const DURATION = { knight: [1600, 2150, 2800], fighter: [750, 850, 950], ranger: [420, 480, 560], special: [950, 1050, 1450], supporter: [4600, 4600, 4600] };
+    const effects = [], impacts = [];
     let container = null, canvas = null, ctx = null, raf = 0, lastNow = 0;
-    let fighterAtlas = null, supporterAtlas = null;
+    let fighterAtlas = null;
 
     const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
     const lerp = (a, b, t) => a + (b - a) * t;
@@ -63,8 +63,8 @@
         effects.push({
             type, x, y, angle, level, visualScale: Math.max(.5, visualScale || 1), beamLength,
             options: options || {}, started: performance.now(), seed: (Math.random() * 0x7fffffff) | 0,
-            particles: [], sparks: [], bursts: [], shots: [], hits: [], knightParticles: [], rangerParticles: [], rangerRings: [], fighterParticles: [],
-            knightBall: { x: 210, y: 370, vx: 78, vy: -120 }
+            sequence: typeof PF === 'undefined' ? null : PF.foeSeq,
+            particles: [], sparks: [], bursts: [], hits: [], knightParticles: [], fighterParticles: []
         });
         if (effects.length > 16) effects.splice(0, effects.length - 16);
         if (!raf) {
@@ -74,10 +74,49 @@
         return true;
     }
 
+    function impact(type, x, y, level, options = {}) {
+        if (!Object.prototype.hasOwnProperty.call(CATALOG, type) || !Number.isInteger(level) || level < 1 || level > 3 || !ensureCanvas()) return false;
+        const now = performance.now(), state = options.state;
+        if (type === 'fighter' && state) {
+            const fx = effects.find(effect => effect.options.state === state);
+            if (fx) fx.hits.push({ at: now - fx.started, x, y, major: state.hits === 2 + level });
+        }
+        impacts.push({ type, x, y, level, wall: !!options.wall, critical: !!options.critical,
+            started: now, sequence: typeof PF === 'undefined' ? null : PF.foeSeq,
+            duration: options.wall ? 140 : 210 + level * 25 });
+        if (impacts.length > 40) impacts.splice(0, impacts.length - 40);
+        if (!raf) { lastNow = now; raf = requestAnimationFrame(frame); }
+        return true;
+    }
+
+    function drawImpact(hit, elapsed) {
+        const p = clamp(elapsed / hit.duration), alpha = Math.pow(1 - p, 2);
+        const colors = { knight: '#ffe6a3', fighter: '#ffb468', ranger: rangerColors(hit.level)[0], special: '#d4b0ff', supporter: '#a8ffd2' };
+        const size = (hit.wall ? 12 : 24 + hit.level * 7) * (hit.critical ? 1.2 : 1), color = colors[hit.type];
+        ctx.save(); ctx.translate(hit.x, hit.y); ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = alpha; ctx.strokeStyle = color; ctx.shadowColor = color; ctx.shadowBlur = 10;
+        const spokes = hit.wall ? 5 : 8 + hit.level * 2;
+        for (let i = 0; i < spokes; i++) {
+            const angle = i * TAU / spokes + .3;
+            const inner = size * (.12 + p), outer = size * (1 + p * 1.6) * (i % 2 ? .65 : 1);
+            ctx.lineWidth = (hit.wall ? 1.5 : 3.5) * (1 - p) + .5;
+            ctx.beginPath(); ctx.moveTo(Math.cos(angle) * inner, Math.sin(angle) * inner);
+            ctx.lineTo(Math.cos(angle) * outer, Math.sin(angle) * outer); ctx.stroke();
+        }
+        if (!hit.wall) {
+            ctx.rotate(hit.type === 'knight' ? -.65 : Math.PI / 4);
+            ctx.strokeStyle = '#fff9e7'; ctx.lineWidth = (6 + hit.level) * (1 - p); ctx.shadowBlur = 16;
+            ctx.beginPath(); ctx.moveTo(-size * (1 - p), 0); ctx.lineTo(size * (1 - p), 0);
+            ctx.moveTo(0, -size * .55 * (1 - p)); ctx.lineTo(0, size * .55 * (1 - p)); ctx.stroke();
+        }
+        ctx.restore();
+    }
+
     function clear() {
         if (raf) cancelAnimationFrame(raf);
         raf = 0;
         effects.length = 0;
+        impacts.length = 0;
         if (ctx) ctx.clearRect(0, 0, W, H);
         if (canvas) canvas.remove();
         canvas = null;
@@ -87,23 +126,36 @@
 
     function frame(now) {
         raf = 0;
-        if (!ctx || !canvas || !canvas.isConnected) return;
-        const delta = Math.min(50, Math.max(0, now - lastNow));
+        if (!ctx || !canvas || !canvas.isConnected) { clear(); return; }
+        const elapsedDelta = Math.max(0, now - lastNow);
+        const paused = typeof PF !== 'undefined' && PF.paused;
+        const delta = paused ? 0 : Math.min(50, elapsedDelta);
         lastNow = now;
         ctx.clearRect(0, 0, W, H);
         for (let i = effects.length - 1; i >= 0; i--) {
-            const fx = effects[i], elapsed = now - fx.started;
-            if (elapsed >= DURATION[fx.type][fx.level - 1]) {
+            const fx = effects[i];
+            if (paused) fx.started = Math.min(now, fx.started + elapsedDelta);
+            const elapsed = now - fx.started, state = fx.options.state;
+            if (fx.type === 'knight' && state && state.body.powerFlip !== state && fx.knightEnd === undefined) fx.knightEnd = elapsed / 1000 + .22;
+            const duration = fx.knightEnd === undefined ? DURATION[fx.type][fx.level - 1] : fx.knightEnd * 1000;
+            if (elapsed >= duration || typeof PF !== 'undefined' && fx.sequence !== PF.foeSeq) {
                 effects.splice(i, 1);
                 continue;
             }
-            if (fx.type === "knight") drawKnight(fx, elapsed / 1000, Math.min(35, delta) / 1000);
+            if (fx.type === "knight") drawKnight(fx, elapsed / 1000);
             else if (fx.type === "fighter") drawFighter(fx, elapsed, delta);
-            else if (fx.type === "ranger") drawRanger(fx, elapsed / 1000, delta);
+            else if (fx.type === "ranger") drawRanger(fx, elapsed / 1000);
             else if (fx.type === "special") drawSpecial(fx, elapsed / 1000, delta);
             else drawSupporter(fx, elapsed / 1000);
         }
-        if (effects.length) raf = requestAnimationFrame(frame);
+        for (let i = impacts.length - 1; i >= 0; i--) {
+            const hit = impacts[i];
+            if (paused) hit.started = Math.min(now, hit.started + elapsedDelta);
+            const elapsed = now - hit.started;
+            if (elapsed >= hit.duration || typeof PF !== 'undefined' && hit.sequence !== PF.foeSeq) impacts.splice(i, 1);
+            else drawImpact(hit, elapsed);
+        }
+        if (effects.length || impacts.length) raf = requestAnimationFrame(frame);
         else clear();
     }
 
@@ -208,9 +260,9 @@
         for (let j = 0; j < 6; j++) {
             const a = j * TAU / 6 + Math.sin(phase * 12 + j) * .12;
             for (let k = 0; k < 2; k++) {
-                strokeArc(g, 0, 0, r + k * 10 + j % 2 * 3, a + .07 * k, a + 1.1, colors[j], k ? 2.4 : 6, k ? .45 : .72, k ? 3 : 12);
+                strokeArc(g, 0, 0, r + k * 10 + j % 2 * 3, a + .07 * k, a + 1.1, colors[j], k ? 2.4 : 6, (k ? .45 : .72) * alpha, k ? 3 : 12);
             }
-            windBlade(g, 0, 0, r + 3, a + .7, 60, .65);
+            windBlade(g, 0, 0, r + 3, a + .7, 60, .65 * alpha);
         }
         g.restore();
     }
@@ -266,9 +318,10 @@
         g.restore();
     }
 
-    function drawKnight(fx, t, step) {
+    function drawKnight(fx, t) {
         const scale = Math.min(1, W / 420, H / 650) * fx.visualScale;
-        const duration = [1, 1.5, 2][fx.level], fade = [.15, .2, .35][fx.level - 1];
+        const fade = fx.knightEnd === undefined ? [.15, .2, .35][fx.level - 1] : .22;
+        const duration = (fx.knightEnd ?? DURATION.knight[fx.level - 1] / 1000) - fade;
         const spinRate = fx.level === 1 ? 8.4 : fx.level === 2 ? 16.8 : 21;
         const spin = t * spinRate, windSpin = fx.level >= 2 ? t * (fx.level === 2 ? 25.2 : 31.5) : 0;
         const stormSpin = fx.level === 3 ? t * 13.5 : 0;
@@ -284,13 +337,7 @@
             spawnKnightParticles(fx, 2, 85, ["#a7ffff", "#e3ffff"]);
         }
         fx.lastT = t;
-        const ball = fx.knightBall;
-        ball.x += ball.vx * step;
-        ball.y += ball.vy * step;
-        ball.vy += 30 * step;
-        if (ball.x < 75 || ball.x > 345) { ball.x = clamp(ball.x, 75, 345); ball.vx *= -1; }
-        if (ball.y < 150 || ball.y > 510) { ball.y = clamp(ball.y, 150, 510); ball.vy *= -1; }
-        const x = fx.x + (ball.x - 210) * scale, y = fx.y + (ball.y - 340) * scale;
+        const x = fx.options.follow?.x ?? fx.x, y = fx.options.follow?.y ?? fx.y;
         const alpha = clamp((duration + fade - t) / fade), intro = ease(t / .13);
         ctx.save();
         ctx.translate(x, y);
@@ -319,25 +366,12 @@
         const phase = ((spin / TAU % 1) + 1) % 1;
         goldenSlash(ctx, 0, 0, spin + Math.sin(phase * TAU) * .22, intro * alpha);
         ctx.save();
-        ctx.shadowColor = "#8ae7ff";
-        ctx.shadowBlur = 14;
-        ctx.fillStyle = "#e8ffe8";
-        ctx.beginPath();
-        ctx.arc(0, 0, 9, 0, TAU);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.strokeStyle = "#58bbff";
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        ctx.restore();
-        ctx.save();
         ctx.globalCompositeOperation = "screen";
         for (let i = fx.knightParticles.length - 1; i >= 0; i--) {
             const p = fx.knightParticles[i];
-            p.age += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= .978; p.vy *= .978;
+            p.age += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= Math.pow(.978, dt * 60); p.vy *= Math.pow(.978, dt * 60);
             if (p.age >= p.life) { fx.knightParticles.splice(i, 1); continue; }
-            const alpha = (1 - p.age / p.life) * .9;
-            ctx.globalAlpha = alpha; ctx.fillStyle = p.color; ctx.shadowColor = p.color; ctx.shadowBlur = 7;
+            ctx.globalAlpha = (1 - p.age / p.life) * .9 * alpha; ctx.fillStyle = p.color; ctx.shadowColor = p.color; ctx.shadowBlur = 7;
             ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(Math.atan2(p.vy, p.vx));
             ctx.fillRect(-p.size * 2, -p.size * .4, p.size * 4, p.size * .8); ctx.restore();
         }
@@ -346,7 +380,7 @@
             const flash = fx.knightBurst ? Math.max(0, .35 - Math.max(0, t - .34)) : 0;
             if (flash > 0) {
                 ctx.fillStyle = `rgba(196,235,255,${flash * .18})`;
-                ctx.fillRect(-fx.x / scale, -fx.y / scale, W / scale, H / scale);
+                ctx.fillRect(-x / scale, -y / scale, W / scale, H / scale);
             }
         }
         ctx.restore();
@@ -362,34 +396,31 @@
         if (fx.knightParticles.length > 180) fx.knightParticles.splice(0, fx.knightParticles.length - 180);
     }
 
-    function fighterConfig(level) {
-        return [{ hits: 3, gap: 160, scale: .82 }, { hits: 4, gap: 142, scale: 1.04 }, { hits: 6, gap: 119, scale: 1.22 }][level - 1];
-    }
-
     function drawFighter(fx, elapsed, delta) {
         if (!fighterAtlas) fighterAtlas = image("asset/fx/pf-fighter-preview.png");
         if (!fighterAtlas || !fighterAtlas.complete || !fighterAtlas.naturalWidth) return;
-        const q = fighterConfig(fx.level), scale = Math.min(1, W / 960, H / 560);
+        const sizeScale = [.82, 1.04, 1.22][fx.level - 1], scale = Math.min(1, W / 720, H / 560);
         const t = elapsed;
-        const firstHitAt = 460;
-        const majorAt = firstHitAt + q.hits * q.gap + 260;
-        const hasPrevious = Number.isFinite(fx.lastElapsed), previous = hasPrevious ? fx.lastElapsed : -1;
         let shake = fx.shake || 0;
-        for (let i = 0; i <= q.hits; i++) {
-            const hitAt = i === q.hits ? majorAt : firstHitAt + i * q.gap;
-            if (((hitAt === 0 && !hasPrevious) || previous < hitAt) && elapsed >= hitAt) {
-                const major = i === q.hits;
-                shake = Math.max(shake, major ? 16 : 5);
-                fx.flash = major ? .4 : .12;
-                spawnFighterBurst(fx, rand(-8, 8), rand(-18, 18), major, elapsed);
-            }
+        for (const hit of fx.hits) {
+            if (hit.rendered) continue;
+            hit.rendered = true;
+            const dx = hit.x - fx.x, dy = hit.y - fx.y;
+            hit.localX = (dx * Math.cos(fx.angle) + dy * Math.sin(fx.angle)) / scale;
+            hit.localY = (-dx * Math.sin(fx.angle) + dy * Math.cos(fx.angle)) / scale;
+            shake = Math.max(shake, hit.major ? 12 : 4);
+            fx.flash = hit.major ? .32 : .10;
+            spawnFighterBurst(fx, hit.localX, hit.localY, hit.major, hit.at);
         }
         shake *= Math.pow(.81, delta / 16);
         fx.flash = (fx.flash || 0) * Math.pow(.73, delta / 16);
-        fx.lastElapsed = elapsed;
         fx.shake = shake;
+        if (delta > 0 || fx.shakeX === undefined) {
+            fx.shakeX = rand(-shake, shake) * scale;
+            fx.shakeY = rand(-shake, shake) * scale;
+        }
         ctx.save();
-        ctx.translate(fx.x + rand(-shake, shake) * scale, fx.y + rand(-shake, shake) * scale);
+        ctx.translate(fx.x + fx.shakeX, fx.y + fx.shakeY);
         ctx.rotate(fx.angle);
         ctx.scale(scale, scale);
         function sprite(row, frame, x, y, size, rotation = 0, alpha = 1, flip = false) {
@@ -401,13 +432,13 @@
             ctx.drawImage(fighterAtlas, frame * 384, row * 384, 384, 384, -size / 2, -size / 2, size, size);
             ctx.restore();
         }
-        for (let i = 0; i <= q.hits; i++) {
-            const major = i === q.hits, born = major ? majorAt : i * q.gap, age = t - born;
-            if (age < 0 || age > (major ? 580 : 580)) continue;
-            const progress = clamp(age / (major ? 420 : 290)), frame = Math.min(7, Math.floor(progress * 8));
-            const x = (major ? 638 : 623 + (i % 2 ? 9 : -5)) - 638;
-            const y = (major ? 280 : 280 + (i % 3 - 1) * 16) - 280;
-            const size = (major ? 360 : 230) * q.scale * (.86 + .24 * Math.sin(progress * Math.PI));
+        for (let i = 0; i < fx.hits.length; i++) {
+            const hit = fx.hits[i], major = hit.major, age = t - hit.at;
+            const lifetime = major ? 280 : 150;
+            if (age < 0 || age >= lifetime) continue;
+            const progress = clamp(age / lifetime), frame = Math.min(7, Math.floor(progress * 8));
+            const x = hit.localX, y = hit.localY;
+            const size = (major ? 360 : 230) * sizeScale * (.86 + .24 * Math.sin(progress * Math.PI));
             const row = major || fx.level === 3 ? 2 : fx.level - 1;
             sprite(row, frame, x, y, size, i % 2 ? -.2 : .2, 1, i % 2 === 1);
             if (age < 220) {
@@ -420,10 +451,12 @@
                 if (p > 0) fighterCircle(x, y, 30 + p * (100 + k * 42), "#ffca69", 4 * (1 - p), .7 * (1 - p));
             }
         }
-        for (let i = 0; i < q.hits; i++) {
-            const age = t - firstHitAt - i * q.gap;
+        for (let i = 0; i < fx.hits.length; i++) {
+            const hit = fx.hits[i], age = t - hit.at;
             if (age < 0 || age > 170) continue;
             const p = clamp(age / 170), a = 1 - p;
+            ctx.save();
+            ctx.translate(hit.localX, hit.localY);
             ctx.save();
             ctx.translate(-106 + 75 * ease(age / 65), (i % 3 - 1) * 20);
             ctx.rotate((i % 2 ? 1 : -1) * .3);
@@ -445,6 +478,7 @@
                 ctx.lineWidth = 3 * a;
                 ctx.beginPath(); ctx.moveTo(-178 - age * .2, -38 + k * 28); ctx.lineTo(-111 - age * .07, -32 + k * 28); ctx.stroke();
             }
+            ctx.restore();
         }
         for (let i = fx.fighterParticles.length - 1; i >= 0; i--) {
             const p = fx.fighterParticles[i], age = (elapsed - p.born) / 1000;
@@ -485,93 +519,36 @@
         ctx.fillStyle = grad; ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2); ctx.restore();
     }
 
-    function drawRanger(fx, t, delta) {
+    function drawRanger(fx, t) {
         const scale = Math.min(1, W / 480, H / 680);
         const dirX = Math.cos(fx.angle), dirY = Math.sin(fx.angle), sideX = -dirY, sideY = dirX;
-        const shots = fx.level === 1 ? [[0, 0]] : fx.level === 2 ? [[-13, 0], [13, .075]] :
-            [[0, 0], [-19, .04], [19, .08], [-36, .12], [36, .16]];
-        const targets = Array.isArray(fx.options.targets) ? fx.options.targets : [];
-        ctx.save();
-        ctx.globalCompositeOperation = "lighter";
-        if (t < .47) {
-            const charge = clamp(t / .47), r = 38 - charge * 19;
-            ctx.save(); ctx.globalAlpha = .4 + charge * .55;
-            for (let i = 0; i < 3; i++) {
-                ctx.strokeStyle = rangerColors(fx.level)[i]; ctx.lineWidth = 2 + i; ctx.shadowBlur = 15; ctx.shadowColor = rangerColors(fx.level)[0];
-                ctx.beginPath(); ctx.arc(fx.x, fx.y, r + i * 9, t * 4 + i * 2, t * 4 + i * 2 + Math.PI * .8); ctx.stroke();
-            }
-            ctx.restore();
-            for (let i = 0; i < 8; i++) {
-                const a = i * TAU / 8 + t * 4;
-                rangerDot(fx.x + Math.cos(a) * (55 - charge * 20), fx.y + Math.sin(a) * (55 - charge * 20), 2, rangerColors(fx.level)[0], 7);
-            }
-        }
-        for (const [offset, delay] of shots) {
-            const age = t - .47 - delay;
-            if (age < 0) continue;
-            const startX = fx.x + sideX * offset * scale, startY = fx.y + sideY * offset * scale;
-            let maxDistance = Math.min(fx.beamLength * scale, H + W);
-            if (fx.level < 3 && targets.length) maxDistance = Math.min(maxDistance, Math.max(0, (targets[0].x - startX) * dirX + (targets[0].y - startY) * dirY));
-            else if (targets.length) maxDistance = Math.min(maxDistance, Math.max(...targets.map(p => (p.x - startX) * dirX + (p.y - startY) * dirY)));
-            const travel = Math.min(maxDistance, age * (fx.level === 3 ? 920 : 820) * scale);
-            const headX = startX + dirX * travel, headY = startY + dirY * travel;
-            const colors = rangerColors(fx.level), size = (fx.level === 3 && offset === 0 ? 10 : fx.level === 1 ? 8 : 6) * scale;
-            for (let i = 1; i <= 15; i++) {
-                const d = Math.max(0, travel - i * 7 * scale);
-                const px = startX + dirX * d, py = startY + dirY * d;
-                ctx.save(); ctx.globalAlpha = (1 - i / 15) * .43; ctx.strokeStyle = colors[1];
-                ctx.lineWidth = Math.max(1, size * (1 - i / 15) * 1.3); ctx.shadowColor = colors[0]; ctx.shadowBlur = 15;
-                ctx.beginPath(); ctx.moveTo(px - dirX * 33 * scale, py - dirY * 33 * scale);
-                ctx.lineTo(px - dirX * 16 * scale, py - dirY * 16 * scale); ctx.stroke(); ctx.restore();
-            }
-            drawEnergyShot(headX, headY, dirX, dirY, size, colors, scale);
-        }
-        if (!fx.rangerDone) fx.rangerDone = new Set();
-        const hitShots = fx.level === 1 ? [[0, 0]] : fx.level === 2 ? [[-13, 0], [13, .075]] :
-            [[0, 0], [-19, .04], [19, .08], [-36, .12], [36, .16]];
-        for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
-            const target = targets[targetIndex], distance = Math.max(0, (target.x - fx.x) * dirX + (target.y - fx.y) * dirY);
-            for (let shotIndex = 0; shotIndex < hitShots.length; shotIndex++) {
-                if (fx.level < 3 && targetIndex > 0) continue;
-                const [offset, delay] = hitShots[shotIndex], born = .47 + delay + distance / ((fx.level === 3 ? 920 : 820) * scale);
-                const key = `${targetIndex}:${shotIndex}`;
-                if (!fx.rangerDone.has(key) && t >= born) {
-                    fx.rangerDone.add(key);
-                    spawnRangerParticles(fx, target.x + sideX * offset * scale, target.y + sideY * offset * scale,
-                        fx.level === 3 ? 26 : 14, fx.level === 3 ? 255 : 160, born);
-                    fx.rangerRings.push({ x: target.x, y: target.y, born, color: rangerColors(fx.level)[1], power: fx.level === 3 ? 2 : 1.2 });
-                }
+        const width = fx.options.width ?? 12 + fx.level * 8;
+        const offsets = (fx.level === 1 ? [0] : fx.level === 2 ? [-.3, .3] : [0, -.35, .35, -.7, .7]).map(offset => offset * width);
+        const colors = rangerColors(fx.level), fade = Math.pow(clamp(1 - t * 1000 / DURATION.ranger[fx.level - 1]), 1.6);
+        const length = fx.beamLength;
+        ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = fade * .12; ctx.strokeStyle = colors[0]; ctx.lineWidth = width * 2;
+        ctx.beginPath(); ctx.moveTo(fx.x, fx.y); ctx.lineTo(fx.x + dirX * length, fx.y + dirY * length); ctx.stroke();
+        for (const offset of offsets) {
+            const startX = fx.x + sideX * offset, startY = fx.y + sideY * offset;
+            const endX = startX + dirX * length, endY = startY + dirY * length;
+            const size = fx.level === 3 && offset === 0 ? 9 : fx.level === 1 ? 7 : 5;
+            ctx.globalAlpha = fade * .75; ctx.strokeStyle = colors[1]; ctx.shadowColor = colors[0]; ctx.shadowBlur = 16;
+            ctx.lineWidth = size * 2 * fade + 1;
+            ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(endX, endY); ctx.stroke();
+            ctx.globalAlpha = fade; ctx.strokeStyle = colors[2]; ctx.lineWidth = Math.max(1, size * .45 * fade);
+            ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(endX, endY); ctx.stroke();
+            for (let i = 1; i <= 4; i++) {
+                const distance = length * ((i / 5 + t * 1.8) % 1);
+                drawEnergyShot(startX + dirX * distance, startY + dirY * distance, dirX, dirY, size * .6, colors, scale * .65);
             }
         }
-        for (let i = fx.rangerRings.length - 1; i >= 0; i--) {
-            const r = fx.rangerRings[i], age = t - r.born;
-            if (age > .38) { fx.rangerRings.splice(i, 1); continue; }
-            ctx.save(); ctx.globalAlpha = 1 - age / .38; ctx.strokeStyle = r.color; ctx.lineWidth = 4;
-            ctx.shadowColor = r.color; ctx.shadowBlur = 14; ctx.beginPath();
-            ctx.arc(r.x, r.y, 5 + 330 * r.power * age, 0, TAU); ctx.stroke(); ctx.restore();
+        ctx.globalAlpha = fade;
+        for (let i = 0; i < 6 + fx.level * 2; i++) {
+            const a = i * TAU / (6 + fx.level * 2), radius = 10 + t * 90;
+            rangerDot(fx.x + Math.cos(a) * radius, fx.y + Math.sin(a) * radius, 2 * fade, colors[0], 7);
         }
-        for (let i = fx.rangerParticles.length - 1; i >= 0; i--) {
-            const p = fx.rangerParticles[i], age = t - p.born;
-            if (age >= p.life) { fx.rangerParticles.splice(i, 1); continue; }
-            const drag = Math.exp(-3 * Math.max(0, delta) / 1000);
-            p.x += p.vx * delta / 1000; p.y += p.vy * delta / 1000; p.vx *= drag; p.vy *= drag;
-            ctx.save(); ctx.globalAlpha = Math.max(0, 1 - age / p.life); ctx.strokeStyle = p.color;
-            ctx.shadowBlur = 9; ctx.shadowColor = p.color; ctx.lineWidth = p.size;
-            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * .028, p.y - p.vy * .028); ctx.stroke(); ctx.restore();
-        }
-        rangerDot(fx.x, fx.y, 14 * scale, "#387bc0", 14 * scale);
-        rangerDot(fx.x, fx.y, 10 * scale, "#77d9ff", 12 * scale);
-        rangerDot(fx.x - 4 * scale, fx.y - 4 * scale, 4 * scale, "#fff", 0);
         ctx.restore();
-    }
-
-    function spawnRangerParticles(fx, x, y, count, power, born) {
-        const colors = rangerColors(fx.level);
-        for (let i = 0; i < count; i++) {
-            const a = TAU * i / count + (Math.random() - .5) * .5, speed = power * (.35 + Math.random() * .75);
-            fx.rangerParticles.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
-                life: .24 + Math.random() * .36, born, size: 1 + Math.random() * 3, color: colors[i % colors.length] });
-        }
     }
 
     function rangerColors(level) {
@@ -627,7 +604,7 @@
     function drawSpecial(fx, t, delta) {
         specialInit(fx);
         const baseRadius = [0, 88, 145, 218][fx.level];
-        const scale = Math.min(1, (W - 28) / (baseRadius * 2.15), (H - 28) / (baseRadius * 2.15)) * fx.visualScale;
+        const scale = fx.options.radius ? fx.options.radius / baseRadius : fx.visualScale;
         ctx.save();
         ctx.beginPath(); ctx.rect(13, 13, W - 26, H - 26); ctx.clip();
         ctx.translate(fx.x, fx.y); ctx.scale(scale, scale);
@@ -798,11 +775,11 @@
     }
 
     function drawSupporter(fx, t) {
-        if (!supporterAtlas) supporterAtlas = image("asset/fx/pf-supporter-preview.png");
         const scale = Math.min(1, W / 420, H / 620) * fx.visualScale;
-        const x = 210 + Math.sin(t * 2.2) * 32, y = 360 - Math.min(t, 1) * 84 + Math.sin(t * 5) * 5;
-        ctx.save(); ctx.translate(fx.x, fx.y); ctx.scale(scale, scale); ctx.translate(-210, -360);
-        const fieldX = (W / 2 - fx.x) / scale + 210, fieldY = (H / 2 - fx.y) / scale + 360;
+        const anchorX = fx.options.follow?.x ?? fx.x, anchorY = fx.options.follow?.y ?? fx.y;
+        const x = 210, y = 360;
+        ctx.save(); ctx.translate(anchorX, anchorY); ctx.scale(scale, scale); ctx.translate(-210, -360);
+        const fieldX = (W / 2 - anchorX) / scale + 210, fieldY = (H / 2 - anchorY) / scale + 360;
         const burst = Math.max(0, 1 - Math.abs(t - .37) / .37);
         if (fx.level === 3 && t < 1.35) {
             const p = Math.max(0, (t - .17) / .75), a = Math.max(0, 1 - p);
@@ -848,15 +825,10 @@
                 ctx.moveTo(0, -10); ctx.quadraticCurveTo(1, 1, 0, 11); ctx.stroke(); ctx.restore();
             }
         }
-        if (supporterAtlas && supporterAtlas.complete && supporterAtlas.naturalWidth) {
-            ctx.save(); ctx.globalAlpha = .18; ctx.drawImage(supporterAtlas, 0, 0, Math.min(110, supporterAtlas.width),
-                supporterAtlas.height, x - 56, y - 45, 112, 90); ctx.restore();
-        }
-        const halo = ctx.createRadialGradient(x, y, 1, x, y, 42);
-        halo.addColorStop(0, "#faffdf"); halo.addColorStop(.24, "#b2ffe2"); halo.addColorStop(.65, "#44cda977"); halo.addColorStop(1, "#44cda900");
-        ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(x, y, 42, 0, TAU); ctx.fill();
-        ctx.fillStyle = "#d8fff1"; ctx.beginPath(); ctx.arc(x, y, 13, 0, TAU); ctx.fill();
-        supportRing(x, y, 17, "#9affcf", 2, .9);
+        const halo = ctx.createRadialGradient(x, y, 12, x, y, 48);
+        halo.addColorStop(0, '#44cda900'); halo.addColorStop(.5, '#89ffca55'); halo.addColorStop(1, '#44cda900');
+        ctx.globalAlpha = clamp((4.6 - t) * 2);
+        ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(x, y, 48, 0, TAU); ctx.fill();
         if (t < .85) {
             const p = t / .85, alpha = (1 - p) * .95;
             supportRing(x, y, 25 + p * (45 + fx.level * 18), "#d9ffb7", 4, alpha);
@@ -868,17 +840,17 @@
         }
         if (burst) {
             ctx.globalAlpha = burst * .14; ctx.fillStyle = "#d9ffe8";
-            ctx.fillRect((0 - fx.x) / scale + 210, (0 - fx.y) / scale + 360, W / scale, H / scale);
+            ctx.fillRect(-anchorX / scale + 210, -anchorY / scale + 360, W / scale, H / scale);
         }
         ctx.restore();
     }
 
     fighterAtlas = image("asset/fx/pf-fighter-preview.png");
-    supporterAtlas = image("asset/fx/pf-supporter-preview.png");
     window.PowerFlipVFX = Object.freeze({
         play,
+        impact,
         clear,
         catalog: CATALOG,
-        activeCount: () => effects.length
+        activeCount: () => effects.length + impacts.length
     });
 })();

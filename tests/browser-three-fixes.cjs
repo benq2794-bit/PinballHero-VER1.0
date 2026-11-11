@@ -77,6 +77,129 @@ class CDP {
  await page.evaluate("enemy.boss=true;startWeakCast();hitWeak(PF.weak.nodes[0],PF.members[0])");assert.equal(await page.evaluate("!!document.querySelector('.passive-gif-slow')"),true);assert.equal(await page.evaluate("document.querySelector('.passive-gif-slow').style.getPropertyValue('--sx')"),'2.025');
  await page.evaluate('feverStart()');assert.equal(await page.evaluate("FX.sprites.filter(n=>n._passiveKey==='supporter').length"),1);await page.evaluate('feverEnd()');assert.equal(await page.evaluate("FX.sprites.filter(n=>n._passiveKey==='supporter').length"),0);
  await page.evaluate('resetBattleTransient()');assert.equal(await page.evaluate("document.querySelectorAll('.passive-effect').length"),0);assert.equal(await page.evaluate("FX.sprites.length"),0);
- assert.deepEqual(page.errors,[]);console.log('PASS: single/ten history metadata and entry/close, mobile layouts, boss/training/material/special/event clean initialization/return, tower retained, five passive paths, 1.35x passive scales, deduplication and cleanup');
+ // PF owns only its renderer: long-lived passives must survive all five types at Lv1-3.
+ assert.equal(await page.evaluate(`(async()=>{
+     const expect = (actual, expected, label) => {
+         if (JSON.stringify(actual) !== JSON.stringify(expected))
+             throw Error(label + ': expected ' + JSON.stringify(expected) + ', got ' + JSON.stringify(actual));
+     };
+     const styleOf = node => {
+         const css = getComputedStyle(node);
+         // Compare animation configuration, not the naturally advancing time/background frame.
+         const properties = ['backgroundColor','backgroundImage','border','borderTop','borderRight','borderBottom','borderLeft','borderRadius',
+             'width','height','scale','transform','filter','opacity','mixBlendMode','backgroundBlendMode','mask','maskImage','webkitMaskImage',
+             'animationName','animationDuration','animationDelay','animationTimingFunction','animationIterationCount',
+             'animationDirection','animationFillMode','animationPlayState'];
+         return {
+             computed: Object.fromEntries(properties.map(key => [key, css[key]])),
+             sx: css.getPropertyValue('--sx'), sy: css.getPropertyValue('--sy'),
+             animations: node.getAnimations().map(a => ({ timing:a.effect.getTiming(), keyframes:a.effect.getKeyframes(),
+                 playState:a.playState, playbackRate:a.playbackRate }))
+         };
+     };
+     const ms = 120000, body = PF.members[0].body, owner = PF.members[0].ch;
+     const specs = [
+         ['wind', { follow:body, behind:true, dy:8 }],
+         ['pierce', { follow:body, rotateWithBody:true }],
+         ['shock', { owner }],
+         ['slow', { follow:PF.foe, dx:24, dy:-12 }],
+         ['supporter', { follow:body, behind:true }]
+     ];
+     setSkillFxOpacity(40);
+     const passives = specs.map(([key, opt]) => {
+         showPassiveFX(key, 210, 280, { ...opt, ms });
+         const node = FX.sprites.find(n => n._passiveKey === key);
+         expect(!!node, true, key + ' created');
+         return { key, opt, node, owner:opt.follow || opt.owner, parent:opt.behind ? PF.field : PF.vfx,
+             animations:node.getAnimations(), style:styleOf(node), timer:node._timer };
+     });
+     const checkPassives = label => {
+         expect(document.querySelectorAll('.pf-fx.passive-effect').length, 5, label + ' passive count');
+         for (const p of passives) {
+             const nodes = FX.sprites.filter(n => n._passiveKey === p.key);
+             expect(nodes.length, 1, label + ' ' + p.key + ' registry count');
+             expect(nodes[0] === p.node && p.node.isConnected, true, label + ' ' + p.key + ' identity');
+             expect(p.node._passiveOwner === p.owner && p.node.parentNode === p.parent, true, label + ' ' + p.key + ' owner/parent');
+             expect(p.node._timer, p.timer, label + ' ' + p.key + ' lifetime unchanged');
+             const animations = p.node.getAnimations();
+             expect(animations.length, p.animations.length, label + ' ' + p.key + ' animation count');
+             expect(animations.every((a, i) => a === p.animations[i] && a.effect.target === p.node), true, label + ' ' + p.key + ' animation identity');
+             expect(styleOf(p.node), p.style, label + ' ' + p.key + ' style/animation');
+         }
+     };
+     checkPassives('baseline');
+     for (const p of passives) {
+         expect(p.style.sx, { wind:'2.025', pierce:'1.500', shock:'1.500', slow:'2.025', supporter:'1.920' }[p.key], p.key + ' scale');
+         expect(p.style.sy, p.style.sx, p.key + ' uniform scale');
+         expect(p.style.computed.filter.includes('opacity(0.4)'), true, p.key + ' opacity');
+         expect(p.style.computed.maskImage, 'none', p.key + ' unmasked asset');
+         expect(p.animations.length, p.key === 'supporter' ? 1 : 0, p.key + ' native animation path');
+     }
+     let rounds = 0;
+     for (const type of ['knight','fighter','ranger','special','supporter']) for (const level of [1,2,3]) {
+         const label = type + ' Lv' + level;
+         expect(PowerFlipVFX.play(type, 210, 280, 0, level), true, label + ' play');
+         expect(PowerFlipVFX.activeCount() > 0, true, label + ' active');
+         const canvas = PF.vfx.querySelector('canvas.power-flip-preview-fx');
+         expect(!!canvas && !canvas.classList.contains('passive-effect'), true, label + ' dedicated canvas');
+         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+         expect(canvas.isConnected && PowerFlipVFX.activeCount() > 0, true, label + ' rendered');
+         checkPassives(label + ' rendered');
+
+         // Flash has a real 170ms lifetime: compare play/impact/clear in one task, without freezing or extending it.
+         owner._passiveFlashAt = -Infinity;
+         showPassiveHitFeedback(210, 280, owner);
+         const flash = [...PF.vfx.querySelectorAll('.passive-hit-flash')].at(-1);
+         expect(!!flash, true, label + ' passive hit flash created');
+         const flashStyle = styleOf(flash), flashAnimations = flash.getAnimations(), flashAt = owner._passiveFlashAt;
+         expect(flashStyle.computed.animationName, 'passiveHitFlash', label + ' native flash animation');
+         expect(flashAnimations.length, 1, label + ' flash animation exists');
+         const check = phase => {
+             checkPassives(label + ' ' + phase);
+             expect(flash.isConnected && flash.parentNode === PF.vfx && PF.vfx.querySelectorAll('.passive-hit-flash').length > 0,
+                 true, label + ' ' + phase + ' flash identity/parent');
+             expect(owner._passiveFlashAt, flashAt, label + ' ' + phase + ' flash owner throttle');
+             const animations = flash.getAnimations();
+             expect(animations.length, flashAnimations.length, label + ' ' + phase + ' flash animation count');
+             expect(animations.every((a, i) => a === flashAnimations[i] && a.effect.target === flash), true, label + ' ' + phase + ' flash animation identity');
+             expect(styleOf(flash), flashStyle, label + ' ' + phase + ' flash style/animation');
+         };
+         expect(PowerFlipVFX.play(type, 210, 280, 0, level), true, label + ' play alongside flash');
+         check('play');
+         expect(typeof PowerFlipVFX.impact, 'function', label + ' dedicated impact API');
+         for (const [critical, wall] of [[false,false],[true,false],[false,true]]) {
+             PowerFlipVFX.impact(type, 210, 280, level, { state:{ type, lv:level, source:owner, seq:PF.foeSeq }, critical, wall });
+             check('impact critical=' + critical + ' wall=' + wall);
+         }
+         PowerFlipVFX.clear();
+         expect(PowerFlipVFX.activeCount(), 0, label + ' cleared');
+         expect(canvas.isConnected, false, label + ' canvas removed');
+         expect(PF.vfx.querySelectorAll('canvas.power-flip-preview-fx').length, 0, label + ' no PF canvas left');
+         check('clear');
+         rounds++;
+     }
+     expect(passives[4].animations[0].currentTime > 0, true, 'supporter animation kept advancing');
+     for (const p of passives) {
+         showPassiveFX(p.key, 226, 292, { ...p.opt, ms });
+         const nodes = FX.sprites.filter(n => n._passiveKey === p.key), refreshed = nodes[0];
+         expect(nodes.length, 1, p.key + ' refresh remains deduplicated');
+         // GIFs reuse their node; the existing supporter atlas path deliberately replaces it.
+         expect(refreshed === p.node, p.key !== 'supporter', p.key + ' refresh identity');
+         expect(refreshed.isConnected && refreshed._passiveOwner === p.owner && refreshed.parentNode === p.parent, true, p.key + ' refresh owner/parent');
+         expect([refreshed.style.left, refreshed.style.top], ['226px','292px'], p.key + ' refresh position');
+         expect(refreshed._timer !== p.timer, true, p.key + ' refresh lifetime');
+         expect(styleOf(refreshed), p.style, p.key + ' refresh style/animation');
+         clearPassiveFX(p.key, p.owner);
+         expect(!p.node.isConnected && !refreshed.isConnected, true, p.key + ' explicit cleanup');
+         expect(refreshed.getAnimations().length, 0, p.key + ' animation cleanup');
+         expect(FX.sprites.filter(n => n._passiveKey === p.key).length, 0, p.key + ' registry cleanup');
+     }
+     await new Promise(resolve => setTimeout(resolve, 220));
+     expect(document.querySelectorAll('.passive-effect').length, 0, 'passive hit flashes expire normally');
+     expect(FX.sprites.length, 0, 'all passives cleaned');
+     setSkillFxOpacity(100);
+     return rounds;
+ })()`),15,'five PF types at Lv1-3 preserve passive effects');
+ assert.deepEqual(page.errors,[]);console.log('PASS: single/ten history metadata and entry/close, mobile layouts, boss/training/material/special/event clean initialization/return, tower retained, five passive paths, 1.35x passive scales, deduplication and cleanup, 15 PF/passive isolation rounds');
  }finally{if(page)page.socket.close();proc.kill();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1});

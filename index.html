@@ -1075,42 +1075,12 @@
         @keyframes healingSigilBloom { 0%{opacity:0;transform:translate(-50%,-50%) scale(.72)} 18%{opacity:.92;transform:translate(-50%,-50%) scale(1)} 72%{opacity:.78;transform:translate(-50%,-50%) scale(1.02)} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.12)} }
         @keyframes healingSigilTurn { from{transform:rotate(-12deg)} to{transform:rotate(12deg)} }
         /* ===== 敵方進階攻擊：小怪遠程點射 + BOSS 大範圍法術（隕石術／暴風雪／落雷／地震） ===== */
-        /* 法陣畫在角色實體層（.ent z5）下方，被鎖定的目標才看得见自己踩在陣裡；空間撕裂由 BlackHoleFX 畫在上層。 */
-        .spell-sigil { position:absolute; z-index:2; left:var(--sx); top:var(--sy); width:var(--sz,300px); height:var(--sz,300px);
-            color:var(--spell-color,#c8a6ff); opacity:0; pointer-events:none; transform:translate(-50%,-50%);
-            filter:drop-shadow(0 0 11px currentColor); animation:spellSigilBloom var(--ms,1500ms) cubic-bezier(.2,.72,.24,1) forwards; }
-        .spell-sigil svg { display:block; width:100%; height:100%; }
-        .spell-sigil g { transform-box:view-box; transform-origin:100px 100px; }
-        .spell-sigil .sg-ring { animation:spellTurn 4.2s linear infinite; }
-        .spell-sigil .sg-ring-b { animation:spellTurnBack 3.1s linear infinite; }
-        .spell-sigil .sg-core { animation:spellCorePulse 520ms ease-in-out infinite; }
-        @keyframes spellSigilBloom { 0%{opacity:0;transform:translate(-50%,-50%) scale(.26)} 20%{opacity:1;transform:translate(-50%,-50%) scale(1)}
-            74%{opacity:.9;transform:translate(-50%,-50%) scale(1.03)} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)} }
-        @keyframes spellTurn { from{transform:rotate(0)} to{transform:rotate(360deg)} }
-        @keyframes spellTurnBack { from{transform:rotate(0)} to{transform:rotate(-360deg)} }
-        @keyframes spellCorePulse { 0%,100%{transform:scale(.92);opacity:.6} 50%{transform:scale(1.05);opacity:1} }
-        /* 隕石與落雷的落點鎖圈：同样是細線，不鋪底板。 */
-        .spell-mark { position:absolute; z-index:2; left:var(--sx); top:var(--sy); width:var(--sz,120px); height:var(--sz,120px);
-            color:var(--spell-color); border:2px solid currentColor; border-radius:50%; transform:translate(-50%,-50%) scale(.4);
-            opacity:0; pointer-events:none; box-shadow:0 0 13px currentColor, inset 0 0 11px currentColor;
-            animation:spellMarkLock var(--ms,900ms) ease-out forwards; }
-        .spell-mark::before { content:""; position:absolute; inset:-5px; border:1px dashed currentColor; border-radius:50%; opacity:.72;
-            animation:spellTurn 1.7s linear infinite; }
-        @keyframes spellMarkLock { 0%{opacity:0;transform:translate(-50%,-50%) scale(.4)} 24%{opacity:.95;transform:translate(-50%,-50%) scale(1)}
-            80%{opacity:.8} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.18)} }
+        /* BOSS 四法術的魔法陣／預警圈／攻擊 canvas 樣式在 asset/boss-spells.css。 */
         .ball.boss-casting { filter:brightness(1.14) saturate(1.3) drop-shadow(0 0 16px var(--spell-color,#c8a6ff)); }
         /* 小怪的遠程彈：元素色能量球，黑底是實心漸層，直接疊在場布上不會像破圖。 */
         .foe-shot { position:absolute; z-index:8; left:0; top:0; width:var(--sz,26px); height:var(--sz,26px); margin:calc(var(--sz,26px) / -2);
             border-radius:50%; pointer-events:none; background:radial-gradient(circle at 38% 34%,#fff 8%,var(--shot-color) 44%,rgba(24,10,30,.85) 92%);
             box-shadow:0 0 11px var(--shot-color), 0 0 24px var(--shot-color); }
-        .spell-meteor { position:absolute; z-index:8; left:var(--sx); top:var(--sy); width:var(--sw,52px); height:var(--sh,150px);
-            transform:translate(-50%,-100%); opacity:0; pointer-events:none; color:var(--spell-color); }
-        .spell-meteor::before { content:""; position:absolute; inset:0 18% 22%;
-            background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,150,60,.28) 38%,rgba(255,232,180,.9) 92%);
-            clip-path:polygon(40% 0,60% 0,78% 76%,100% 100%,0 100%,22% 76%); }
-        .spell-meteor::after { content:""; position:absolute; left:50%; bottom:-2px; width:36px; height:36px; transform:translateX(-50%);
-            border-radius:50%; background:radial-gradient(circle at 36% 32%,#fff8e6 12%,#ffbe63 46%,#c9401b 84%);
-            box-shadow:0 0 15px rgba(255,150,60,.95), 0 0 32px rgba(255,90,30,.7); }
         .spell-flash { position:absolute; z-index:8; left:var(--sx); top:var(--sy); width:var(--sz,140px); height:var(--sz,140px);
             transform:translate(-50%,-50%) scale(.3); opacity:0; pointer-events:none; color:var(--spell-color);
             background:radial-gradient(circle,rgba(255,255,255,.95) 8%,currentColor 34%,rgba(255,255,255,0) 70%);
@@ -1120,34 +1090,6 @@
         @keyframes spellFlashIn { 0%{opacity:0;transform:translate(-50%,-50%) scale(.3)} 26%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}
             100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)} }
         @keyframes spellShockOut { from{transform:scale(.3);opacity:.9} to{transform:scale(2);opacity:0} }
-        /* 暴風雪：整個戰場蓋一層斜飘的雪粒＋冷色霧，不是一個框。 */
-        .spell-blizzard { position:absolute; inset:0; z-index:8; pointer-events:none; opacity:0;
-            background:radial-gradient(circle at 50% 6%,rgba(186,238,255,.32),rgba(255,255,255,0) 66%),
-                       repeating-linear-gradient(74deg,rgba(255,255,255,.14) 0 2px,rgba(255,255,255,0) 2px 14px);
-            animation:spellBlizzard 1700ms linear forwards; }
-        .spell-blizzard::before,.spell-blizzard::after { content:""; position:absolute; inset:-24% 0; }
-        .spell-blizzard::before { background-image:radial-gradient(circle,rgba(255,255,255,.9) 1.4px,rgba(255,255,255,0) 1.7px);
-            background-size:34px 46px; animation:spellSnow 820ms linear infinite; }
-        .spell-blizzard::after { background-image:radial-gradient(circle,rgba(214,246,255,.8) 2.3px,rgba(255,255,255,0) 2.6px);
-            background-size:57px 71px; animation:spellSnow 1260ms linear infinite; }
-        @keyframes spellBlizzard { 0%{opacity:0} 12%{opacity:.96} 74%{opacity:.82} 100%{opacity:0} }
-        @keyframes spellSnow { from{transform:translateY(-46px)} to{transform:translateY(0)} }
-        .spell-bolt { position:absolute; z-index:9; left:var(--sx); top:0; width:var(--sw,52px); height:var(--h,340px);
-            transform:translateX(-50%); opacity:0; pointer-events:none; color:var(--spell-color); }
-        .spell-bolt svg { display:block; width:100%; height:100%; overflow:visible;
-            filter:drop-shadow(0 0 9px currentColor) drop-shadow(0 0 22px currentColor); }
-        .spell-bolt .bl-glow { stroke:currentColor; stroke-width:11; fill:none; opacity:.45; stroke-linecap:round; stroke-linejoin:round; }
-        .spell-bolt .bl-core { stroke:#fff; stroke-width:3.6; fill:none; stroke-linecap:round; stroke-linejoin:round; }
-        .spell-bolt .bl-fork { stroke:currentColor; stroke-width:2.2; fill:none; opacity:.8; stroke-linecap:round; }
-        .spell-bolt.on { animation:spellBoltStrike 420ms linear forwards; }
-        @keyframes spellBoltStrike { 0%{opacity:0} 5%{opacity:1} 20%{opacity:.3} 31%{opacity:1} 58%{opacity:.72} 100%{opacity:0} }
-        .spell-crack { position:absolute; z-index:2; left:var(--sx); top:var(--sy); width:var(--sz,240px); height:var(--sz,240px);
-            transform:translate(-50%,-50%); opacity:0; pointer-events:none; color:var(--spell-color);
-            animation:spellCrackRun 780ms ease-out forwards; }
-        .spell-crack svg { display:block; width:100%; height:100%; overflow:visible; }
-        .spell-crack .ck-dark { stroke:rgba(28,14,6,.88); stroke-width:6; fill:none; stroke-linecap:round; }
-        .spell-crack .ck-edge { stroke:currentColor; stroke-width:2.1; fill:none; stroke-linecap:round; }
-        @keyframes spellCrackRun { 0%{opacity:0} 8%{opacity:1} 66%{opacity:.86} 100%{opacity:0} }
         /* 地震專用晃動：比通用 .shake 長一倍、幅度兩倍，且是逐次衰減的多段往復。兩條規則都寫 animation 簡寫，後面的本塊會整條贏過 .shake，所以同時掛只會剩強震。 */
         .pf-quake { animation:quakeShakeAnim 620ms cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes quakeShakeAnim { 0%{transform:translate(0,0)} 6%{transform:translate(-11px,7px)} 13%{transform:translate(10px,-8px)}
@@ -2673,6 +2615,7 @@
 <link rel="stylesheet" href="asset/game-update.css">
 <link rel="stylesheet" href="asset/summon-jackpot.css">
 <link rel="stylesheet" href="asset/boss-mech-fx.css">
+<link rel="stylesheet" href="asset/boss-spells.css">
 <script>
     document.documentElement.classList.add("ui-booting");
     try { document.documentElement.classList.toggle("ui-dark-mode", localStorage.getItem("wf_ui_dark_mode") === "true"); } catch (_) {}
@@ -3225,6 +3168,7 @@
 <script src="asset/fx/pixel-text.js"></script>
 <script src="asset/fx/black-hole.js"></script>
 <script src="asset/fx/fever-rush.js"></script>
+<script src="asset/fx/boss-spells.js"></script>
 <script src="asset/gate-enhancement.js"></script>
 <script src="asset/gate-browser.js"></script>
 <script src="asset/home-party.js"></script>
@@ -3247,7 +3191,7 @@
 <script>
 'use strict';
 
-const GAME_VERSION = "v0.1.0-alpha.17";
+const GAME_VERSION = "v0.1.0-alpha.18";
 const GAME_RELEASE = {id:"development",channel:"development",app:"pinball-realms",version:GAME_VERSION,builtAt:"1970-01-01T00:00:00.000Z"};
 const DEV_BUILD_VERSION = "dev.1";
 // 開發模式只允許在本機或 Cloudflare Pages 預覽網址開啟；正式網址加上 ?dev=1 仍會走正式流程。
@@ -3306,6 +3250,7 @@ function watchPowerState() {
 }
 // 新版本放陣列最前面；舊版本留在後面，更新日誌會照此順序顯示。
 const UPDATE_LOG = [
+    {"version":"v0.1.0-alpha.18","date":"2026-11-12","content":["修復強力彈射（PF）五職業 Lv1～Lv3 的攻擊特效：移除新舊特效混用，補強命中回饋（頓帧、震動與職業專屬效果），專屬被動特效不受影響。","恢復被整併覆蓋的新版 BOSS 法術：隕石、暴風雪、落雷、地震四術以法陣與畫布特效重新上線。","修正 BOSS 法術特效位置偏移：施放法陣對準 BOSS，預警圈與落點對準隊伍實際位置，傷害判定與視覺完全一致。","舊版法術特效整套停用，不再新舊混播；傷害、攻擊範圍與施放時機維持原設計未改動。"]},
     {"version":"v0.1.0-alpha.17","date":"2026-11-12","content":["修復 11 項天賦效果接線，讓浮游、重力、吸血上限、PF 傷害、衝擊冷卻與連擊、直擊暴擊、技能傷害、爆裂範圍、弱點範圍及通關回復實際生效，並補上分級與戰鬥驗證。","整合現行五型態 PF 動畫與命中效果，補齊撞牆回饋及低速發射保護，修正換場後被動特效殘留。","保留四種 BOSS 法術與戰鬥判定，依火、水、雷、風屬性分別施放隕石、暴風雪、落雷與地震。","修正初始與覺醒立繪的解鎖顯示、隊伍最後一名角色的卸下按鈕，以及離開培養頁後返回角色管理的流程；保留舊角色等級重置與投入返還處理。","補齊限定招募機率、保底及重複轉換說明，整理招募紀錄入口與空白紀錄提示。","完成 Cloudflare Pages 正式與預覽環境識別整合，保留既有更新日誌、存檔保護與正式版更新流程。"]},
     {"version":"v0.1.0-alpha.16","date":"2026-11-10","content":["修正劍士 PF 特效的球體軌跡與完整淡出時間，並校正格鬥 PF 連段命中節奏及收尾時間。"]},
     {"version":"v0.1.0-alpha.15","date":"2026-11-10","content":["將五職業 PF1～PF3 共 15 組預覽動畫接入正式戰鬥系統，並以新特效取代舊 PF 播放路徑。","保留既有 PF 觸發與命中位置；輔助魔法陣與落葉僅於 PF3 顯示，並支援手機直向畫面及技能特效透明度設定。"]},
@@ -4577,7 +4522,7 @@ function syncShakeLabel() {
     if (p) { p.textContent = FX.shakeOn ? "開" : "關"; p.classList.toggle("off", !FX.shakeOn); }
 }
 
-const SKILL_FX_OPACITY_TARGETS = ".active-skill-mark,.healing-magic-sigil,.spell-sigil,.spell-mark,.spell-meteor,.spell-flash,.spell-blizzard,.spell-bolt,.spell-crack,.skill-cine,.expedition-signature,.skill-fx-canvas,.passive-effect";
+const SKILL_FX_OPACITY_TARGETS = ".active-skill-mark,.healing-magic-sigil,.spell-flash,.skill-cine,.expedition-signature,.skill-fx-canvas,.passive-effect";
 const SKILL_FX_BASE_FILTERS = new WeakMap();
 function applySkillFxOpacity(node) {
     if (!node?.matches?.(SKILL_FX_OPACITY_TARGETS)) return;
@@ -6483,72 +6428,22 @@ const ENEMY_ADVANCED_ATTACK = {
     chillSpeed: .46         // 暴風雪减速期間只允許 46% 的原時最高速度
 };
 const BOSS_SPELLS = {
-    meteor: { name: "隕石術", color: "#ff8a3c", sample: "skillFire", castMs: 900, size: 340, glyph: "triangle",
-        rock: .60, blast: .42, radius: 46, staggerMs: 150, run: spellMeteor },
-    blizzard: { name: "暴風雪", color: "#7fdcff", sample: "skillWater", castMs: 760, size: 320, glyph: "hexagram",
-        hits: [[0, .42], [760, .16], [1520, .16]], chillMs: 3200, run: spellBlizzard },
-    thunder: { name: "落雷", color: "#ffe45c", sample: "skillThunder", castMs: 620, size: 300, glyph: "octagram",
-        bolts: 3, per: .45, radius: 78, gapMs: 130, stunMs: 550, run: spellThunder },
-    quake: { name: "地震", color: "#ffbe7a", sample: "skillWind", castMs: 820, size: 360, glyph: "crossSquare",
-        per: .80, lift: 320, push: 190, run: spellQuake }
+    meteor: { name: "隕石術", fx: "meteor", color: "#ff6539", sample: "skillFire",
+        tick: .10, radius: 56 },
+    blizzard: { name: "暴風雪", fx: "snow", color: "#54bfff", sample: "skillWater",
+        tick: .037, chillMs: 3200 },
+    thunder: { name: "落雷", fx: "bolt", color: "#ffe6a3", sample: "skillThunder",
+        tick: .05, radius: 64, stunMs: 550 },
+    quake: { name: "地震", fx: "quake", color: "#e4bb83", sample: "skillWind",
+        tick: .04, lift: 320, push: 190 }
 };
 const BOSS_SPELL_KEYS = Object.keys(BOSS_SPELLS);
-// BOSS 屬性決定法術：火隕石、水暴風雪、雷落雷、風地震；無屬性才隨機。
+// 四屬性 BOSS 放自己屬性的法術；光／闇等沒有對應法術的關卡維持隨機，行為不變。
 const BOSS_SPELL_BY_ELEMENT = { fire: "meteor", water: "blizzard", thunder: "thunder", wind: "quake" };
 
 function spellFieldX(x) { return Math.max(24, Math.min(W - 24, x)); }
 function spellFieldY(y) { return Math.max(BATTLE_BOUNDS.top + 30, Math.min(H - 70, y)); }
 
-function spellSigilStar(points, skip, radius, phase) {
-    let d = "";
-    for (let i = 0; i <= points; i++) {
-        const a = (phase || 0) - Math.PI / 2 + ((i * skip) % points) * 2 * Math.PI / points;
-        d += `${i ? "L" : "M"}${(100 + Math.cos(a) * radius).toFixed(1)} ${(100 + Math.sin(a) * radius).toFixed(1)}`;
-    }
-    return `<path d="${d}Z"/>`;
-}
-// 三层反向旋轉的陣面：外圈刻度＋中圈符文＋內圈依技能變化的幾何圖形。
-function spellSigilSvg(glyph) {
-    const ticks = [], runes = [];
-    const labels = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
-    for (let i = 0; i < 24; i++) {
-        const a = i * Math.PI / 12, r0 = i % 2 ? 78 : 83;
-        ticks.push(`<path d="M${(100 + Math.cos(a) * r0).toFixed(1)} ${(100 + Math.sin(a) * r0).toFixed(1)}`
-            + `L${(100 + Math.cos(a) * 93).toFixed(1)} ${(100 + Math.sin(a) * 93).toFixed(1)}"/>`);
-    }
-    for (let i = 0; i < 8; i++) {
-        const a = i * Math.PI / 4 - Math.PI / 2;
-        runes.push(`<text x="${(100 + Math.cos(a) * 71).toFixed(1)}" y="${(100 + Math.sin(a) * 71 + 4).toFixed(1)}"`
-            + ` font-size="11" text-anchor="middle" fill="currentColor" stroke="none">${labels[i]}</text>`);
-    }
-    const core = glyph === "triangle" ? spellSigilStar(3, 1, 46) + spellSigilStar(3, 1, 30, Math.PI)
-        : glyph === "hexagram" ? spellSigilStar(6, 2, 46) + '<circle cx="100" cy="100" r="17"/>'
-            : glyph === "octagram" ? spellSigilStar(8, 3, 46)
-                : spellSigilStar(4, 1, 44) + spellSigilStar(4, 1, 44, Math.PI / 4) + '<circle cx="100" cy="100" r="13"/>';
-    return `<svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">`
-        + `<g class="sg-ring" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="100" cy="100" r="96" opacity=".45"/>`
-        + `<circle cx="100" cy="100" r="88" stroke-dasharray="3 8"/>${ticks.join("")}</g>`
-        + `<g class="sg-ring-b" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="100" cy="100" r="64" opacity=".75"/>`
-        + `<circle cx="100" cy="100" r="58" stroke-dasharray="15 6" opacity=".6"/>${runes.join("")}</g>`
-        + `<g class="sg-core" fill="none" stroke="currentColor" stroke-width="2.1">${core}</g></svg>`;
-}
-// 地面層節點：跟着 bossFx 一起被換場收掉，撕裂特效也靠它的存活當開關。
-function spellGroundFx(cls, x, y, ms, vars, html) {
-    if (!PF.field) return null;
-    const node = el("div", cls);
-    node.setAttribute("aria-hidden", "true");
-    node.style.setProperty("--sx", `${spellFieldX(x).toFixed(1)}px`);
-    node.style.setProperty("--sy", `${spellFieldY(y).toFixed(1)}px`);
-    node.style.setProperty("--ms", `${ms}ms`);
-    for (const key in vars) node.style.setProperty(key, vars[key]);
-    if (html) node.innerHTML = html;
-    PF.field.appendChild(node);
-    applySkillFxOpacity(node);
-    PF.bossFx.push({ node, x: spellFieldX(x), y: spellFieldY(y), dx: 0, dy: 0, follow: false,
-        until: performance.now() + ms + 60 });
-    setTimeout(() => node.remove(), ms + 140);
-    return node;
-}
 function spellAirFx(cls, x, y, ms, vars, html) {
     if (!PF.vfx) return null;
     const node = el("div", cls);
@@ -6568,16 +6463,6 @@ function spellImpactFx(x, y, color, size, shake = true) {
     FX.sparks(x, y, color, 6);
     FX.sprite(x, y, "hit");
     if (shake) FX.shake();
-}
-// 大型法陣＋空間撕裂：陣畫在腳下，裂縫由 BlackHoleFX 疊在上層，跟著法陣節點一起消失。
-function castSpellSigil(x, y, spell, ms) {
-    const node = spellGroundFx("spell-sigil", x, y, ms, { "--sz": `${spell.size}px`, "--spell-color": spell.color },
-        spellSigilSvg(spell.glyph));
-    if (node && window.BlackHoleFX) {
-        BlackHoleFX.play(PF.vfx, { x: spellFieldX(x), y: spellFieldY(y), seed: (PF.foeSeq + 1) * 2654435761,
-            ms: Math.min(3000, ms + 240), scale: .72, tieTo: node });
-    }
-    return node;
 }
 function predictedPoint(body, lead) {
     return [spellFieldX(body.x + body.vx * lead), spellFieldY(body.y + body.vy * lead)];
@@ -6621,182 +6506,129 @@ function enemyRangedShot(e, target, fighter) {
     }, () => PF.foeSeq === seq && enemyUnitAlive(e));
 }
 
+// 定案版四法術：魔法陣＋攻擊動畫在同一條 4.8 秒時間軸（asset/fx/boss-spells.js），
+// 戰鬥端只負責攻擊期每 0.1 秒的傷害判定；暫停／加速／換場都跟戰鬥迴圈同步。
 function castBossSpell(e) {
     const matchedSpell = BOSS_SPELL_BY_ELEMENT[e.element || enemy.element];
     const spell = matchedSpell ? BOSS_SPELLS[matchedSpell] : BOSS_SPELLS[BOSS_SPELL_KEYS[(Math.random() * BOSS_SPELL_KEYS.length) | 0]];
     const seq = PF.foeSeq;
     const now = performance.now();
-    e.castingUntil = now + spell.castMs;
+    const party = aliveMembers();
+    if (!party.length || !PF.field || !PF.vfx) return;
+    const atk = e.attackPower ?? enemy.atk;
+    // 地面線錨在隊伍重心：預警圈與四種攻擊動畫都落在這一帶，直立畫面不會跑到 HUD 或彈板區。
+    const groundY = Math.max(BATTLE_BOUNDS.top + 190, Math.min(H - 160,
+        party.reduce((sum, m) => sum + m.body.y, 0) / party.length));
+    // 施放中心錨在 BOSS（法陣），攻擊中心錨在隊伍重心（預警圈與落雷組）。
+    const castX = Math.max(60, Math.min(W - 60, e.x));
+    const partyX = Math.max(90, Math.min(W - 90, party.reduce((s, m) => s + m.body.x, 0) / party.length));
+    // 隕石瞄每人 0.5 秒後的位置（少於四人時循環），夾回地面帶；跑開就躲得掉。
+    const targets = Array.from({ length: 4 }, (_, i) => {
+        const [x, y] = predictedPoint(party[i % party.length].body, ENEMY_ADVANCED_ATTACK.leadTime + .15);
+        return [x, Math.max(groundY - 46, Math.min(groundY + 46, y))];
+    });
+    e.castingUntil = now + 4800;
     e.diving = false; e.target = null; e.vx = 0; e.vy = 0; e.kx = 0; e.ky = 0;
     if (e.ball) {
         e.ball.style.setProperty("--spell-color", spell.color);
         e.ball.classList.add("boss-casting");
     }
     const valid = () => PF.foeSeq === seq && enemyUnitAlive(e);
-    castSpellSigil(e.x, e.y, spell, spell.castMs + 300);
+    const endCast = () => { e.castingUntil = 0; e.ball?.classList.remove("boss-casting"); };
+    const cues = { burst: 0, boltGroup: -1, chilled: false, stunned: new Set() };
+    const fx = BossSpellFx.cast({
+        type: spell.fx, color: spell.color, groundY, centerX: castX, partyX,
+        fieldW: W, fieldH: H, field: PF.field, vfx: PF.vfx, bossFx: PF.bossFx,
+        targets, valid,
+        onPhase: phase => { if (phase === "warning") SFX.tone(620, 940, .16, "square", .07); },
+        onTick: (n, u) => judgeSpellTick(e, spell, atk, n, u, fx, cues),
+        onEnd: endCast
+    });
+    // 保底：效果節點若被換場收掉，排程仍把施法狀態結束掉，王不會永遠站著。
+    battleLifecycle.schedule(4800, endCast, valid);
     FX.pop(e.x, e.y - e.r - 26, spell.name, "brk expedition-skill-name", 1.15, spell.color);
     SFX.sample(spell.sample, .8);
     SFX.tone(150, 430, .5, "sawtooth", .16);
     log(`🔮 <b style="color:${spell.color}">${spell.name}</b>：<b>${e.name || enemy.name}</b> 撕開空間，大型法陣展開。`);
-    battleLifecycle.schedule(spell.castMs, () => {
-        e.castingUntil = 0;
-        e.ball?.classList.remove("boss-casting");
-    }, valid);
-    spell.run(e, spell, e.attackPower ?? enemy.atk, valid);
 }
 
-// 隕石術：每人一顆、依序落下；第一拍是隕石本體，第二拍是炸開的爆轟。
-function spellMeteor(e, spell, atk, valid) {
-    const targets = aliveMembers().filter(m => m.body);
-    targets.forEach((m, i) => {
-        const [tx, ty] = predictedPoint(m.body, ENEMY_ADVANCED_ATTACK.leadTime + .15);
-        const delay = spell.castMs + i * spell.staggerMs;
-        spellGroundFx("spell-mark", tx, ty, delay + 240, { "--sz": "118px", "--spell-color": spell.color });
-        battleLifecycle.schedule(delay, () => {
-            const node = spellAirFx("spell-meteor", tx, ty, 320, { "--spell-color": spell.color });
-            node?.animate([
-                { transform: "translate(-50%,-100%) translateY(-330px)", opacity: 0 },
-                { transform: "translate(-50%,-100%) translateY(-250px)", opacity: 1, offset: .16 },
-                { transform: "translate(-50%,-100%) translateY(0)", opacity: 1 }
-            ], { duration: 300, easing: "cubic-bezier(.36,.05,.66,.98)", fill: "forwards" });
-            SFX.tone(880, 190, .30, "sawtooth", .10);   // 隕石劃落下來的俯衝哨音
-            battleLifecycle.schedule(300, () => {
+// 攻擊期每 0.1 秒一次判定：傷害數字與受擊閃爍由 memberStrike 統一處理，這裡只補命中震動與法術控場。
+function judgeSpellTick(e, spell, atk, n, u, fx, cues) {
+    const members = aliveMembers();
+    if (!members.length) return;
+    const dmg = Math.max(1, Math.round(atk * spell.tick));
+    const element = e.element || enemy.element;
+    let hit = false;
+    if (spell.fx === "meteor") {
+        // 四顆依序落下：飛行 0.34s 後觸地，RO 式爆轟窗口 0.66s 內站在落點旁才扣血。
+        for (let k = 0; k < 4; k++) {
+            const local = u - k * .43;
+            if (local < .34 || local > 1) continue;
+            if (!(cues.burst & (1 << k))) {
+                cues.burst |= 1 << k;
+                SFX.tone(880, 190, .30, "sawtooth", .10);
                 SFX.skillImpact("fire");
-                spellImpactFx(tx, ty, spell.color, 150);
-                const body = !m.down && m.body ? m.body : null;
-                if (body && Math.hypot(body.x - tx, body.y - ty) <= body.r + spell.radius) {
-                    memberStrike(m, Math.max(1, Math.round(atk * spell.rock)), spellDamageLabel(e, spell, "直擊"), e.element || enemy.element);
-                } else FX.pop(tx, ty - 16, "MISS", "miss", 1);
-                battleLifecycle.schedule(250, () => {
-                    SFX.noise(.34, .42, 760, 90, 0, { mode: "band", q: .55 });   // 爆轟的低頻悶响
-                    SFX.tone(78, 34, .30, "sine", .50);
-                    spellImpactFx(tx, ty, "#ffd08a", 210);
-                    const late = !m.down && m.body ? m.body : null;
-                    if (late && Math.hypot(late.x - tx, late.y - ty) <= late.r + spell.radius * 1.35) {
-                        memberStrike(m, Math.max(1, Math.round(atk * spell.blast)), spellDamageLabel(e, spell, "爆轟"), e.element || enemy.element);
-                    }
-                }, valid);
-            }, valid);
-        }, valid);
-    });
-}
-
-// 暴風雪：全場覆蓋，第一段上凍傷（减速），後續兩段只扣薄血。
-function spellBlizzard(e, spell, atk, valid) {
-    if (PF.vfx) {
-        const veil = el("div", "spell-blizzard");
-        veil.setAttribute("aria-hidden", "true");
-        PF.vfx.appendChild(veil);
-        applySkillFxOpacity(veil);
-        setTimeout(() => veil.remove(), 1780);
-    }
-    SFX.noise(1.4, .3, 2600, 900);
-    spell.hits.forEach(([at, mult]) => battleLifecycle.schedule(spell.castMs + at, () => {
-        if (!at) SFX.skillImpact("water");
-        else SFX.noise(.42, .18, 2100, 620, 0, { mode: "band", q: .8 });   // 兩段餘波各補一陣風，否則聽起來只吹一次
-        for (const m of aliveMembers()) {
-            if (!m.body) continue;
-            if (!at) {
+                SFX.noise(.34, .42, 760, 90, 0, { mode: "band", q: .55 });
+            }
+            const [tx, ty] = fx.meteorPoints[k];
+            for (const m of members) {
+                if (Math.hypot(m.body.x - tx, m.body.y - ty) > spell.radius + m.body.r) continue;
+                memberStrike(m, dmg, spellDamageLabel(e, spell, "隕石爆轟"), element);
+                hit = true;
+            }
+        }
+    } else if (spell.fx === "snow") {
+        // 全場覆蓋：第一拍上凍傷（減速），其餘各拍扣薄血。
+        if (!cues.chilled) {
+            cues.chilled = true;
+            SFX.skillImpact("water");
+            SFX.noise(1.4, .3, 2600, 900);
+        } else if (n % 7 === 0) SFX.noise(.42, .18, 2100, 620, 0, { mode: "band", q: .8 });
+        for (const m of members) {
+            if (n === 0) {
                 m.body._chillUntil = performance.now() + spell.chillMs;
                 m.body.ball?.classList.add("player-chilled");
             }
-            FX.sprite(m.body.x, m.body.y - m.body.r * .6, "hit");
-            memberStrike(m, Math.max(1, Math.round(atk * mult)), spellDamageLabel(e, spell, at ? "餘波" : "暴風席捲"), e.element || enemy.element);
+            memberStrike(m, dmg, spellDamageLabel(e, spell, "暴風席捲"), element);
+            hit = true;
         }
-        FX.sparks(W / 2, H * .55, spell.color, 10);
-        FX.shake();
-    }, valid));
-}
-
-// 落雷：三道雷分頭劈向不同隊員，範圍小、帶眩暈，站得開就只中一道。
-function spellThunder(e, spell, atk, valid) {
-    const targets = aliveMembers().filter(m => m.body);
-    if (!targets.length) return;
-    for (let i = 0; i < spell.bolts; i++) {
-        const m = targets[i % targets.length];
-        const [tx, ty] = predictedPoint(m.body, ENEMY_ADVANCED_ATTACK.leadTime * .8);
-        const at = spell.castMs + i * spell.gapMs;
-        spellGroundFx("spell-mark", tx, ty, at + 60, { "--sz": `${spell.radius * 2}px`, "--spell-color": spell.color });
-        battleLifecycle.schedule(at, () => {
-            const bolt = spellAirFx("spell-bolt", tx, ty, 440,
-                { "--spell-color": spell.color, "--h": `${Math.max(140, ty).toFixed(1)}px` }, spellBoltSvg(ty));
-            bolt?.classList.add("on");
-            SFX.sample("skillThunder", .9, 1 + i * .06);
-            spellImpactFx(tx, ty, spell.color, 120);
-            for (const member of aliveMembers()) {
-                const body = member.body;
-                if (!body || Math.hypot(body.x - tx, body.y - ty) > spell.radius + body.r) continue;
-                PF.memberStunUntil.set(member.ch.id, performance.now() + spell.stunMs);
-                memberStrike(member, Math.max(1, Math.round(atk * spell.per)), spellDamageLabel(e, spell, `第 ${i + 1} 擊`), e.element || enemy.element);
+    } else if (spell.fx === "bolt") {
+        // 判定跟著可見雷柱：每組第 3 道、窗口 0.33s；範圍小，站得開就只中一柱。
+        for (let k = 0; k < fx.boltStrikes.length; k++) {
+            const strike = fx.boltStrikes[k];
+            const v = u - strike.start;
+            if (v < 0 || v > .33) continue;
+            if (cues.boltGroup < k) { cues.boltGroup = k; SFX.sample("skillThunder", .9, 1 + k * .06); }
+            for (const m of members) {
+                if (Math.hypot(m.body.x - strike.x, m.body.y - fx.toGame(0, 306)[1]) > spell.radius + m.body.r) continue;
+                if (!cues.stunned.has(m.ch.id)) {
+                    cues.stunned.add(m.ch.id);
+                    PF.memberStunUntil.set(m.ch.id, performance.now() + spell.stunMs);
+                }
+                memberStrike(m, dmg, spellDamageLabel(e, spell, `第 ${k + 1} 擊`), element);
+                hit = true;
             }
-        }, valid);
+        }
+    } else {
+        // 地震：全場確定命中，攻擊第一拍拋起＋推開（用拋起代替眩暈，不跟既有暈眩搶判定）。
+        if (n === 0) {
+            SFX.noise(.9, .5, 120, 34);
+            SFX.skillImpact("wind");
+            FX.quakeShake();
+            for (const m of members) {
+                const dx = m.body.x - e.x, dy = m.body.y - e.y, d = Math.hypot(dx, dy) || 1;
+                m.body.vx += dx / d * spell.push;
+                m.body.vy -= spell.lift + Math.random() * 80;
+            }
+        }
+        for (const m of members) {
+            memberStrike(m, dmg, spellDamageLabel(e, spell, "震盪衝擊"), element);
+            hit = true;
+        }
     }
-}
-function spellBoltSvg(topOfGround) {
-    const h = Math.max(140, Math.min(H - 10, topOfGround));
-    const w = 52, pts = [];
-    for (let i = 0; i <= 7; i++) {
-        const t = i / 7;
-        const off = i === 0 || i === 7 ? 0 : (Math.random() * 2 - 1) * 15;
-        pts.push(`${(w / 2 + off).toFixed(1)} ${(t * h).toFixed(1)}`);
-    }
-    const mid = pts[4].split(" ").map(Number);
-    const fork = (sx, sy, dx, dy) => `${sx} ${sy}L${sx + dx * .45} ${sy + dy * .4}L${sx + dx} ${sy + dy}`;
-    return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><path class="bl-glow" d="M${pts.join("L")}"/>`
-        + `<path class="bl-core" d="M${pts.join("L")}"/>`
-        + `<path class="bl-fork" d="M${fork(mid[0], mid[1], -20, 34)}"/><path class="bl-fork" d="M${fork(mid[0], mid[1], 22, 26)}"/></svg>`;
+    if (hit) FX.shake();
 }
 
-// 地震：地面沿每人腳下裂開，全場確定命中，用拋起代替眩暈，不跟既有暈眩搶判定。
-function spellQuake(e, spell, atk, valid) {
-    const targets = aliveMembers().filter(m => m.body);
-    // 裂縫要在「地面被砸開」那一拍才展開；擱在吟唱期間的話，等強震來時裂縫已經淡到看不見。
-    const tear = () => {
-        for (let i = 0; i <= targets.length; i++) {
-            const x = i === 0 ? e.x : targets[i - 1].body.x;
-            const y = i === 0 ? e.y : spellFieldY(targets[i - 1].body.y + 26);
-            const node = spellGroundFx("spell-crack", x, y, 720,
-                { "--sz": `${i === 0 ? spell.size : 250}px`, "--spell-color": spell.color }, spellCrackSvg(i));
-            node?.querySelectorAll("path").forEach((path, index) => {
-                const len = path.getTotalLength();
-                path.style.strokeDasharray = `${len}`;
-                path.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
-                    { duration: 320, delay: index * 40 + i * 70, easing: "ease-out", fill: "both" });
-            });
-        }
-    };
-    battleLifecycle.schedule(spell.castMs, () => {
-        tear();
-        SFX.noise(.9, .5, 120, 34);
-        SFX.skillImpact("wind");
-        FX.quakeShake();
-        for (const m of targets) {
-            if (!m.body) continue;
-            spellImpactFx(m.body.x, m.body.y + m.body.r * .5, spell.color, 130, false);
-            const dx = m.body.x - e.x, dy = m.body.y - e.y, d = Math.hypot(dx, dy) || 1;
-            m.body.vx += dx / d * spell.push;
-            m.body.vy -= spell.lift + Math.random() * 80;
-            memberStrike(m, Math.max(1, Math.round(atk * spell.per)), spellDamageLabel(e, spell, "地裂衝擊"), e.element || enemy.element);
-        }
-    }, valid);
-}
-function spellCrackSvg(seed) {
-    const paths = [];
-    for (let i = 0; i < 4; i++) {
-        const a = (seed * 1.31 + i) * Math.PI / 2 + Math.random() * .5;
-        const len = 46 + Math.random() * 46;
-        const pts = [[100, 100]];
-        for (let k = 1; k <= 3; k++) {
-            const t = k / 3;
-            const wobble = (Math.random() * 2 - 1) * 12;
-            pts.push([100 + Math.cos(a) * len * t + Math.cos(a + Math.PI / 2) * wobble,
-                100 + Math.sin(a) * len * t + Math.sin(a + Math.PI / 2) * wobble]);
-        }
-        const d = `M${pts.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join("L")}`;
-        paths.push(`<path class="ck-dark" d="${d}"/><path class="ck-edge" d="${d}"/>`);
-    }
-    return `<svg viewBox="0 0 200 200" aria-hidden="true">${paths.join("")}</svg>`;
-}
 // 球外裂開的弧段：六段、段間留缺口，半徑各別抖一下，讀起來是「外框裂掉」而不是一個正圓。
 function hurtShardSvg() {
     const paths = [];
@@ -7469,21 +7301,26 @@ function applyDamage(srcCh, dmg, opt) {
     // 每個實際造成傷害的暴擊各播一次；AudioBufferSource 可重疊播放，連續爆擊會形成連段感。
     if (dealt > 0 && opt.critical && !opt.suppressCriticalSfx) SFX.critical();
     // 暴擊加強命中瞬間，不改傷害判定；同一目標快速連續暴擊會合併視覺粒子，避免畫面過亂。
-    if (dealt > 0 && opt.critical && !SKILL_CINEMATIC.active && now >= (e._critBurstReadyAt || 0)) {
+    if (dealt > 0 && opt.critical && !opt.pfState && !SKILL_CINEMATIC.active && now >= (e._critBurstReadyAt || 0)) {
         e._critBurstReadyAt = now + 90;
         FX.bloom(e.x, e.y, "rgba(255,116,42,.92)", 88);
         FX.sparks(e.x, e.y, "#ffe08a", 6);
     }
-    // PF 每次發動只震屏一次；每個命中目標各有短促的藍白爆點。
     if (dealt > 0 && opt.pf && !SKILL_CINEMATIC.active) {
-        if (now >= (e._pfBurstReadyAt || 0)) {
+        if (opt.pfState) {
+            const state = opt.pfState;
+            window.PowerFlipVFX.impact(state.type, e.x, e.y, state.lv, { state, critical: opt.critical });
+            const finisher = state.type === 'fighter' && state.hits === 2 + state.lv;
+            if (!state.impactPulseUsed || finisher) {
+                state.impactPulseUsed = true;
+                FX.shake();
+            }
+            if (state.type !== 'knight') triggerHitStop(finisher ? 32 : state.type === 'special' ? 35 : 18);
+        } else if (now >= (e._pfBurstReadyAt || 0)) {
+            // 被動衝擊沿用 pf 傷害分類，但沒有真正的 PF 發動狀態。
             e._pfBurstReadyAt = now + 100;
             FX.bloom(e.x, e.y, "rgba(93,220,255,.9)", 102);
             FX.sparks(e.x, e.y, "#d8fbff", 7);
-        }
-        if (opt.pfState && !opt.pfState.impactPulseUsed) {
-            opt.pfState.impactPulseUsed = true;
-            FX.shake();
         }
     }
     const gateBossRatio = e === PF.foe && enemy.boss ? e.hp / Math.max(1, e.maxHp) : 1;
@@ -8759,6 +8596,8 @@ function pfLoop(ts) {
     }
     PF.hitStopUntil = 0;
     battleLifecycle.advance(dt * 1000 * battleSpeedMultiplier());
+    // 四法術的 4.8 秒時間軸跟排程器吃同一份 dt：暫停／技能插播／加速都同步。
+    if (battleLifecycle.phase() === "play") BossSpellFx.tick(dt * 1000 * battleSpeedMultiplier());
     animTick(ts);            // 圖框型 BOSS 的逐格撥放搭這一次 rAF，不必另開計時器
     if (PF.running && PF.ready) {
         tickBattleBoosts(dt * 1000);

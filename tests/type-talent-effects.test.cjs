@@ -52,12 +52,13 @@ function setup(type, ranks = {}, combo = 39) {
     const member = { ch, body, down: false };
     const foe = { x: 210, y: 200, r: 30 };
     const hits = [];
-    const sprites = [];
+    const sprites = [], wallImpacts = [];
     const ctx = { combo, comboAt: 1, teamIds: ['leader'], roster: { leader: ch },
         CHAR_TABLE: { leader: { type, element: 'fire' } }, ELEMENTS: { fire: { color: '#f00' } },
         PF: { running: true, paused: false, ready: true, members: [member], foe, extraFoes: [], foeSeq: 1 },
         enemy: { hp: 1000000000 }, CRIT_DMG: 1.5, rollCrit: () => false, atkOf: () => 100, talentRank: () => 0,
         COLLISION_TRIAL: { enabled: true },
+        PowerFlipVFX: { impact: (type, x, y, level, options) => wallImpacts.push({ type, x, y, level, options: { ...options } }) },
         checkKill: noop, updateUI: noop, saveGame: noop, hpMax: () => 1000,
         $: () => null, aliveMembers: () => [member], addCd: (m, n) => { m.ch.gauge += n; },
         bumpCombo: n => { ctx.combo += n; }, hitWeak: w => { w.hit = true; },
@@ -74,7 +75,7 @@ function setup(type, ranks = {}, combo = 39) {
     vm.runInContext(teSource, ctx);
     ctx.typeEffects = ctx.TypeEffects.create({ isActive: () => true, getTalent: id => ranks[id] || 0, isFever: () => false });
     vm.runInContext(fs.readFileSync(path.join(root, 'asset/enemy-wave.js'), 'utf8') + pfSource, ctx);
-    return { ctx, member, body, hits, ch, sprites };
+    return { ctx, member, body, hits, ch, sprites, wallImpacts };
 }
 
 // 劍士：浮游時間、單次回復上限、PF 傷害加成實際進入 launch／lifeSteal／powerFlipDamage。
@@ -129,16 +130,28 @@ function setup(type, ranks = {}, combo = 39) {
     assert.equal(ray({}), 0); assert.equal(ray({ special_weak_width: 3 }), 1);
 }
 // PF 撞牆回饋：只有 PF 進行中的球補接觸點特效，一般球與過期 PF 不補。
-{
-    const s = setup('knight');
-    s.ctx.powerFlipWallContact(s.body, 12, 500);
-    assert.equal(s.sprites.length, 0, 'no PF charge: wall contact stays silent');
-    s.ctx.launchPowerFlip(s.body);
-    s.ctx.powerFlipWallContact(s.body, 12, 500);
-    assert.deepEqual(s.sprites, [{ x: 12, y: 500, kind: 'hit' }]);
-    s.ctx.PF.foeSeq++;
-    s.ctx.powerFlipWallContact(s.body, 12, 500);
-    assert.equal(s.sprites.length, 1, 'stale-wave PF charge stays silent');
+for (const type of ['knight', 'fighter', 'ranger', 'special', 'supporter']) {
+    for (const [combo, level] of [[9, 1], [15, 2], [39, 3]]) {
+        const s = setup(type, {}, combo);
+        s.ctx.powerFlipWallContact(s.body, 12, 500);
+        assert.equal(s.wallImpacts.length, 0, 'no PF charge: dedicated wall impact stays silent');
+        assert.equal(s.sprites.length, 0, 'no PF charge: generic sprites stay silent');
+        s.ctx.launchPowerFlip(s.body);
+        const state = s.body.powerFlip;
+        s.ctx.powerFlipWallContact(s.body, 12, 500);
+        assert.deepEqual(s.wallImpacts, [{ type, x: 12, y: 500, level, options: { wall: true } }]);
+        s.body.x = 418; s.body.y = 321;
+        s.ctx.powerFlipWallContact(s.body);
+        assert.deepEqual(s.wallImpacts[1], { type, x: 418, y: 321, level, options: { wall: true } }, 'default contact follows the real body');
+        assert.equal(s.body.powerFlip, state, 'wall feedback does not consume the PF state');
+        assert.equal(state.hits, 0, 'wall feedback does not fabricate a combat hit');
+        assert.equal(s.hits.length, 0, 'wall feedback deals no damage');
+        assert.equal(s.ctx.combo, 0, 'wall feedback grants no combo');
+        s.ctx.PF.foeSeq++;
+        s.ctx.powerFlipWallContact(s.body, 12, 500);
+        assert.equal(s.wallImpacts.length, 2, 'stale-wave PF charge stays silent');
+        assert.equal(s.sprites.length, 0, 'PF walls never fall back to generic FX.sprite');
+    }
 }
 // PF 發射速度保底：實驗開啟不疊加修正；關閉時只補到 PF 門檻以上。
 {
@@ -165,4 +178,4 @@ assert.ok(html.includes('asset/fx/power-flip-vfx.js') && fs.existsSync(path.join
 assert.match(pfSource, /function powerFlipWallContact\(b, x = b\.x, y = b\.y\)/, 'step() wall-contact callee exists');
 for (const file of ['asset/fx/power-flip.js', 'asset/type-effects.js']) new Function(fs.readFileSync(path.join(root, file), 'utf8'));
 for (const block of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new Function(block[1]);
-console.log('PASS: 11 ghost talents wired — rank 0/3/5 value matrix, inactive zeroing, PF float/heal cap/damage, shock cooldown/combo, burst radius, weak circle/ray, index.html hook anchors and syntax.');
+console.log('PASS: 11 ghost talents wired — rank 0/3/5 value matrix, inactive zeroing, PF float/heal cap/damage, shock cooldown/combo, burst radius, weak circle/ray, dedicated PF wall impacts (no generic sprites), index.html hook anchors and syntax.');
